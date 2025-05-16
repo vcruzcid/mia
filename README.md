@@ -1,93 +1,198 @@
-# MIA
+# MIA Website Production Setup Guide
 
+This document explains how to set up and deploy the MIA landing page in a production environment.
 
+## File Structure
 
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+The landing page follows this structure:
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/navicus/mia.git
-git branch -M main
-git push -uf origin main
+mia-website/
+├── index.html              # Main HTML file
+├── css/
+│   └── styles.css          # Custom CSS styles
+├── js/
+│   └── main.js             # Custom JavaScript
+├── assets/
+│   ├── images/
+│   │   ├── logo.png        # MIA logo (replace with actual logo)
+│   │   ├── hero-bg.jpg     # Hero section background
+│   │   └── favicon.ico     # Website favicon
+│   └── fonts/              # Custom fonts (if needed)
+└── README.md               # This file
 ```
 
-## Integrate with your tools
+## Getting Started
 
-- [ ] [Set up project integrations](https://gitlab.com/navicus/mia/-/settings/integrations)
+1. Clone or download this repository
+2. Replace placeholder images with actual MIA assets
+3. Update the Stripe payment links in the index.html file
+4. Test locally before deploying to your server
 
-## Collaborate with your team
+## Requirements
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+- Web server with HTTPS support
+- Domain with SSL certificate (for secure form submissions and Stripe integration)
 
-## Test and Deploy
+## Configuration Steps
 
-Use the built-in continuous integration in GitLab.
+### 1. Update Stripe Links
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+In `index.html`, locate the Stripe payment links and replace them with your actual Stripe payment links:
 
-***
+```html
 
-# Editing this README
+  Renovar ahora
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+```
 
-## Suggestions for a good README
+### 2. Add Your Logo & Images
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+1. Replace the placeholder images in the `/assets/images/` directory:
+   - `logo.png` - The MIA logo
+   - `hero-bg.jpg` - Background image for the hero section
+   - `favicon.ico` - Website favicon
 
-## Name
-Choose a self-explaining name for your project.
+2. Update image references in the HTML if the filenames differ
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+### 3. Form Setup
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+The contact form needs to be connected to a backend service to process form submissions. Options include:
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+- Server-side script (PHP, Node.js, etc.)
+- Third-party form services (Formspree, Netlify Forms, etc.)
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+Example server-side endpoint setup can be found in the comments of `main.js`.
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+### 4. Analytics Integration
+
+Add your analytics tracking code before the closing `</body>` tag in `index.html`:
+
+```html
+
+
+
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'YOUR_GA_ID');
+
+```
+
+## Browser Support
+
+This landing page has been tested and supports:
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Edge (latest)
+- Mobile browsers (iOS Safari, Android Chrome)
+
+## Deployment Checklist
+
+Before pushing to production, verify these items:
+
+- [ ] Stripe payment links are updated with your actual links
+- [ ] Contact form is connected to a form processing service
+- [ ] All placeholder images are replaced with actual MIA assets
+- [ ] SEO meta tags are properly configured
+- [ ] Analytics tracking is implemented
+- [ ] Site loads correctly on mobile devices
+- [ ] Cross-browser compatibility verified
+- [ ] SSL certificate is properly installed (HTTPS working)
+
+## SEO Optimization
+
+The landing page includes basic SEO elements. For optimal SEO:
+
+1. Update the meta tags in `index.html`:
+   - Title
+   - Description
+   - Keywords
+
+2. Add structured data for better search results:
+   - Organization schema
+   - Event schema (if applicable)
+
+## Cloudflare Turnstile Integration
+
+The landing page uses Cloudflare Turnstile for human verification to:
+1. Protect the contact form from spam
+2. Verify humans before redirecting to Stripe payment
+
+### Setup Steps:
+
+1. Create a Cloudflare Turnstile site key:
+   - Go to https://dash.cloudflare.com/
+   - Navigate to "Turnstile" section
+   - Create a new site key
+   - Choose "Invisible" or "Managed" widget type (recommended: Managed)
+   - Set the domain to your website domain
+
+2. Update the site key in the HTML:
+   - Replace `YOUR_CLOUDFLARE_SITE_KEY` with your actual site key in all Turnstile widgets
+
+3. Server-side validation (required for production):
+   - When processing form submissions or before redirecting to Stripe, verify the Turnstile token server-side
+   - Use the secret key from Cloudflare to verify tokens
+   - Sample server verification code is provided in the comments of `main.js`
+
+### Server-side verification example (PHP):
+
+```php
+<?php
+// Get the token from the POST request
+$token = $_POST['cf-turnstile-response'];
+$secret_key = 'YOUR_CLOUDFLARE_SECRET_KEY';
+
+// Verify with Cloudflare
+$data = array(
+  'secret' => $secret_key,
+  'response' => $token
+);
+
+$verify = curl_init();
+curl_setopt($verify, CURLOPT_URL, "https://challenges.cloudflare.com/turnstile/v0/siteverify");
+curl_setopt($verify, CURLOPT_POST, true);
+curl_setopt($verify, CURLOPT_POSTFIELDS, http_build_query($data));
+curl_setopt($verify, CURLOPT_RETURNTRANSFER, true);
+$response = curl_exec($verify);
+curl_close($verify);
+
+$result = json_decode($response, true);
+
+if ($result['success'] == true) {
+  // Token is valid - process the form or redirect to Stripe
+  // ...
+} else {
+  // Token is invalid - handle error
+  // ...
+}
+?>
+```
+
+## Performance Optimization
+
+For optimal performance:
+
+1. Compress all images (use tools like TinyPNG)
+2. Minify CSS and JavaScript files for production
+3. Enable GZIP compression on your server
+4. Set up browser caching (via .htaccess or server configuration)
+
+## Maintenance
+
+Regular maintenance tasks:
+
+1. Update the countdown timer date when you have a specific launch date
+2. Keep Stripe payment links current
+3. Update content as needed
 
 ## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+For technical support or questions about this implementation, contact:
+- Email: victor@navic.us
 
 ## License
-For open source projects, say how it is licensed.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+For internal use by MIA only. All rights reserved.

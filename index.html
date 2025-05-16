@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="MIA - Mujeres en la Industria de la Animación. Nuestra plataforma está en renovación para brindarte una mejor experiencia.">
+  <meta name="keywords" content="MIA, animación, mujeres, industria, animacionesmia">
+  <title>MIA - Mujeres en la Industria de la Animación | Próximamente</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" href="assets/images/favicon.ico" type="image/x-icon">
+  
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- AOS CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  
+  <!-- Cloudflare Turnstile -->
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- Cookie Consent -->
+  <div id="cookieConsent" class="cookie-consent">
+    <div class="container">
+      <div class="cookie-content">
+        <p>Utilizamos cookies para mejorar tu experiencia. Al continuar navegando, aceptas nuestra <a href="#">política de cookies</a>.</p>
+        <button id="acceptCookies" class="btn btn-red">Aceptar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+      <a class="navbar-brand" href="#">
+        <img src="assets/images/logo.png" alt="MIA Logo" class="logo">
+        <span>MIA</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="#contacto">Contacto</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#renovacion">Renovaciones</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#sobre-nosotros">Sobre MIA</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero" id="hero">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-lg-6 mb-5 mb-lg-0" data-aos="fade-right" data-aos-duration="1000">
+          <h1>Estamos construyendo algo especial</h1>
+          <p class="hero-text">Nuestra plataforma para <span class="text-white">Mujeres en la Industria de la Animación</span> está en renovación para brindarte una <span class="accent-text">mejor experiencia</span>.</p>
+          <div class="hero-buttons">
+            <a href="#contacto" class="btn btn-red btn-lg me-3">Contactar</a>
+            <a href="#renovacion" class="btn btn-outline-light btn-lg">Renovar membresía</a>
+          </div>
+        </div>
+        <div class="col-lg-6" data-aos="fade-left" data-aos-duration="1000" data-aos-delay="200">
+          <div class="contact-card">
+            <h2>¡Permanece conectada!</h2>
+            <p>Déjanos tus datos y te informaremos cuando la nueva plataforma esté lista.</p>
+            <form id="contact-form" class="needs-validation" novalidate>
+              <div class="mb-3">
+                <label for="name" class="form-label">Nombre</label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="Tu nombre" required>
+                <div class="invalid-feedback">
+                  Por favor, ingresa tu nombre.
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="tu@email.com" required>
+                <div class="invalid-feedback">
+                  Por favor, ingresa un email válido.
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="message" class="form-label">Mensaje (opcional)</label>
+                <textarea class="form-control" id="message" name="message" rows="3" placeholder="¿Cómo podemos ayudarte?"></textarea>
+              </div>
+              <div class="mb-3">
+                <!-- Cloudflare Turnstile widget -->
+                <div class="cf-turnstile" data-sitekey="YOUR_CLOUDFLARE_SITE_KEY" data-theme="dark"></div>
+              </div>
+              <button type="submit" class="btn btn-red w-100">Enviar mensaje</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Membership Section -->
+  <section class="membership py-5" id="renovacion">
+    <div class="container">
+      <div class="section-header text-center mb-5" data-aos="fade-up">
+        <h2>Renovar tu membresía</h2>
+        <p>Mientras actualizamos nuestra plataforma, puedes renovar tu membresía a través de Stripe.</p>
+      </div>
+      
+      <div class="row">
+        <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="100">
+          <div class="membership-card">
+            <div class="text-center">
+              <div class="membership-icon">
+                <i class="fas fa-user"></i>
+              </div>
+              <h3>Miembro Full</h3>
+              <p>Acceso completo a todos los beneficios como profesional de la animación.</p>
+              <div class="membership-price">$50 USD</div>
+              <div class="mb-3">
+                <!-- Cloudflare Turnstile for Stripe verification -->
+                <div class="cf-turnstile" data-sitekey="YOUR_CLOUDFLARE_SITE_KEY" data-theme="dark" data-callback="enableStripeButton1"></div>
+              </div>
+              <a href="#" id="stripe-button-1" class="btn btn-red disabled stripe-button" data-stripe-url="https://buy.stripe.com/test_YOUR_STRIPE_LINK">
+                Renovar ahora
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="200">
+          <div class="membership-card">
+            <div class="text-center">
+              <div class="membership-icon">
+                <i class="fas fa-graduation-cap"></i>
+              </div>
+              <h3>Miembro Estudiante</h3>
+              <p>Para estudiantes en formación en el ámbito de la animación.</p>
+              <div class="membership-price">$25 USD</div>
+              <div class="mb-3">
+                <!-- Cloudflare Turnstile for Stripe verification -->
+                <div class="cf-turnstile" data-sitekey="YOUR_CLOUDFLARE_SITE_KEY" data-theme="dark" data-callback="enableStripeButton2"></div>
+              </div>
+              <a href="#" id="stripe-button-2" class="btn btn-red disabled stripe-button" data-stripe-url="https://buy.stripe.com/test_YOUR_STRIPE_LINK_STUDENT">
+                Renovar ahora
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="300">
+          <div class="membership-card">
+            <div class="text-center">
+              <div class="membership-icon">
+                <i class="fas fa-hands-helping"></i>
+              </div>
+              <h3>Colaborador</h3>
+              <p>Para personas que desean apoyar a la comunidad MIA.</p>
+              <div class="membership-price">$75 USD</div>
+              <div class="mb-3">
+                <!-- Cloudflare Turnstile for Stripe verification -->
+                <div class="cf-turnstile" data-sitekey="YOUR_CLOUDFLARE_SITE_KEY" data-theme="dark" data-callback="enableStripeButton3"></div>
+              </div>
+              <a href="#" id="stripe-button-3" class="btn btn-red disabled stripe-button" data-stripe-url="https://buy.stripe.com/test_YOUR_STRIPE_LINK_COLABORADOR">
+                Renovar ahora
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Timeline Section -->
+  <section class="timeline py-5" id="sobre-nosotros">
+    <div class="container">
+      <div class="section-header text-center mb-5" data-aos="fade-up">
+        <h2>Estamos mejorando para ti</h2>
+        <p>Nuestra actualización tecnológica nos permitirá servirte mejor. Estos son los cambios que estamos implementando:</p>
+      </div>
+      
+      <div class="timeline-container">
+        <div class="timeline-item" data-aos="fade-right">
+          <div class="timeline-number">1</div>
+          <div class="timeline-content">
+            <h3>Nueva plataforma web</h3>
+            <p>Migración a una plataforma moderna y fácil de usar, con perfiles mejorados para todos los miembros.</p>
+          </div>
+        </div>
+        
+        <div class="timeline-item" data-aos="fade-left">
+          <div class="timeline-number">2</div>
+          <div class="timeline-content">
+            <h3>Mejora en sistemas de pago</h3>
+            <p>Integración con Stripe para pagos seguros y renovaciones automáticas de membresías.</p>
+          </div>
+        </div>
+        
+        <div class="timeline-item" data-aos="fade-right">
+          <div class="timeline-number">3</div>
+          <div class="timeline-content">
+            <h3>Correos corporativos mejorados</h3>
+            <p>Implementación de Zoho Mail para una comunicación más eficiente entre los miembros y la directiva.</p>
+          </div>
+        </div>
+        
+        <div class="timeline-item" data-aos="fade-left">
+          <div class="timeline-number">4</div>
+          <div class="timeline-content">
+            <h3>Mayor seguridad</h3>
+            <p>Implementación de Cloudflare para proteger tu información y optimizar la velocidad del sitio.</p>
+          </div>
+        </div>
+        
+        <div class="timeline-item" data-aos="fade-up">
+          <div class="timeline-number pulse-animation">
+            <i class="fas fa-hourglass-half"></i>
+          </div>
+          <div class="timeline-content">
+            <h3>¡Disponible pronto!</h3>
+            <p>Esperamos lanzar nuestra nueva plataforma a principios de mayo de 2025.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section class="contact py-5" id="contacto">
+    <div class="container">
+      <div class="section-header text-center mb-5" data-aos="fade-up">
+        <h2>Contáctanos</h2>
+        <p>Durante este período de transición, puedes contactarnos directamente a través de estos medios:</p>
+      </div>
+      
+      <div class="row">
+        <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="100">
+          <div class="contact-card">
+            <div class="contact-icon">
+              <i class="fas fa-envelope"></i>
+            </div>
+            <h3>Email</h3>
+            <p>info@animacionesmia.com</p>
+          </div>
+        </div>
+        
+        <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="200">
+          <div class="contact-card">
+            <div class="contact-icon">
+              <i class="fab fa-instagram"></i>
+            </div>
+            <h3>Instagram</h3>
+            <p>@mia_animacion</p>
+          </div>
+        </div>
+        
+        <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="300">
+          <div class="contact-card">
+            <div class="contact-icon">
+              <i class="fab fa-linkedin"></i>
+            </div>
+            <h3>LinkedIn</h3>
+            <p>MIA - Mujeres en Animación</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6 mb-4 mb-md-0">
+          <div class="footer-brand">MIA</div>
+          <p>Mujeres en la Industria de la Animación</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <div class="social-links">
+            <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+            <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="social-link"><i class="fab fa-facebook"></i></a>
+          </div>
+        </div>
+      </div>
+      <hr>
+      <div class="row">
+        <div class="col-md-6 mb-3 mb-md-0">
+          <p class="copyright">© 2025 MIA. Todos los derechos reservados.</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <p class="credits">Sitio en renovación por <a href="#">NAVIC LLC</a></p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Back to Top Button -->
+  <a href="#" class="back-to-top" id="backToTop">
+    <i class="fas fa-arrow-up"></i>
+  </a>
+
+  <!-- Bootstrap Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- AOS Animations -->
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  
+  <!-- Custom JavaScript -->
+  <script src="js/main.js"></script>
+</body>
+</html>
