@@ -327,26 +327,48 @@
   
   /* ===== CONTACT SECTION ===== */
   .contact {
-    background-color: var(--background-color);
+    background-color: var(--secondary-bg);
   }
   
   .contact-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
     width: 70px;
     height: 70px;
     border-radius: 50%;
+    background-color: rgba(255, 51, 51, 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 1.5rem;
+    font-size: 1.8rem;
+    color: var(--primary-color);
+    transition: all var(--transition-speed) ease;
+  }
+  
+  .contact-card:hover .contact-icon {
     background-color: var(--primary-color);
     color: white;
-    font-size: 1.5rem;
-    margin-bottom: 1.5rem;
+    transform: scale(1.1);
+  }
+  
+  .contact-link {
+    color: var(--text-secondary);
+    transition: color var(--transition-speed) ease;
+  }
+  
+  .contact-link:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+  }
+  
+  .approval-note {
+    color: var(--primary-color);
+    margin-top: -10px;
+    margin-bottom: 10px;
   }
   
   /* ===== FOOTER ===== */
   .footer {
-    background-color: #0a0a0a;
-    color: var(--text-secondary);
+    background-color: var(--card-bg);
     padding: 3rem 0 2rem;
     margin-top: auto;
   }
@@ -354,8 +376,14 @@
   .footer-brand {
     font-size: 2rem;
     font-weight: 700;
-    color: white;
     margin-bottom: 0.5rem;
+    color: white;
+  }
+  
+  .footer-logo {
+    height: 150px;
+    width: auto;
+    margin-bottom: 10px;
   }
   
   .social-links {
