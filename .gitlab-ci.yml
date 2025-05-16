@@ -14,4 +14,4 @@ create-pages:
     - rm -rf public
   script:
     - mkdir public
-    - cp -r index.html css js images public/
+    - cp -r index.html css js assets public/
