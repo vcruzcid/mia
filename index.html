@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no, viewport-fit=cover">
   <meta name="description" content="MIA - Mujeres en la Industria de la Animación. Nuestra plataforma está en renovación para brindarte una mejor experiencia.">
   <meta name="keywords" content="MIA, animación, mujeres, industria, animacionesmia">
   <title>MIA - Mujeres en la Industria de la Animación | Próximamente</title>
@@ -105,9 +105,8 @@
                 <label for="message" class="form-label">Mensaje (opcional)</label>
                 <textarea class="form-control" id="message" name="message" rows="3" placeholder="¿Cómo podemos ayudarte?"></textarea>
               </div>
-              <div class="mb-3">
-                <!-- Cloudflare Turnstile widget -->
-                <div class="cf-turnstile" data-sitekey="0x4AAAAAABddjw-SDSpgjBDI" data-theme="dark"></div>
+              <div id="contact-turnstile-container" class="mb-3" style="display: none;">
+                <!-- Turnstile widget will be rendered here on form submission attempt -->
               </div>
               <button type="submit" class="btn btn-red w-100">Enviar mensaje</button>
             </form>
@@ -150,11 +149,10 @@
               <h3>Socia Pleno Derecho</h3>
               <p>Acceso completo a todos los beneficios como profesional de la animación.</p>
               <div class="membership-price">€60 /año</div>
-              <div class="mb-3">
-                <!-- Cloudflare Turnstile for Stripe verification -->
-                <div class="cf-turnstile" data-sitekey="0x4AAAAAABddjw-SDSpgjBDI" data-theme="dark" data-callback="enableStripeButton1"></div>
+              <div id="turnstile-container-1" class="mb-3" style="display: none;">
+                <!-- Turnstile widget will be rendered here when button is clicked -->
               </div>
-              <a href="#" id="stripe-button-1" class="btn btn-red disabled stripe-button" data-stripe-url="https://buy.stripe.com/9B69ASapSeBh13e81x7g401">
+              <a href="#" id="stripe-button-1" class="btn btn-red stripe-button" data-stripe-url="https://buy.stripe.com/9B69ASapSeBh13e81x7g401">
                 Renovar ahora
               </a>
             </div>
@@ -170,11 +168,10 @@
               <h3>Socia Estudiante</h3>
               <p>Para estudiantes en formación en el ámbito de la animación.</p>
               <div class="membership-price">€30 /año</div>
-              <div class="mb-3">
-                <!-- Cloudflare Turnstile for Stripe verification -->
-                <div class="cf-turnstile" data-sitekey="0x4AAAAAABddjw-SDSpgjBDI" data-theme="dark" data-callback="enableStripeButton2"></div>
+              <div id="turnstile-container-2" class="mb-3" style="display: none;">
+                <!-- Turnstile widget will be rendered here when button is clicked -->
               </div>
-              <a href="#" id="stripe-button-2" class="btn btn-red disabled stripe-button" data-stripe-url="https://buy.stripe.com/00w28qcy0gJp27i3Lh7g402">
+              <a href="#" id="stripe-button-2" class="btn btn-red stripe-button" data-stripe-url="https://buy.stripe.com/00w28qcy0gJp27i3Lh7g402">
                 Renovar ahora
               </a>
             </div>
@@ -190,11 +187,10 @@
               <h3>Colaborador/a</h3>
               <p>Para chicos que desean apoyar a la comunidad MIA.</p>
               <div class="membership-price">€60 /año</div>
-              <div class="mb-3">
-                <!-- Cloudflare Turnstile for Stripe verification -->
-                <div class="cf-turnstile" data-sitekey="0x4AAAAAABddjw-SDSpgjBDI" data-theme="dark" data-callback="enableStripeButton3"></div>
+              <div id="turnstile-container-3" class="mb-3" style="display: none;">
+                <!-- Turnstile widget will be rendered here when button is clicked -->
               </div>
-              <a href="#" id="stripe-button-3" class="btn btn-red disabled stripe-button" data-stripe-url="https://buy.stripe.com/7sYcN4gOg2Sz5ju2Hd7g400">
+              <a href="#" id="stripe-button-3" class="btn btn-red stripe-button" data-stripe-url="https://buy.stripe.com/7sYcN4gOg2Sz5ju2Hd7g400">
                 Renovar ahora
               </a>
             </div>

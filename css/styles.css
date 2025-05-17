@@ -16,14 +16,32 @@
   }
   
   /* ===== BASE STYLES ===== */
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden;
+    position: relative;
+    -webkit-text-size-adjust: 100%;
+  }
+  
   body {
     font-family: 'Poppins', sans-serif;
     background-color: var(--background-color);
     color: var(--text-color);
-    overflow-x: hidden;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+  }
+  
+  /* Fix for iOS alignment issues */
+  .container {
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+    position: relative;
   }
   
   h1, h2, h3, h4, h5, h6 {
@@ -43,6 +61,22 @@
   
   section {
     padding: 5rem 0;
+    width: 100%;
+    position: relative;
+  }
+  
+  /* iOS Safari specifics */
+  @supports (-webkit-touch-callout: none) {
+    body, section, .container, .row {
+      width: 100%;
+      max-width: 100vw;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .container {
+      box-sizing: border-box;
+    }
   }
   
   .section-header {

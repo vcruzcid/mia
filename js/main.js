@@ -22,85 +22,104 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!form.checkValidity()) {
           event.preventDefault();
           event.stopPropagation();
+          form.classList.add('was-validated');
         } else {
           event.preventDefault();
           
-          // Verify Cloudflare Turnstile token
-          const token = form.querySelector('.cf-turnstile').getAttribute('data-cf-response');
-          
-          if (!token) {
-            // Show error if Turnstile not completed
-            const errorAlert = document.createElement('div');
-            errorAlert.className = 'alert alert-danger mt-3 fade-in';
-            errorAlert.innerHTML = 'Por favor, completa la verificación de seguridad.';
-            form.appendChild(errorAlert);
+          // Show Turnstile widget if not already shown
+          const turnstileContainer = document.getElementById('contact-turnstile-container');
+          if (turnstileContainer && !turnstileContainer.querySelector('.cf-turnstile iframe')) {
+            // Show the container
+            turnstileContainer.style.display = 'block';
             
-            setTimeout(() => {
-              errorAlert.remove();
-            }, 3000);
+            // Render Turnstile widget
+            turnstile.render(turnstileContainer, {
+              sitekey: '0x4AAAAAABddjw-SDSpgjBDI',
+              theme: 'dark',
+              callback: function(token) {
+                // Process form submission after Turnstile verification
+                processFormSubmission(form, token);
+              }
+            });
             
-            return;
+            // Add message above the widget
+            const message = document.createElement('p');
+            message.className = 'text-center mb-2';
+            message.innerHTML = 'Por favor, complete la verificación de seguridad para continuar:';
+            turnstileContainer.insertBefore(message, turnstileContainer.firstChild);
+            
+            return; // Stop here until Turnstile is completed
           }
           
-          // Get form data
-          const formData = new FormData(form);
-          formData.append('cf-turnstile-response', token);
+          // If we already have a token, process the form
+          const token = form.querySelector('.cf-turnstile') ? 
+                        form.querySelector('.cf-turnstile').getAttribute('data-cf-response') : null;
           
-          // Here you would typically send the data to your server with the token
-          // For this demo, we'll just show a success message
-          showFormSuccess(form);
-          
-          // Log form submission (remove in production)
-          console.log('Form submitted with Turnstile token');
+          if (token) {
+            processFormSubmission(form, token);
+          }
         }
         
         form.classList.add('was-validated');
       }, false);
     });
     
-    // Cloudflare Turnstile callbacks for Stripe buttons
-    window.enableStripeButton1 = function(token) {
-      enableStripeButton('stripe-button-1', token);
-    };
-    
-    window.enableStripeButton2 = function(token) {
-      enableStripeButton('stripe-button-2', token);
-    };
-    
-    window.enableStripeButton3 = function(token) {
-      enableStripeButton('stripe-button-3', token);
-    };
-    
-    // Enable Stripe button after Turnstile verification
-    function enableStripeButton(buttonId, token) {
-      const button = document.getElementById(buttonId);
-      if (button && token) {
-        button.classList.remove('disabled');
-        
-        // Store the token for verification on click
-        button.setAttribute('data-turnstile-token', token);
-        
-        // Add click handler
-        button.addEventListener('click', function(e) {
-          e.preventDefault();
-          
-          const stripeUrl = this.getAttribute('data-stripe-url');
-          
-          if (stripeUrl) {
-            // In a real implementation, you'd verify the token server-side first
-            // For this demo we'll redirect directly
-            window.location.href = stripeUrl;
-          }
-        });
-      }
+    // Process form submission after Turnstile verification
+    function processFormSubmission(form, token) {
+      // Get form data
+      const formData = new FormData(form);
+      formData.append('cf-turnstile-response', token);
+      
+      // Here you would typically send the data to your server with the token
+      // For this demo, we'll just show a success message
+      showFormSuccess(form);
+      
+      // Log form submission (remove in production)
+      console.log('Form submitted with Turnstile token');
     }
     
     // Setup Stripe buttons
     document.querySelectorAll('.stripe-button').forEach(button => {
       button.addEventListener('click', function(e) {
-        if (this.classList.contains('disabled')) {
-          e.preventDefault();
-          alert('Por favor, completa la verificación de seguridad primero.');
+        e.preventDefault();
+        
+        // Get the button ID number
+        const buttonNum = this.id.split('-').pop();
+        const turnstileContainerId = `turnstile-container-${buttonNum}`;
+        const container = document.getElementById(turnstileContainerId);
+        
+        // If Turnstile not rendered yet, render it
+        if (container && !container.querySelector('.cf-turnstile iframe')) {
+          // Show container
+          container.style.display = 'block';
+          
+          // Add message
+          const message = document.createElement('p');
+          message.className = 'text-center mb-2';
+          message.innerHTML = 'Por favor, complete la verificación de seguridad para continuar:';
+          container.insertBefore(message, container.firstChild);
+          
+          // Render Turnstile
+          turnstile.render(container, {
+            sitekey: '0x4AAAAAABddjw-SDSpgjBDI',
+            theme: 'dark',
+            callback: function(token) {
+              // After verification, redirect to Stripe
+              const stripeUrl = button.getAttribute('data-stripe-url');
+              if (stripeUrl) {
+                window.location.href = stripeUrl;
+              }
+            }
+          });
+        } else if (container.querySelector('.cf-turnstile iframe')) {
+          // If already rendered, just check if verified
+          const token = container.querySelector('.cf-turnstile').getAttribute('data-cf-response');
+          if (token) {
+            const stripeUrl = button.getAttribute('data-stripe-url');
+            if (stripeUrl) {
+              window.location.href = stripeUrl;
+            }
+          }
         }
       });
     });
@@ -117,6 +136,12 @@ document.addEventListener('DOMContentLoaded', function() {
       form.style.opacity = '0.5';
       form.style.pointerEvents = 'none';
       
+      // Hide the Turnstile container
+      const turnstileContainer = document.getElementById('contact-turnstile-container');
+      if (turnstileContainer) {
+        turnstileContainer.style.display = 'none';
+      }
+      
       // Add success message
       form.parentNode.appendChild(successAlert);
       
@@ -127,12 +152,6 @@ document.addEventListener('DOMContentLoaded', function() {
         form.style.pointerEvents = 'auto';
         form.classList.remove('was-validated');
         successAlert.remove();
-        
-        // Reset Turnstile
-        const turnstileWidget = form.querySelector('.cf-turnstile');
-        if (turnstileWidget) {
-          turnstile.reset(turnstileWidget);
-        }
       }, 3000);
     }
     
@@ -186,9 +205,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Smooth scrolling for all anchor links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
       anchor.addEventListener('click', function(e) {
-        e.preventDefault();
-        
         if (this.getAttribute('href') === '#') return;
+        
+        e.preventDefault();
         
         const targetId = this.getAttribute('href');
         const targetElement = document.querySelector(targetId);
