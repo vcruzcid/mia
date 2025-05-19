@@ -28,6 +28,14 @@
   <!-- Cloudflare Turnstile -->
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   
+  <!-- EmailJS Library -->
+  <script type="text/javascript" src="https://cdn.emailjs.com/sdk/2.3.2/email.min.js"></script>
+  <script type="text/javascript">
+    (function() {
+      emailjs.init("YOUR_USER_ID"); // Replace with your actual EmailJS user ID
+    })();
+  </script>
+  
   <!-- Custom CSS -->
   <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -57,7 +65,7 @@
             <a class="nav-link" href="#contacto">Contacto</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#renovacion">Renovaciones</a>
+            <a class="nav-link" href="#renovacion">Únete</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="#sobre-nosotros">Sobre MIA</a>
@@ -135,8 +143,8 @@
   <section class="membership py-5" id="renovacion">
     <div class="container">
       <div class="section-header text-center mb-5" data-aos="fade-up">
-        <h2>Renovar tu membresía</h2>
-        <p>Mientras actualizamos nuestra plataforma, puedes renovar tu membresía.</p>
+        <h2>Únete o renueva tu membresía</h2>
+        <p>Mientras actualizamos nuestra plataforma, puedes inscribirte o renovar tu membresía.</p>
       </div>
       
       <div class="row">
@@ -153,7 +161,7 @@
                 <!-- Turnstile widget will be rendered here when button is clicked -->
               </div>
               <a href="#" id="stripe-button-1" class="btn btn-red stripe-button" data-stripe-url="https://buy.stripe.com/9B69ASapSeBh13e81x7g401">
-                Renovar ahora
+                Únete/renueva tu membresía
               </a>
             </div>
           </div>
@@ -172,7 +180,7 @@
                 <!-- Turnstile widget will be rendered here when button is clicked -->
               </div>
               <a href="#" id="stripe-button-2" class="btn btn-red stripe-button" data-stripe-url="https://buy.stripe.com/00w28qcy0gJp27i3Lh7g402">
-                Renovar ahora
+                Únete/renueva tu membresía
               </a>
             </div>
           </div>
@@ -191,7 +199,7 @@
                 <!-- Turnstile widget will be rendered here when button is clicked -->
               </div>
               <a href="#" id="stripe-button-3" class="btn btn-red stripe-button" data-stripe-url="https://buy.stripe.com/7sYcN4gOg2Sz5ju2Hd7g400">
-                Renovar ahora
+                Únete/renueva tu membresía
               </a>
             </div>
           </div>

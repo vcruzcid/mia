@@ -70,12 +70,63 @@ document.addEventListener('DOMContentLoaded', function() {
       const formData = new FormData(form);
       formData.append('cf-turnstile-response', token);
       
-      // Here you would typically send the data to your server with the token
-      // For this demo, we'll just show a success message
-      showFormSuccess(form);
+      // Get form field values
+      const name = formData.get('name');
+      const email = formData.get('email');
+      const message = formData.get('message') || 'No message provided';
       
-      // Log form submission (remove in production)
-      console.log('Form submitted with Turnstile token');
+      // Disable form while sending
+      const submitButton = form.querySelector('button[type="submit"]');
+      const originalButtonText = submitButton.innerHTML;
+      submitButton.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Enviando...';
+      submitButton.disabled = true;
+      
+      // EmailJS parameters (update these values)
+      const serviceID = 'default_service';
+      const templateID = 'template_contact_form';
+      const userID = 'YOUR_USER_ID';
+      
+      // Prepare template parameters
+      const templateParams = {
+        name: name,
+        email: email,
+        message: message,
+        turnstile_token: token
+      };
+      
+      // Send email using EmailJS
+      emailjs.send(serviceID, templateID, templateParams, userID)
+        .then(function(response) {
+          console.log('SUCCESS!', response.status, response.text);
+          showFormSuccess(form);
+          
+          // Reset button
+          submitButton.innerHTML = originalButtonText;
+          submitButton.disabled = false;
+        }, function(error) {
+          console.log('FAILED...', error);
+          showFormError(form, submitButton, originalButtonText);
+        });
+    }
+    
+    // Show error message after form submission
+    function showFormError(form, button, originalText, errorMessage) {
+      // Reset button if provided
+      if (button && originalText) {
+        button.innerHTML = originalText;
+        button.disabled = false;
+      }
+      
+      // Show error message
+      const errorAlert = document.createElement('div');
+      errorAlert.className = 'alert alert-danger mt-3 fade-in';
+      errorAlert.innerHTML = errorMessage || 'Ha ocurrido un error. Por favor, inténtalo de nuevo.';
+      form.parentNode.appendChild(errorAlert);
+      
+      // Remove error message after 3 seconds
+      setTimeout(() => {
+        errorAlert.remove();
+      }, 3000);
     }
     
     // Setup Stripe buttons
