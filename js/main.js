@@ -3,6 +3,8 @@
  * Main JavaScript file for MIA (Mujeres en la Industria de la Animación)
  */
 
+import config from './config.js';
+
 document.addEventListener('DOMContentLoaded', function() {
     'use strict';
     
@@ -34,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Render Turnstile widget
             turnstile.render(turnstileContainer, {
-              sitekey: '0x4AAAAAABddjw-SDSpgjBDI',
+              sitekey: config.turnstile.sitekey,
               theme: 'dark',
               callback: function(token) {
                 // Process form submission after Turnstile verification
@@ -66,47 +68,53 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Process form submission after Turnstile verification
     function processFormSubmission(form, token) {
-      // Get form data
-      const formData = new FormData(form);
-      formData.append('cf-turnstile-response', token);
-      
-      // Get form field values
-      const name = formData.get('name');
-      const email = formData.get('email');
-      const message = formData.get('message') || 'No message provided';
-      
-      // Disable form while sending
-      const submitButton = form.querySelector('button[type="submit"]');
-      const originalButtonText = submitButton.innerHTML;
-      submitButton.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Enviando...';
-      submitButton.disabled = true;
-      
-      // EmailJS parameters (update these values)
-      const serviceID = 'default_service';
-      const templateID = 'template_contact_form';
-      const userID = 'YOUR_USER_ID';
-      
-      // Prepare template parameters
-      const templateParams = {
-        name: name,
-        email: email,
-        message: message,
-        turnstile_token: token
-      };
-      
-      // Send email using EmailJS
-      emailjs.send(serviceID, templateID, templateParams, userID)
-        .then(function(response) {
-          console.log('SUCCESS!', response.status, response.text);
-          showFormSuccess(form);
-          
-          // Reset button
-          submitButton.innerHTML = originalButtonText;
-          submitButton.disabled = false;
-        }, function(error) {
-          console.log('FAILED...', error);
-          showFormError(form, submitButton, originalButtonText);
-        });
+      try {
+        // Get form data
+        const formData = new FormData(form);
+        formData.append('cf-turnstile-response', token);
+        
+        // Get form field values
+        const name = formData.get('name');
+        const email = formData.get('email');
+        const message = formData.get('message') || 'No message provided';
+        
+        // Validate message length
+        if (message.length > 1000) {
+          throw new Error('El mensaje no puede exceder los 1000 caracteres');
+        }
+        
+        // Disable form while sending
+        const submitButton = form.querySelector('button[type="submit"]');
+        const originalButtonText = submitButton.innerHTML;
+        submitButton.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Enviando...';
+        submitButton.disabled = true;
+        
+        // Prepare template parameters
+        const templateParams = {
+          name: name,
+          email: email,
+          message: message,
+          turnstile_token: token
+        };
+        
+        // Send email using EmailJS
+        emailjs.send(config.emailjs.serviceID, config.emailjs.templateID, templateParams, config.emailjs.userID)
+          .then(function(response) {
+            console.log('SUCCESS!', response.status, response.text);
+            showFormSuccess(form);
+            
+            // Reset button
+            submitButton.innerHTML = originalButtonText;
+            submitButton.disabled = false;
+          })
+          .catch(function(error) {
+            console.error('FAILED...', error);
+            showFormError(form, submitButton, originalButtonText, 'Error al enviar el mensaje. Por favor, inténtalo de nuevo.');
+          });
+      } catch (error) {
+        console.error('Error processing form:', error);
+        showFormError(form, null, null, error.message);
+      }
     }
     
     // Show error message after form submission
@@ -120,13 +128,15 @@ document.addEventListener('DOMContentLoaded', function() {
       // Show error message
       const errorAlert = document.createElement('div');
       errorAlert.className = 'alert alert-danger mt-3 fade-in';
+      errorAlert.setAttribute('role', 'alert');
+      errorAlert.setAttribute('aria-live', 'assertive');
       errorAlert.innerHTML = errorMessage || 'Ha ocurrido un error. Por favor, inténtalo de nuevo.';
       form.parentNode.appendChild(errorAlert);
       
-      // Remove error message after 3 seconds
+      // Remove error message after 5 seconds
       setTimeout(() => {
         errorAlert.remove();
-      }, 3000);
+      }, 5000);
     }
     
     // Setup Stripe buttons
@@ -152,7 +162,7 @@ document.addEventListener('DOMContentLoaded', function() {
           
           // Render Turnstile
           turnstile.render(container, {
-            sitekey: '0x4AAAAAABddjw-SDSpgjBDI',
+            sitekey: config.turnstile.sitekey,
             theme: 'dark',
             callback: function(token) {
               // After verification, redirect to Stripe
@@ -180,6 +190,8 @@ document.addEventListener('DOMContentLoaded', function() {
       // Create success alert
       const successAlert = document.createElement('div');
       successAlert.className = 'alert alert-success mt-3 fade-in';
+      successAlert.setAttribute('role', 'alert');
+      successAlert.setAttribute('aria-live', 'assertive');
       successAlert.innerHTML = '¡Gracias por tu mensaje! Te contactaremos pronto.';
       
       // Hide the form
@@ -196,14 +208,14 @@ document.addEventListener('DOMContentLoaded', function() {
       // Add success message
       form.parentNode.appendChild(successAlert);
       
-      // Reset form after 3 seconds
+      // Reset form after 5 seconds
       setTimeout(() => {
         form.reset();
         form.style.opacity = '1';
         form.style.pointerEvents = 'auto';
         form.classList.remove('was-validated');
         successAlert.remove();
-      }, 3000);
+      }, 5000);
     }
     
     // Back to top button
