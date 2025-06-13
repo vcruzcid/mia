@@ -7,6 +7,12 @@
   <meta name="keywords" content="MIA, animación, mujeres, industria, animacionesmia">
   <title>MIA - Mujeres en la Industria de la Animación | Próximamente</title>
   
+  <!-- Preload critical resources -->
+  <link rel="preload" href="assets/images/logo.png" as="image">
+  <link rel="preload" href="assets/images/hero-bg.jpg" as="image">
+  <link rel="preload" href="css/styles.css" as="style">
+  <link rel="preload" href="js/main.js" as="script">
+  
   <!-- Favicon -->
   <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32x32.png">
@@ -33,8 +39,41 @@
   
   <!-- Custom CSS -->
   <link rel="stylesheet" href="css/styles.css">
+  
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "MIA - Mujeres en la Industria de la Animación",
+    "url": "https://animacionesmia.com",
+    "logo": "https://animacionesmia.com/assets/images/logo.png",
+    "description": "MIA - Mujeres en la Industria de la Animación. Plataforma dedicada a promover y visibilizar el trabajo de las mujeres en la industria de la animación.",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Calle de Santander nº 3, 2º Izda",
+      "addressLocality": "Madrid",
+      "postalCode": "28003",
+      "addressCountry": "ES"
+    },
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "",
+      "contactType": "customer service",
+      "email": "hola@animacionesmia.com",
+      "availableLanguage": ["Spanish"]
+    },
+    "sameAs": [
+      "https://www.instagram.com/mianimacion",
+      "https://www.linkedin.com/company/mia-mujeres-en-animacion"
+    ]
+  }
+  </script>
 </head>
 <body>
+  <!-- Skip to main content link -->
+  <a href="#main-content" class="skip-to-main">Saltar al contenido principal</a>
+
   <!-- Cookie Consent -->
   <div id="cookieConsent" class="cookie-consent" role="alert" aria-live="polite">
     <div class="container">
@@ -78,10 +117,10 @@
   </div>
 
   <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg navbar-dark" role="navigation" aria-label="Navegación principal">
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top" role="navigation" aria-label="Navegación principal">
     <div class="container">
-      <a class="navbar-brand" href="#" aria-label="MIA - Inicio">
-        <img src="assets/images/logo.png" alt="MIA Logo" class="logo">
+      <a class="navbar-brand" href="/" aria-label="MIA - Inicio">
+        <img src="assets/images/logo.png" alt="MIA Logo" width="150" height="50">
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -105,233 +144,234 @@
     </div>
   </nav>
 
-  <!-- Hero Section -->
-  <section class="hero" id="hero">
-    <div class="container">
-      <div class="row align-items-center">
-        <div class="col-lg-6 mb-5 mb-lg-0" data-aos="fade-right" data-aos-duration="1000">
-          <h1>Estamos construyendo algo especial</h1>
-          <p class="hero-text">Nuestra plataforma para <span class="text-white">Mujeres en la Industria de la Animación</span> está en renovación para brindarte una <span class="accent-text">mejor experiencia</span>.</p>
-          <div class="hero-buttons">
-            <a href="#contacto" class="btn btn-red btn-lg me-3">Contactar</a>
-            <a href="#renovacion" class="btn btn-outline-light btn-lg">Renovar membresía</a>
+  <!-- Main Content -->
+  <main id="main-content" role="main">
+    <!-- Hero Section -->
+    <section class="hero" style="background-image: url('assets/images/hero-bg.jpg');" aria-label="Sección principal">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-lg-6 mb-5 mb-lg-0" data-aos="fade-right" data-aos-duration="1000">
+            <h1>Estamos construyendo algo especial</h1>
+            <p class="hero-text">Nuestra plataforma para <span class="text-white">Mujeres en la Industria de la Animación</span> está en renovación para brindarte una <span class="accent-text">mejor experiencia</span>.</p>
+            <div class="hero-buttons">
+              <a href="#contacto" class="btn btn-red btn-lg me-3">Contactar</a>
+              <a href="#renovacion" class="btn btn-outline-light btn-lg">Renovar membresía</a>
+            </div>
           </div>
-        </div>
-        <div class="col-lg-6" data-aos="fade-left" data-aos-duration="1000" data-aos-delay="200">
-          <div class="contact-card">
-            <h2>¡Permanece conectada!</h2>
-            <p>Déjanos tus datos y te informaremos cuando la nueva plataforma esté lista.</p>
-            <form id="contact-form" class="needs-validation" novalidate>
-              <div class="mb-3">
-                <label for="name" class="form-label">Nombre</label>
-                <input type="text" class="form-control" id="name" name="name" placeholder="Tu nombre" required>
-                <div class="invalid-feedback">
-                  Por favor, ingresa tu nombre.
+          <div class="col-lg-6" data-aos="fade-left" data-aos-duration="1000" data-aos-delay="200">
+            <div class="contact-card">
+              <h2>¡Permanece conectada!</h2>
+              <p>Déjanos tus datos y te informaremos cuando la nueva plataforma esté lista.</p>
+              <form id="contact-form" class="needs-validation" novalidate aria-label="Formulario de contacto">
+                <div class="mb-3">
+                  <label for="name" class="form-label">Nombre</label>
+                  <input type="text" class="form-control" id="name" name="name" placeholder="Tu nombre" required aria-required="true">
+                  <div class="invalid-feedback" role="alert">
+                    Por favor, ingresa tu nombre.
+                  </div>
                 </div>
-              </div>
-              <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" name="email" placeholder="tu@email.com" required>
-                <div class="invalid-feedback">
-                  Por favor, ingresa un email válido.
+                <div class="mb-3">
+                  <label for="email" class="form-label">Email</label>
+                  <input type="email" class="form-control" id="email" name="email" placeholder="tu@email.com" required aria-required="true">
+                  <div class="invalid-feedback" role="alert">
+                    Por favor, ingresa un email válido.
+                  </div>
                 </div>
-              </div>
-              <div class="mb-3">
-                <label for="message" class="form-label">Mensaje (opcional)</label>
-                <textarea class="form-control" id="message" name="message" rows="3" placeholder="¿Cómo podemos ayudarte?"></textarea>
-              </div>
-              <div id="contact-turnstile-container" class="mb-3" style="display: none;">
-                <!-- Turnstile widget will be rendered here on form submission attempt -->
-              </div>
-              <button type="submit" class="btn btn-red w-100">Enviar mensaje</button>
-            </form>
+                <div class="mb-3">
+                  <label for="message" class="form-label">Mensaje (opcional)</label>
+                  <textarea class="form-control" id="message" name="message" rows="3" placeholder="¿Cómo podemos ayudarte?" aria-label="Mensaje opcional"></textarea>
+                </div>
+                <div id="contact-turnstile-container" class="mb-3" style="display: none;" aria-label="Verificación de seguridad">
+                  <!-- Turnstile widget will be rendered here on form submission attempt -->
+                </div>
+                <button type="submit" class="btn btn-red w-100" aria-label="Enviar mensaje">Enviar mensaje</button>
+              </form>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Announcement Banner -->
-  <section class="announcement-banner py-4" id="announcement">
-    <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-lg-10 text-center" data-aos="fade-up">
-          <div class="announcement-card">
-            <h2>¡La convocatoria de la 4ta edición de MIANIMA ya está abierta!</h2>
-            <p>Participa en nuestro programa de formación para mujeres en la industria de la animación iberoamericana.</p>
-            <a href="https://www.mianima.es/mianima/" target="_blank" class="btn btn-red btn-lg mt-2">Más información</a>
+    <!-- Announcement Banner -->
+    <section class="announcement-banner py-4" id="announcement">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-10 text-center" data-aos="fade-up">
+            <div class="announcement-card">
+              <h2>¡La convocatoria de la 4ta edición de MIANIMA ya está abierta!</h2>
+              <p>Participa en nuestro programa de formación para mujeres en la industria de la animación iberoamericana.</p>
+              <a href="https://www.mianima.es/mianima/" target="_blank" class="btn btn-red btn-lg mt-2">Más información</a>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Membership Section -->
-  <section class="membership py-5" id="renovacion">
-    <div class="container">
-      <div class="section-header text-center mb-5" data-aos="fade-up">
-        <h2>Únete o renueva tu membresía</h2>
-        <p>Mientras actualizamos nuestra plataforma, puedes inscribirte o renovar tu membresía.</p>
-      </div>
-      
-      <div class="row">
-        <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="100">
-          <div class="membership-card">
-            <div class="text-center">
-              <div class="membership-icon">
-                <i class="fas fa-user"></i>
-              </div>
-              <h3>Socia Pleno Derecho</h3>
-              <p>Acceso completo a todos los beneficios como profesional de la animación.</p>
-              <div class="membership-price">€60 /año</div>
-              <div id="turnstile-container-1" class="mb-3" style="display: none;">
-                <!-- Turnstile widget will be rendered here when button is clicked -->
-              </div>
-              <a href="#" id="stripe-button-1" class="btn btn-red stripe-button" data-stripe-url="https://buy.stripe.com/9B69ASapSeBh13e81x7g401">
-                Únete/renueva tu membresía
-              </a>
-            </div>
-          </div>
+    <!-- Membership Section -->
+    <section class="membership py-5" id="renovacion">
+      <div class="container">
+        <div class="section-header text-center mb-5" data-aos="fade-up">
+          <h2>Únete o renueva tu membresía</h2>
+          <p>Mientras actualizamos nuestra plataforma, puedes inscribirte o renovar tu membresía.</p>
         </div>
         
-        <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="200">
-          <div class="membership-card">
-            <div class="text-center">
-              <div class="membership-icon">
-                <i class="fas fa-graduation-cap"></i>
+        <div class="row">
+          <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="membership-card">
+              <div class="text-center">
+                <div class="membership-icon">
+                  <i class="fas fa-user"></i>
+                </div>
+                <h3>Socia Pleno Derecho</h3>
+                <p>Acceso completo a todos los beneficios como profesional de la animación.</p>
+                <div class="membership-price">€60 /año</div>
+                <div id="turnstile-container-1" class="mb-3" style="display: none;">
+                  <!-- Turnstile widget will be rendered here when button is clicked -->
+                </div>
+                <a href="#" id="stripe-button-1" class="btn btn-red stripe-button" data-stripe-url="https://buy.stripe.com/9B69ASapSeBh13e81x7g401">
+                  Únete/renueva tu membresía
+                </a>
               </div>
-              <h3>Socia Estudiante</h3>
-              <p>Para estudiantes en formación en el ámbito de la animación.</p>
-              <div class="membership-price">€30 /año</div>
-              <div id="turnstile-container-2" class="mb-3" style="display: none;">
-                <!-- Turnstile widget will be rendered here when button is clicked -->
-              </div>
-              <a href="#" id="stripe-button-2" class="btn btn-red stripe-button" data-stripe-url="https://buy.stripe.com/00w28qcy0gJp27i3Lh7g402">
-                Únete/renueva tu membresía
-              </a>
             </div>
           </div>
-        </div>
-        
-        <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="300">
-          <div class="membership-card">
-            <div class="text-center">
-              <div class="membership-icon">
-                <i class="fas fa-hands-helping"></i>
+          
+          <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="200">
+            <div class="membership-card">
+              <div class="text-center">
+                <div class="membership-icon">
+                  <i class="fas fa-graduation-cap"></i>
+                </div>
+                <h3>Socia Estudiante</h3>
+                <p>Para estudiantes en formación en el ámbito de la animación.</p>
+                <div class="membership-price">€30 /año</div>
+                <div id="turnstile-container-2" class="mb-3" style="display: none;">
+                  <!-- Turnstile widget will be rendered here when button is clicked -->
+                </div>
+                <a href="#" id="stripe-button-2" class="btn btn-red stripe-button" data-stripe-url="https://buy.stripe.com/00w28qcy0gJp27i3Lh7g402">
+                  Únete/renueva tu membresía
+                </a>
               </div>
-              <h3>Colaborador</h3>
-              <p>Compañeros que apoyan la asociación.</p>
-              <div class="membership-price">€60 /año</div>
-              <div id="turnstile-container-3" class="mb-3" style="display: none;">
-                <!-- Turnstile widget will be rendered here when button is clicked -->
+            </div>
+          </div>
+          
+          <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="300">
+            <div class="membership-card">
+              <div class="text-center">
+                <div class="membership-icon">
+                  <i class="fas fa-hands-helping"></i>
+                </div>
+                <h3>Colaborador</h3>
+                <p>Compañeros que apoyan la asociación.</p>
+                <div class="membership-price">€60 /año</div>
+                <div id="turnstile-container-3" class="mb-3" style="display: none;">
+                  <!-- Turnstile widget will be rendered here when button is clicked -->
+                </div>
+                <a href="#" id="stripe-button-3" class="btn btn-red stripe-button" data-stripe-url="https://buy.stripe.com/7sYcN4gOg2Sz5ju2Hd7g400">
+                  Únete/renueva tu membresía
+                </a>
               </div>
-              <a href="#" id="stripe-button-3" class="btn btn-red stripe-button" data-stripe-url="https://buy.stripe.com/7sYcN4gOg2Sz5ju2Hd7g400">
-                Únete/renueva tu membresía
-              </a>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Timeline Section -->
-  <section class="timeline py-5" id="sobre-nosotros">
-    <div class="container">
-      <div class="section-header text-center mb-5" data-aos="fade-up">
-        <h2>Estamos mejorando para ti</h2>
-        <p>Nuestra actualización tecnológica nos permitirá servirte mejor. Estos son los cambios que estamos implementando:</p>
+    <!-- Timeline Section -->
+    <section class="timeline py-5" id="sobre-nosotros">
+      <div class="container">
+        <div class="section-header text-center mb-5" data-aos="fade-up">
+          <h2>Estamos mejorando para ti</h2>
+          <p>Nuestra actualización tecnológica nos permitirá servirte mejor. Estos son los cambios que estamos implementando:</p>
+        </div>
+        
+        <div class="timeline-container">
+          <div class="timeline-item" data-aos="fade-right">
+            <div class="timeline-number">1</div>
+            <div class="timeline-content">
+              <h3>Nueva plataforma web</h3>
+              <p>Migración a una plataforma moderna y fácil de usar, con perfiles mejorados para todas las socias y colaboradoras.</p>
+            </div>
+          </div>
+          
+          <div class="timeline-item" data-aos="fade-left">
+            <div class="timeline-number">2</div>
+            <div class="timeline-content">
+              <h3>Mejora en sistemas de pago</h3>
+              <p>Integración con Stripe para pagos seguros y renovaciones automáticas de membresías.</p>
+            </div>
+          </div>
+          
+          
+          <div class="timeline-item" data-aos="fade-left">
+            <div class="timeline-number">4</div>
+            <div class="timeline-content">
+              <h3>Mayor seguridad</h3>
+              <p>Implementación de Cloudflare para proteger tu información y optimizar la velocidad del sitio.</p>
+            </div>
+          </div>
+          
+          <div class="timeline-item" data-aos="fade-up">
+            <div class="timeline-number pulse-animation">
+              <i class="fas fa-hourglass-half"></i>
+            </div>
+            <div class="timeline-content">
+              <h3>¡Disponible pronto!</h3>
+              <p>Esperamos lanzar nuestra nueva plataforma a principios de Junio de 2025.</p>
+            </div>
+          </div>
+        </div>
       </div>
-      
-      <div class="timeline-container">
-        <div class="timeline-item" data-aos="fade-right">
-          <div class="timeline-number">1</div>
-          <div class="timeline-content">
-            <h3>Nueva plataforma web</h3>
-            <p>Migración a una plataforma moderna y fácil de usar, con perfiles mejorados para todas las socias y colaboradoras.</p>
-          </div>
-        </div>
-        
-        <div class="timeline-item" data-aos="fade-left">
-          <div class="timeline-number">2</div>
-          <div class="timeline-content">
-            <h3>Mejora en sistemas de pago</h3>
-            <p>Integración con Stripe para pagos seguros y renovaciones automáticas de membresías.</p>
-          </div>
-        </div>
-        
-        
-        <div class="timeline-item" data-aos="fade-left">
-          <div class="timeline-number">4</div>
-          <div class="timeline-content">
-            <h3>Mayor seguridad</h3>
-            <p>Implementación de Cloudflare para proteger tu información y optimizar la velocidad del sitio.</p>
-          </div>
-        </div>
-        
-        <div class="timeline-item" data-aos="fade-up">
-          <div class="timeline-number pulse-animation">
-            <i class="fas fa-hourglass-half"></i>
-          </div>
-          <div class="timeline-content">
-            <h3>¡Disponible pronto!</h3>
-            <p>Esperamos lanzar nuestra nueva plataforma a principios de Junio de 2025.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Contact Section -->
-  <section class="contact py-5" id="contacto">
-    <div class="container">
-      <div class="section-header text-center mb-5" data-aos="fade-up">
-        <h2>Contáctanos</h2>
-        <p>Durante este período de transición, puedes contactarnos directamente a través de estos medios:</p>
-      </div>
-      
-      <div class="row">
-        <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="100">
-          <div class="contact-card">
-            <div class="contact-icon">
-              <i class="fas fa-envelope"></i>
-            </div>
-            <h3>Email</h3>
-            <p><a href="mailto:hola@animacionesmia.com" class="contact-link">hola@animacionesmia.com</a></p>
-          </div>
+    <!-- Contact Section -->
+    <section class="contact py-5" id="contacto">
+      <div class="container">
+        <div class="section-header text-center mb-5" data-aos="fade-up">
+          <h2>Contáctanos</h2>
+          <p>Durante este período de transición, puedes contactarnos directamente a través de estos medios:</p>
         </div>
         
-        <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="200">
-          <div class="contact-card">
-            <div class="contact-icon">
-              <i class="fab fa-instagram"></i>
+        <div class="row">
+          <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="contact-card">
+              <div class="contact-icon">
+                <i class="fas fa-envelope"></i>
+              </div>
+              <h3>Email</h3>
+              <p><a href="mailto:hola@animacionesmia.com" class="contact-link">hola@animacionesmia.com</a></p>
             </div>
-            <h3>Instagram</h3>
-            <p><a href="https://www.instagram.com/mianimacion" target="_blank" class="contact-link">@mianimacion</a></p>
           </div>
-        </div>
-        
-        <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="300">
-          <div class="contact-card">
-            <div class="contact-icon">
-              <i class="fab fa-linkedin"></i>
+          
+          <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="200">
+            <div class="contact-card">
+              <div class="contact-icon">
+                <i class="fab fa-instagram"></i>
+              </div>
+              <h3>Instagram</h3>
+              <p><a href="https://www.instagram.com/mianimacion" target="_blank" class="contact-link">@mianimacion</a></p>
             </div>
-            <h3>LinkedIn</h3>
-            <p><a href="https://www.linkedin.com/company/mia-mujeres-en-animacion" target="_blank" class="contact-link">MIA - Mujeres en Animación</a></p>
+          </div>
+          
+          <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="300">
+            <div class="contact-card">
+              <div class="contact-icon">
+                <i class="fab fa-linkedin"></i>
+              </div>
+              <h3>LinkedIn</h3>
+              <p><a href="https://www.linkedin.com/company/mia-mujeres-en-animacion" target="_blank" class="contact-link">MIA - Mujeres en Animación</a></p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+  </main>
 
   <!-- Footer -->
-  <footer class="footer">
+  <footer class="footer mt-5">
     <div class="container">
       <div class="row">
-        <div class="col-md-6 mb-4 mb-md-0">
-          <div class="footer-brand"><img src="assets/images/logo_footer.png" alt="MIA Logo" class="footer-logo"></div>
-        </div>
-        <div class="col-md-6 text-md-end">
+        <div class="col-12 text-center">
+          <img src="assets/images/logo_footer.png" alt="MIA Logo" class="footer-logo mb-3" loading="lazy" width="150" height="50">
           <div class="social-links">
             <a href="https://www.instagram.com/mianimacion?igsh=aGt5MTdwdDc2a3dp" class="social-link"><i class="fab fa-instagram"></i></a>
             <a href="https://www.linkedin.com/company/mianimacion/" class="social-link"><i class="fab fa-linkedin"></i></a>
