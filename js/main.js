@@ -6,6 +6,7 @@
 // Import configuration and modules
 import config from './config.js';
 import CookieManager from './cookieManager.js';
+import FormValidator from './formValidator.js';
 
 // Initialize EmailJS
 emailjs.init(config.emailjs.userID);
@@ -15,6 +16,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize cookie manager
     const cookieManager = new CookieManager();
+    
+    // Initialize form validator
+    const formValidator = new FormValidator();
     
     // Initialize AOS animations
     if (typeof AOS !== 'undefined') {
@@ -30,6 +34,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const forms = document.querySelectorAll('.needs-validation');
     
     Array.from(forms).forEach(form => {
+        // Setup form validation
+        formValidator.setupFormValidation(form);
+        
         form.addEventListener('submit', event => {
             if (!form.checkValidity()) {
                 event.preventDefault();
