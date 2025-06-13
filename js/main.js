@@ -7,12 +7,17 @@
 import config from './config.js';
 import CookieManager from './cookieManager.js';
 import FormValidator from './formValidator.js';
+import ErrorBoundary from './errorBoundary.js';
 
 // Initialize EmailJS
 emailjs.init(config.emailjs.userID);
 
 document.addEventListener('DOMContentLoaded', function() {
     'use strict';
+    
+    // Initialize error boundary
+    const errorBoundary = new ErrorBoundary();
+    errorBoundary.init();
     
     // Initialize cookie manager
     const cookieManager = new CookieManager();
@@ -30,6 +35,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Smooth scroll for navigation links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            if (targetId === '#') return;
+            
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) {
+                targetElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+    
     // Form validation
     const forms = document.querySelectorAll('.needs-validation');
     
@@ -44,6 +66,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 form.classList.add('was-validated');
             } else {
                 event.preventDefault();
+                
+                // Add loading state
+                form.classList.add('form-loading');
                 
                 // Show Turnstile widget if not already shown
                 const turnstileContainer = document.getElementById('contact-turnstile-container');
@@ -73,6 +98,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     } else {
                         console.error('Turnstile not loaded');
                         showFormError(form, null, null, 'Error de carga del sistema de seguridad. Por favor, recarga la página.');
+                        form.classList.remove('form-loading');
                         return;
                     }
                 }
@@ -92,53 +118,56 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Process form submission after Turnstile verification
     function processFormSubmission(form, token) {
-      try {
-        // Get form data
-        const formData = new FormData(form);
-        formData.append('cf-turnstile-response', token);
-        
-        // Get form field values
-        const name = formData.get('name');
-        const email = formData.get('email');
-        const message = formData.get('message') || 'No message provided';
-        
-        // Validate message length
-        if (message.length > 1000) {
-          throw new Error('El mensaje no puede exceder los 1000 caracteres');
-        }
-        
-        // Disable form while sending
-        const submitButton = form.querySelector('button[type="submit"]');
-        const originalButtonText = submitButton.innerHTML;
-        submitButton.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Enviando...';
-        submitButton.disabled = true;
-        
-        // Prepare template parameters
-        const templateParams = {
-          name: name,
-          email: email,
-          message: message,
-          turnstile_token: token
-        };
-        
-        // Send email using EmailJS
-        emailjs.send(config.emailjs.serviceID, config.emailjs.templateID, templateParams, config.emailjs.userID)
-          .then(function(response) {
-            console.log('SUCCESS!', response.status, response.text);
-            showFormSuccess(form);
+        try {
+            // Get form data
+            const formData = new FormData(form);
+            formData.append('cf-turnstile-response', token);
             
-            // Reset button
-            submitButton.innerHTML = originalButtonText;
-            submitButton.disabled = false;
-          })
-          .catch(function(error) {
-            console.error('FAILED...', error);
-            showFormError(form, submitButton, originalButtonText, 'Error al enviar el mensaje. Por favor, inténtalo de nuevo.');
-          });
-      } catch (error) {
-        console.error('Error processing form:', error);
-        showFormError(form, null, null, error.message);
-      }
+            // Get form field values
+            const name = formData.get('name');
+            const email = formData.get('email');
+            const message = formData.get('message') || 'No message provided';
+            
+            // Validate message length
+            if (message.length > 1000) {
+                throw new Error('El mensaje no puede exceder los 1000 caracteres');
+            }
+            
+            // Disable form while sending
+            const submitButton = form.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.innerHTML;
+            submitButton.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Enviando...';
+            submitButton.disabled = true;
+            
+            // Prepare template parameters
+            const templateParams = {
+                name: name,
+                email: email,
+                message: message,
+                turnstile_token: token
+            };
+            
+            // Send email using EmailJS
+            emailjs.send(config.emailjs.serviceID, config.emailjs.templateID, templateParams, config.emailjs.userID)
+                .then(function(response) {
+                    console.log('SUCCESS!', response.status, response.text);
+                    showFormSuccess(form);
+                    
+                    // Reset button
+                    submitButton.innerHTML = originalButtonText;
+                    submitButton.disabled = false;
+                    form.classList.remove('form-loading');
+                })
+                .catch(function(error) {
+                    console.error('FAILED...', error);
+                    showFormError(form, submitButton, originalButtonText, 'Error al enviar el mensaje. Por favor, inténtalo de nuevo.');
+                    form.classList.remove('form-loading');
+                });
+        } catch (error) {
+            console.error('Error processing form:', error);
+            showFormError(form, null, null, error.message);
+            form.classList.remove('form-loading');
+        }
     }
     
     // Show error message after form submission
