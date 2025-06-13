@@ -191,38 +191,41 @@
   
   /* ===== NAVBAR ===== */
   .navbar {
-    background-color: rgba(0, 0, 0, 0.95);
+    background-color: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     padding: 1rem 0;
-    border-bottom: 1px solid var(--border-color);
-    position: sticky;
+    transition: all 0.3s ease;
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 1000;
   }
   
   .navbar-brand {
-    display: flex;
-    align-items: center;
+    padding: 0;
   }
   
   .navbar-brand img {
     height: 40px;
-    margin-right: 10px;
+    width: auto;
   }
   
-  .navbar-brand span {
-    font-weight: 700;
-    font-size: 1.5rem;
+  .navbar-nav {
+    margin-left: auto;
   }
   
-  .navbar-dark .navbar-nav .nav-link {
-    color: var(--text-secondary);
-    padding: 0.5rem 1rem;
-    transition: color var(--transition-speed) ease;
+  .nav-link {
+    color: var(--text-primary) !important;
+    font-weight: 500;
+    padding: 0.5rem 1rem !important;
+    transition: color 0.3s ease;
   }
   
-  .navbar-dark .navbar-nav .nav-link:hover,
-  .navbar-dark .navbar-nav .nav-link:focus {
-    color: var(--primary-color);
+  .nav-link:hover,
+  .nav-link:focus {
+    color: var(--primary-color) !important;
   }
   
   /* Navbar CTA button */
@@ -477,28 +480,22 @@
   
   /* ===== FOOTER ===== */
   .footer {
-    background-color: var(--card-bg);
-    padding: 3rem 0 2rem;
-    margin-top: auto;
-  }
-  
-  .footer-brand {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    color: white;
+    background-color: #0a0a0a;
+    padding: 3rem 0;
+    margin-top: 0;
   }
   
   .footer-logo {
-    height: 150px;
+    height: 50px;
     width: auto;
-    margin-bottom: 10px;
+    margin-bottom: 1.5rem;
   }
   
   .social-links {
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
     gap: 1rem;
+    margin-top: 1rem;
   }
   
   .social-link {
@@ -508,14 +505,17 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background-color: #222;
+    background-color: var(--primary-color);
     color: white;
-    transition: all var(--transition-speed) ease;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
   }
   
-  .social-link:hover {
-    background-color: var(--primary-color);
+  .social-link:hover,
+  .social-link:focus {
     transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(255, 51, 51, 0.3);
+    color: white;
   }
   
   hr {
@@ -984,17 +984,25 @@
 
   /* Error boundary styles */
   .error-boundary {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
     padding: 1rem;
-    margin: 1rem 0;
+    margin: 0;
     border: 1px solid #dc3545;
-    border-radius: 4px;
     background-color: rgba(220, 53, 69, 0.1);
     color: #dc3545;
+    display: none;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
   }
 
   .error-boundary h3 {
     margin-top: 0;
     color: #dc3545;
+    font-size: 1.25rem;
   }
 
   .error-boundary pre {
@@ -1003,4 +1011,42 @@
     background-color: rgba(0, 0, 0, 0.1);
     border-radius: 4px;
     overflow-x: auto;
+    font-size: 0.875rem;
+  }
+
+  .error-boundary .btn-close {
+    color: #dc3545;
+    opacity: 0.5;
+    transition: opacity 0.3s ease;
+  }
+
+  .error-boundary .btn-close:hover {
+    opacity: 1;
+  }
+
+  /* Adjust main content padding for fixed navbar */
+  main {
+    padding-top: 76px; /* Height of navbar + some spacing */
+  }
+
+  /* Movistar banner styles */
+  .movistar-banner {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    max-width: 200px;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+  }
+
+  .movistar-banner:hover {
+    transform: scale(1.05);
+  }
+
+  .movistar-banner img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
