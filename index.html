@@ -2,10 +2,30 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no, viewport-fit=cover">
-  <meta name="description" content="MIA - Mujeres en la Industria de la Animación. Nuestra plataforma está en renovación para brindarte una mejor experiencia.">
-  <meta name="keywords" content="MIA, animación, mujeres, industria, animacionesmia">
-  <title>MIA - Mujeres en la Industria de la Animación | Próximamente</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="description" content="MIA - Mujeres en la Industria de la Animación. Plataforma dedicada a promover y visibilizar el trabajo de las mujeres en la industria de la animación en España.">
+  <meta name="keywords" content="MIA, animación, mujeres, industria, animacionesmia, animación española, mujeres animadoras, industria animación">
+  <meta name="author" content="MIA - Mujeres en la Industria de la Animación">
+  <meta name="robots" content="index, follow">
+  <meta name="language" content="Spanish">
+  <meta name="revisit-after" content="7 days">
+  <meta name="generator" content="MIA Platform">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://animacionesmia.com/">
+  <meta property="og:title" content="MIA - Mujeres en la Industria de la Animación">
+  <meta property="og:description" content="Plataforma dedicada a promover y visibilizar el trabajo de las mujeres en la industria de la animación en España.">
+  <meta property="og:image" content="https://animacionesmia.com/assets/images/og-image.jpg">
+  
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://animacionesmia.com/">
+  <meta property="twitter:title" content="MIA - Mujeres en la Industria de la Animación">
+  <meta property="twitter:description" content="Plataforma dedicada a promover y visibilizar el trabajo de las mujeres en la industria de la animación en España.">
+  <meta property="twitter:image" content="https://animacionesmia.com/assets/images/og-image.jpg">
+  
+  <title>MIA - Mujeres en la Industria de la Animación | Plataforma de Promoción</title>
   
   <!-- Preload critical resources -->
   <link rel="preload" href="assets/images/logo.png" as="image">
@@ -31,9 +51,6 @@
   <!-- AOS CSS -->
   <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
   
-  <!-- Cloudflare Turnstile -->
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-  
   <!-- EmailJS Library -->
   <script type="text/javascript" src="https://cdn.emailjs.com/sdk/2.3.2/email.min.js"></script>
   
@@ -48,7 +65,7 @@
     "name": "MIA - Mujeres en la Industria de la Animación",
     "url": "https://animacionesmia.com",
     "logo": "https://animacionesmia.com/assets/images/logo.png",
-    "description": "MIA - Mujeres en la Industria de la Animación. Plataforma dedicada a promover y visibilizar el trabajo de las mujeres en la industria de la animación.",
+    "description": "MIA - Mujeres en la Industria de la Animación. Plataforma dedicada a promover y visibilizar el trabajo de las mujeres en la industria de la animación en España.",
     "address": {
       "@type": "PostalAddress",
       "streetAddress": "Calle de Santander nº 3, 2º Izda",
@@ -66,8 +83,73 @@
     "sameAs": [
       "https://www.instagram.com/mianimacion",
       "https://www.linkedin.com/company/mia-mujeres-en-animacion"
-    ]
+    ],
+    "foundingDate": "2020",
+    "areaServed": "ES",
+    "knowsAbout": ["Animación", "Industria de la Animación", "Mujeres en la Animación", "Producción de Animación"],
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Membresías MIA",
+      "itemListElement": [
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Membresía Pleno Derecho"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Membresía Estudiante"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Membresía Colaborador"
+          }
+        }
+      ]
+    }
   }
+  </script>
+  
+  <!-- Additional Structured Data for WebPage -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "MIA - Mujeres en la Industria de la Animación",
+    "description": "Plataforma dedicada a promover y visibilizar el trabajo de las mujeres en la industria de la animación en España.",
+    "publisher": {
+      "@type": "Organization",
+      "name": "MIA - Mujeres en la Industria de la Animación",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://animacionesmia.com/assets/images/logo.png"
+      }
+    },
+    "mainEntity": {
+      "@type": "Organization",
+      "name": "MIA - Mujeres en la Industria de la Animación",
+      "description": "Plataforma dedicada a promover y visibilizar el trabajo de las mujeres en la industria de la animación en España."
+    }
+  }
+  </script>
+
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-YLBF3GWPRV"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-YLBF3GWPRV', {
+      'page_title': 'MIA - Mujeres en la Industria de la Animación',
+      'send_page_view': true
+    });
   </script>
 </head>
 <body>
@@ -120,7 +202,7 @@
   <nav class="navbar navbar-expand-lg navbar-dark fixed-top" role="navigation" aria-label="Navegación principal">
     <div class="container">
       <a class="navbar-brand" href="/" aria-label="MIA - Inicio">
-        <img src="assets/images/logo.png" alt="MIA Logo" width="150" height="50">
+        <img src="assets/images/logo.png" alt="MIA - Mujeres en la Industria de la Animación - Logo principal" width="150" height="50">
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -149,11 +231,11 @@
     <div class="container">
       <div class="row align-items-center">
         <div class="col-md-4">
-          <img src="assets/images/movistar-optimized.jpg" alt="Premios Movistar" class="img-fluid rounded shadow" width="400" height="267" loading="eager">
+          <img src="assets/images/movistar-optimized.jpg" alt="Premios Movistar Plus+ - Convocatoria para cortometrajes animados liderados por mujeres" class="img-fluid rounded shadow" width="400" height="267" loading="eager">
         </div>
         <div class="col-md-8">
-          <h2 class="display-4 mb-3">Premio Movistar+</h2>
-          <p class="lead mb-4">Premio a la Mejor Animación en colaboración con Movistar+.</p>
+          <h2 class="display-4 mb-3">Proyecto Corto Movistar Plus+</h2>
+          <p class="lead mb-4">Impulsado la producción de cortometrajes animados liderados por mujeres.</p>
           <a href="https://drive.google.com/file/d/1IQqh28jNK3Cyb6no0iET52WkK4gpHy0n/view?usp=drive_link" target="_blank" class="btn btn-primary btn-lg">Ver bases del premio</a>
         </div>
       </div>
@@ -394,7 +476,7 @@
     <div class="container">
       <div class="row align-items-center">
         <div class="col-md-4 text-center text-md-start">
-          <img src="assets/images/logo_footer.png" alt="MIA Logo" class="footer-logo">
+          <img src="assets/images/logo_footer.png" alt="MIA - Mujeres en la Industria de la Animación - Logo del pie de página" class="footer-logo">
         </div>
         <div class="col-md-4 text-center">
           <p class="mb-0">&copy; 2024 MIA. Todos los derechos reservados.</p>
@@ -419,5 +501,22 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
   <script type="module" src="js/main.js"></script>
+
+  <!-- EmailJS -->
+  <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+  <script>
+    (function() {
+      emailjs.init(document.querySelector('[data-emailjs-user-id]').dataset.emailjsUserId);
+    })();
+  </script>
+
+  <!-- Cloudflare Turnstile -->
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  <div class="cf-turnstile" data-sitekey="YOUR_TURNSTILE_SITE_KEY"></div>
+
+  <!-- Stripe Payment Links -->
+  <a href="YOUR_STRIPE_PLENO_DERECHO_LINK" class="stripe-button">Pleno Derecho</a>
+  <a href="YOUR_STRIPE_ESTUDIANTE_LINK" class="stripe-button">Estudiante</a>
+  <a href="YOUR_STRIPE_COLABORADOR_LINK" class="stripe-button">Colaborador</a>
 </body>
 </html>
