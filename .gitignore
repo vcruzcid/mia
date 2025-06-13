@@ -34,4 +34,8 @@ yarn-error.log*
 .Spotlight-V100
 .Trashes
 ehthumbs.db
-Thumbs.db 
+Thumbs.db
+
+# macOS system files
+.AppleDouble
+.LSOverride 
