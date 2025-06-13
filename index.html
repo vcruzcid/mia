@@ -263,21 +263,21 @@
               <form id="contact-form" class="needs-validation" novalidate aria-label="Formulario de contacto">
                 <div class="mb-3">
                   <label for="name" class="form-label">Nombre</label>
-                  <input type="text" class="form-control" id="name" name="name" placeholder="Tu nombre" required aria-required="true">
+                  <input type="text" class="form-control" id="name" name="name" placeholder="Tu nombre" required aria-required="true" autocomplete="name">
                   <div class="invalid-feedback" role="alert">
                     Por favor, ingresa tu nombre.
                   </div>
                 </div>
                 <div class="mb-3">
                   <label for="email" class="form-label">Email</label>
-                  <input type="email" class="form-control" id="email" name="email" placeholder="tu@email.com" required aria-required="true">
+                  <input type="email" class="form-control" id="email" name="email" placeholder="tu@email.com" required aria-required="true" autocomplete="email">
                   <div class="invalid-feedback" role="alert">
                     Por favor, ingresa un email válido.
                   </div>
                 </div>
                 <div class="mb-3">
                   <label for="message" class="form-label">Mensaje (opcional)</label>
-                  <textarea class="form-control" id="message" name="message" rows="3" placeholder="¿Cómo podemos ayudarte?" aria-label="Mensaje opcional"></textarea>
+                  <textarea class="form-control" id="message" name="message" rows="3" placeholder="¿Cómo podemos ayudarte?" aria-label="Mensaje opcional" autocomplete="off"></textarea>
                 </div>
                 <div id="contact-turnstile-container" class="mb-3" style="display: none;" aria-label="Verificación de seguridad">
                   <!-- Turnstile widget will be rendered here on form submission attempt -->
