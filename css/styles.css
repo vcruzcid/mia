@@ -425,7 +425,7 @@
     top: 0;
     bottom: -30px;
     width: 2px;
-    background: var(--bs-primary);
+    background: var(--primary-color);
   }
   
   .timeline-item:last-child::before {
@@ -440,12 +440,12 @@
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background: var(--bs-primary);
+    background: var(--primary-color);
   }
   
   .timeline-date {
     font-weight: bold;
-    color: var(--bs-primary);
+    color: var(--primary-color);
     margin-bottom: 10px;
   }
   
@@ -1071,7 +1071,7 @@
   }
 
   .prize-item .display-6 {
-    color: var(--bs-primary);
+    color: var(--primary-color);
     font-weight: bold;
     margin: 15px 0;
   }
@@ -1085,7 +1085,7 @@
     margin: 0 15px;
     filter: brightness(0) invert(1);
     opacity: 0.9;
-    transition: opacity 0.3s ease;
+    transition: opacity var(--transition-speed) ease;
   }
 
   .hero-section .img-fluid:hover {
