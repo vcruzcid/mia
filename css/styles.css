@@ -1032,9 +1032,9 @@
   /* Movistar banner styles */
   .movistar-banner {
     position: fixed;
-    bottom: 20px;
+    top: 76px; /* Below navbar */
     right: 20px;
-    z-index: 1000;
+    z-index: 999;
     max-width: 200px;
     transition: transform 0.3s ease;
     cursor: pointer;
