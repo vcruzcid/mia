@@ -3,67 +3,84 @@
  * Main JavaScript file for MIA (Mujeres en la Industria de la Animación)
  */
 
+// Import configuration and modules
 import config from './config.js';
+import CookieManager from './cookieManager.js';
+
+// Initialize EmailJS
+emailjs.init(config.emailjs.userID);
 
 document.addEventListener('DOMContentLoaded', function() {
     'use strict';
     
+    // Initialize cookie manager
+    const cookieManager = new CookieManager();
+    
     // Initialize AOS animations
-    AOS.init({
-      duration: 800,
-      easing: 'ease-in-out',
-      once: true,
-      mirror: false
-    });
+    if (typeof AOS !== 'undefined') {
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true,
+            mirror: false
+        });
+    }
     
     // Form validation
     const forms = document.querySelectorAll('.needs-validation');
     
     Array.from(forms).forEach(form => {
-      form.addEventListener('submit', event => {
-        if (!form.checkValidity()) {
-          event.preventDefault();
-          event.stopPropagation();
-          form.classList.add('was-validated');
-        } else {
-          event.preventDefault();
-          
-          // Show Turnstile widget if not already shown
-          const turnstileContainer = document.getElementById('contact-turnstile-container');
-          if (turnstileContainer && !turnstileContainer.querySelector('.cf-turnstile iframe')) {
-            // Show the container
-            turnstileContainer.style.display = 'block';
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+                form.classList.add('was-validated');
+            } else {
+                event.preventDefault();
+                
+                // Show Turnstile widget if not already shown
+                const turnstileContainer = document.getElementById('contact-turnstile-container');
+                if (turnstileContainer && !turnstileContainer.querySelector('.cf-turnstile iframe')) {
+                    // Show the container
+                    turnstileContainer.style.display = 'block';
+                    
+                    // Check if Turnstile is available
+                    if (typeof turnstile !== 'undefined') {
+                        // Render Turnstile widget
+                        turnstile.render(turnstileContainer, {
+                            sitekey: config.turnstile.sitekey,
+                            theme: 'dark',
+                            callback: function(token) {
+                                // Process form submission after Turnstile verification
+                                processFormSubmission(form, token);
+                            }
+                        });
+                        
+                        // Add message above the widget
+                        const message = document.createElement('p');
+                        message.className = 'text-center mb-2';
+                        message.innerHTML = 'Por favor, complete la verificación de seguridad para continuar:';
+                        turnstileContainer.insertBefore(message, turnstileContainer.firstChild);
+                        
+                        return; // Stop here until Turnstile is completed
+                    } else {
+                        console.error('Turnstile not loaded');
+                        showFormError(form, null, null, 'Error de carga del sistema de seguridad. Por favor, recarga la página.');
+                        return;
+                    }
+                }
+                
+                // If we already have a token, process the form
+                const token = form.querySelector('.cf-turnstile') ? 
+                            form.querySelector('.cf-turnstile').getAttribute('data-cf-response') : null;
+                
+                if (token) {
+                    processFormSubmission(form, token);
+                }
+            }
             
-            // Render Turnstile widget
-            turnstile.render(turnstileContainer, {
-              sitekey: config.turnstile.sitekey,
-              theme: 'dark',
-              callback: function(token) {
-                // Process form submission after Turnstile verification
-                processFormSubmission(form, token);
-              }
-            });
-            
-            // Add message above the widget
-            const message = document.createElement('p');
-            message.className = 'text-center mb-2';
-            message.innerHTML = 'Por favor, complete la verificación de seguridad para continuar:';
-            turnstileContainer.insertBefore(message, turnstileContainer.firstChild);
-            
-            return; // Stop here until Turnstile is completed
-          }
-          
-          // If we already have a token, process the form
-          const token = form.querySelector('.cf-turnstile') ? 
-                        form.querySelector('.cf-turnstile').getAttribute('data-cf-response') : null;
-          
-          if (token) {
-            processFormSubmission(form, token);
-          }
-        }
-        
-        form.classList.add('was-validated');
-      }, false);
+            form.classList.add('was-validated');
+        }, false);
     });
     
     // Process form submission after Turnstile verification

@@ -39,8 +39,40 @@
   <div id="cookieConsent" class="cookie-consent" role="alert" aria-live="polite">
     <div class="container">
       <div class="cookie-content">
-        <p>Utilizamos cookies para mejorar tu experiencia. Al continuar navegando, aceptas nuestra <a href="/politica-cookies" aria-label="Leer política de cookies">política de cookies</a>.</p>
-        <button id="acceptCookies" class="btn btn-red" aria-label="Aceptar cookies">Aceptar</button>
+        <h3>Configuración de cookies</h3>
+        <p>Utilizamos cookies para mejorar tu experiencia. Algunas son necesarias para el funcionamiento del sitio, mientras que otras nos ayudan a mejorar nuestros servicios.</p>
+        
+        <div class="cookie-options">
+          <div class="cookie-option">
+            <input type="checkbox" id="cookie-necessary" checked disabled>
+            <label for="cookie-necessary">
+              <strong>Cookies necesarias</strong>
+              <span>Requeridas para el funcionamiento básico del sitio</span>
+            </label>
+          </div>
+          
+          <div class="cookie-option">
+            <input type="checkbox" id="cookie-analytics">
+            <label for="cookie-analytics">
+              <strong>Cookies analíticas</strong>
+              <span>Nos ayudan a entender cómo usas el sitio</span>
+            </label>
+          </div>
+          
+          <div class="cookie-option">
+            <input type="checkbox" id="cookie-marketing">
+            <label for="cookie-marketing">
+              <strong>Cookies de marketing</strong>
+              <span>Para personalizar tu experiencia</span>
+            </label>
+          </div>
+        </div>
+        
+        <div class="cookie-actions">
+          <button id="acceptCookies" class="btn btn-red" aria-label="Aceptar todas las cookies">Aceptar todas</button>
+          <button id="savePreferences" class="btn btn-outline-light" aria-label="Guardar preferencias">Guardar preferencias</button>
+          <a href="/politica-cookies" class="cookie-policy-link" aria-label="Leer política de cookies">Política de cookies</a>
+        </div>
       </div>
     </div>
   </div>
