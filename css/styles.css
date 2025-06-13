@@ -398,7 +398,8 @@
   
   /* ===== TIMELINE SECTION ===== */
   .timeline {
-    background-color: #0f0f0f;
+    position: relative;
+    padding: 20px 0;
   }
   
   .timeline-container {
@@ -408,33 +409,44 @@
   }
   
   .timeline-item {
-    display: flex;
-    align-items: flex-start;
-    margin-bottom: 3rem;
+    position: relative;
+    padding-left: 30px;
+    margin-bottom: 30px;
   }
   
-  .timeline-number {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 60px;
-    height: 60px;
+  .timeline-item:last-child {
+    margin-bottom: 0;
+  }
+  
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: -30px;
+    width: 2px;
+    background: var(--bs-primary);
+  }
+  
+  .timeline-item:last-child::before {
+    bottom: 0;
+  }
+  
+  .timeline-item::after {
+    content: '';
+    position: absolute;
+    left: -4px;
+    top: 0;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
-    background-color: var(--primary-color);
-    color: white;
-    font-size: 1.5rem;
-    font-weight: 700;
-    flex-shrink: 0;
-    margin-right: 2rem;
+    background: var(--bs-primary);
   }
   
-  .timeline-content {
-    flex-grow: 1;
-  }
-  
-  .timeline-content h3 {
-    font-size: 1.4rem;
-    margin-bottom: 0.5rem;
+  .timeline-date {
+    font-weight: bold;
+    color: var(--bs-primary);
+    margin-bottom: 10px;
   }
   
   /* ===== CONTACT SECTION ===== */
@@ -1049,4 +1061,33 @@
     height: auto;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Prize Section Styles */
+  .prize-item {
+    padding: 20px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .prize-item .display-6 {
+    color: var(--bs-primary);
+    font-weight: bold;
+    margin: 15px 0;
+  }
+
+  .prize-item ul li {
+    margin-bottom: 8px;
+  }
+
+  /* Hero Section Logo Styles */
+  .hero-section .img-fluid {
+    margin: 0 15px;
+    filter: brightness(0) invert(1);
+    opacity: 0.9;
+    transition: opacity 0.3s ease;
+  }
+
+  .hero-section .img-fluid:hover {
+    opacity: 1;
   }
