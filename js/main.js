@@ -10,7 +10,7 @@ import FormValidator from './formValidator.js';
 import ErrorBoundary from './errorBoundary.js';
 
 // Initialize EmailJS
-emailjs.init(config.emailjs.userID);
+// emailjs.init(config.emailjs.userID);
 
 document.addEventListener('DOMContentLoaded', function() {
     'use strict';
