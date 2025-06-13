@@ -31,7 +31,7 @@
   <link rel="preload" href="assets/images/logo.png" as="image">
   <link rel="preload" href="assets/images/hero-bg.jpg" as="image">
   <link rel="preload" href="css/styles.css" as="style">
-  <link rel="preload" href="js/main.js" as="script">
+  <link rel="modulepreload" href="js/main.js">
   
   <!-- Favicon -->
   <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
@@ -503,12 +503,7 @@
   <script type="module" src="js/main.js"></script>
 
   <!-- EmailJS -->
-  <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
-  <script>
-    (function() {
-      emailjs.init(document.querySelector('[data-emailjs-user-id]').dataset.emailjsUserId);
-    })();
-  </script>
+  <!-- Removed obsolete inline EmailJS initialization script for v4+ -->
 
   <!-- Cloudflare Turnstile -->
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
