@@ -38,16 +38,4 @@ Thumbs.db
 
 # macOS system files
 .AppleDouble
-.LSOverride
-
-# Environment files
-.env.local
-.env.*.local
-.env.development
-.env.test
-.env.production
-
-# Server files
-server.js
-node_modules/
-package-lock.json 
+.LSOverride 

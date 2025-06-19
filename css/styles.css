@@ -729,56 +729,34 @@
   
   @media (max-width: 767.98px) {
     .hero {
-      padding: 4rem 0;
-      text-align: center;
+      padding: 5rem 0;
+      min-height: auto;
     }
     
     .hero h1 {
+      font-size: 2.2rem;
+    }
+    
+    .section-header h2 {
       font-size: 2rem;
+    }
+    
+    .timeline-item {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .timeline-number {
       margin-bottom: 1rem;
     }
     
-    .hero-text {
-      font-size: 1rem;
-      margin-bottom: 1.5rem;
-    }
-    
-    .hero-buttons {
+    .cookie-content {
       flex-direction: column;
-      gap: 1rem;
+      text-align: center;
     }
     
-    .hero-buttons .btn {
-      width: 100%;
-      margin: 0;
-    }
-
-    /* Reduce animation complexity */
-    [data-aos] {
-      transform: none !important;
-      opacity: 1 !important;
-      transition: none !important;
-    }
-
-    /* Optimize images */
-    img {
-      max-width: 100%;
-      height: auto;
-    }
-
-    /* Reduce shadow complexity */
-    .contact-card,
-    .membership-card,
-    .navbar-collapse {
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    /* Optimize transitions */
-    .btn,
-    .nav-link,
-    .social-link,
-    .contact-link {
-      transition: transform 0.2s ease;
+    .cookie-content button {
+      margin-top: 1rem;
     }
   }
   
@@ -1301,156 +1279,5 @@
     
     .error-content .btn {
       padding: 0.5rem 1rem;
-    }
-  }
-
-  /* Mobile Navigation Improvements */
-  @media (max-width: 991.98px) {
-    .navbar-collapse {
-      background: rgba(0, 0, 0, 0.95);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      padding: 1rem;
-      border-radius: 8px;
-      margin-top: 1rem;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    }
-
-    .navbar-nav {
-      margin: 0;
-    }
-
-    .nav-link {
-      padding: 0.75rem 1rem !important;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .nav-link:last-child {
-      border-bottom: none;
-    }
-
-    .nav-cta {
-      margin: 1rem 0;
-      width: 100%;
-      text-align: center;
-    }
-  }
-
-  /* Mobile Movistar Banner */
-  @media (max-width: 767.98px) {
-    .movistar-banner {
-      text-align: center;
-      padding: 2rem 0;
-    }
-
-    .movistar-banner img {
-      margin-bottom: 2rem;
-      max-width: 100%;
-      height: auto;
-    }
-
-    .movistar-banner .btn {
-      width: 100%;
-      margin-top: 1rem;
-    }
-  }
-
-  /* Mobile Contact Cards */
-  @media (max-width: 767.98px) {
-    .contact-card {
-      text-align: center;
-      padding: 1.5rem;
-    }
-
-    .contact-icon {
-      margin: 0 auto 1rem;
-    }
-  }
-
-  /* Mobile Footer */
-  @media (max-width: 767.98px) {
-    .footer {
-      text-align: center;
-      padding: 2rem 0;
-    }
-
-    .social-links {
-      justify-content: center;
-      margin: 1.5rem 0;
-    }
-  }
-
-  /* Touch-friendly Improvements */
-  @media (hover: none) {
-    .btn,
-    .nav-link,
-    .social-link,
-    .contact-link {
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .btn:active,
-    .nav-link:active,
-    .social-link:active,
-    .contact-link:active {
-      transform: scale(0.98);
-    }
-
-    .contact-card:active,
-    .membership-card:active {
-      transform: scale(0.98);
-    }
-  }
-
-  /* iOS-specific fixes */
-  @supports (-webkit-touch-callout: none) {
-    .navbar {
-      padding-top: env(safe-area-inset-top);
-    }
-
-    .footer {
-      padding-bottom: env(safe-area-inset-bottom);
-    }
-
-    .btn,
-    .nav-link {
-      cursor: pointer;
-    }
-  }
-
-  /* ===== SUCCESS PAGE ===== */  
-  .success-page {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-  }
-  
-  .step-card {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    transition: transform 0.3s ease;
-  }
-  
-  .step-card:hover {
-    transform: translateY(-5px);
-  }
-  
-  .success-icon {
-    animation: bounce 2s infinite;
-  }
-  
-  @keyframes bounce {
-    0%, 20%, 50%, 80%, 100% {
-      transform: translateY(0);
-    }
-    40% {
-      transform: translateY(-10px);
-    }
-    60% {
-      transform: translateY(-5px);
     }
   }
