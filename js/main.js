@@ -423,3 +423,66 @@ document.addEventListener('DOMContentLoaded', function() {
     // Call the highlight function
     highlightNavLinks();
   });
+
+  // ===== SUCCESS PAGE =====
+  // Check if user is returning from successful Stripe checkout
+function checkForSuccess() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const success = urlParams.get('success');
+  const sessionId = urlParams.get('session_id');
+  const membershipType = urlParams.get('type');
+  
+  if (success === 'true' && sessionId) {
+    showSuccessPage(membershipType);
+  }
+}
+
+// Show success page
+function showSuccessPage(membershipType) {
+  // Update welcome message based on membership type
+  const titleElement = document.querySelector('#success-section h1');
+  const membershipMessages = {
+    'pleno': '¡Bienvenida como Socia Pleno Derecho! 🎬✨',
+    'estudiante': '¡Bienvenida como Socia Estudiante! 📚✨',
+    'colaborador': '¡Gracias por ser Colaboradora! 🤝✨'
+  };
+  
+  if (membershipType && membershipMessages[membershipType]) {
+    titleElement.textContent = membershipMessages[membershipType];
+  }
+  
+  // Hide main content
+  document.querySelector('nav').style.display = 'none';
+  document.getElementById('hero').style.display = 'none';
+  document.querySelector('.membership').style.display = 'none';
+  document.querySelector('.timeline').style.display = 'none';
+  document.querySelector('.contact').style.display = 'none';
+  
+  // Show success page
+  document.getElementById('success-section').style.display = 'block';
+  
+  // Scroll to top
+  window.scrollTo(0, 0);
+}
+
+// Hide success page and return to normal view
+function hideSuccessPage() {
+  // Show main content
+  document.querySelector('nav').style.display = 'block';
+  document.getElementById('hero').style.display = 'block';
+  document.querySelector('.membership').style.display = 'block';
+  document.querySelector('.timeline').style.display = 'block';
+  document.querySelector('.contact').style.display = 'block';
+  
+  // Hide success page
+  document.getElementById('success-section').style.display = 'none';
+  
+  // Clean URL
+  window.history.replaceState({}, document.title, window.location.pathname);
+  
+  // Scroll to top
+  window.scrollTo(0, 0);
+}
+
+// Run check when page loads
+document.addEventListener('DOMContentLoaded', checkForSuccess);
