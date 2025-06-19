@@ -1,5 +1,6 @@
 # The Docker image that will be used to build your app
 image: busybox
+
 create-pages:
   pages:
     # The folder that contains the files to be exposed at the Page URL
@@ -15,3 +16,9 @@ create-pages:
   script:
     - mkdir public
     - cp -r index.html css js assets public/
+    # Inject values directly into HTML
+    - sed -i "s/data-emailjs-user-id=\"[^\"]*\"/data-emailjs-user-id=\"$EMAILJS_USER_ID\"/g" public/index.html
+    - sed -i "s/data-turnstile-site-key=\"[^\"]*\"/data-turnstile-site-key=\"$TURNSTILE_SITE_KEY\"/g" public/index.html
+    - sed -i "s|data-stripe-url=\"[^\"]*\"|data-stripe-url=\"$STRIPE_PLENO_DERECHO\"|g" public/index.html
+    - sed -i "s|data-stripe-url=\"[^\"]*\"|data-stripe-url=\"$STRIPE_ESTUDIANTE\"|g" public/index.html
+    - sed -i "s|data-stripe-url=\"[^\"]*\"|data-stripe-url=\"$STRIPE_COLABORADOR\"|g" public/index.html
