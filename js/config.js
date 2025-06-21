@@ -5,7 +5,7 @@
 
 const config = {
     // Development flag - set to true to disable Turnstile for local testing
-    development: true,
+    development: false,
     
     emailjs: {
         userID: 'YOUR_USER_ID', // Replace with actual EmailJS user ID
