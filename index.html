@@ -215,12 +215,6 @@
           <li class="nav-item">
             <a class="nav-link" href="#sobre-nosotros" aria-label="Ir a sección sobre nosotros">Sobre MIA</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#" aria-label="Portal de miembros (en desarrollo)" style="opacity: 0.6; position: relative;">
-              Portal de miembros
-              <span style="position: absolute; top: -8px; right: -8px; background: #ff6b6b; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; font-weight: bold;">DEV</span>
-            </a>
-          </li>
           <li class="nav-item ms-lg-3">
             <a class="btn btn-red btn-sm nav-cta" href="#renovacion" aria-label="Ir a sección de renovación">Únete</a>
           </li>
@@ -263,29 +257,22 @@
             <div class="contact-card">
               <h2>¡Permanece conectada!</h2>
               <p>Déjanos tus datos y te informaremos cuando la nueva plataforma esté lista.</p>
-              <form id="contact-form" class="needs-validation" novalidate aria-label="Formulario de contacto">
+              <form id="mailchimp-form" class="needs-validation" novalidate aria-label="Formulario de suscripción">
                 <div class="mb-3">
-                  <label for="name" class="form-label">Nombre</label>
-                  <input type="text" class="form-control" id="name" name="name" placeholder="Tu nombre" required aria-required="true" autocomplete="name">
+                  <label for="name-mailchimp" class="form-label">Nombre</label>
+                  <input type="text" class="form-control" id="name-mailchimp" name="name" placeholder="Tu nombre" required aria-required="true" autocomplete="name">
                   <div class="invalid-feedback" role="alert">
                     Por favor, ingresa tu nombre.
                   </div>
                 </div>
                 <div class="mb-3">
-                  <label for="email" class="form-label">Email</label>
-                  <input type="email" class="form-control" id="email" name="email" placeholder="tu@email.com" required aria-required="true" autocomplete="email">
+                  <label for="email-mailchimp" class="form-label">Email</label>
+                  <input type="email" class="form-control" id="email-mailchimp" name="email" placeholder="tu@email.com" required aria-required="true" autocomplete="email">
                   <div class="invalid-feedback" role="alert">
                     Por favor, ingresa un email válido.
                   </div>
                 </div>
-                <div class="mb-3">
-                  <label for="message" class="form-label">Mensaje (opcional)</label>
-                  <textarea class="form-control" id="message" name="message" rows="3" placeholder="¿Cómo podemos ayudarte?" aria-label="Mensaje opcional" autocomplete="off"></textarea>
-                </div>
-                <div id="contact-turnstile-container" class="mb-3" style="display: none;" aria-label="Verificación de seguridad">
-                  <!-- Turnstile widget will be rendered here on form submission attempt -->
-                </div>
-                <button type="submit" class="btn btn-red w-100" aria-label="Enviar mensaje">Enviar mensaje</button>
+                <button type="submit" class="btn btn-red w-100" aria-label="Suscribirse">Suscribirse</button>
               </form>
             </div>
           </div>
@@ -460,6 +447,7 @@
           <div class="col-lg-8 mx-auto">
             <div class="contact-form-card" data-aos="fade-up">
               <h3 class="text-center mb-4">Envíanos un mensaje</h3>
+              <p class="text-center mb-4">Tu mensaje será enviado directamente a <strong>hola@animacionesmia.com</strong></p>
               <form id="contact-form-standalone" class="needs-validation" novalidate aria-label="Formulario de contacto">
                 <div class="row">
                   <div class="col-md-6 mb-3">
