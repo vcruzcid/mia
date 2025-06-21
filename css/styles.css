@@ -508,7 +508,27 @@
   
   .contact-link:hover {
     color: var(--primary-color);
-    text-decoration: underline;
+  }
+  
+  .contact-form-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    transition: all var(--transition-speed) ease;
+  }
+  
+  .contact-form-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+    border-color: var(--primary-color);
+  }
+  
+  .contact-form-card h3 {
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+    font-weight: 600;
   }
   
   .approval-note {
@@ -525,7 +545,7 @@
   }
   
   .footer-logo {
-    height: 50px;
+    height: 80px;
     width: auto;
     margin-bottom: 1.5rem;
   }

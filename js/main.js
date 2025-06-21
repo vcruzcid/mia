@@ -67,11 +67,25 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 event.preventDefault();
                 
+                // Check if this is the Mailchimp form
+                if (form.id === 'mailchimp-form') {
+                    processMailchimpSubmission(form);
+                    return;
+                }
+                
                 // Add loading state
                 form.classList.add('form-loading');
                 
+                // Skip Turnstile in development mode
+                if (config.development) {
+                    console.log('Development mode: Skipping Turnstile verification');
+                    processFormSubmission(form, 'dev-token');
+                    return;
+                }
+                
                 // Show Turnstile widget if not already shown
-                const turnstileContainer = document.getElementById('contact-turnstile-container');
+                const turnstileContainer = document.getElementById('contact-turnstile-container') || 
+                                         document.getElementById('contact-turnstile-container-standalone');
                 if (turnstileContainer && !turnstileContainer.querySelector('.cf-turnstile iframe')) {
                     // Show the container
                     turnstileContainer.style.display = 'block';
@@ -197,6 +211,16 @@ document.addEventListener('DOMContentLoaded', function() {
       button.addEventListener('click', function(e) {
         e.preventDefault();
         
+        // Skip Turnstile in development mode
+        if (config.development) {
+          console.log('Development mode: Skipping Turnstile for Stripe payment');
+          const stripeUrl = button.getAttribute('data-stripe-url');
+          if (stripeUrl) {
+            window.location.href = stripeUrl;
+          }
+          return;
+        }
+        
         // Get the button ID number
         const buttonNum = this.id.split('-').pop();
         const turnstileContainerId = `turnstile-container-${buttonNum}`;
@@ -253,7 +277,8 @@ document.addEventListener('DOMContentLoaded', function() {
       form.style.pointerEvents = 'none';
       
       // Hide the Turnstile container
-      const turnstileContainer = document.getElementById('contact-turnstile-container');
+      const turnstileContainer = document.getElementById('contact-turnstile-container') || 
+                                document.getElementById('contact-turnstile-container-standalone');
       if (turnstileContainer) {
         turnstileContainer.style.display = 'none';
       }
@@ -422,4 +447,62 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Call the highlight function
     highlightNavLinks();
-  });
+    
+    // Process Mailchimp form submission
+    function processMailchimpSubmission(form) {
+        try {
+            // Get form data
+            const formData = new FormData(form);
+            const name = formData.get('name');
+            const email = formData.get('email');
+            
+            // Disable form while sending
+            const submitButton = form.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.innerHTML;
+            submitButton.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Suscribiendo...';
+            submitButton.disabled = true;
+            
+            // For now, simulate Mailchimp subscription
+            // In production, you would integrate with Mailchimp API here
+            setTimeout(() => {
+                console.log('Mailchimp subscription:', { name, email });
+                showMailchimpSuccess(form, submitButton, originalButtonText);
+            }, 1500);
+            
+        } catch (error) {
+            console.error('Error processing Mailchimp form:', error);
+            showFormError(form, null, null, error.message);
+        }
+    }
+    
+    // Show success message for Mailchimp subscription
+    function showMailchimpSuccess(form, button, originalText) {
+        // Reset button
+        button.innerHTML = originalText;
+        button.disabled = false;
+        
+        // Show success message
+        const successAlert = document.createElement('div');
+        successAlert.className = 'alert alert-success mt-3 fade-in';
+        successAlert.setAttribute('role', 'alert');
+        successAlert.setAttribute('aria-live', 'assertive');
+        successAlert.innerHTML = '¡Gracias por suscribirte! Te mantendremos informada sobre el lanzamiento de nuestra nueva plataforma.';
+        
+        // Hide the form
+        form.style.transition = 'opacity 0.5s ease';
+        form.style.opacity = '0.5';
+        form.style.pointerEvents = 'none';
+        
+        // Add success message
+        form.parentNode.appendChild(successAlert);
+        
+        // Reset form after 5 seconds
+        setTimeout(() => {
+            form.reset();
+            form.style.opacity = '1';
+            form.style.pointerEvents = 'auto';
+            form.classList.remove('was-validated');
+            successAlert.remove();
+        }, 5000);
+    }
+});
