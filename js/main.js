@@ -70,8 +70,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Add loading state
                 form.classList.add('form-loading');
                 
+                // Skip Turnstile in development mode
+                if (config.development) {
+                    console.log('Development mode: Skipping Turnstile verification');
+                    processFormSubmission(form, 'dev-token');
+                    return;
+                }
+                
                 // Show Turnstile widget if not already shown
-                const turnstileContainer = document.getElementById('contact-turnstile-container');
+                const turnstileContainer = document.getElementById('contact-turnstile-container') || 
+                                         document.getElementById('contact-turnstile-container-standalone');
                 if (turnstileContainer && !turnstileContainer.querySelector('.cf-turnstile iframe')) {
                     // Show the container
                     turnstileContainer.style.display = 'block';
@@ -197,6 +205,16 @@ document.addEventListener('DOMContentLoaded', function() {
       button.addEventListener('click', function(e) {
         e.preventDefault();
         
+        // Skip Turnstile in development mode
+        if (config.development) {
+          console.log('Development mode: Skipping Turnstile for Stripe payment');
+          const stripeUrl = button.getAttribute('data-stripe-url');
+          if (stripeUrl) {
+            window.location.href = stripeUrl;
+          }
+          return;
+        }
+        
         // Get the button ID number
         const buttonNum = this.id.split('-').pop();
         const turnstileContainerId = `turnstile-container-${buttonNum}`;
@@ -253,7 +271,8 @@ document.addEventListener('DOMContentLoaded', function() {
       form.style.pointerEvents = 'none';
       
       // Hide the Turnstile container
-      const turnstileContainer = document.getElementById('contact-turnstile-container');
+      const turnstileContainer = document.getElementById('contact-turnstile-container') || 
+                                document.getElementById('contact-turnstile-container-standalone');
       if (turnstileContainer) {
         turnstileContainer.style.display = 'none';
       }
