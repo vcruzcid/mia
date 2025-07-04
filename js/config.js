@@ -5,7 +5,7 @@
 
 const config = {
     // Development flag - set to true to disable Turnstile for local testing
-    development: false,
+    development: true,
     
     emailjs: {
         userID: 'YOUR_USER_ID', // Replace with actual EmailJS user ID
@@ -16,9 +16,9 @@ const config = {
         sitekey: '0x4AAAAAABddjw-SDSpgjBDI'
     },
     stripe: {
-        plenoDerecho: 'https://buy.stripe.com/9B69ASapSeBh13e81x7g401',
-        estudiante: 'https://buy.stripe.com/00w28qcy0gJp27i3Lh7g402',
-        colaborador: 'https://buy.stripe.com/7sYcN4gOg2Sz5ju2Hd7g400'
+        plenoDerecho: 'https://pagos.animacionesmia.com/b/9B69ASapSeBh13e81x7g401',
+        estudiante: 'https://pagos.animacionesmia.com/b/00w28qcy0gJp27i3Lh7g402',
+        colaborador: 'https://pagos.animacionesmia.com/b/9B65kC41ubp5eU495B7g403Og2Sz5ju2Hd7g400'
     }
 };
 
