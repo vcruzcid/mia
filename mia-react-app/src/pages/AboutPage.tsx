@@ -82,7 +82,7 @@ export function AboutPage() {
           }`}>
             Sobre {siteConfig.shortName}
           </h1>
-          <p className={`mt-4 text-xl text-gray-600 transition-all duration-1000 delay-300 ${
+          <p className={`mt-4 text-xl text-gray-800 transition-all duration-1000 delay-300 ${
             heroAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}>
             Conoce nuestra historia, misión y valores
@@ -126,7 +126,7 @@ export function AboutPage() {
             }`}>
               Qué hace MIA
             </h2>
-            <p className={`mt-4 text-xl text-gray-600 max-w-3xl mx-auto transition-all duration-1000 delay-300 ${
+            <p className={`mt-4 text-xl text-gray-800 max-w-3xl mx-auto transition-all duration-1000 delay-300 ${
               missionAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}>
               Nuestra misión es empoderar a las mujeres en la industria de la animación española, 
@@ -146,7 +146,7 @@ export function AboutPage() {
                   </svg>
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-4">Networking Profesional</h3>
-                <p className="text-gray-600 leading-relaxed">
+                <p className="text-gray-800 leading-relaxed">
                   Organizamos eventos regulares, encuentros y actividades de networking para 
                   conectar profesionales de todos los niveles en la industria de la animación.
                 </p>
@@ -163,7 +163,7 @@ export function AboutPage() {
                   </svg>
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-4">Formación y Desarrollo</h3>
-                <p className="text-gray-600 leading-relaxed">
+                <p className="text-gray-800 leading-relaxed">
                   Ofrecemos programas formativos especializados, talleres técnicos y recursos 
                   educativos para el crecimiento profesional continuo de nuestras socias.
                 </p>
@@ -180,7 +180,7 @@ export function AboutPage() {
                   </svg>
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-4">Visibilidad y Promoción</h3>
-                <p className="text-gray-600 leading-relaxed">
+                <p className="text-gray-800 leading-relaxed">
                   Promovemos el trabajo de las mujeres en animación a través de campañas, 
                   reconocimientos públicos y oportunidades de visibilidad mediática.
                 </p>
@@ -196,19 +196,19 @@ export function AboutPage() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
               <div className="text-center">
                 <div className="text-4xl font-bold text-primary-600 mb-2">300+</div>
-                <div className="text-sm text-gray-600">Socias activas</div>
+                <div className="text-sm text-gray-800">Socias activas</div>
               </div>
               <div className="text-center">
                 <div className="text-4xl font-bold text-primary-600 mb-2">50+</div>
-                <div className="text-sm text-gray-600">Eventos anuales</div>
+                <div className="text-sm text-gray-800">Eventos anuales</div>
               </div>
               <div className="text-center">
                 <div className="text-4xl font-bold text-primary-600 mb-2">15+</div>
-                <div className="text-sm text-gray-600">Talleres formativos</div>
+                <div className="text-sm text-gray-800">Talleres formativos</div>
               </div>
               <div className="text-center">
                 <div className="text-4xl font-bold text-primary-600 mb-2">85%</div>
-                <div className="text-sm text-gray-600">Satisfacción socias</div>
+                <div className="text-sm text-gray-800">Satisfacción socias</div>
               </div>
             </div>
           </div>
@@ -228,7 +228,7 @@ export function AboutPage() {
             }`}>
               Nuestros Logros
             </h2>
-            <p className={`mt-4 text-xl text-gray-600 max-w-3xl mx-auto transition-all duration-1000 delay-300 ${
+            <p className={`mt-4 text-xl text-gray-800 max-w-3xl mx-auto transition-all duration-1000 delay-300 ${
               achievementsAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}>
               Desde nuestra fundación, hemos conseguido impactos significativos en la industria 
@@ -245,7 +245,7 @@ export function AboutPage() {
                 {projectsCounter.formattedValue}
               </div>
               <div className="text-lg font-medium text-gray-900 mb-2">Proyectos apoyados</div>
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-gray-800">
                 Hemos respaldado más de 150 proyectos de animación liderados por mujeres
               </div>
             </div>
@@ -257,7 +257,7 @@ export function AboutPage() {
                 {partnersCounter.formattedValue}
               </div>
               <div className="text-lg font-medium text-gray-900 mb-2">Empresas colaboradoras</div>
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-gray-800">
                 Partnership con las principales empresas de animación del país
               </div>
             </div>
@@ -269,7 +269,7 @@ export function AboutPage() {
                 {yearsCounter.formattedValue}
               </div>
               <div className="text-lg font-medium text-gray-900 mb-2">Años de experiencia</div>
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-gray-800">
                 Casi una década promoviendo la igualdad en la animación española
               </div>
             </div>
@@ -361,7 +361,7 @@ export function AboutPage() {
             }`}>
               Breve Historia
             </h2>
-            <p className={`mt-4 text-xl text-gray-600 max-w-3xl mx-auto transition-all duration-1000 delay-300 ${
+            <p className={`mt-4 text-xl text-gray-800 max-w-3xl mx-auto transition-all duration-1000 delay-300 ${
               historyAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}>
               Desde nuestros humildes comienzos hasta convertirnos en una referencia nacional 

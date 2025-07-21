@@ -8,6 +8,9 @@ export function HomePage() {
   const heroAnimation = useScrollAnimation({ threshold: 0.2 });
   const statsAnimation = useScrollAnimation({ threshold: 0.3 });
   const featuresAnimation = useScrollAnimation({ threshold: 0.2 });
+  
+  // Test indicator - remove after confirming changes work
+  console.log('🔧 HomePage loaded with updated code - changes should be visible!');
   const testimonialsAnimation = useScrollAnimation({ threshold: 0.3 });
 
   const memberCounter = useCounterAnimation(300, {

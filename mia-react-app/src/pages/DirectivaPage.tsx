@@ -56,7 +56,7 @@ export function DirectivaPage() {
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
               Junta Directiva MIA
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-800 max-w-3xl mx-auto">
               Conoce a las líderes que guían nuestra asociación hacia el futuro de la animación en España.
             </p>
           </div>
@@ -92,7 +92,7 @@ export function DirectivaPage() {
           <div className="mt-8 max-w-lg mx-auto">
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
@@ -100,7 +100,7 @@ export function DirectivaPage() {
                 type="text"
                 value={searchTerm}
                 onChange={handleSearchChange}
-                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-base shadow-sm"
+                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-600 focus:outline-none focus:placeholder-gray-500 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-base shadow-sm"
                 placeholder="Buscar por nombre, cargo o responsabilidad..."
               />
             </div>
@@ -123,14 +123,14 @@ export function DirectivaPage() {
         {filteredDirectiva.length === 0 ? (
           <div className="text-center py-12">
             <div className="mx-auto h-24 w-24 bg-gray-200 rounded-full flex items-center justify-center mb-4">
-              <svg className="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="h-12 w-12 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
               </svg>
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">
               No hay información disponible
             </h3>
-            <p className="text-gray-500">
+            <p className="text-gray-700">
               No se encontraron miembros de la directiva para el año {selectedYear}.
             </p>
           </div>
@@ -238,7 +238,7 @@ function DirectivaCard({ member, index, onClick }: DirectivaCardProps) {
             {member.position}
           </div>
           {member.company && (
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="text-sm text-gray-700 mt-2">
               {member.company}
             </p>
           )}
@@ -334,7 +334,7 @@ function DirectivaCard({ member, index, onClick }: DirectivaCardProps) {
 
         {/* Click to view more indicator */}
         <div className="mt-4 text-center">
-          <span className="text-xs text-gray-400">Hacer clic para ver más detalles</span>
+          <span className="text-xs text-gray-600">Hacer clic para ver más detalles</span>
         </div>
       </div>
     </div>

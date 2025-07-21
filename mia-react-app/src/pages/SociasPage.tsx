@@ -60,14 +60,15 @@ export function SociasPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
               Socias MIA
+              <span className="ml-2 text-xs bg-green-500 text-white px-2 py-1 rounded">UPDATED</span>
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-800 max-w-3xl mx-auto">
               Conoce a las profesionales que forman parte de nuestra comunidad de mujeres en la industria de animación.
             </p>
           </div>
@@ -76,7 +77,7 @@ export function SociasPage() {
           <div className="mt-8 max-w-lg mx-auto">
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
@@ -84,7 +85,7 @@ export function SociasPage() {
                 type="text"
                 value={searchTerm}
                 onChange={handleSearchChange}
-                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 text-base"
+                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-600 focus:outline-none focus:placeholder-gray-500 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 text-base"
                 placeholder="Buscar por nombre, empresa, especialización o ubicación..."
               />
             </div>
@@ -93,7 +94,7 @@ export function SociasPage() {
           {/* Results Summary */}
           <div className="mt-6 flex flex-wrap items-center justify-between">
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-gray-700">
                 {memberCounts.total} socias encontradas
               </span>
               {getActiveFiltersCount() > 0 && (
@@ -169,7 +170,7 @@ export function SociasPage() {
                         <span className="ml-3 text-sm text-gray-700">
                           {type === 'Full' ? 'Socia de Pleno Derecho' : 
                            type === 'Student' ? 'Socia Estudiante' : 'Colaborador/a'}
-                          <span className="ml-2 text-gray-400">
+                          <span className="ml-2 text-gray-600">
                             ({memberCounts.byType[type] || 0})
                           </span>
                         </span>
@@ -236,7 +237,7 @@ export function SociasPage() {
                         <span className="ml-3 text-sm text-gray-700">
                           {status === 'Available' ? 'Disponible' : 
                            status === 'Busy' ? 'Ocupada' : 'No Disponible'}
-                          <span className="ml-2 text-gray-400">
+                          <span className="ml-2 text-gray-600">
                             ({memberCounts.byAvailability[status] || 0})
                           </span>
                         </span>
@@ -330,11 +331,11 @@ export function SociasPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {filteredMembers.length === 0 ? (
           <div className="text-center py-12">
-            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="mx-auto h-12 w-12 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
             <h3 className="mt-2 text-sm font-medium text-gray-900">No se encontraron socias</h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-700">
               Prueba a ajustar los filtros de búsqueda para encontrar más resultados.
             </p>
           </div>
@@ -402,7 +403,7 @@ function MemberCard({ member, onClick }: MemberCardProps) {
             <p className="text-lg font-medium text-gray-900 truncate">
               {member.firstName} {member.lastName}
             </p>
-            <p className="text-sm text-gray-500 truncate">
+            <p className="text-sm text-gray-700 truncate">
               {member.company || 'Freelance'}
             </p>
           </div>
@@ -421,7 +422,7 @@ function MemberCard({ member, onClick }: MemberCardProps) {
           </div>
 
           <div>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-800">
               📍 {member.location.city && `${member.location.city}, `}{member.location.country}
             </p>
           </div>
@@ -438,7 +439,7 @@ function MemberCard({ member, onClick }: MemberCardProps) {
                 </span>
               ))}
               {member.specializations.length > 3 && (
-                <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-200 text-gray-600">
+                <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-200 text-gray-800">
                   +{member.specializations.length - 3} más
                 </span>
               )}
@@ -463,7 +464,7 @@ function MemberCard({ member, onClick }: MemberCardProps) {
                 </div>
               )}
               {member.socialMedia.website && (
-                <div className="h-4 w-4 text-gray-600">
+                <div className="h-4 w-4 text-gray-800">
                   <span className="text-xs">🌐</span>
                 </div>
               )}
@@ -506,7 +507,7 @@ function MemberModal({ member, onClose }: MemberModalProps) {
                   {member.firstName} {member.lastName}
                 </h3>
                 <div className="mt-2">
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-700">
                     {member.company || 'Freelance'}
                   </p>
                   {member.bio && (
@@ -533,7 +534,7 @@ function MemberModal({ member, onClose }: MemberModalProps) {
 
               <div>
                 <h4 className="text-sm font-medium text-gray-900">Ubicación</h4>
-                <p className="mt-1 text-sm text-gray-600">
+                <p className="mt-1 text-sm text-gray-800">
                   {member.location.city && `${member.location.city}, `}
                   {member.location.region && `${member.location.region}, `}
                   {member.location.country}
@@ -579,7 +580,7 @@ function MemberModal({ member, onClose }: MemberModalProps) {
                         href={member.socialMedia.website}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="block text-sm text-gray-600 hover:text-gray-800"
+                        className="block text-sm text-gray-800 hover:text-gray-900"
                       >
                         🌐 Sitio Web
                       </a>

@@ -9,6 +9,8 @@ import { MembershipPage } from './pages/MembershipPage';
 import { ContactPage } from './pages/ContactPage';
 import { SociasPage } from './pages/SociasPage';
 import { DirectivaPage } from './pages/DirectivaPage';
+import { SimpleRegistrationPage } from './pages/SimpleRegistrationPage';
+import { WelcomePage } from './pages/WelcomePage';
 
 function App() {
   return (
@@ -23,6 +25,8 @@ function App() {
               <Route path="contacto" element={<ContactPage />} />
               <Route path="socias" element={<SociasPage />} />
               <Route path="directiva" element={<DirectivaPage />} />
+              <Route path="registro" element={<SimpleRegistrationPage />} />
+              <Route path="registro/bienvenida" element={<WelcomePage />} />
             </Route>
           </Routes>
         </div>
