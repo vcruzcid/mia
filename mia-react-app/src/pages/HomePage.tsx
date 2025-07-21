@@ -33,7 +33,8 @@ export function HomePage() {
       growthCounter.startAnimation();
       eventCounter.startAnimation();
     }
-  }, [statsAnimation.isIntersecting, memberCounter, growthCounter, eventCounter]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [statsAnimation.isIntersecting, memberCounter.startAnimation, growthCounter.startAnimation, eventCounter.startAnimation]);
 
   const testimonials = [
     {

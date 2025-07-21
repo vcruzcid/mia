@@ -9,6 +9,8 @@ export function Header() {
   const navigation = [
     { name: 'Inicio', href: '/' },
     { name: 'Sobre MIA', href: '/sobre-mia' },
+    { name: 'Socias', href: '/socias' },
+    { name: 'Directiva', href: '/directiva' },
     { name: 'Membresía', href: '/membresia' },
     { name: 'Contacto', href: '/contacto' },
   ];

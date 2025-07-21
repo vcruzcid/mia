@@ -5,10 +5,13 @@ export const queryClient = new QueryClient({
     queries: {
       staleTime: 5 * 60 * 1000, // 5 minutes
       gcTime: 10 * 60 * 1000, // 10 minutes
-      retry: (failureCount, error: any) => {
+      retry: (failureCount, error: unknown) => {
         // Don't retry on 4xx errors
-        if (error?.status >= 400 && error?.status < 500) {
-          return false;
+        if (error && typeof error === 'object' && 'status' in error) {
+          const statusError = error as { status: number };
+          if (statusError.status >= 400 && statusError.status < 500) {
+            return false;
+          }
         }
         return failureCount < 3;
       },

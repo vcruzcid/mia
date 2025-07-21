@@ -30,12 +30,27 @@ export function MembershipPage() {
 
       setSelectedMembership(membership);
       
-      // Redirect to Stripe payment
-      const stripeUrl = siteConfig.stripe[membership.stripeLinkKey];
-      window.location.href = stripeUrl;
+      // Handle free newsletter subscription
+      if (membership.stripeLinkKey === 'newsletter') {
+        // For newsletter subscription, you would typically send to a backend
+        // or handle newsletter signup via Mailchimp API
+        console.log('Newsletter subscription:', data);
+        alert('¡Gracias! Te has suscrito exitosamente a nuestro newsletter.');
+        setLoading(false);
+        return;
+      }
+      
+      // Redirect to Stripe payment for paid memberships
+      const stripeUrl = siteConfig.stripe[membership.stripeLinkKey as keyof typeof siteConfig.stripe];
+      if (stripeUrl) {
+        window.location.href = stripeUrl;
+      } else {
+        throw new Error('URL de pago no disponible');
+      }
       
     } catch (error) {
       console.error('Error processing membership:', error);
+      alert('Error al procesar la membresía. Por favor, inténtalo de nuevo.');
       setLoading(false);
     }
   };
@@ -53,38 +68,58 @@ export function MembershipPage() {
         </div>
 
         {/* Membership Options */}
-        <div className="mt-12 grid gap-8 lg:grid-cols-3">
+        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {membershipTypes.map((membership) => (
             <div
               key={membership.id}
-              className={`relative rounded-2xl border-2 p-8 shadow-lg ${
+              className={`relative rounded-2xl border-2 p-6 shadow-lg h-full flex flex-col ${
                 selectedType === membership.id
                   ? 'border-primary-500 ring-2 ring-primary-500'
                   : 'border-gray-200'
-              }`}
+              } ${membership.id === 'newsletter' ? 'bg-gradient-to-br from-green-50 to-green-100' : 'bg-white'}`}
             >
-              <div className="text-center">
-                <h3 className="text-2xl font-semibold text-gray-900">
+              {membership.id === 'newsletter' && (
+                <div className="absolute -top-3 -right-3 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                  GRATIS
+                </div>
+              )}
+              
+              {membership.id === 'pleno-derecho' && (
+                <div className="absolute -top-3 -right-3 bg-primary-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                  POPULAR
+                </div>
+              )}
+
+              <div className="text-center flex-shrink-0">
+                <h3 className="text-xl font-semibold text-gray-900">
                   {membership.name}
                 </h3>
-                <p className="mt-4 text-gray-600">
+                <p className="mt-3 text-sm text-gray-600 min-h-[2.5rem] flex items-center justify-center">
                   {membership.description}
                 </p>
-                <p className="mt-8">
-                  <span className="text-4xl font-extrabold text-gray-900">
-                    €{membership.price}
-                  </span>
-                  <span className="text-base font-medium text-gray-500">
-                    /año
-                  </span>
-                </p>
+                <div className="mt-6 mb-6">
+                  {membership.price === 0 ? (
+                    <div className="text-3xl font-extrabold text-green-600">
+                      GRATUITA
+                    </div>
+                  ) : (
+                    <div>
+                      <span className="text-3xl font-extrabold text-gray-900">
+                        €{membership.price}
+                      </span>
+                      <span className="text-base font-medium text-gray-500">
+                        /año
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
 
-              <ul className="mt-8 space-y-4">
+              <ul className="mt-4 space-y-3 flex-grow">
                 {membership.benefits.map((benefit, index) => (
                   <li key={index} className="flex items-start">
                     <svg
-                      className="h-5 w-5 text-primary-500 mt-0.5 flex-shrink-0"
+                      className="h-4 w-4 text-primary-500 mt-0.5 flex-shrink-0"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                     >
@@ -94,7 +129,7 @@ export function MembershipPage() {
                         clipRule="evenodd"
                       />
                     </svg>
-                    <span className="ml-3 text-sm text-gray-700">
+                    <span className="ml-2 text-xs text-gray-700 leading-relaxed">
                       {benefit}
                     </span>
                   </li>
@@ -104,9 +139,11 @@ export function MembershipPage() {
               <button
                 type="button"
                 onClick={() => setSelectedType(membership.id)}
-                className={`mt-8 w-full rounded-md py-3 px-4 text-sm font-semibold transition-colors duration-200 ${
+                className={`mt-6 w-full rounded-md py-3 px-4 text-sm font-semibold transition-colors duration-200 ${
                   selectedType === membership.id
                     ? 'bg-primary-600 text-white hover:bg-primary-700'
+                    : membership.id === 'newsletter'
+                    ? 'bg-green-600 text-white hover:bg-green-700'
                     : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
                 }`}
               >
@@ -231,7 +268,12 @@ export function MembershipPage() {
                     disabled={isSubmitting}
                     className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                   >
-                    {isSubmitting ? 'Procesando...' : 'Proceder al pago'}
+                    {isSubmitting 
+                      ? 'Procesando...' 
+                      : selectedType === 'newsletter'
+                      ? 'Suscribirse al Newsletter'
+                      : 'Proceder al pago'
+                    }
                   </button>
                 </div>
               </form>

@@ -31,7 +31,8 @@ export function AboutPage() {
       partnersCounter.startAnimation();
       yearsCounter.startAnimation();
     }
-  }, [achievementsAnimation.isIntersecting, projectsCounter, partnersCounter, yearsCounter]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [achievementsAnimation.isIntersecting, projectsCounter.startAnimation, partnersCounter.startAnimation, yearsCounter.startAnimation]);
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -87,24 +88,24 @@ export function AboutPage() {
             Conoce nuestra historia, misión y valores
           </p>
           
-          <div className={`mt-8 flex justify-center space-x-4 transition-all duration-1000 delay-500 ${
+          <div className={`mt-8 flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 transition-all duration-1000 delay-500 ${
             heroAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}>
             <button
               onClick={() => scrollToSection('que-hace-mia')}
-              className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors duration-300"
+              className="w-full sm:w-auto px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors duration-300 font-medium"
             >
               Qué hace MIA
             </button>
             <button
               onClick={() => scrollToSection('nuestros-logros')}
-              className="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors duration-300"
+              className="w-full sm:w-auto px-6 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors duration-300 font-medium"
             >
               Nuestros logros
             </button>
             <button
               onClick={() => scrollToSection('breve-historia')}
-              className="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors duration-300"
+              className="w-full sm:w-auto px-6 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors duration-300 font-medium"
             >
               Breve historia
             </button>

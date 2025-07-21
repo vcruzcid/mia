@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, useRef } from 'react';
 
 interface UseCounterAnimationOptions {
   duration?: number;
@@ -20,10 +20,12 @@ export function useCounterAnimation(
   
   const [current, setCurrent] = useState(start);
   const [isAnimating, setIsAnimating] = useState(false);
+  const hasAnimatedRef = useRef(false);
 
-  const startAnimation = () => {
-    if (isAnimating) return;
+  const startAnimation = useCallback(() => {
+    if (isAnimating || hasAnimatedRef.current) return;
     
+    hasAnimatedRef.current = true;
     setIsAnimating(true);
     const startTime = Date.now() + delay;
     const difference = target - start;
@@ -54,16 +56,19 @@ export function useCounterAnimation(
     } else {
       requestAnimationFrame(animate);
     }
-  };
+  }, [delay, duration, isAnimating, start, target]);
 
-  const reset = () => {
+  const reset = useCallback(() => {
     setCurrent(start);
     setIsAnimating(false);
-  };
+    hasAnimatedRef.current = false;
+  }, [start]);
+
+  const formattedValue = useCallback(() => formatter(current), [current, formatter]);
 
   return {
     value: current,
-    formattedValue: formatter(current),
+    formattedValue: formattedValue(),
     startAnimation,
     reset,
     isAnimating,
