@@ -9,8 +9,6 @@ export function HomePage() {
   const statsAnimation = useScrollAnimation({ threshold: 0.3 });
   const featuresAnimation = useScrollAnimation({ threshold: 0.2 });
   
-  // Test indicator - remove after confirming changes work
-  console.log('🔧 HomePage loaded with updated code - changes should be visible!');
   const testimonialsAnimation = useScrollAnimation({ threshold: 0.3 });
 
   const memberCounter = useCounterAnimation(300, {
@@ -61,19 +59,19 @@ export function HomePage() {
   ];
 
   return (
-    <div className="bg-white">
+    <div className="bg-gray-900">
       {/* Hero Section */}
       <div 
         ref={heroAnimation.ref}
-        className={`relative overflow-hidden bg-gradient-to-r from-primary-600 to-primary-800 transition-all duration-1000 ${
+        className={`hero bg-gradient-to-br from-red-600 to-red-700 transition-all duration-1000 ${
           heroAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
         }`}
       >
-        <div className="absolute inset-0 bg-black opacity-10"></div>
-        <div className="max-w-7xl mx-auto">
-          <div className="relative z-10 pb-8 bg-gradient-to-r from-primary-600 to-primary-800 sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
+        <div className="absolute inset-0 bg-black/10"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="relative z-10 pb-8 sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
             <svg
-              className="hidden lg:block absolute right-0 inset-y-0 h-full w-48 text-primary-600 transform translate-x-1/2 opacity-70"
+              className="hidden lg:block absolute right-0 inset-y-0 h-full w-48 text-red-700 transform translate-x-1/2 opacity-70"
               fill="currentColor"
               viewBox="0 0 100 100"
               preserveAspectRatio="none"
@@ -82,14 +80,14 @@ export function HomePage() {
               <polygon points="50,0 100,0 50,100 0,100" />
             </svg>
 
-            <main className="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
+            <main className="mt-10 mx-auto px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
               <div className="sm:text-center lg:text-left">
-                <h1 className={`text-4xl tracking-tight font-extrabold text-white sm:text-5xl md:text-6xl transition-all duration-1000 delay-300 ${
+                <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 transition-all duration-1000 delay-300 ${
                   heroAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
                 }`}>
                   <span className="block xl:inline">{siteConfig.name}</span>
                 </h1>
-                <p className={`mt-3 text-base text-primary-100 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0 transition-all duration-1000 delay-500 ${
+                <p className={`text-lg md:text-xl text-gray-100 mb-8 transition-all duration-1000 delay-500 ${
                   heroAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
                 }`}>
                   Promovemos la igualdad y visibilidad de las mujeres en la industria de la animación española, 
@@ -101,7 +99,7 @@ export function HomePage() {
                   <div className="rounded-md shadow-lg">
                     <Link
                       to="/membresia"
-                      className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-primary-600 bg-white hover:bg-gray-50 hover:scale-105 md:py-4 md:text-lg md:px-10 transition-all duration-300 transform"
+                      className="btn-outline w-full flex items-center justify-center py-3 md:py-4 md:text-lg md:px-10 hover:scale-105 transform"
                     >
                       Únete a MIA
                     </Link>
@@ -109,7 +107,7 @@ export function HomePage() {
                   <div className="mt-3 sm:mt-0 sm:ml-3">
                     <Link
                       to="/sobre-mia"
-                      className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary-500 hover:bg-primary-400 hover:scale-105 md:py-4 md:text-lg md:px-10 transition-all duration-300 transform"
+                      className="btn-primary w-full flex items-center justify-center py-3 md:py-4 md:text-lg md:px-10 hover:scale-105 transform"
                     >
                       Conoce más
                     </Link>
@@ -120,8 +118,8 @@ export function HomePage() {
           </div>
         </div>
         <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
-          <div className="h-56 w-full bg-gradient-to-br from-primary-500 to-primary-700 sm:h-72 md:h-96 lg:w-full lg:h-full flex items-center justify-center relative overflow-hidden">
-            <div className="absolute inset-0 bg-primary-600 opacity-20 animate-pulse"></div>
+          <div className="h-56 w-full bg-gradient-to-br from-red-600 to-red-800 sm:h-72 md:h-96 lg:w-full lg:h-full flex items-center justify-center relative overflow-hidden">
+            <div className="absolute inset-0 bg-red-700 opacity-20 animate-pulse"></div>
             <div className={`text-8xl transform transition-all duration-1000 delay-1000 ${
               heroAnimation.isIntersecting ? 'text-white opacity-30 scale-100 rotate-0' : 'text-white opacity-10 scale-75 rotate-12'
             }`}>
@@ -134,16 +132,16 @@ export function HomePage() {
       {/* Key Statistics */}
       <div 
         ref={statsAnimation.ref}
-        className="py-12 bg-gray-50"
+        className="py-12 md:py-20 bg-gray-800"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="lg:text-center mb-12">
-            <h2 className={`text-base text-primary-600 font-semibold tracking-wide uppercase transition-all duration-1000 ${
+            <h2 className={`text-base text-red-400 font-semibold tracking-wide uppercase transition-all duration-1000 ${
               statsAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}>
               Nuestra Comunidad
             </h2>
-            <p className={`mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl transition-all duration-1000 delay-200 ${
+            <p className={`text-3xl md:text-4xl font-bold text-white mb-4 text-center transition-all duration-1000 delay-200 ${
               statsAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}>
               Creciendo juntas
@@ -154,26 +152,26 @@ export function HomePage() {
             <div className={`text-center transition-all duration-1000 delay-300 ${
               statsAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`}>
-              <div className="text-4xl font-bold text-primary-600">
+              <div className="text-4xl font-bold text-red-400">
                 {memberCounter.formattedValue}
               </div>
-              <div className="text-sm text-gray-600 mt-2">Socias activas</div>
+              <div className="text-sm text-gray-400 mt-2">Socias activas</div>
             </div>
             <div className={`text-center transition-all duration-1000 delay-500 ${
               statsAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`}>
-              <div className="text-4xl font-bold text-primary-600">
+              <div className="text-4xl font-bold text-red-400">
                 {growthCounter.formattedValue}
               </div>
-              <div className="text-sm text-gray-600 mt-2">Crecimiento anual</div>
+              <div className="text-sm text-gray-400 mt-2">Crecimiento anual</div>
             </div>
             <div className={`text-center transition-all duration-1000 delay-700 ${
               statsAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`}>
-              <div className="text-4xl font-bold text-primary-600">
+              <div className="text-4xl font-bold text-red-400">
                 {eventCounter.formattedValue}
               </div>
-              <div className="text-sm text-gray-600 mt-2">Eventos anuales</div>
+              <div className="text-sm text-gray-400 mt-2">Eventos anuales</div>
             </div>
           </div>
         </div>
@@ -182,21 +180,21 @@ export function HomePage() {
       {/* Features Section */}
       <div 
         ref={featuresAnimation.ref}
-        className="py-16 bg-white"
+        className="py-12 md:py-20 bg-gray-900"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="lg:text-center">
-            <h2 className={`text-base text-primary-600 font-semibold tracking-wide uppercase transition-all duration-1000 ${
+            <h2 className={`text-base text-red-400 font-semibold tracking-wide uppercase transition-all duration-1000 ${
               featuresAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}>
               Nuestra Misión
             </h2>
-            <p className={`mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl transition-all duration-1000 delay-200 ${
+            <p className={`text-3xl md:text-4xl font-bold text-white mb-4 text-center transition-all duration-1000 delay-200 ${
               featuresAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}>
               Empoderando a las mujeres en animación
             </p>
-            <p className={`mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto transition-all duration-1000 delay-300 ${
+            <p className={`mt-4 max-w-2xl text-xl text-gray-300 lg:mx-auto transition-all duration-1000 delay-300 ${
               featuresAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}>
               Trabajamos para crear un sector más diverso, inclusivo y equitativo donde el talento femenino 

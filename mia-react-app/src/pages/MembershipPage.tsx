@@ -3,14 +3,14 @@ import { membershipTypes } from '../utils/memberships';
 
 export function MembershipPage() {
   return (
-    <div className="bg-white min-h-screen py-12">
+    <div className="bg-gray-900 min-h-screen py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-16">
-          <h1 className="text-5xl font-bold text-gray-900 mb-6">
+          <h1 className="text-5xl font-bold text-white mb-6">
             Únete a MIA
           </h1>
-          <p className="text-xl text-gray-800 max-w-4xl mx-auto leading-relaxed">
+          <p className="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
             Forma parte de la comunidad de mujeres profesionales en la industria de animación. 
             Elige el tipo de membresía que mejor se adapte a tu perfil.
           </p>
@@ -21,7 +21,7 @@ export function MembershipPage() {
           {membershipTypes.map((membership) => (
             <div
               key={membership.id}
-              className={`relative bg-white rounded-xl border-2 border-gray-200 p-8 hover:border-primary-500 hover:shadow-lg transition-all duration-300 ${
+              className={`relative bg-gray-800 rounded-xl border-2 border-gray-200 p-8 hover:border-red-600 hover:shadow-lg transition-all duration-300 ${
                 membership.id === 'newsletter' 
                   ? 'bg-gradient-to-br from-green-50 to-green-100 border-green-300' 
                   : ''
@@ -38,14 +38,14 @@ export function MembershipPage() {
                 </div>
               )}
               {membership.id === 'pleno-derecho' && (
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-primary-500 text-white text-sm font-bold px-4 py-2 rounded-full">
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-red-600 text-white text-sm font-bold px-4 py-2 rounded-full">
                   MÁS POPULAR
                 </div>
               )}
 
               <div className="text-center">
                 {/* Title */}
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                <h3 className="text-2xl font-bold text-white mb-4">
                   {membership.name}
                 </h3>
                 
@@ -62,7 +62,7 @@ export function MembershipPage() {
                     </div>
                   ) : (
                     <div className="mb-2">
-                      <span className="text-5xl font-bold text-gray-900">
+                      <span className="text-5xl font-bold text-white">
                         €{membership.price}
                       </span>
                       <span className="text-lg text-gray-600 ml-2">
@@ -106,7 +106,7 @@ export function MembershipPage() {
         {/* Benefits Section */}
         <div className="bg-gray-50 rounded-2xl p-12 mb-16">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl font-bold text-white mb-4">
               ¿Por qué unirse a MIA?
             </h2>
             <p className="text-lg text-gray-700 max-w-3xl mx-auto">
@@ -122,7 +122,7 @@ export function MembershipPage() {
                   <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Networking Profesional</h3>
+              <h3 className="text-xl font-semibold text-white mb-2">Networking Profesional</h3>
               <p className="text-gray-700">
                 Conecta con profesionales de toda España y accede a oportunidades exclusivas.
               </p>
@@ -134,7 +134,7 @@ export function MembershipPage() {
                   <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.84L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Formación Continua</h3>
+              <h3 className="text-xl font-semibold text-white mb-2">Formación Continua</h3>
               <p className="text-gray-700">
                 Accede a talleres, webinars y recursos formativos con descuentos especiales.
               </p>
@@ -146,7 +146,7 @@ export function MembershipPage() {
                   <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Apoyo y Mentoría</h3>
+              <h3 className="text-xl font-semibold text-white mb-2">Apoyo y Mentoría</h3>
               <p className="text-gray-700">
                 Recibe mentorías de profesionales expertas y forma parte de una red de apoyo.
               </p>
@@ -156,14 +156,14 @@ export function MembershipPage() {
 
         {/* FAQ Section */}
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl font-bold text-white mb-4">
             Preguntas Frecuentes
           </h2>
         </div>
 
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-lg font-semibold text-white mb-2">
               ¿Cómo funciona el proceso de registro?
             </h3>
             <p className="text-gray-700">
@@ -173,7 +173,7 @@ export function MembershipPage() {
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-lg font-semibold text-white mb-2">
               ¿Puedo cambiar mi tipo de membresía?
             </h3>
             <p className="text-gray-700">
@@ -183,7 +183,7 @@ export function MembershipPage() {
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-lg font-semibold text-white mb-2">
               ¿La membresía es anual?
             </h3>
             <p className="text-gray-700">
@@ -193,7 +193,7 @@ export function MembershipPage() {
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-lg font-semibold text-white mb-2">
               ¿Qué métodos de pago aceptan?
             </h3>
             <p className="text-gray-700">
@@ -205,7 +205,7 @@ export function MembershipPage() {
 
         {/* Final CTA */}
         <div className="text-center mt-16 bg-primary-50 rounded-2xl p-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl font-bold text-white mb-4">
             ¿Lista para unirte a MIA?
           </h2>
           <p className="text-lg text-gray-700 mb-8 max-w-2xl mx-auto">

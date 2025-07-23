@@ -10,10 +10,12 @@ export function Footer() {
         <div className="xl:grid xl:grid-cols-3 xl:gap-8">
           <div className="space-y-8 xl:col-span-1">
             <div>
-              <span className="text-2xl font-bold text-primary-400">
-                {siteConfig.shortName}
-              </span>
-              <p className="text-gray-300 text-sm mt-2 max-w-xs">
+              <img 
+                src="/logo_footer-264x300.png" 
+                alt="MIA - Mujeres en la Industria de la Animación" 
+                className="h-24 w-auto"
+              />
+              <p className="text-gray-300 text-sm mt-4 max-w-xs">
                 {siteConfig.description}
               </p>
             </div>
@@ -29,22 +31,38 @@ export function Footer() {
                 </h3>
                 <ul className="mt-4 space-y-4">
                   <li>
-                    <Link to="/" className="text-base text-gray-300 hover:text-white transition-colors duration-200">
+                    <Link 
+                      to="/" 
+                      className="text-base text-gray-300 hover:text-white transition-colors duration-200"
+                      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                    >
                       Inicio
                     </Link>
                   </li>
                   <li>
-                    <Link to="/sobre-mia" className="text-base text-gray-300 hover:text-white transition-colors duration-200">
+                    <Link 
+                      to="/sobre-mia" 
+                      className="text-base text-gray-300 hover:text-white transition-colors duration-200"
+                      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                    >
                       Sobre MIA
                     </Link>
                   </li>
                   <li>
-                    <Link to="/membresia" className="text-base text-gray-300 hover:text-white transition-colors duration-200">
+                    <Link 
+                      to="/membresia" 
+                      className="text-base text-gray-300 hover:text-white transition-colors duration-200"
+                      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                    >
                       Membresía
                     </Link>
                   </li>
                   <li>
-                    <Link to="/contacto" className="text-base text-gray-300 hover:text-white transition-colors duration-200">
+                    <Link 
+                      to="/contacto" 
+                      className="text-base text-gray-300 hover:text-white transition-colors duration-200"
+                      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                    >
                       Contacto
                     </Link>
                   </li>

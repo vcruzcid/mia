@@ -18,15 +18,17 @@ export function Header() {
   const isActive = (href: string) => location.pathname === href;
 
   return (
-    <header className="bg-white shadow-md sticky top-0 z-50">
+    <header className="bg-gray-800 border-b border-gray-700 sticky top-0 z-50 backdrop-blur-sm">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex-shrink-0">
             <Link to="/" className="flex items-center">
-              <span className="text-2xl font-bold text-primary-600">
-                {siteConfig.shortName}
-              </span>
+              <img 
+                src="/mia_logo_web-ok-177x77.png" 
+                alt="MIA - Mujeres en la Industria de la Animación" 
+                className="h-10 w-auto hover:opacity-90 transition-opacity duration-200"
+              />
             </Link>
           </div>
 
@@ -38,21 +40,24 @@ export function Header() {
                   <Link
                     key={item.name}
                     to={item.href}
-                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
-                      isActive(item.href)
-                        ? 'bg-primary-100 text-primary-700'
-                        : 'text-gray-700 hover:bg-gray-100 hover:text-primary-600'
-                    }`}
+                    className={isActive(item.href) ? 'nav-link-active' : 'nav-link'}
+                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                   >
                     {item.name}
                   </Link>
                 ))}
               </div>
               
-              {/* Registration CTA */}
+              {/* Login & Registration */}
+              <Link
+                to="/login"
+                className="btn-ghost mr-2"
+              >
+                Iniciar Sesión
+              </Link>
               <Link
                 to="/registro"
-                className="ml-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200"
+                className="btn-primary"
               >
                 Únete a MIA
               </Link>
@@ -63,7 +68,7 @@ export function Header() {
           <div className="md:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-primary-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500"
+              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-red-500 transition-colors duration-200"
               aria-expanded="false"
             >
               <span className="sr-only">Abrir menú principal</span>
@@ -82,28 +87,38 @@ export function Header() {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+          <div className="md:hidden border-t border-gray-700">
+            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-gray-900">
               {navigation.map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}
                   className={`block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 ${
                     isActive(item.href)
-                      ? 'bg-primary-100 text-primary-700'
-                      : 'text-gray-700 hover:bg-gray-100 hover:text-primary-600'
+                      ? 'text-red-400 bg-red-900/20 border border-red-500/30'
+                      : 'text-gray-300 hover:bg-gray-700 hover:text-white'
                   }`}
-                  onClick={() => setIsMenuOpen(false)}
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
                 >
                   {item.name}
                 </Link>
               ))}
               
-              {/* Mobile Registration CTA */}
-              <div className="pt-4 pb-2">
+              {/* Mobile Login & Registration */}
+              <div className="pt-4 pb-2 space-y-2">
+                <Link
+                  to="/login"
+                  className="btn-ghost block w-full text-center"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Iniciar Sesión
+                </Link>
                 <Link
                   to="/registro"
-                  className="block w-full text-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200"
+                  className="btn-primary block w-full text-center"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Únete a MIA
