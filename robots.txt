@@ -1,6 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /politica-cookies.html
-
-# Sitemap location
-Sitemap: https://animacionesmia.com/sitemap.xml 
