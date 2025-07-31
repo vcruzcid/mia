@@ -1,4 +1,4 @@
-# MIA Website Production Setup Guide
+# MIA Website Setup Guide
 
 This document explains how to set up and deploy the MIA landing page in a production environment.
 
