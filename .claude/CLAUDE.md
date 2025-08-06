@@ -3,7 +3,7 @@
 ## Project Structure
 This is a monorepo containing:
 - `mia-react-app/` - React frontend application (production)
-- `mia-wordpress/` - WordPress backend files (development only)
+- `mia-wordpress/` - WordPress old website files used for reference (development only)
 
 ## Development Rules
 - All React development happens in `mia-react-app/`

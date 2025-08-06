@@ -5,6 +5,7 @@ import {
   Globe, 
   ExternalLink 
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 interface SocialMediaIconsProps {
   socialMedia: {
@@ -57,7 +58,7 @@ export function SocialMediaIcons({
       label: 'Sitio Web',
       color: 'text-gray-600 hover:text-gray-800'
     }
-  ].filter((link): link is { url: string; icon: React.ComponentType<{ className?: string }>; label: string; color: string } => !!link.url);
+  ].filter((link): link is { url: string; icon: LucideIcon; label: string; color: string } => !!link.url && typeof link.url === 'string');
 
   if (socialLinks.length === 0) {
     return null;

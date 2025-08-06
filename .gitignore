@@ -12,6 +12,8 @@ dist
 dist-ssr
 *.local
 
+mia-wordpress/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
