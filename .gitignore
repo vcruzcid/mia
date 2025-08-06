@@ -25,5 +25,8 @@ mia-wordpress/
 *.sln
 *.sw?
 
-# Serena files
-.serena/
+# MCP related files
+*.serena
+.serena
+**/mcp-config/*
+.mcp/
