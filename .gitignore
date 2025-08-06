@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# MCP related files
+*.serena
+.serena
+**/mcp-config/*
+.mcp/
