@@ -4,6 +4,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { queryClient } from './lib/queryClient';
 import { AuthProvider } from './contexts/AuthContext';
 import { ToastProvider } from './contexts/ToastContext';
+import { LoadingProvider } from './contexts/LoadingContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Layout } from './components/Layout';
@@ -25,8 +26,9 @@ function App() {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <ToastProvider>
-          <AuthProvider>
+        <LoadingProvider>
+          <ToastProvider>
+            <AuthProvider>
         <Router>
           <div className="App">
             <Routes>
@@ -68,8 +70,9 @@ function App() {
           </div>
         </Router>
         <ReactQueryDevtools initialIsOpen={false} />
-          </AuthProvider>
-        </ToastProvider>
+            </AuthProvider>
+          </ToastProvider>
+        </LoadingProvider>
       </QueryClientProvider>
     </ErrorBoundary>
   );
