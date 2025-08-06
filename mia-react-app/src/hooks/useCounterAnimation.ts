@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
+import { useMotionPreference } from './useMotionPreference';
 
 interface UseCounterAnimationOptions {
   duration?: number;
@@ -18,6 +19,7 @@ export function useCounterAnimation(
     formatter = (value: number) => Math.floor(value).toString(),
   } = options;
   
+  const { prefersReducedMotion } = useMotionPreference();
   const [current, setCurrent] = useState(start);
   const [isAnimating, setIsAnimating] = useState(false);
   const hasAnimatedRef = useRef(false);
@@ -27,6 +29,13 @@ export function useCounterAnimation(
     
     hasAnimatedRef.current = true;
     setIsAnimating(true);
+
+    // If user prefers reduced motion, skip animation
+    if (prefersReducedMotion) {
+      setCurrent(target);
+      setIsAnimating(false);
+      return;
+    }
     const startTime = Date.now() + delay;
     const difference = target - start;
 
@@ -56,7 +65,7 @@ export function useCounterAnimation(
     } else {
       requestAnimationFrame(animate);
     }
-  }, [delay, duration, isAnimating, start, target]);
+  }, [delay, duration, isAnimating, start, target, prefersReducedMotion]);
 
   const reset = useCallback(() => {
     setCurrent(start);
