@@ -1,0 +1,96 @@
+{
+  "timestamp": "2025-08-04T22:28:20.217Z",
+  "summary": {
+    "total_members": 329,
+    "stripe_customers": 318,
+    "unmatched_members": 11,
+    "match_rate": 97
+  },
+  "subscription_status": {
+    "past_due": 59,
+    "no_subscription": 128,
+    "trialing": 70,
+    "active": 61,
+    "no_stripe_account": 11
+  },
+  "payment_analysis": {
+    "active_subscribers": 131,
+    "past_due_subscribers": 59,
+    "canceled_subscribers": 0,
+    "no_subscription": 128,
+    "no_stripe_account": 11
+  },
+  "membership_tiers": {},
+  "revenue_analysis": {
+    "monthly_recurring_revenue": 0,
+    "annual_recurring_revenue": 0
+  },
+  "unmatched_members": [
+    {
+      "member_number": 19,
+      "name": "Mar�a Minguez Sanchez",
+      "email": "Mariaminguezsanchez@gmail.com",
+      "wp_stripe_id": null
+    },
+    {
+      "member_number": 67,
+      "name": "Alba De Lara Montalvo",
+      "email": "Albadlm@gmail.com",
+      "wp_stripe_id": null
+    },
+    {
+      "member_number": 77,
+      "name": "David Matamoros Manteca",
+      "email": "dmmb@mac.com",
+      "wp_stripe_id": null
+    },
+    {
+      "member_number": 79,
+      "name": "Orlymar Paredes",
+      "email": "artefulani@gmail.com",
+      "wp_stripe_id": null
+    },
+    {
+      "member_number": 95,
+      "name": "Mar�a Tr�nor Colomer",
+      "email": "cine.trenor@gmail.com",
+      "wp_stripe_id": null
+    },
+    {
+      "member_number": 102,
+      "name": "Maria Dolores Delgado Manzano",
+      "email": "emedeme.art@gmail.com",
+      "wp_stripe_id": null
+    },
+    {
+      "member_number": 122,
+      "name": "Mar�a Bonaria Fois",
+      "email": "mb.fois@mondotvstudios.com",
+      "wp_stripe_id": null
+    },
+    {
+      "member_number": 131,
+      "name": "ana sof�a Parra Tovar",
+      "email": "nanispatt@gmail.com",
+      "wp_stripe_id": null
+    },
+    {
+      "member_number": 196,
+      "name": "Pepa Sastre Miguel",
+      "email": "pepa@incomedia.com",
+      "wp_stripe_id": null
+    },
+    {
+      "member_number": 267,
+      "name": "Marina Donderis Fern�ndez",
+      "email": "marina.ozu@hotmail.com",
+      "wp_stripe_id": null
+    },
+    {
+      "member_number": 307,
+      "name": "Jazmine Tejada Mu�iz",
+      "email": "escape.films.sac2@gmail.com",
+      "wp_stripe_id": null
+    }
+  ]
+}

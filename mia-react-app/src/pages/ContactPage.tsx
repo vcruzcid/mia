@@ -1,8 +1,10 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { contactFormSchema, type ContactFormData } from '../utils/validation';
+import { useToastContext } from '../contexts/ToastContext';
 
 export function ContactPage() {
+  const { toast } = useToastContext();
   const {
     register,
     handleSubmit,
@@ -20,22 +22,30 @@ export function ContactPage() {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      alert('Mensaje enviado correctamente. Te contactaremos pronto.');
+      toast({
+        title: 'Mensaje enviado',
+        description: 'Te contactaremos pronto.',
+        variant: 'success'
+      });
       reset();
     } catch (error) {
       console.error('Error sending message:', error);
-      alert('Error al enviar el mensaje. Inténtalo de nuevo.');
+      toast({
+        title: 'Error al enviar',
+        description: 'Hubo un problema. Inténtalo de nuevo.',
+        variant: 'destructive'
+      });
     }
   };
 
   return (
-    <div className="bg-white min-h-screen py-12">
+    <div style={{ backgroundColor: 'var(--color-bg-primary)' }} className="min-h-screen py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center">
-          <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+          <h1 className="text-3xl font-extrabold sm:text-4xl" style={{ color: 'var(--color-text-primary)' }}>
             Contacta con nosotras
           </h1>
-          <p className="mt-4 text-lg text-gray-800">
+          <p className="mt-4 text-lg" style={{ color: 'var(--color-text-secondary)' }}>
             Estamos aquí para resolver tus dudas y ayudarte en tu camino profesional
           </p>
         </div>
@@ -43,8 +53,8 @@ export function ContactPage() {
         <div className="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Contact Information */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-lg p-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-6">
+            <div style={{ backgroundColor: 'var(--color-bg-primary)' }} className="rounded-lg shadow-lg p-8">
+              <h2 className="text-2xl font-semibold mb-6" style={{ color: 'var(--color-text-primary)' }}>
                 Información de contacto
               </h2>
               
@@ -54,8 +64,8 @@ export function ContactPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                   <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">Email</h3>
-                    <p className="text-gray-800">info@animacionesmia.com</p>
+                    <h3 className="text-lg font-medium" style={{ color: 'var(--color-text-primary)' }}>Email</h3>
+                    <p style={{ color: 'var(--color-text-secondary)' }}>info@animacionesmia.com</p>
                   </div>
                 </div>
 
@@ -97,17 +107,18 @@ export function ContactPage() {
 
           {/* Contact Form */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow-lg p-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-6">
+            <div style={{ backgroundColor: 'var(--color-bg-primary)' }} className="rounded-lg shadow-lg p-8">
+              <h2 className="text-2xl font-semibold mb-6" style={{ color: 'var(--color-text-primary)' }}>
                 Envíanos un mensaje
               </h2>
 
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="contact-name" className="block text-sm font-medium text-gray-700">
                     Nombre completo *
                   </label>
                   <input
+                    id="contact-name"
                     type="text"
                     {...register('name')}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
@@ -119,10 +130,11 @@ export function ContactPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="contact-email" className="block text-sm font-medium text-gray-700">
                     Email *
                   </label>
                   <input
+                    id="contact-email"
                     type="email"
                     {...register('email')}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
@@ -134,10 +146,11 @@ export function ContactPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="subject" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="contact-subject" className="block text-sm font-medium text-gray-700">
                     Asunto *
                   </label>
                   <input
+                    id="contact-subject"
                     type="text"
                     {...register('subject')}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
@@ -149,10 +162,11 @@ export function ContactPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="contact-message" className="block text-sm font-medium text-gray-700">
                     Mensaje *
                   </label>
                   <textarea
+                    id="contact-message"
                     rows={6}
                     {...register('message')}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
@@ -167,7 +181,11 @@ export function ContactPage() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                    className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                    style={{ 
+                      backgroundColor: 'var(--color-btn-primary-bg)', 
+                      color: 'var(--color-btn-primary-text)' 
+                    }}
                   >
                     {isSubmitting ? 'Enviando...' : 'Enviar mensaje'}
                   </button>
@@ -179,8 +197,8 @@ export function ContactPage() {
 
         {/* FAQ Section */}
         <div className="mt-16">
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-8 text-center">
+          <div style={{ backgroundColor: 'var(--color-bg-primary)' }} className="rounded-lg shadow-lg p-8">
+            <h2 className="text-2xl font-semibold mb-8 text-center" style={{ color: 'var(--color-text-primary)' }}>
               Preguntas frecuentes
             </h2>
             

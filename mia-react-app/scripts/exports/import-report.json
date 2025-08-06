@@ -1,0 +1,45 @@
+{
+  "timestamp": "2025-08-04T22:13:58.147Z",
+  "import_results": {
+    "members_imported": 0,
+    "members_duplicates": 0,
+    "members_errors": 7,
+    "board_members_imported": 0,
+    "board_errors": 1
+  },
+  "verification_passed": false,
+  "errors": [
+    {
+      "batch": 1,
+      "error": "infinite recursion detected in policy for relation \"members\""
+    },
+    {
+      "batch": 2,
+      "error": "infinite recursion detected in policy for relation \"members\""
+    },
+    {
+      "batch": 3,
+      "error": "infinite recursion detected in policy for relation \"members\""
+    },
+    {
+      "batch": 4,
+      "error": "infinite recursion detected in policy for relation \"members\""
+    },
+    {
+      "batch": 5,
+      "error": "infinite recursion detected in policy for relation \"members\""
+    },
+    {
+      "batch": 6,
+      "error": "infinite recursion detected in policy for relation \"members\""
+    },
+    {
+      "batch": 7,
+      "error": "infinite recursion detected in policy for relation \"members\""
+    },
+    {
+      "type": "board_member",
+      "error": "Could not find the 'is_current' column of 'board_members' in the schema cache"
+    }
+  ]
+}

@@ -1,6 +1,9 @@
 import { useEffect } from 'react';
 import { useGalleryStore } from '../store/galleryStore';
 import type { DirectivaMember } from '../types';
+import { ProfileImage } from '../components/ProfileImage';
+import { SocialMediaIcons } from '../components/SocialMediaIcons';
+import { Badge } from '../components/ui/badge';
 
 export function DirectivaPage() {
   const {
@@ -19,8 +22,8 @@ export function DirectivaPage() {
   } = useGalleryStore();
 
   useEffect(() => {
-    fetchDirectiva(selectedYear);
-  }, [fetchDirectiva, selectedYear]);
+    fetchDirectiva();
+  }, [fetchDirectiva]);
 
   const filteredDirectiva = getFilteredDirectiva();
   const currentYear = new Date().getFullYear();
@@ -151,7 +154,7 @@ export function DirectivaPage() {
       {/* Member Modal */}
       {isModalOpen && selectedMember && (
         <DirectivaModal
-          member={selectedMember as DirectivaMember}
+          member={selectedMember as any}
           onClose={closeMemberModal}
         />
       )}
@@ -213,10 +216,11 @@ function DirectivaCard({ member, index, onClick }: DirectivaCardProps) {
         {/* Profile Image */}
         <div className="absolute -bottom-8 left-6">
           <div className="relative">
-            <img
-              className="h-16 w-16 rounded-full border-4 border-white object-cover shadow-lg"
-              src={member.profileImage || 'https://via.placeholder.com/150'}
+            <ProfileImage
+              src={member.profileImage}
               alt={`${member.firstName} ${member.lastName}`}
+              size="lg"
+              className="border-4 border-white shadow-lg"
             />
             {member.isCurrentMember && (
               <div className="absolute -top-1 -right-1 h-5 w-5 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
@@ -258,9 +262,9 @@ function DirectivaCard({ member, index, onClick }: DirectivaCardProps) {
             ))}
             {member.responsibilities.length > 3 && (
               <div className="flex items-center">
-                <span className="text-sm text-gray-500 ml-6">
+                <Badge variant="secondary" className="text-xs ml-6">
                   +{member.responsibilities.length - 3} más responsabilidades
-                </span>
+                </Badge>
               </div>
             )}
           </div>
@@ -271,17 +275,14 @@ function DirectivaCard({ member, index, onClick }: DirectivaCardProps) {
           <h4 className="text-sm font-semibold text-gray-900 mb-2">Años de servicio</h4>
           <div className="flex flex-wrap gap-1">
             {member.yearServed.map((year) => (
-              <span
+              <Badge
                 key={year}
-                className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${
-                  year === new Date().getFullYear()
-                    ? 'bg-green-100 text-green-700 ring-1 ring-green-200'
-                    : 'bg-gray-100 text-gray-700'
-                }`}
+                variant={year === new Date().getFullYear() ? 'default' : 'outline'}
+                className="text-xs"
               >
                 {year}
                 {year === new Date().getFullYear() && ' (Actual)'}
-              </span>
+              </Badge>
             ))}
           </div>
         </div>
@@ -316,19 +317,11 @@ function DirectivaCard({ member, index, onClick }: DirectivaCardProps) {
               </span>
             </div>
             
-            {Object.values(member.socialMedia).some(Boolean) && (
-              <div className="flex items-center space-x-1">
-                {member.socialMedia.linkedin && (
-                  <span className="text-blue-600">💼</span>
-                )}
-                {member.socialMedia.twitter && (
-                  <span className="text-blue-400">🐦</span>
-                )}
-                {member.socialMedia.website && (
-                  <span className="text-gray-600">🌐</span>
-                )}
-              </div>
-            )}
+            <SocialMediaIcons 
+              socialMedia={member.socialMedia}
+              size="sm"
+              variant="compact"
+            />
           </div>
         </div>
 
@@ -364,10 +357,11 @@ function DirectivaModal({ member, onClose }: DirectivaModalProps) {
           <div className={`bg-gradient-to-r ${isPresident ? 'from-yellow-400 to-yellow-600' : 'from-primary-500 to-primary-700'} px-6 py-4`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <img
-                  className="h-16 w-16 rounded-full border-3 border-white object-cover"
-                  src={member.profileImage || 'https://via.placeholder.com/150'}
+                <ProfileImage
+                  src={member.profileImage}
                   alt={`${member.firstName} ${member.lastName}`}
+                  size="lg"
+                  className="border-3 border-white"
                 />
                 <div className="ml-4">
                   <h3 className="text-xl font-bold text-white">

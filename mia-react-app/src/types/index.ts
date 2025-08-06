@@ -44,6 +44,7 @@ export interface Member {
     country: string;
   };
   memberType: 'Full' | 'Student' | 'Collaborator';
+  membershipType?: string;
   specializations: string[];
   availabilityStatus: 'Available' | 'Busy' | 'Not Available';
   socialMedia: {
@@ -56,6 +57,8 @@ export interface Member {
   bio?: string;
   joinDate: string;
   isActive: boolean;
+  status?: 'active' | 'pending' | 'expired';
+  membershipStatus?: 'active' | 'pending' | 'expired';
 }
 
 export interface DirectivaMember extends Member {
@@ -144,3 +147,10 @@ export const ANIMATION_SPECIALIZATIONS = [
 ] as const;
 
 export type AnimationSpecialization = typeof ANIMATION_SPECIALIZATIONS[number];
+
+// Router location state types
+export interface LocationState {
+  from?: {
+    pathname: string;
+  };
+}

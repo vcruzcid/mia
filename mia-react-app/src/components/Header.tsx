@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { siteConfig } from '../config/site.config';
+import { Button } from '@/components/ui/button';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   const navigation = [
     { name: 'Inicio', href: '/' },
@@ -17,9 +19,41 @@ export function Header() {
 
   const isActive = (href: string) => location.pathname === href;
 
+  // Handle escape key and outside clicks
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isMenuOpen) {
+        setIsMenuOpen(false);
+        menuButtonRef.current?.focus();
+      }
+    };
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        isMenuOpen &&
+        mobileMenuRef.current &&
+        menuButtonRef.current &&
+        !mobileMenuRef.current.contains(event.target as Node) &&
+        !menuButtonRef.current.contains(event.target as Node)
+      ) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener('keydown', handleEscape);
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMenuOpen]);
+
   return (
-    <header className="bg-gray-800 border-b border-gray-700 sticky top-0 z-50 backdrop-blur-sm">
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <header className="bg-black border-b border-gray-800 sticky top-0 z-50 backdrop-blur-sm">
+      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" role="navigation" aria-label="Main navigation">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex-shrink-0">
@@ -40,7 +74,10 @@ export function Header() {
                   <Link
                     key={item.name}
                     to={item.href}
-                    className={isActive(item.href) ? 'nav-link-active' : 'nav-link'}
+                    className={isActive(item.href) 
+                      ? 'text-red-400 bg-red-900/20 px-3 py-2 rounded-md text-sm font-medium border border-red-500/30 transition-colors duration-200' 
+                      : 'text-white hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200'
+                    }
                     onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                   >
                     {item.name}
@@ -49,27 +86,29 @@ export function Header() {
               </div>
               
               {/* Login & Registration */}
-              <Link
-                to="/login"
-                className="btn-ghost mr-2"
-              >
-                Iniciar Sesión
-              </Link>
-              <Link
-                to="/registro"
-                className="btn-primary"
-              >
-                Únete a MIA
-              </Link>
+              <Button variant="ghost" asChild className="mr-2 text-white hover:text-red-400 hover:bg-transparent">
+                <Link to="/login">
+                  Iniciar Sesión
+                </Link>
+              </Button>
+              <Button asChild className="bg-red-600 hover:bg-red-700 text-white">
+                <Link to="/registro">
+                  Únete a MIA
+                </Link>
+              </Button>
             </div>
           </div>
 
           {/* Mobile menu button */}
           <div className="md:hidden">
-            <button
+            <Button
+              ref={menuButtonRef}
+              variant="ghost"
+              size="sm"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-red-500 transition-colors duration-200"
-              aria-expanded="false"
+              className="p-2 text-white hover:text-red-400 hover:bg-gray-900"
+              aria-expanded={isMenuOpen}
+              aria-controls="mobile-menu"
             >
               <span className="sr-only">Abrir menú principal</span>
               {!isMenuOpen ? (
@@ -81,14 +120,14 @@ export function Header() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               )}
-            </button>
+            </Button>
           </div>
         </div>
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden border-t border-gray-700">
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-gray-900">
+          <div id="mobile-menu" ref={mobileMenuRef} className="md:hidden border-t border-gray-800">
+            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-black">
               {navigation.map((item) => (
                 <Link
                   key={item.name}
@@ -96,7 +135,7 @@ export function Header() {
                   className={`block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 ${
                     isActive(item.href)
                       ? 'text-red-400 bg-red-900/20 border border-red-500/30'
-                      : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                      : 'text-white hover:bg-gray-900 hover:text-red-400'
                   }`}
                   onClick={() => {
                     setIsMenuOpen(false);
@@ -109,20 +148,22 @@ export function Header() {
               
               {/* Mobile Login & Registration */}
               <div className="pt-4 pb-2 space-y-2">
-                <Link
-                  to="/login"
-                  className="btn-ghost block w-full text-center"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Iniciar Sesión
-                </Link>
-                <Link
-                  to="/registro"
-                  className="btn-primary block w-full text-center"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Únete a MIA
-                </Link>
+                <Button variant="ghost" asChild className="w-full text-white hover:text-red-400 hover:bg-transparent">
+                  <Link
+                    to="/login"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Iniciar Sesión
+                  </Link>
+                </Button>
+                <Button asChild className="w-full bg-red-600 hover:bg-red-700 text-white">
+                  <Link
+                    to="/registro"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Únete a MIA
+                  </Link>
+                </Button>
               </div>
             </div>
           </div>

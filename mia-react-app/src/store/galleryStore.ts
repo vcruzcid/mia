@@ -1,47 +1,60 @@
 import { create } from 'zustand';
-import { devtools } from 'zustand/middleware';
-import type { 
-  Member, 
-  DirectivaMember, 
-  FilterState, 
-  GalleryState
-} from '../types';
+import { memberService } from '../services/supabaseService';
+import type { Member } from '../types/supabase';
+import { cleanMemberData } from '../utils/textDecoding';
 
-interface GalleryActions {
-  // Filter actions
-  setFilters: (filters: Partial<FilterState>) => void;
-  resetFilters: () => void;
-  toggleMemberType: (type: 'Full' | 'Student' | 'Collaborator') => void;
-  toggleSpecialization: (specialization: string) => void;
-  toggleLocation: (location: string) => void;
-  toggleAvailabilityStatus: (status: 'Available' | 'Busy' | 'Not Available') => void;
+interface GalleryState {
+  members: Member[];
+  filteredMembers: Member[];
+  isLoading: boolean;
+  loading: boolean; // Alias for isLoading
+  error: string | null;
+  searchTerm: string;
+  selectedMember: Member | null;
+  isModalOpen: boolean;
+  selectedYear: number;
+  availableYears: number[];
+  filters: {
+    memberTypes: string[];
+    specializations: string[];
+    locations: string[];
+    availabilityStatus: string[];
+    hasSocialMedia: boolean | null;
+    isActive: boolean | null;
+  };
   
-  // Search actions
+  // Actions
+  fetchMembers: () => Promise<void>;
+  fetchDirectiva: () => Promise<void>;
   setSearchTerm: (term: string) => void;
-  
-  // Year selection
+  setFilters: (filters: Partial<GalleryState['filters']>) => void;
   setSelectedYear: (year: number) => void;
+  applyFilters: () => void;
+  resetFilters: () => void;
   
-  // Modal actions
-  openMemberModal: (member: Member | DirectivaMember) => void;
+  // Member actions
+  openMemberModal: (member: Member) => void;
   closeMemberModal: () => void;
   
-  // Data fetching actions
-  fetchMembers: () => Promise<void>;
-  fetchDirectiva: (year: number) => Promise<void>;
+  // Filter toggles
+  toggleMemberType: (type: string) => void;
+  toggleSpecialization: (spec: string) => void;
+  toggleLocation: (location: string) => void;
+  toggleAvailabilityStatus: (status: string) => void;
   
-  // Computed getters
+  // Getters
   getFilteredMembers: () => Member[];
-  getFilteredDirectiva: () => DirectivaMember[];
+  getFilteredDirectiva: () => any[];
   getAvailableLocations: () => string[];
-  getMemberCounts: () => {
-    total: number;
+  getMemberCounts: () => { 
+    total: number; 
+    active: number; 
     byType: Record<string, number>;
     byAvailability: Record<string, number>;
   };
 }
 
-const initialFilters: FilterState = {
+const initialFilters = {
   memberTypes: [],
   specializations: [],
   locations: [],
@@ -50,335 +63,259 @@ const initialFilters: FilterState = {
   isActive: null,
 };
 
-const currentYear = new Date().getFullYear();
+export const useGalleryStore = create<GalleryState>((set, get) => ({
+  members: [],
+  filteredMembers: [],
+  isLoading: false,
+  loading: false,
+  error: null,
+  searchTerm: '',
+  selectedMember: null,
+  isModalOpen: false,
+  selectedYear: new Date().getFullYear(),
+  availableYears: [2021, 2022, 2023, 2024, 2025],
+  filters: initialFilters,
 
-export const useGalleryStore = create<GalleryState & GalleryActions>()(
-  devtools(
-    (set, get) => ({
-      // Initial state
-      members: [],
-      directiva: [],
-      filters: initialFilters,
+  fetchMembers: async () => {
+    set({ isLoading: true, loading: true, error: null });
+    
+    try {
+      const rawMembers = await memberService.getPublicMembers();
+      // Clean any encoded characters from WordPress imports
+      const members = rawMembers.map(member => cleanMemberData(member));
+      set({ 
+        members, 
+        filteredMembers: members, 
+        isLoading: false,
+        loading: false 
+      });
+    } catch (error) {
+      console.error('Error fetching members:', error);
+      set({ 
+        error: error instanceof Error ? error.message : 'Failed to fetch members',
+        isLoading: false,
+        loading: false 
+      });
+    }
+  },
+
+  fetchDirectiva: async () => {
+    set({ isLoading: true, loading: true, error: null });
+    
+    try {
+      const rawMembers = await memberService.getBoardMembers();
+      // Clean any encoded characters from WordPress imports
+      const members = rawMembers.map(member => cleanMemberData(member));
+      set({ 
+        members, 
+        filteredMembers: members, 
+        isLoading: false,
+        loading: false 
+      });
+    } catch (error) {
+      console.error('Error fetching directiva:', error);
+      set({ 
+        error: error instanceof Error ? error.message : 'Failed to fetch directiva',
+        isLoading: false,
+        loading: false 
+      });
+    }
+  },
+
+  setSearchTerm: (searchTerm: string) => {
+    set({ searchTerm });
+    get().applyFilters();
+  },
+
+  setFilters: (newFilters: Partial<GalleryState['filters']>) => {
+    set(state => ({
+      filters: { ...state.filters, ...newFilters }
+    }));
+    get().applyFilters();
+  },
+
+  setSelectedYear: (selectedYear: number) => {
+    set({ selectedYear });
+    get().applyFilters();
+  },
+
+  openMemberModal: (selectedMember: Member) => {
+    set({ selectedMember, isModalOpen: true });
+  },
+
+  closeMemberModal: () => {
+    set({ selectedMember: null, isModalOpen: false });
+  },
+
+  toggleMemberType: (type: string) => {
+    const { filters } = get();
+    const memberTypes = filters.memberTypes.includes(type)
+      ? filters.memberTypes.filter(t => t !== type)
+      : [...filters.memberTypes, type];
+    
+    get().setFilters({ memberTypes });
+  },
+
+  toggleSpecialization: (spec: string) => {
+    const { filters } = get();
+    const specializations = filters.specializations.includes(spec)
+      ? filters.specializations.filter(s => s !== spec)
+      : [...filters.specializations, spec];
+    
+    get().setFilters({ specializations });
+  },
+
+  toggleLocation: (location: string) => {
+    const { filters } = get();
+    const locations = filters.locations.includes(location)
+      ? filters.locations.filter(l => l !== location)
+      : [...filters.locations, location];
+    
+    get().setFilters({ locations });
+  },
+
+  toggleAvailabilityStatus: (status: string) => {
+    const { filters } = get();
+    const availabilityStatus = filters.availabilityStatus.includes(status)
+      ? filters.availabilityStatus.filter(s => s !== status)
+      : [...filters.availabilityStatus, status];
+    
+    get().setFilters({ availabilityStatus });
+  },
+
+  applyFilters: () => {
+    const { members, searchTerm, filters } = get();
+    
+    let filtered = [...members];
+
+    // Apply search term
+    if (searchTerm.trim()) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(member =>
+        member.first_name?.toLowerCase().includes(term) ||
+        member.last_name?.toLowerCase().includes(term) ||
+        member.display_name?.toLowerCase().includes(term) ||
+        member.main_profession?.toLowerCase().includes(term) ||
+        member.company?.toLowerCase().includes(term) ||
+        member.other_professions?.some(prof => prof.toLowerCase().includes(term))
+      );
+    }
+
+    // Apply member type filter
+    if (filters.memberTypes.length > 0) {
+      filtered = filtered.filter(member =>
+        member.membership_type && filters.memberTypes.includes(member.membership_type)
+      );
+    }
+
+    // Apply location filter
+    if (filters.locations.length > 0) {
+      filtered = filtered.filter(member =>
+        member.autonomous_community && filters.locations.includes(member.autonomous_community)
+      );
+    }
+
+    // Apply active filter
+    if (filters.isActive !== null) {
+      filtered = filtered.filter(member => member.is_active === filters.isActive);
+    }
+
+    // Apply social media filter
+    if (filters.hasSocialMedia !== null) {
+      if (filters.hasSocialMedia) {
+        filtered = filtered.filter(member =>
+          member.social_media && Object.keys(member.social_media).length > 0
+        );
+      } else {
+        filtered = filtered.filter(member =>
+          !member.social_media || Object.keys(member.social_media).length === 0
+        );
+      }
+    }
+
+    set({ filteredMembers: filtered });
+  },
+
+  getFilteredMembers: () => {
+    return get().filteredMembers.map(member => ({
+      ...member,
+      firstName: member.first_name,
+      lastName: member.last_name,
+      location: {
+        city: member.address, // Using address as city since there's no city field
+        region: member.autonomous_community,
+        country: member.country || 'España'
+      },
+      memberType: member.membership_type,
+      profession: member.main_profession,
+      company: member.company,
+      availabilityStatus: 'Available', // Default since there's no availability_status field
+      specializations: member.other_professions || [],
+      socialMedia: member.social_media,
+      profileImage: member.profile_image_url
+    }));
+  },
+
+  getFilteredDirectiva: () => {
+    const { members, selectedYear } = get();
+    return members.filter(member => 
+      member.board_position && member.is_active
+    ).map(member => ({
+      ...member,
+      position: member.board_position || 'Board Member',
+      responsibilities: [], // Using empty array since board_responsibilities doesn't exist
+      yearServed: [selectedYear],
+      isCurrentMember: true,
+      firstName: member.first_name,
+      lastName: member.last_name,
+      location: member.autonomous_community,
+      memberType: member.membership_type,
+      profession: member.main_profession,
+      company: member.company,
+      availability: 'Available', // Default since availability_status doesn't exist
+      specializations: member.other_professions || [],
+      socialMedia: member.social_media
+    }));
+  },
+
+  getAvailableLocations: () => {
+    const { members } = get();
+    const locations = members
+      .map(member => member.autonomous_community)
+      .filter((location): location is string => !!location);
+    return [...new Set(locations)].sort();
+  },
+
+  getMemberCounts: () => {
+    const { members } = get();
+    const byType: Record<string, number> = {};
+    const byAvailability: Record<string, number> = { 'Available': 0 }; // Default availability
+    
+    members.forEach(member => {
+      // Count by membership type
+      if (member.membership_type) {
+        byType[member.membership_type] = (byType[member.membership_type] || 0) + 1;
+      }
+      
+      // Count by availability status (defaulting to Available)
+      byAvailability['Available'] = byAvailability['Available'] + 1;
+    });
+    
+    return {
+      total: members.length,
+      active: members.filter(member => member.is_active).length,
+      byType,
+      byAvailability
+    };
+  },
+
+  resetFilters: () => {
+    set({ 
+      filters: initialFilters, 
       searchTerm: '',
-      loading: false,
-      selectedYear: currentYear,
-      availableYears: [currentYear, currentYear - 1, currentYear - 2, currentYear - 3],
-      selectedMember: null,
-      isModalOpen: false,
+      filteredMembers: get().members 
+    });
+  },
+}));
 
-      // Filter actions
-      setFilters: (newFilters) => 
-        set((state) => ({
-          filters: { ...state.filters, ...newFilters }
-        })),
-
-      resetFilters: () => 
-        set({ filters: initialFilters, searchTerm: '' }),
-
-      toggleMemberType: (type) =>
-        set((state) => ({
-          filters: {
-            ...state.filters,
-            memberTypes: state.filters.memberTypes.includes(type)
-              ? state.filters.memberTypes.filter(t => t !== type)
-              : [...state.filters.memberTypes, type]
-          }
-        })),
-
-      toggleSpecialization: (specialization) =>
-        set((state) => ({
-          filters: {
-            ...state.filters,
-            specializations: state.filters.specializations.includes(specialization)
-              ? state.filters.specializations.filter(s => s !== specialization)
-              : [...state.filters.specializations, specialization]
-          }
-        })),
-
-      toggleLocation: (location) =>
-        set((state) => ({
-          filters: {
-            ...state.filters,
-            locations: state.filters.locations.includes(location)
-              ? state.filters.locations.filter(l => l !== location)
-              : [...state.filters.locations, location]
-          }
-        })),
-
-      toggleAvailabilityStatus: (status) =>
-        set((state) => ({
-          filters: {
-            ...state.filters,
-            availabilityStatus: state.filters.availabilityStatus.includes(status)
-              ? state.filters.availabilityStatus.filter(s => s !== status)
-              : [...state.filters.availabilityStatus, status]
-          }
-        })),
-
-      // Search actions
-      setSearchTerm: (term) => set({ searchTerm: term }),
-
-      // Year selection
-      setSelectedYear: (year) => {
-        set({ selectedYear: year });
-        get().fetchDirectiva(year);
-      },
-
-      // Modal actions
-      openMemberModal: (member) => 
-        set({ selectedMember: member, isModalOpen: true }),
-
-      closeMemberModal: () => 
-        set({ selectedMember: null, isModalOpen: false }),
-
-      // Data fetching actions
-      fetchMembers: async () => {
-        set({ loading: true });
-        try {
-          // Mock API call - replace with actual API endpoint
-          const response = await fetch('/api/members');
-          if (response.ok) {
-            const members = await response.json();
-            set({ members, loading: false });
-          } else {
-            // Fallback to mock data for development
-            set({ members: generateMockMembers(), loading: false });
-          }
-        } catch (error) {
-          console.error('Failed to fetch members:', error);
-          // Use mock data for development
-          set({ members: generateMockMembers(), loading: false });
-        }
-      },
-
-      fetchDirectiva: async (year) => {
-        set({ loading: true });
-        try {
-          // Mock API call - replace with actual API endpoint
-          const response = await fetch(`/api/directiva/${year}`);
-          if (response.ok) {
-            const directiva = await response.json();
-            set({ directiva, loading: false });
-          } else {
-            // Fallback to mock data for development
-            set({ directiva: generateMockDirectiva(year), loading: false });
-          }
-        } catch (error) {
-          console.error('Failed to fetch directiva:', error);
-          // Use mock data for development
-          set({ directiva: generateMockDirectiva(year), loading: false });
-        }
-      },
-
-      // Computed getters
-      getFilteredMembers: () => {
-        const { members, filters, searchTerm } = get();
-        
-        return members.filter(member => {
-          // Search filter
-          if (searchTerm) {
-            const search = searchTerm.toLowerCase();
-            const matchesSearch = 
-              member.firstName.toLowerCase().includes(search) ||
-              member.lastName.toLowerCase().includes(search) ||
-              member.company?.toLowerCase().includes(search) ||
-              member.location.city?.toLowerCase().includes(search) ||
-              member.location.region?.toLowerCase().includes(search) ||
-              member.location.country.toLowerCase().includes(search) ||
-              member.specializations.some(spec => 
-                spec.toLowerCase().includes(search)
-              );
-            
-            if (!matchesSearch) return false;
-          }
-
-          // Member type filter
-          if (filters.memberTypes.length > 0 && 
-              !filters.memberTypes.includes(member.memberType)) {
-            return false;
-          }
-
-          // Specializations filter
-          if (filters.specializations.length > 0 &&
-              !filters.specializations.some(spec => 
-                member.specializations.includes(spec)
-              )) {
-            return false;
-          }
-
-          // Location filter
-          if (filters.locations.length > 0) {
-            const memberLocation = `${member.location.city || ''} ${member.location.region || ''} ${member.location.country}`.trim();
-            const matchesLocation = filters.locations.some(loc =>
-              memberLocation.toLowerCase().includes(loc.toLowerCase())
-            );
-            if (!matchesLocation) return false;
-          }
-
-          // Availability status filter
-          if (filters.availabilityStatus.length > 0 &&
-              !filters.availabilityStatus.includes(member.availabilityStatus)) {
-            return false;
-          }
-
-          // Social media presence filter
-          if (filters.hasSocialMedia !== null) {
-            const hasSocial = Object.values(member.socialMedia).some(Boolean);
-            if (filters.hasSocialMedia && !hasSocial) return false;
-            if (!filters.hasSocialMedia && hasSocial) return false;
-          }
-
-          // Active status filter
-          if (filters.isActive !== null && member.isActive !== filters.isActive) {
-            return false;
-          }
-
-          return true;
-        });
-      },
-
-      getFilteredDirectiva: () => {
-        const { directiva, searchTerm, selectedYear } = get();
-        
-        return directiva
-          .filter(member => member.yearServed.includes(selectedYear))
-          .filter(member => {
-            if (searchTerm) {
-              const search = searchTerm.toLowerCase();
-              return (
-                member.firstName.toLowerCase().includes(search) ||
-                member.lastName.toLowerCase().includes(search) ||
-                member.position.toLowerCase().includes(search) ||
-                member.responsibilities.some(resp => 
-                  resp.toLowerCase().includes(search)
-                )
-              );
-            }
-            return true;
-          })
-          .sort((a, b) => {
-            // Sort by position hierarchy (custom logic can be added)
-            const positionOrder = ['Presidenta', 'Vicepresidenta', 'Secretaria', 'Tesorera'];
-            const aIndex = positionOrder.indexOf(a.position);
-            const bIndex = positionOrder.indexOf(b.position);
-            
-            if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
-            if (aIndex !== -1) return -1;
-            if (bIndex !== -1) return 1;
-            
-            return a.position.localeCompare(b.position);
-          });
-      },
-
-      getAvailableLocations: () => {
-        const { members } = get();
-        const locations = new Set<string>();
-        
-        members.forEach(member => {
-          if (member.location.city) locations.add(member.location.city);
-          if (member.location.region) locations.add(member.location.region);
-          locations.add(member.location.country);
-        });
-        
-        return Array.from(locations).sort();
-      },
-
-      getMemberCounts: () => {
-        const filteredMembers = get().getFilteredMembers();
-        
-        const byType = filteredMembers.reduce((acc, member) => {
-          acc[member.memberType] = (acc[member.memberType] || 0) + 1;
-          return acc;
-        }, {} as Record<string, number>);
-
-        const byAvailability = filteredMembers.reduce((acc, member) => {
-          acc[member.availabilityStatus] = (acc[member.availabilityStatus] || 0) + 1;
-          return acc;
-        }, {} as Record<string, number>);
-
-        return {
-          total: filteredMembers.length,
-          byType,
-          byAvailability,
-        };
-      },
-    }),
-    { name: 'gallery-store' }
-  )
-);
-
-// Mock data generators for development
-function generateMockMembers(): Member[] {
-  const mockMembers: Member[] = [
-    {
-      id: '1',
-      firstName: 'María',
-      lastName: 'García',
-      email: 'maria.garcia@example.com',
-      company: 'Animación Studios',
-      location: { city: 'Madrid', region: 'Comunidad de Madrid', country: 'España' },
-      memberType: 'Full',
-      specializations: ['2D Animation', 'Character Design'],
-      availabilityStatus: 'Available',
-      socialMedia: {
-        linkedin: 'https://linkedin.com/in/mariagarcia',
-        twitter: '@mariagarcia'
-      },
-      profileImage: 'https://via.placeholder.com/150',
-      bio: 'Experienced 2D animator with over 10 years in the industry.',
-      joinDate: '2020-01-15',
-      isActive: true,
-    },
-    {
-      id: '2',
-      firstName: 'Carmen',
-      lastName: 'López',
-      email: 'carmen.lopez@example.com',
-      company: 'Freelance',
-      location: { city: 'Barcelona', region: 'Cataluña', country: 'España' },
-      memberType: 'Student',
-      specializations: ['3D Animation', 'Modeling'],
-      availabilityStatus: 'Busy',
-      socialMedia: {
-        website: 'https://carmenlopez.com'
-      },
-      profileImage: 'https://via.placeholder.com/150',
-      bio: 'Animation student specializing in 3D character work.',
-      joinDate: '2023-09-01',
-      isActive: true,
-    },
-    // Add more mock members as needed
-  ];
-  
-  return mockMembers;
-}
-
-function generateMockDirectiva(year: number): DirectivaMember[] {
-  const mockDirectiva: DirectivaMember[] = [
-    {
-      id: 'd1',
-      firstName: 'Ana',
-      lastName: 'Martínez',
-      email: 'ana.martinez@mia.com',
-      company: 'MIA',
-      location: { city: 'Madrid', region: 'Comunidad de Madrid', country: 'España' },
-      memberType: 'Full',
-      specializations: ['Direction', 'Production'],
-      availabilityStatus: 'Busy',
-      socialMedia: {
-        linkedin: 'https://linkedin.com/in/anamartinez'
-      },
-      profileImage: 'https://via.placeholder.com/150',
-      bio: 'President of MIA with extensive experience in animation production.',
-      joinDate: '2018-01-01',
-      isActive: true,
-      position: 'Presidenta',
-      responsibilities: ['Strategic planning', 'External relations', 'Board leadership'],
-      yearServed: [year, year - 1],
-      isCurrentMember: year === new Date().getFullYear(),
-    },
-    // Add more mock directiva members as needed
-  ];
-  
-  return mockDirectiva;
-}
+export default useGalleryStore;
