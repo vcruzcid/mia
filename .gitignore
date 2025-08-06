@@ -24,3 +24,6 @@ mia-wordpress/
 *.njsproj
 *.sln
 *.sw?
+
+# Serena files
+.serena/
