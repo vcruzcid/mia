@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useMotionPreference } from './useMotionPreference';
 
 interface UseScrollAnimationOptions {
   threshold?: number;
@@ -13,13 +14,24 @@ export function useScrollAnimation(options: UseScrollAnimationOptions = {}) {
     triggerOnce = true,
   } = options;
   
+  const { prefersReducedMotion } = useMotionPreference();
   const [isIntersecting, setIsIntersecting] = useState(false);
   const [hasTriggered, setHasTriggered] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
+  // If user prefers reduced motion, trigger immediately
+  useEffect(() => {
+    if (prefersReducedMotion) {
+      setIsIntersecting(true);
+      if (triggerOnce) {
+        setHasTriggered(true);
+      }
+    }
+  }, [prefersReducedMotion, triggerOnce]);
+
   useEffect(() => {
     const element = ref.current;
-    if (!element) return;
+    if (!element || prefersReducedMotion) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -40,7 +52,7 @@ export function useScrollAnimation(options: UseScrollAnimationOptions = {}) {
     observer.observe(element);
 
     return () => observer.disconnect();
-  }, [threshold, rootMargin, triggerOnce, hasTriggered]);
+  }, [threshold, rootMargin, triggerOnce, hasTriggered, prefersReducedMotion]);
 
-  return { ref, isIntersecting };
+  return { ref, isIntersecting, prefersReducedMotion };
 }
