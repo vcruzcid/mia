@@ -1,5 +1,6 @@
 import { createContext, useContext } from 'react'
-import { useToast, ToastMessage } from '@/hooks/useToast'
+import { useToast } from '@/hooks/useToast'
+import type { ToastMessage } from '@/hooks/useToast'
 import { Toaster } from '@/components/Toaster'
 
 interface ToastContextType {
