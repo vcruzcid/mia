@@ -2,9 +2,11 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { contactFormSchema, type ContactFormData } from '../utils/validation';
 import { useToastContext } from '../contexts/ToastContext';
+import { useAsyncLoading } from '../contexts/LoadingContext';
 
 export function ContactPage() {
   const { toast } = useToastContext();
+  const { withLoading } = useAsyncLoading();
   const {
     register,
     handleSubmit,
@@ -15,27 +17,29 @@ export function ContactPage() {
   });
 
   const onSubmit = async (data: ContactFormData) => {
-    try {
-      // Here you would typically send the data to your backend
-      console.log('Contact form submitted:', data);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      toast({
-        title: 'Mensaje enviado',
-        description: 'Te contactaremos pronto.',
-        variant: 'success'
-      });
-      reset();
-    } catch (error) {
-      console.error('Error sending message:', error);
-      toast({
-        title: 'Error al enviar',
-        description: 'Hubo un problema. Inténtalo de nuevo.',
-        variant: 'destructive'
-      });
-    }
+    await withLoading(async () => {
+      try {
+        // Here you would typically send the data to your backend
+        console.log('Contact form submitted:', data);
+        
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        toast({
+          title: 'Mensaje enviado',
+          description: 'Te contactaremos pronto.',
+          variant: 'success'
+        });
+        reset();
+      } catch (error) {
+        console.error('Error sending message:', error);
+        toast({
+          title: 'Error al enviar',
+          description: 'Hubo un problema. Inténtalo de nuevo.',
+          variant: 'destructive'
+        });
+      }
+    }, 'Enviando mensaje...');
   };
 
   return (
