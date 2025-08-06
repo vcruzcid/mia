@@ -3,6 +3,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { contactFormSchema, type ContactFormData } from '../utils/validation';
 import { useToastContext } from '../contexts/ToastContext';
 import { useAsyncLoading } from '../contexts/LoadingContext';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { SocialMediaIcons } from '../components/SocialMediaIcons';
+import { Accordion } from '@/components/ui/accordion';
 
 export function ContactPage() {
   const { toast } = useToastContext();
@@ -57,19 +61,20 @@ export function ContactPage() {
         <div className="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Contact Information */}
           <div className="lg:col-span-1">
-            <div style={{ backgroundColor: 'var(--color-bg-primary)' }} className="rounded-lg shadow-lg p-8">
+            <Card className="h-full">
+              <CardContent className="p-8 flex flex-col h-full">
               <h2 className="text-2xl font-semibold mb-6" style={{ color: 'var(--color-text-primary)' }}>
                 Información de contacto
               </h2>
               
-              <div className="space-y-6">
+                              <div className="space-y-8">
                 <div className="flex items-start">
                   <svg className="h-6 w-6 text-primary-600 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                   <div className="ml-4">
                     <h3 className="text-lg font-medium" style={{ color: 'var(--color-text-primary)' }}>Email</h3>
-                    <p style={{ color: 'var(--color-text-secondary)' }}>info@animacionesmia.com</p>
+                    <p style={{ color: 'var(--color-text-secondary)' }}>hola@animacionesmia.com</p>
                   </div>
                 </div>
 
@@ -79,8 +84,8 @@ export function ContactPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                   <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">Ubicación</h3>
-                    <p className="text-gray-800">España</p>
+                    <h3 className="text-lg font-medium text-gray-900">Dirección</h3>
+                    <p className="text-gray-800">Calle Santander 3, 2º Izda<br />Madrid, 28003, España</p>
                   </div>
                 </div>
 
@@ -95,26 +100,33 @@ export function ContactPage() {
                 </div>
               </div>
 
-              <div className="mt-8 pt-8 border-t border-gray-200">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">
-                  Síguenos en redes sociales
-                </h3>
-                <div className="flex space-x-4">
-                  {/* Social media links would go here */}
-                  <div className="text-gray-600">
-                    <p className="text-sm">Próximamente...</p>
+                              <div className="mt-8 pt-8 border-t border-gray-200 flex-1 flex flex-col justify-center">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4 text-center">
+                    Síguenos en redes sociales
+                  </h3>
+                  <div className="flex justify-center">
+                    <SocialMediaIcons 
+                      socialMedia={{
+                        linkedin: 'https://linkedin.com/company/animacionesmia',
+                        twitter: 'https://twitter.com/animacionesmia',
+                        instagram: 'https://instagram.com/animacionesmia',
+                        website: 'https://animacionesmia.com'
+                      }}
+                      className="space-x-6"
+                    />
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
+        </div>
 
           {/* Contact Form */}
           <div className="lg:col-span-2">
-            <div style={{ backgroundColor: 'var(--color-bg-primary)' }} className="rounded-lg shadow-lg p-8">
-              <h2 className="text-2xl font-semibold mb-6" style={{ color: 'var(--color-text-primary)' }}>
-                Envíanos un mensaje
-              </h2>
+            <Card>
+              <CardContent className="p-8">
+                <h2 className="text-2xl font-semibold mb-6" style={{ color: 'var(--color-text-primary)' }}>
+                  Envíanos un mensaje
+                </h2>
 
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 <div>
@@ -182,7 +194,7 @@ export function ContactPage() {
                 </div>
 
                 <div className="pt-4">
-                  <button
+                  <Button
                     type="submit"
                     disabled={isSubmitting}
                     className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
@@ -192,62 +204,44 @@ export function ContactPage() {
                     }}
                   >
                     {isSubmitting ? 'Enviando...' : 'Enviar mensaje'}
-                  </button>
+                  </Button>
                 </div>
               </form>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
+      </div>
 
         {/* FAQ Section */}
         <div className="mt-16">
-          <div style={{ backgroundColor: 'var(--color-bg-primary)' }} className="rounded-lg shadow-lg p-8">
-            <h2 className="text-2xl font-semibold mb-8 text-center" style={{ color: 'var(--color-text-primary)' }}>
-              Preguntas frecuentes
-            </h2>
-            
-            <div className="grid gap-8 md:grid-cols-2">
-              <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  ¿Cómo puedo hacerme socia?
-                </h3>
-                <p className="text-gray-600">
-                  Puedes registrarte directamente en nuestra página de membresía, 
-                  eligiendo el tipo que mejor se adapte a tu perfil profesional.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  ¿Qué beneficios incluye la membresía?
-                </h3>
-                <p className="text-gray-600">
-                  Cada tipo de membresía incluye diferentes beneficios como acceso 
-                  a eventos, formación, networking y oportunidades profesionales.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  ¿Organizan eventos presenciales?
-                </h3>
-                <p className="text-gray-600">
-                  Sí, organizamos eventos tanto presenciales como virtuales. 
-                  Las socias reciben información prioritaria sobre todos nuestros eventos.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  ¿Puedo cancelar mi membresía?
-                </h3>
-                <p className="text-gray-600">
-                  Puedes cancelar tu membresía en cualquier momento contactando 
-                  con nosotras. Te ayudaremos con todo el proceso.
-                </p>
-              </div>
-            </div>
-          </div>
+          <Card>
+            <CardContent className="p-8">
+              <h2 className="text-2xl font-semibold mb-8 text-center" style={{ color: 'var(--color-text-primary)' }}>
+                Preguntas frecuentes
+              </h2>
+              
+              <Accordion
+                items={[
+                  {
+                    title: "¿Cómo puedo hacerme socia?",
+                    content: "Puedes registrarte directamente en nuestra página de membresía, eligiendo el tipo que mejor se adapte a tu perfil profesional."
+                  },
+                  {
+                    title: "¿Qué beneficios incluye la membresía?",
+                    content: "Cada tipo de membresía incluye diferentes beneficios como acceso a eventos, formación, networking y oportunidades profesionales."
+                  },
+                  {
+                    title: "¿Organizan eventos presenciales?",
+                    content: "Sí, organizamos eventos tanto presenciales como virtuales. Las socias reciben información prioritaria sobre todos nuestros eventos."
+                  },
+                  {
+                    title: "¿Puedo cancelar mi membresía?",
+                    content: "Puedes cancelar tu membresía en cualquier momento contactando con nosotras. Te ayudaremos con todo el proceso."
+                  }
+                ]}
+              />
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

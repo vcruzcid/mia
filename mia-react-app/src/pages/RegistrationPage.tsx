@@ -8,6 +8,7 @@ import {
 } from '../schemas/registrationSchema';
 import { membershipTypes } from '../utils/memberships';
 import { siteConfig } from '../config/site.config';
+import { Card, CardContent } from '@/components/ui/card';
 
 // Import step components (we'll create these)
 import { PersonalInfoStep } from '../components/registration/PersonalInfoStep';
@@ -313,36 +314,38 @@ export function RegistrationPage() {
         />
 
         {/* Form */}
-        <div className="bg-white rounded-lg shadow-lg p-6 sm:p-8">
-          <FormProvider {...methods}>
-            <form className="space-y-6">
-              {/* Step Header */}
-              <div className="border-b border-gray-200 pb-6">
-                <h2 className="text-xl font-semibold text-gray-900">
-                  Paso {state.currentStep}: {stepTitles[state.currentStep]}
-                </h2>
-                {state.currentStep === 1 && (
-                  <p className="mt-1 text-sm text-gray-600">
-                    Información básica y categorías profesionales
-                  </p>
-                )}
-                {state.currentStep === 2 && (
-                  <p className="mt-1 text-sm text-gray-600">
-                    Selecciona tu tipo de membresía y método de pago
-                  </p>
-                )}
-                {state.currentStep === 3 && (
-                  <p className="mt-1 text-sm text-gray-600">
-                    Completa tu perfil profesional y preferencias
-                  </p>
-                )}
-              </div>
+        <Card className="bg-white">
+          <CardContent className="p-6 sm:p-8">
+            <FormProvider {...methods}>
+              <form className="space-y-6">
+                {/* Step Header */}
+                <div className="border-b border-gray-200 pb-6">
+                  <h2 className="text-xl font-semibold text-gray-900">
+                    Paso {state.currentStep}: {stepTitles[state.currentStep]}
+                  </h2>
+                  {state.currentStep === 1 && (
+                    <p className="mt-1 text-sm text-gray-600">
+                      Información básica y categorías profesionales
+                    </p>
+                  )}
+                  {state.currentStep === 2 && (
+                    <p className="mt-1 text-sm text-gray-600">
+                      Selecciona tu tipo de membresía y método de pago
+                    </p>
+                  )}
+                  {state.currentStep === 3 && (
+                    <p className="mt-1 text-sm text-gray-600">
+                      Completa tu perfil profesional y preferencias
+                    </p>
+                  )}
+                </div>
 
-              {/* Step Content */}
-              {renderStepContent()}
-            </form>
-          </FormProvider>
-        </div>
+                {/* Step Content */}
+                {renderStepContent()}
+              </form>
+            </FormProvider>
+          </CardContent>
+        </Card>
 
         {/* Help Section */}
         <div className="mt-8 text-center">

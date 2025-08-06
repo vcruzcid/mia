@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { Button } from '@/components/ui/button';
 import { PROFESSIONAL_CATEGORIES, SPANISH_UNIVERSITIES } from '../../schemas/registrationSchema';
 import type { RegistrationFormData } from '../../schemas/registrationSchema';
 
@@ -306,15 +307,17 @@ export function PersonalInfoStep({ membershipType, onNext }: PersonalInfoStepPro
                   className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-100 text-primary-800"
                 >
                   {category}
-                  <button
+                  <Button
                     type="button"
                     onClick={() => toggleCategory(category)}
+                    variant="ghost"
+                    size="sm"
                     className="ml-2 hover:bg-primary-200 rounded-full p-0.5"
                   >
                     <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                     </svg>
-                  </button>
+                  </Button>
                 </span>
               ))}
             </div>
@@ -372,16 +375,16 @@ export function PersonalInfoStep({ membershipType, onNext }: PersonalInfoStepPro
 
       {/* Navigation */}
       <div className="flex justify-end pt-6 border-t border-gray-200">
-        <button
+        <Button
           type="button"
           onClick={handleNext}
-          className="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200"
+          className="ml-3"
         >
           Continuar
           <svg className="ml-2 -mr-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
           </svg>
-        </button>
+        </Button>
       </div>
     </div>
   );

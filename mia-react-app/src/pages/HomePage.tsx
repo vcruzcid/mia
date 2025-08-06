@@ -3,6 +3,9 @@ import { useEffect } from 'react';
 import { siteConfig } from '../config/site.config';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
 import { useCounterAnimation } from '../hooks/useCounterAnimation';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { useGalleryStore } from '../store/galleryStore';
 
 export function HomePage() {
   const heroAnimation = useScrollAnimation({ threshold: 0.2 });
@@ -11,9 +14,14 @@ export function HomePage() {
   
   const testimonialsAnimation = useScrollAnimation({ threshold: 0.3 });
 
-  const memberCounter = useCounterAnimation(300, {
+  // Get member count from database
+  const { getMemberCounts, fetchMembers } = useGalleryStore();
+  const memberCounts = getMemberCounts();
+  const activeMemberCount = memberCounts.active;
+
+  const memberCounter = useCounterAnimation(activeMemberCount, {
     duration: 2500,
-    formatter: (value) => `${Math.floor(value)}+`,
+    formatter: (value) => `${Math.floor(value)}`,
   });
   
   const growthCounter = useCounterAnimation(85, {
@@ -27,6 +35,11 @@ export function HomePage() {
     delay: 600,
     formatter: (value) => `${Math.floor(value)}+`,
   });
+
+  // Fetch members on component mount
+  useEffect(() => {
+    fetchMembers();
+  }, [fetchMembers]);
 
   useEffect(() => {
     if (statsAnimation.isIntersecting) {
@@ -98,20 +111,18 @@ export function HomePage() {
                   heroAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
                 }`}>
                   <div className="rounded-md shadow-lg">
-                    <Link
-                      to="/membresia"
-                      className="btn-outline w-full flex items-center justify-center py-3 md:py-4 md:text-lg md:px-10 hover:scale-105 transform"
-                    >
-                      Únete a MIA
-                    </Link>
+                    <Button asChild className="w-full flex items-center justify-center py-3 md:py-4 md:text-lg md:px-10 hover:scale-105 transform">
+                      <Link to="/membresia">
+                        Únete a MIA
+                      </Link>
+                    </Button>
                   </div>
                   <div className="mt-3 sm:mt-0 sm:ml-3">
-                    <Link
-                      to="/sobre-mia"
-                      className="btn-primary w-full flex items-center justify-center py-3 md:py-4 md:text-lg md:px-10 hover:scale-105 transform"
-                    >
-                      Conoce más
-                    </Link>
+                    <Button asChild className="w-full flex items-center justify-center py-3 md:py-4 md:text-lg md:px-10 hover:scale-105 transform">
+                      <Link to="/sobre-mia">
+                        Conoce más
+                      </Link>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -211,7 +222,7 @@ export function HomePage() {
                 featuresAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
               }`} style={{ transitionDelay: '400ms' }}>
                 <dt>
-                  <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-primary-500 text-white group-hover:bg-primary-600 transition-colors duration-300">
+                  <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-red-600 text-white group-hover:bg-red-700 transition-colors duration-300">
                     <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
@@ -227,7 +238,7 @@ export function HomePage() {
                 featuresAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
               }`} style={{ transitionDelay: '500ms' }}>
                 <dt>
-                  <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-primary-500 text-white group-hover:bg-primary-600 transition-colors duration-300">
+                  <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-red-600 text-white group-hover:bg-red-700 transition-colors duration-300">
                     <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                     </svg>
@@ -243,7 +254,7 @@ export function HomePage() {
                 featuresAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
               }`} style={{ transitionDelay: '600ms' }}>
                 <dt>
-                  <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-primary-500 text-white group-hover:bg-primary-600 transition-colors duration-300">
+                  <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-red-600 text-white group-hover:bg-red-700 transition-colors duration-300">
                     <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a1 1 0 01-1-1V9a1 1 0 011-1h1a2 2 0 100-4H4a1 1 0 01-1-1V4a1 1 0 011-1h3a1 1 0 001-1z" />
                     </svg>
@@ -259,7 +270,7 @@ export function HomePage() {
                 featuresAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
               }`} style={{ transitionDelay: '700ms' }}>
                 <dt>
-                  <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-primary-500 text-white group-hover:bg-primary-600 transition-colors duration-300">
+                  <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-red-600 text-white group-hover:bg-red-700 transition-colors duration-300">
                     <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
@@ -296,29 +307,31 @@ export function HomePage() {
 
           <div className="mt-12 grid gap-8 lg:grid-cols-3">
             {testimonials.map((testimonial, index) => (
-              <div
-                key={testimonial.name}
-                className={`bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transform hover:scale-105 transition-all duration-500 ${
+              <Card 
+                key={testimonial.name} 
+                className={`bg-white transform hover:scale-105 ${
                   testimonialsAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-                }`}
+                }`} 
                 style={{ transitionDelay: `${300 + index * 200}ms` }}
               >
-                <div className="flex items-center mb-4">
-                  <div className="w-12 h-12 bg-primary-500 rounded-full flex items-center justify-center">
-                    <span className="text-white font-semibold">
-                      {testimonial.name.split(' ').map(n => n[0]).join('')}
-                    </span>
+                <CardContent className="p-6">
+                  <div className="flex items-center mb-4">
+                    <div className="w-12 h-12 bg-primary-500 rounded-full flex items-center justify-center">
+                      <span className="text-white font-semibold">
+                        {testimonial.name.split(' ').map(n => n[0]).join('')}
+                      </span>
+                    </div>
+                    <div className="ml-4">
+                      <div className="text-sm font-medium text-gray-900">{testimonial.name}</div>
+                      <div className="text-sm text-gray-500">{testimonial.role}</div>
+                      <div className="text-xs text-primary-600">{testimonial.company}</div>
+                    </div>
                   </div>
-                  <div className="ml-4">
-                    <div className="text-sm font-medium text-gray-900">{testimonial.name}</div>
-                    <div className="text-sm text-gray-500">{testimonial.role}</div>
-                    <div className="text-xs text-primary-600">{testimonial.company}</div>
-                  </div>
-                </div>
-                <blockquote className="text-gray-600 italic">
-                  "{testimonial.quote}"
-                </blockquote>
-              </div>
+                  <blockquote className="text-gray-600 italic">
+                    "{testimonial.quote}"
+                  </blockquote>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </div>
@@ -337,8 +350,8 @@ export function HomePage() {
           </div>
 
           <div className="mt-12 grid gap-8 lg:grid-cols-2">
-            <div className="bg-gradient-to-r from-primary-50 to-primary-100 rounded-lg p-6 hover:shadow-lg transition-all duration-300">
-              <div className="flex items-start">
+            <Card className="bg-gradient-to-r from-primary-50 to-primary-100">
+              <CardContent className="flex items-start">
                 <div className="flex-shrink-0">
                   <div className="flex items-center justify-center h-12 w-12 rounded-md bg-primary-500 text-white">
                     🏆
@@ -351,11 +364,11 @@ export function HomePage() {
                     en la industria de la animación española.
                   </p>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
-            <div className="bg-gradient-to-r from-primary-50 to-primary-100 rounded-lg p-6 hover:shadow-lg transition-all duration-300">
-              <div className="flex items-start">
+            <Card className="bg-gradient-to-r from-primary-50 to-primary-100">
+              <CardContent className="flex items-start">
                 <div className="flex-shrink-0">
                   <div className="flex items-center justify-center h-12 w-12 rounded-md bg-primary-500 text-white">
                     📚
@@ -368,8 +381,8 @@ export function HomePage() {
                     a más de 100 profesionales senior con talentos emergentes.
                   </p>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
@@ -383,12 +396,11 @@ export function HomePage() {
           </h2>
           <div className="mt-8 flex lg:mt-0 lg:flex-shrink-0">
             <div className="inline-flex rounded-md shadow">
-              <Link
-                to="/membresia"
-                className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition-colors duration-200"
-              >
-                Ver opciones de membresía
-              </Link>
+              <Button asChild>
+                <Link to="/membresia">
+                  Ver opciones de membresía
+                </Link>
+              </Button>
             </div>
           </div>
         </div>

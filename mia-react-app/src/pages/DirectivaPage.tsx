@@ -4,17 +4,17 @@ import type { DirectivaMember } from '../types';
 import { ProfileImage } from '../components/ProfileImage';
 import { SocialMediaIcons } from '../components/SocialMediaIcons';
 import { Badge } from '../components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 
 export function DirectivaPage() {
   const {
     loading,
-    searchTerm,
     selectedYear,
     availableYears,
     selectedMember,
     isModalOpen,
     getFilteredDirectiva,
-    setSearchTerm,
     setSelectedYear,
     openMemberModal,
     closeMemberModal,
@@ -27,10 +27,6 @@ export function DirectivaPage() {
 
   const filteredDirectiva = getFilteredDirectiva();
   const currentYear = new Date().getFullYear();
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
-  };
 
   const handleYearChange = (year: number) => {
     setSelectedYear(year);
@@ -45,84 +41,49 @@ export function DirectivaPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100">
-      <div className="bg-white shadow-lg border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="text-center">
-            <div className="flex items-center justify-center mb-6">
-              <div className="h-16 w-16 bg-gradient-to-br from-primary-500 to-primary-700 rounded-full flex items-center justify-center">
-                <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-              </div>
-            </div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Junta Directiva MIA
-            </h1>
-            <p className="text-xl text-gray-800 max-w-3xl mx-auto">
-              Conoce a las líderes que guían nuestra asociación hacia el futuro de la animación en España.
-            </p>
-          </div>
+    <div className="bg-gray-900">
+      {/* Hero Section */}
+      <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
+        <div className="text-center">
+          <h1 className="text-4xl font-extrabold text-white sm:text-5xl">
+            Junta Directiva MIA
+          </h1>
+          <p className="mt-4 text-xl text-gray-300">
+            Conoce a las líderes que guían nuestra asociación hacia el futuro de la animación en España.
+          </p>
+        </div>
 
-          {/* Year Selector */}
-          <div className="mt-10 max-w-md mx-auto">
-            <label className="block text-sm font-medium text-gray-700 mb-3 text-center">
-              Seleccionar año de la directiva
-            </label>
-            <div className="grid grid-cols-4 gap-2">
-              {availableYears.map((year) => (
-                <button
-                  key={year}
-                  onClick={() => handleYearChange(year)}
-                  className={`px-4 py-3 rounded-lg font-medium text-sm transition-all duration-200 ${
-                    selectedYear === year
-                      ? 'bg-primary-600 text-white shadow-lg transform scale-105'
-                      : 'bg-white text-gray-700 hover:bg-primary-50 hover:text-primary-600 shadow-sm hover:shadow-md border border-gray-200'
-                  }`}
-                >
-                  {year}
-                  {year === currentYear && (
-                    <span className="block text-xs opacity-75">
-                      Actual
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Search Bar */}
-          <div className="mt-8 max-w-lg mx-auto">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={handleSearchChange}
-                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-600 focus:outline-none focus:placeholder-gray-500 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-base shadow-sm"
-                placeholder="Buscar por nombre, cargo o responsabilidad..."
-              />
-            </div>
-          </div>
-
-          {/* Results Summary */}
-          <div className="mt-6 text-center">
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-100 text-primary-800">
-              <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-              {filteredDirectiva.length} miembros de la directiva {selectedYear}
-            </span>
+        {/* Year Selector */}
+        <div className="mt-10 max-w-md mx-auto">
+          <label className="block text-sm font-medium text-gray-300 mb-3 text-center">
+            Seleccionar año de la directiva
+          </label>
+          <div className="grid grid-cols-4 gap-2">
+            {availableYears.slice().reverse().map((year) => (
+              <Button
+                key={year}
+                onClick={() => handleYearChange(year)}
+                variant={selectedYear === year ? "default" : "secondary"}
+                className={`px-4 py-3 rounded-lg font-medium text-sm transition-all duration-200 ${
+                  selectedYear === year
+                    ? 'transform scale-105'
+                    : 'border-2 border-white text-white hover:bg-white hover:text-gray-900'
+                }`}
+              >
+                {year}
+                {year === currentYear && (
+                  <span className="block text-xs opacity-75">
+                    Actual
+                  </span>
+                )}
+              </Button>
+            ))}
           </div>
         </div>
       </div>
 
       {/* Directiva Grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
         {filteredDirectiva.length === 0 ? (
           <div className="text-center py-12">
             <div className="mx-auto h-24 w-24 bg-gray-200 rounded-full flex items-center justify-center mb-4">
@@ -169,33 +130,20 @@ interface DirectivaCardProps {
 }
 
 function DirectivaCard({ member, index, onClick }: DirectivaCardProps) {
-  const isPresident = member.position.toLowerCase().includes('president');
-  const isVicePresident = member.position.toLowerCase().includes('vicepresid');
+
   
   const getPositionStyle = () => {
-    if (isPresident) {
-      return 'from-yellow-400 to-yellow-600 text-yellow-900';
-    }
-    if (isVicePresident) {
-      return 'from-orange-400 to-orange-600 text-orange-900';
-    }
-    return 'from-primary-400 to-primary-600 text-primary-900';
+    return 'from-red-600 to-red-700 text-white';
   };
 
   const getCardStyle = () => {
-    if (isPresident) {
-      return 'ring-2 ring-yellow-200 shadow-xl';
-    }
-    if (isVicePresident) {
-      return 'ring-2 ring-orange-200 shadow-lg';
-    }
-    return 'hover:shadow-lg';
+    return 'ring-2 ring-red-200 shadow-lg';
   };
 
   return (
-    <div 
+    <Card 
       onClick={onClick}
-      className={`bg-white rounded-xl overflow-hidden transition-all duration-300 cursor-pointer transform hover:scale-105 ${getCardStyle()}`}
+      className={`bg-white overflow-hidden transition-all duration-300 cursor-pointer transform hover:scale-105 ${getCardStyle()}`}
       style={{
         animationDelay: `${index * 100}ms`,
         animation: 'fadeInUp 0.6s ease-out forwards'
@@ -204,13 +152,6 @@ function DirectivaCard({ member, index, onClick }: DirectivaCardProps) {
       <div className="relative">
         {/* Header with gradient background */}
         <div className={`bg-gradient-to-r ${getPositionStyle()} h-24`}>
-          {isPresident && (
-            <div className="absolute top-2 right-2">
-              <svg className="h-6 w-6 text-yellow-200" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-              </svg>
-            </div>
-          )}
         </div>
         
         {/* Profile Image */}
@@ -233,7 +174,7 @@ function DirectivaCard({ member, index, onClick }: DirectivaCardProps) {
         </div>
       </div>
 
-      <div className="pt-10 p-6">
+      <CardContent className="pt-10 p-6">
         <div className="mb-4">
           <h3 className="text-xl font-bold text-gray-900 mb-1">
             {member.firstName} {member.lastName}
@@ -329,8 +270,8 @@ function DirectivaCard({ member, index, onClick }: DirectivaCardProps) {
         <div className="mt-4 text-center">
           <span className="text-xs text-gray-600">Hacer clic para ver más detalles</span>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -354,7 +295,7 @@ function DirectivaModal({ member, onClose }: DirectivaModalProps) {
 
         <div className="relative inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full z-10">
           {/* Header */}
-          <div className={`bg-gradient-to-r ${isPresident ? 'from-yellow-400 to-yellow-600' : 'from-primary-500 to-primary-700'} px-6 py-4`}>
+          <div className={`bg-gradient-to-r ${isPresident ? 'from-red-600 to-red-700' : 'from-primary-500 to-primary-700'} px-6 py-4`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <ProfileImage
@@ -370,22 +311,22 @@ function DirectivaModal({ member, onClose }: DirectivaModalProps) {
                   <p className="text-sm text-white/90">{member.position}</p>
                   {isPresident && (
                     <div className="flex items-center mt-1">
-                      <svg className="h-4 w-4 text-yellow-200 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="h-4 w-4 text-red-200 mr-1" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                       </svg>
-                      <span className="text-xs text-yellow-200">Presidencia</span>
+                      <span className="text-xs text-red-200">Presidencia</span>
                     </div>
                   )}
                 </div>
               </div>
-              <button
+              <Button
                 onClick={onClose}
                 className="text-white/80 hover:text-white transition-colors"
               >
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -547,13 +488,13 @@ function DirectivaModal({ member, onClose }: DirectivaModalProps) {
 
           {/* Footer */}
           <div className="bg-gray-50 px-6 py-4 flex justify-end">
-            <button
+            <Button
               type="button"
               className="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary-600 text-base font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
               onClick={onClose}
             >
               Cerrar
-            </button>
+            </Button>
           </div>
         </div>
       </div>

@@ -3,8 +3,6 @@
 
 export interface Member {
   id: string;
-  wp_post_id?: number;
-  wp_user_id?: number;
   member_number?: number;
   first_name: string;
   last_name: string;
@@ -64,7 +62,6 @@ export interface Member {
   created_at?: string;
   updated_at?: string;
   last_login?: string;
-  migrated_at?: string;
 }
 
 export interface MemberCategory {

@@ -75,7 +75,7 @@ export function Header() {
                     key={item.name}
                     to={item.href}
                     className={isActive(item.href) 
-                      ? 'text-red-400 bg-red-900/20 px-3 py-2 rounded-md text-sm font-medium border border-red-500/30 transition-colors duration-200' 
+                      ? 'text-white bg-gray-800 px-3 py-2 rounded-md text-sm font-medium border border-white transition-colors duration-200' 
                       : 'text-white hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200'
                     }
                     onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
@@ -134,7 +134,7 @@ export function Header() {
                   to={item.href}
                   className={`block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 ${
                     isActive(item.href)
-                      ? 'text-red-400 bg-red-900/20 border border-red-500/30'
+                      ? 'text-white bg-gray-800 border border-white'
                       : 'text-white hover:bg-gray-900 hover:text-red-400'
                   }`}
                   onClick={() => {

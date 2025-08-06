@@ -3,6 +3,8 @@ import { useLocation } from 'react-router-dom';
 import { membershipTypes } from '../utils/memberships';
 import { VALID_DISCOUNT_CODES, calculateDiscountedPrice } from '../schemas/registrationSchema';
 import { siteConfig } from '../config/site.config';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface RegistrationState {
   selectedMembership: string | null;
@@ -195,9 +197,9 @@ export function SimpleRegistrationPage() {
           </p>
         </div>
 
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+        <Card className="bg-white overflow-hidden">
           {/* Membership Selection */}
-          <div className="p-8">
+          <CardContent className="p-8">
             <h2 className="text-2xl font-semibold text-gray-900 mb-8 text-center">
               Selecciona tu Membresía
             </h2>
@@ -288,13 +290,14 @@ export function SimpleRegistrationPage() {
                       placeholder="Introduce tu código..."
                       maxLength={20}
                     />
-                    <button
+                    <Button
                       type="button"
                       onClick={applyDiscountCode}
-                      className="px-6 py-2 bg-gray-600 text-white font-medium rounded-md hover:bg-gray-700 transition-colors duration-200"
+                      variant="secondary"
+                      size="sm"
                     >
                       Aplicar
-                    </button>
+                    </Button>
                   </div>
                 ) : (
                   <div className="bg-green-50 border border-green-200 rounded-md p-4">
@@ -312,13 +315,15 @@ export function SimpleRegistrationPage() {
                           </p>
                         </div>
                       </div>
-                      <button
+                      <Button
                         type="button"
                         onClick={removeDiscountCode}
-                        className="text-green-600 hover:text-green-800 font-medium"
+                        variant="ghost"
+                        size="sm"
+                        className="text-green-600 hover:text-green-800"
                       >
                         Eliminar
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 )}
@@ -400,13 +405,14 @@ export function SimpleRegistrationPage() {
                 />
                 <span className="ml-3 text-sm text-gray-700">
                   Acepto el{' '}
-                  <button
+                  <Button
                     type="button"
                     onClick={() => setShowTerms(!showTerms)}
-                    className="text-primary-600 hover:text-primary-700 font-medium underline"
+                    variant="link"
+                    className="text-primary-600 hover:text-primary-700 font-medium underline p-0 h-auto"
                   >
                     tratamiento de mis datos personales
-                  </button>{' '}
+                  </Button>{' '}
                   según la política de privacidad *
                 </span>
               </label>
@@ -474,41 +480,45 @@ export function SimpleRegistrationPage() {
             )}
 
             {/* Action Button */}
-            <div className="text-center">
-              <button
+            <div className="mt-8">
+              <Button
+                type="button"
                 onClick={handlePayment}
                 disabled={!canProceed() || state.isProcessing}
-                className={`inline-flex items-center px-8 py-4 border border-transparent text-lg font-medium rounded-md text-white transition-all duration-200 ${
-                  canProceed() && !state.isProcessing
-                    ? 'bg-primary-600 hover:bg-primary-700 focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transform hover:scale-105'
-                    : 'bg-gray-400 cursor-not-allowed'
-                }`}
+                className="w-full py-3 text-lg font-medium"
+                size="lg"
               >
                 {state.isProcessing ? (
                   <>
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
                     Procesando...
                   </>
-                ) : state.selectedMembership === 'newsletter' ? (
-                  'Suscribirse al Newsletter'
                 ) : (
-                  `Proceder al Pago - €${pricingInfo?.finalPrice || 0}`
+                  <>
+                    {isPaidMembership ? (
+                      <>
+                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                        </svg>
+                        Proceder al Pago - €{pricingInfo?.finalPrice || 0}
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Completar Registro Gratuito
+                      </>
+                    )}
+                  </>
                 )}
-              </button>
-              
-              {!canProceed() && (
-                <p className="mt-3 text-sm text-red-600">
-                  {!state.selectedMembership && 'Selecciona una membresía'}
-                  {state.selectedMembership && !termsAccepted && 'Acepta los términos y condiciones'}
-                  {state.selectedMembership && termsAccepted && !gdprAccepted && 'Acepta el tratamiento de datos'}
-                </p>
-              )}
+              </Button>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Information Section */}
         <div className="mt-12 text-center">

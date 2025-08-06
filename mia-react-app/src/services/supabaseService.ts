@@ -47,12 +47,10 @@ export const memberService = {
     return data;
   },
 
-  // Filter members
+  // Filter members with improved performance
   async filterMembers(filters: {
     memberTypes?: string[];
-    specializations?: string[];
     locations?: string[];
-    availabilityStatus?: string[];
     limit?: number;
     offset?: number;
   }) {
@@ -68,15 +66,12 @@ export const memberService = {
       query = query.in('autonomous_community', filters.locations);
     }
 
-    if (filters.limit) {
-      query = query.limit(filters.limit);
-    }
-
-    if (filters.offset) {
-      query = query.range(filters.offset, filters.offset + (filters.limit || 50) - 1);
-    }
-
-    query = query.order('created_at', { ascending: false });
+    const limit = filters.limit || 50;
+    const offset = filters.offset || 0;
+    
+    query = query
+      .range(offset, offset + limit - 1)
+      .order('created_at', { ascending: false });
 
     const { data, error } = await query;
     if (error) throw error;

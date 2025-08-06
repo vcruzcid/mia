@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGalleryStore } from '../store/galleryStore';
 // import type { Member } from '../types';
 import { ANIMATION_SPECIALIZATIONS } from '../types';
@@ -7,6 +7,7 @@ import { SocialMediaIcons } from '../components/SocialMediaIcons';
 import { Card, CardContent } from '../components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../components/ui/dialog';
 import { Badge } from '../components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 export function SociasPage() {
   const {
@@ -139,23 +140,25 @@ export function SociasPage() {
                 )}
               </span>
               {getActiveFiltersCount() > 0 && (
-                <button
+                <Button
                   onClick={resetFilters}
+                  variant="ghost"
                   className="text-sm text-primary-600 hover:text-primary-800 underline"
                 >
                   Limpiar filtros ({getActiveFiltersCount()})
-                </button>
+                </Button>
               )}
             </div>
-            <button
+            <Button
               onClick={() => setIsFiltersExpanded(!isFiltersExpanded)}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+              variant="outline"
+              className="inline-flex items-center px-4 py-2"
             >
               <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
               </svg>
               Filtros avanzados
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -174,13 +177,14 @@ export function SociasPage() {
                   { key: 'availability', label: 'Disponibilidad', count: filters.availabilityStatus.length },
                   { key: 'other', label: 'Otros', count: (filters.hasSocialMedia !== null ? 1 : 0) + (filters.isActive !== null ? 1 : 0) },
                 ].map((tab) => (
-                  <button
+                  <Button
                     key={tab.key}
                     onClick={() => setActiveFilterTab(tab.key as 'type' | 'specialization' | 'location' | 'availability' | 'other')}
-                    className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                    variant="ghost"
+                    className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap rounded-none ${
                       activeFilterTab === tab.key
-                        ? 'border-primary-500 text-primary-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        ? 'border-primary-500 text-primary-600 bg-transparent'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 bg-transparent'
                     }`}
                   >
                     {tab.label}
@@ -189,7 +193,7 @@ export function SociasPage() {
                         {tab.count}
                       </span>
                     )}
-                  </button>
+                  </Button>
                 ))}
               </nav>
             </div>
@@ -387,13 +391,14 @@ export function SociasPage() {
             
             {totalPages > 1 && (
               <div className="flex items-center space-x-2">
-                <button
+                <Button
                   onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                   disabled={currentPage === 1}
-                  className="px-3 py-1 text-sm border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                  variant="outline"
+                  size="sm"
                 >
                   Anterior
-                </button>
+                </Button>
                 
                 <div className="flex space-x-1">
                   {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -409,28 +414,26 @@ export function SociasPage() {
                     }
                     
                     return (
-                      <button
+                      <Button
                         key={pageNumber}
                         onClick={() => handlePageChange(pageNumber)}
-                        className={`px-3 py-1 text-sm border rounded-md ${
-                          currentPage === pageNumber
-                            ? 'bg-primary-600 text-white border-primary-600'
-                            : 'border-gray-300 hover:bg-gray-50'
-                        }`}
+                        variant={currentPage === pageNumber ? "default" : "outline"}
+                        size="sm"
                       >
                         {pageNumber}
-                      </button>
+                      </Button>
                     );
                   })}
                 </div>
                 
-                <button
+                <Button
                   onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                   disabled={currentPage === totalPages}
-                  className="px-3 py-1 text-sm border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                  variant="outline"
+                  size="sm"
                 >
                   Siguiente
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -465,25 +468,27 @@ export function SociasPage() {
         {totalPages > 1 && (
           <div className="flex justify-center mt-8">
             <div className="flex items-center space-x-2">
-              <button
+              <Button
                 onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
-                className="px-4 py-2 text-sm border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                variant="outline"
+                size="sm"
               >
                 Anterior
-              </button>
+              </Button>
               
               <span className="px-4 py-2 text-sm text-gray-700">
                 Página {currentPage} de {totalPages}
               </span>
               
-              <button
+              <Button
                 onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
-                className="px-4 py-2 text-sm border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                variant="outline"
+                size="sm"
               >
                 Siguiente
-              </button>
+              </Button>
             </div>
           </div>
         )}
@@ -582,56 +587,165 @@ interface MemberModalProps {
 function MemberModal({ member, onClose }: MemberModalProps) {
   return (
     <Dialog open={true} onOpenChange={() => onClose()}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-start space-x-4">
             <ProfileImage
               src={member.profileImage}
               alt={`${member.firstName} ${member.lastName}`}
               size="xl"
             />
-            <div>
-              <DialogTitle className="text-xl">
+            <div className="flex-1">
+              <DialogTitle className="text-xl text-gray-900">
                 {member.firstName} {member.lastName}
               </DialogTitle>
-              <DialogDescription className="text-base">
-                {member.company || 'Freelance'}
+              <DialogDescription className="text-base text-gray-700">
+                {member.profession && (
+                  <span className="block font-medium">{member.profession}</span>
+                )}
+                {member.company && (
+                  <span className="block">{member.company}</span>
+                )}
               </DialogDescription>
-              {member.bio && (
-                <p className="mt-2 text-sm text-gray-600">{member.bio}</p>
-              )}
+              <div className="flex gap-2 mt-2">
+                <Badge variant={member.memberType === 'Full' ? 'default' : member.memberType === 'Student' ? 'secondary' : 'outline'}>
+                  {member.memberType === 'Full' ? 'Pleno Derecho' : 
+                   member.memberType === 'Student' ? 'Estudiante' : 'Colaborador/a'}
+                </Badge>
+                <Badge variant={member.availabilityStatus === 'Available' ? 'default' : member.availabilityStatus === 'Busy' ? 'secondary' : 'destructive'}>
+                  {member.availabilityStatus === 'Available' ? 'Disponible' :
+                   member.availabilityStatus === 'Busy' ? 'Ocupada' : 'No Disponible'}
+                </Badge>
+              </div>
             </div>
           </div>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-6">
+          {/* Biography Section */}
+          {(member.biography || member.bio) && (
+            <div>
+              <h4 className="text-sm font-medium text-gray-900 mb-2">Biografía</h4>
+              <p className="text-sm text-gray-700 leading-relaxed">
+                {member.biography || member.bio}
+              </p>
+            </div>
+          )}
+
+          {/* Professional Information */}
           <div>
-            <h4 className="text-sm font-medium text-gray-900 mb-2">Especializaciones</h4>
-            <div className="flex flex-wrap gap-1">
-              {member.specializations.map((spec: string, index: number) => (
-                <Badge key={index} variant="default" className="text-xs">
-                  {spec}
-                </Badge>
-              ))}
+            <h4 className="text-sm font-medium text-gray-900 mb-3">Información Profesional</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              {member.profession && (
+                <div>
+                  <span className="text-gray-600">Profesión principal:</span>
+                  <p className="text-gray-900">{member.profession}</p>
+                </div>
+              )}
+              {member.professional_role && (
+                <div>
+                  <span className="text-gray-600">Rol profesional:</span>
+                  <p className="text-gray-900">{member.professional_role}</p>
+                </div>
+              )}
+              {member.years_experience && (
+                <div>
+                  <span className="text-gray-600">Años de experiencia:</span>
+                  <p className="text-gray-900">{member.years_experience} años</p>
+                </div>
+              )}
+              {member.employment_status && (
+                <div>
+                  <span className="text-gray-600">Estado laboral:</span>
+                  <p className="text-gray-900">{member.employment_status}</p>
+                </div>
+              )}
             </div>
           </div>
 
+          {/* Specializations */}
+          {member.specializations && member.specializations.length > 0 && (
+            <div>
+              <h4 className="text-sm font-medium text-gray-900 mb-2">Especializaciones</h4>
+              <div className="flex flex-wrap gap-2">
+                {member.specializations.map((spec: string, index: number) => (
+                  <Badge key={index} variant="outline" className="text-xs">
+                    {spec}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Education */}
+          {(member.education_level || member.studies_completed || member.educational_institution) && (
+            <div>
+              <h4 className="text-sm font-medium text-gray-900 mb-3">Formación Académica</h4>
+              <div className="space-y-2 text-sm">
+                {member.education_level && (
+                  <div>
+                    <span className="text-gray-600">Nivel educativo:</span>
+                    <p className="text-gray-900">{member.education_level}</p>
+                  </div>
+                )}
+                {member.studies_completed && (
+                  <div>
+                    <span className="text-gray-600">Estudios completados:</span>
+                    <p className="text-gray-900">{member.studies_completed}</p>
+                  </div>
+                )}
+                {member.educational_institution && (
+                  <div>
+                    <span className="text-gray-600">Institución educativa:</span>
+                    <p className="text-gray-900">{member.educational_institution}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Location */}
           <div>
             <h4 className="text-sm font-medium text-gray-900 mb-2">Ubicación</h4>
-            <p className="text-sm text-gray-800">
-              {member.location.city && `${member.location.city}, `}
-              {member.location.region && `${member.location.region}, `}
-              {member.location.country}
-            </p>
+            <div className="text-sm text-gray-700 space-y-1">
+              {(member.address || member.location?.city) && (
+                <p className="flex items-center">
+                  <span className="text-gray-500 mr-2">🏠</span>
+                  {member.address || member.location?.city}
+                </p>
+              )}
+              {(member.province || member.location?.region) && (
+                <p className="flex items-center">
+                  <span className="text-gray-500 mr-2">🌍</span>
+                  {member.province || member.location?.region}
+                  {member.autonomous_community && `, ${member.autonomous_community}`}
+                </p>
+              )}
+              <p className="flex items-center">
+                <span className="text-gray-500 mr-2">🇪🇸</span>
+                {member.country || member.location?.country || 'España'}
+              </p>
+            </div>
           </div>
 
+          {/* Contact & Social Media */}
           <div>
-            <h4 className="text-sm font-medium text-gray-900 mb-2">Redes Sociales</h4>
-            <SocialMediaIcons 
-              socialMedia={member.socialMedia}
-              size="md"
-              variant="full"
-            />
+            <h4 className="text-sm font-medium text-gray-900 mb-3">Contacto y Redes Sociales</h4>
+            <div className="space-y-3">
+              {member.phone && (
+                <div className="flex items-center text-sm">
+                  <span className="text-gray-500 mr-2">📞</span>
+                  <span className="text-gray-700">{member.phone}</span>
+                </div>
+              )}
+              <div>
+                <SocialMediaIcons 
+                  socialMedia={member.socialMedia}
+                  size="md"
+                  variant="full"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </DialogContent>

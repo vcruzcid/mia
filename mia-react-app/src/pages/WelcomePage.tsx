@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface UserInfo {
   name: string;
@@ -197,66 +198,69 @@ export function WelcomePage() {
         {/* Main Content */}
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Membership Information */}
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-              Tu Membresía
-            </h2>
-            
-            <div className="space-y-4">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Tipo de membresía:</span>
-                <span className="font-medium text-primary-600">
-                  {getMembershipName(userInfo.membershipInfo.type)}
-                </span>
-              </div>
+          <Card className="bg-white">
+            <CardContent className="p-6">
+              <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+                Tu Membresía
+              </h2>
               
-              {!isFreeMembership && (
-                <>
-                  {userInfo.membershipInfo.originalAmount !== userInfo.membershipInfo.finalAmount && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Precio original:</span>
-                      <span className="text-gray-500 line-through">
-                        €{userInfo.membershipInfo.originalAmount}
+              <div className="space-y-4">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Tipo de membresía:</span>
+                  <span className="font-medium text-primary-600">
+                    {getMembershipName(userInfo.membershipInfo.type)}
+                  </span>
+                </div>
+                
+                {!isFreeMembership && (
+                  <>
+                    {userInfo.membershipInfo.originalAmount !== userInfo.membershipInfo.finalAmount && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Precio original:</span>
+                        <span className="text-gray-500 line-through">
+                          €{userInfo.membershipInfo.originalAmount}
+                        </span>
+                      </div>
+                    )}
+                    
+                    {userInfo.membershipInfo.discountCode && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Descuento aplicado:</span>
+                        <span className="text-green-600 font-medium">
+                          {userInfo.membershipInfo.discountCode} (-{userInfo.membershipInfo.discountPercentage}%)
+                        </span>
+                      </div>
+                    )}
+                    
+                    <div className="flex justify-between border-t pt-4">
+                      <span className="text-lg font-semibold text-gray-900">Total pagado:</span>
+                      <span className="text-lg font-bold text-primary-600">
+                        €{userInfo.membershipInfo.finalAmount}
                       </span>
                     </div>
-                  )}
-                  
-                  {userInfo.membershipInfo.discountCode && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Descuento aplicado:</span>
-                      <span className="text-green-600 font-medium">
-                        {userInfo.membershipInfo.discountCode} (-{userInfo.membershipInfo.discountPercentage}%)
-                      </span>
-                    </div>
-                  )}
-                  
-                  <div className="flex justify-between border-t pt-4">
-                    <span className="text-lg font-semibold text-gray-900">Total pagado:</span>
-                    <span className="text-lg font-bold text-primary-600">
-                      €{userInfo.membershipInfo.finalAmount}
-                    </span>
-                  </div>
-                </>
-              )}
-              
-              <div className="flex justify-between">
-                <span className="text-gray-600">Fecha de registro:</span>
-                <span className="font-medium">
-                  {new Date(userInfo.membershipInfo.registrationDate).toLocaleDateString('es-ES')}
-                </span>
+                  </>
+                )}
+                
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Fecha de registro:</span>
+                  <span className="font-medium">
+                    {new Date(userInfo.membershipInfo.registrationDate).toLocaleDateString('es-ES')}
+                  </span>
+                </div>
+                
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Estado:</span>
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    Activa
+                  </span>
+                </div>
               </div>
-              
-              <div className="flex justify-between">
-                <span className="text-gray-600">Estado:</span>
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                  Activa
-                </span>
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* User Information from Stripe */}
-          <div className="bg-white rounded-lg shadow-lg p-6">
+          <Card className="bg-white">
+            <CardContent className="p-6">
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">
               Tu Información
             </h2>
@@ -317,11 +321,13 @@ export function WelcomePage() {
                 </div>
               )}
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
+      </div>
 
-        {/* Next Steps */}
-        <div className="mt-8 bg-white rounded-lg shadow-lg p-6">
+      {/* Next Steps */}
+      <Card className="mt-8 bg-white">
+        <CardContent className="p-6">
           <h2 className="text-2xl font-semibold text-gray-900 mb-4">
             Próximos Pasos
           </h2>
@@ -382,9 +388,10 @@ export function WelcomePage() {
               </Link>
             </div>
           </div>
-        </div>
+        </CardContent>
+      </Card>
 
-        {/* Support */}
+      {/* Support */}
         <div className="mt-8 text-center">
           <p className="text-gray-600 mb-4">
             ¿Tienes alguna pregunta o necesitas ayuda?

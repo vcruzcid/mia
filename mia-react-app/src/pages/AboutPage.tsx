@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 import { siteConfig } from '../config/site.config';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
 import { useCounterAnimation } from '../hooks/useCounterAnimation';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 
 export function AboutPage() {
   const heroAnimation = useScrollAnimation({ threshold: 0.2 });
@@ -91,24 +93,24 @@ export function AboutPage() {
           <div className={`mt-8 flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 transition-all duration-1000 delay-500 ${
             heroAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}>
-            <button
+            <Button
               onClick={() => scrollToSection('que-hace-mia')}
-              className="btn-primary w-full sm:w-auto"
+              className="w-full sm:w-auto"
             >
               Qué hace MIA
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => scrollToSection('nuestros-logros')}
-              className="btn-secondary w-full sm:w-auto"
+              className="w-full sm:w-auto"
             >
               Nuestros logros
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => scrollToSection('breve-historia')}
-              className="btn-ghost w-full sm:w-auto"
+              className="w-full sm:w-auto"
             >
               Breve historia
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -136,10 +138,10 @@ export function AboutPage() {
 
           <div className="grid gap-8 lg:grid-cols-3">
             {/* Key Activities */}
-            <div className={`card rounded-lg shadow-lg p-8 hover:shadow-xl transition-all duration-500 ${
+            <Card className={`${
               missionAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`} style={{ transitionDelay: '400ms' }}>
-              <div className="text-center">
+              <CardContent className="text-center p-8">
                 <div className="mx-auto h-16 w-16 bg-red-600 rounded-full flex items-center justify-center mb-6">
                   <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -150,13 +152,13 @@ export function AboutPage() {
                   Organizamos eventos regulares, encuentros y actividades de networking para 
                   conectar profesionales de todos los niveles en la industria de la animación.
                 </p>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
-            <div className={`card rounded-lg shadow-lg p-8 hover:shadow-xl transition-all duration-500 ${
+            <Card className={`${
               missionAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`} style={{ transitionDelay: '600ms' }}>
-              <div className="text-center">
+              <CardContent className="text-center p-8">
                 <div className="mx-auto h-16 w-16 bg-red-600 rounded-full flex items-center justify-center mb-6">
                   <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
@@ -167,13 +169,13 @@ export function AboutPage() {
                   Ofrecemos programas formativos especializados, talleres técnicos y recursos 
                   educativos para el crecimiento profesional continuo de nuestras socias.
                 </p>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
-            <div className={`card rounded-lg shadow-lg p-8 hover:shadow-xl transition-all duration-500 ${
+            <Card className={`${
               missionAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`} style={{ transitionDelay: '800ms' }}>
-              <div className="text-center">
+              <CardContent className="text-center p-8">
                 <div className="mx-auto h-16 w-16 bg-red-600 rounded-full flex items-center justify-center mb-6">
                   <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
@@ -184,33 +186,8 @@ export function AboutPage() {
                   Promovemos el trabajo de las mujeres en animación a través de campañas, 
                   reconocimientos públicos y oportunidades de visibilidad mediática.
                 </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Impact Visualization */}
-          <div className={`mt-16 card rounded-lg p-8 shadow-lg transition-all duration-1000 ${
-            missionAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`} style={{ transitionDelay: '1000ms' }}>
-            <h3 className="text-2xl font-bold text-center text-white mb-8">Nuestro Impacto</h3>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-              <div className="text-center">
-                <div className="text-4xl font-bold text-red-400 mb-2">300+</div>
-                <div className="text-sm text-gray-300">Socias activas</div>
-              </div>
-              <div className="text-center">
-                <div className="text-4xl font-bold text-red-400 mb-2">50+</div>
-                <div className="text-sm text-gray-300">Eventos anuales</div>
-              </div>
-              <div className="text-center">
-                <div className="text-4xl font-bold text-red-400 mb-2">15+</div>
-                <div className="text-sm text-gray-300">Talleres formativos</div>
-              </div>
-              <div className="text-center">
-                <div className="text-4xl font-bold text-red-400 mb-2">85%</div>
-                <div className="text-sm text-gray-300">Satisfacción socias</div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
@@ -279,65 +256,65 @@ export function AboutPage() {
           <div className={`grid gap-8 lg:grid-cols-2 transition-all duration-1000 ${
             achievementsAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`} style={{ transitionDelay: '1000ms' }}>
-            <div className="bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-lg p-8 hover:shadow-lg transition-shadow duration-300">
-              <div className="flex items-start">
+            <Card className="bg-gradient-to-r from-yellow-50 to-yellow-100">
+              <CardContent className="flex items-start p-8">
                 <div className="flex-shrink-0">
                   <div className="text-4xl">🏆</div>
                 </div>
                 <div className="ml-6">
-                  <h3 className="text-xl font-bold text-white mb-2">Premio Nacional de Diversidad 2024</h3>
+                  <h3 className="text-xl font-bold text-red-600 mb-2">Premio Nacional de Diversidad 2024</h3>
                   <p className="text-gray-700">
                     Reconocimiento por nuestro trabajo pionero en la promoción de la igualdad 
                     de género en la industria de la animación española.
                   </p>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
-            <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-8 hover:shadow-lg transition-shadow duration-300">
-              <div className="flex items-start">
+            <Card className="bg-gradient-to-r from-blue-50 to-blue-100">
+              <CardContent className="flex items-start p-8">
                 <div className="flex-shrink-0">
                   <div className="text-4xl">🌟</div>
                 </div>
                 <div className="ml-6">
-                  <h3 className="text-xl font-bold text-white mb-2">Certificación de Excelencia 2023</h3>
+                  <h3 className="text-xl font-bold text-red-600 mb-2">Certificación de Excelencia 2023</h3>
                   <p className="text-gray-700">
                     Certificación otorgada por el Ministerio de Cultura por nuestros programas 
                     formativos y de mentorías.
                   </p>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
-            <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-lg p-8 hover:shadow-lg transition-shadow duration-300">
-              <div className="flex items-start">
+            <Card className="bg-gradient-to-r from-green-50 to-green-100">
+              <CardContent className="flex items-start p-8">
                 <div className="flex-shrink-0">
                   <div className="text-4xl">🎯</div>
                 </div>
                 <div className="ml-6">
-                  <h3 className="text-xl font-bold text-white mb-2">Impacto Social Destacado</h3>
+                  <h3 className="text-xl font-bold text-red-600 mb-2">Impacto Social Destacado</h3>
                   <p className="text-gray-700">
                     Aumento del 40% en la participación femenina en proyectos de animación 
                     desde nuestra fundación.
                   </p>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
-            <div className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg p-8 hover:shadow-lg transition-shadow duration-300">
-              <div className="flex items-start">
+            <Card className="bg-gradient-to-r from-purple-50 to-purple-100">
+              <CardContent className="flex items-start p-8">
                 <div className="flex-shrink-0">
                   <div className="text-4xl">🤝</div>
                 </div>
                 <div className="ml-6">
-                  <h3 className="text-xl font-bold text-white mb-2">Red Internacional</h3>
+                  <h3 className="text-xl font-bold text-red-600 mb-2">Red Internacional</h3>
                   <p className="text-gray-700">
                     Colaboraciones establecidas con organizaciones similares en 12 países, 
                     creando una red global de mujeres en animación.
                   </p>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
@@ -356,12 +333,12 @@ export function AboutPage() {
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="text-center mb-16">
-            <h2 className={`text-3xl font-extrabold text-white sm:text-4xl transition-all duration-1000 ${
+            <h2 className={`text-3xl font-extrabold text-red-600 sm:text-4xl transition-all duration-1000 ${
               historyAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`}>
               Breve Historia
             </h2>
-            <p className={`mt-4 text-xl text-gray-300 max-w-3xl mx-auto transition-all duration-1000 delay-300 ${
+            <p className={`mt-4 text-xl text-black max-w-3xl mx-auto transition-all duration-1000 delay-300 ${
               historyAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}>
               Desde nuestros humildes comienzos hasta convertirnos en una referencia nacional 
@@ -370,17 +347,20 @@ export function AboutPage() {
           </div>
 
           {/* Foundation Story */}
-          <div className={`mb-16 card rounded-lg p-8 shadow-lg transition-all duration-1000 ${
-            historyAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`} style={{ transitionDelay: '500ms' }}>
-            <div className="lg:grid lg:grid-cols-2 lg:gap-12 lg:items-center">
+          <Card 
+            className={`mb-16 bg-gray-800 transition-all duration-1000 ${
+              historyAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+            }`} 
+            style={{ transitionDelay: '500ms' }}
+          >
+            <CardContent className="lg:grid lg:grid-cols-2 lg:gap-12 lg:items-center p-8">
               <div>
                 <h3 className="text-2xl font-bold text-white mb-4">El Comienzo de MIA</h3>
-                <p className="text-lg text-gray-700 mb-4">
+                <p className="text-lg text-white mb-4">
                   En 2017, un grupo de mujeres profesionales de la animación se reunió con una visión clara: 
                   crear un espacio donde las mujeres pudieran prosperar en una industria tradicionalmente dominada por hombres.
                 </p>
-                <p className="text-lg text-gray-700">
+                <p className="text-lg text-white">
                   Lo que comenzó como encuentros informales en cafeterías de Madrid y Barcelona, 
                   se convirtió rápidamente en una organización estructurada con objetivos claros 
                   y un impacto medible en el sector.
@@ -409,8 +389,8 @@ export function AboutPage() {
                   </ul>
                 </div>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Timeline */}
           <div className="relative">
@@ -428,19 +408,24 @@ export function AboutPage() {
                 
                 {/* Content */}
                 <div className={`lg:w-5/12 ${index % 2 === 0 ? 'lg:pr-8 lg:text-right' : 'lg:pl-8 lg:text-left'}`}>
-                  <div className={`card rounded-lg p-6 shadow-lg hover:shadow-xl transition-all duration-500 ${
-                    historyAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-                  }`} style={{ transitionDelay: `${700 + index * 200}ms` }}>
-                    <div className={`text-2xl font-bold text-red-400 mb-2 ${index % 2 === 0 ? 'lg:text-right' : 'lg:text-left'}`}>
-                      {milestone.year}
-                    </div>
-                    <h4 className={`text-xl font-semibold text-white mb-3 ${index % 2 === 0 ? 'lg:text-right' : 'lg:text-left'}`}>
-                      {milestone.title}
-                    </h4>
-                    <p className={`text-gray-700 ${index % 2 === 0 ? 'lg:text-right' : 'lg:text-left'}`}>
-                      {milestone.description}
-                    </p>
-                  </div>
+                  <Card 
+                    className={`bg-gray-800 transition-all duration-500 ${
+                      historyAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                    }`} 
+                    style={{ transitionDelay: `${700 + index * 200}ms` }}
+                  >
+                    <CardContent className="p-6">
+                      <div className={`text-2xl font-bold text-red-400 mb-2 ${index % 2 === 0 ? 'lg:text-right' : 'lg:text-left'}`}>
+                        {milestone.year}
+                      </div>
+                      <h4 className={`text-xl font-semibold text-white mb-3 ${index % 2 === 0 ? 'lg:text-right' : 'lg:text-left'}`}>
+                        {milestone.title}
+                      </h4>
+                      <p className={`text-white ${index % 2 === 0 ? 'lg:text-right' : 'lg:text-left'}`}>
+                        {milestone.description}
+                      </p>
+                    </CardContent>
+                  </Card>
                 </div>
               </div>
             ))}
@@ -459,18 +444,18 @@ export function AboutPage() {
             profesional en la industria de la animación.
           </p>
           <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-            <a
-              href="/membresia"
-              className="btn-outline"
+            <Button
+              onClick={() => window.location.href = '/membresia'}
+              className="btn-ghost border-2 border-white text-white hover:bg-white hover:text-red-600"
             >
               Hazte socia
-            </a>
-            <a
-              href="/contacto"
+            </Button>
+            <Button
+              onClick={() => window.location.href = '/contacto'}
               className="btn-ghost border-2 border-white text-white hover:bg-white hover:text-red-600"
             >
               Contáctanos
-            </a>
+            </Button>
           </div>
         </div>
       </section>
