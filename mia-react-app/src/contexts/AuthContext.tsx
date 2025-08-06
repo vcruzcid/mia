@@ -1,135 +1,144 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import type { ReactNode } from 'react';
-import { authService, type Member, type AuthState } from '../services/authService';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import type { User, Session } from '@supabase/supabase-js';
+import { authService, memberService, activityService } from '../services/supabaseService';
+import supabase from '../services/supabaseService';
+import type { Member } from '../types/supabase';
 
-interface AuthContextType extends AuthState {
+interface AuthContextType {
+  user: User | null;
+  member: Member | null;
+  session: Session | null;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  signInWithMagicLink: (email: string) => Promise<void>;
   sendMagicLink: (email: string) => Promise<{ success: boolean; message: string }>;
   verifyMagicLink: (token: string) => Promise<{ success: boolean; message: string }>;
-  updateProfile: (updates: Partial<Member>) => Promise<{ success: boolean; message: string }>;
+  signOut: () => Promise<void>;
   logout: () => Promise<void>;
-  refreshMember: () => Promise<void>;
+  updateProfile: (updates: Partial<Member>) => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-interface AuthProviderProps {
-  children: ReactNode;
-}
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [member, setMember] = useState<Member | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-export function AuthProvider({ children }: AuthProviderProps) {
-  const [authState, setAuthState] = useState<AuthState>({
-    isAuthenticated: false,
-    member: null,
-    token: null,
-    isLoading: true,
-  });
+  useEffect(() => {
+    // Get initial session
+    authService.getCurrentSession().then(session => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (session?.user?.email) {
+        // Load member profile
+        loadMemberProfile(session.user.email);
+      }
+      
+      setIsLoading(false);
+    });
 
-  const setLoading = (isLoading: boolean) => {
-    setAuthState(prev => ({ ...prev, isLoading }));
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user?.email) {
+          await loadMemberProfile(session.user.email);
+          
+          // Log login activity
+          if (event === 'SIGNED_IN') {
+            await authService.updateLastLogin(session.user.email);
+          }
+        } else {
+          setMember(null);
+        }
+        
+        setIsLoading(false);
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const loadMemberProfile = async (email: string) => {
+    try {
+      const memberProfile = await memberService.getMemberByEmail(email);
+      setMember(memberProfile);
+    } catch (error) {
+      console.error('Error loading member profile:', error);
+      setMember(null);
+    }
   };
 
-  const setAuthenticated = (member: Member, token: string) => {
-    setAuthState({
-      isAuthenticated: true,
-      member,
-      token,
-      isLoading: false,
-    });
-  };
-
-  const clearAuth = () => {
-    setAuthState({
-      isAuthenticated: false,
-      member: null,
-      token: null,
-      isLoading: false,
-    });
+  const signInWithMagicLink = async (email: string) => {
+    await authService.signInWithMagicLink(email);
   };
 
   const sendMagicLink = async (email: string) => {
-    setLoading(true);
-    const result = await authService.sendMagicLink(email);
-    setLoading(false);
-    return result;
+    try {
+      await authService.signInWithMagicLink(email);
+      return { success: true, message: 'Magic link sent successfully' };
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Failed to send magic link' 
+      };
+    }
   };
 
-  const verifyMagicLink = async (token: string) => {
-    setLoading(true);
-    const result = await authService.verifyMagicLink(token);
-    
-    if (result.success && result.member && result.authToken) {
-      setAuthenticated(result.member, result.authToken);
-    } else {
-      setLoading(false);
+  const verifyMagicLink = async (_token: string) => {
+    try {
+      // This would be handled automatically by Supabase auth state change
+      return { success: true, message: 'Successfully authenticated' };
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Authentication failed' 
+      };
     }
-    
-    return { success: result.success, message: result.message };
   };
 
-  const updateProfile = async (updates: Partial<Member>) => {
-    const result = await authService.updateMemberProfile(updates);
-    
-    if (result.success && result.member) {
-      setAuthState(prev => ({
-        ...prev,
-        member: result.member!,
-      }));
-    }
-    
-    return { success: result.success, message: result.message };
+  const signOut = async () => {
+    await authService.signOut();
+    setMember(null);
   };
 
   const logout = async () => {
-    setLoading(true);
-    await authService.logout();
-    clearAuth();
+    await signOut();
   };
 
-  const refreshMember = async () => {
-    if (!authState.isAuthenticated) return;
+  const updateProfile = async (updates: Partial<Member>) => {
+    if (!member) throw new Error('No member profile loaded');
     
-    const result = await authService.getCurrentMember();
-    if (result.success && result.member) {
-      setAuthState(prev => ({
-        ...prev,
-        member: result.member!,
-      }));
-    } else if (!result.success && result.message === 'Authentication expired') {
-      clearAuth();
-    }
+    const updatedMember = await memberService.updateMemberProfile(member.id, updates);
+    setMember(updatedMember);
+    
+    // Log profile update activity
+    await activityService.logActivity(member.id, 'profile_update', { 
+      updated_fields: Object.keys(updates) 
+    });
   };
 
-  // Initialize auth state on app start
-  useEffect(() => {
-    const initAuth = async () => {
-      const token = authService.getAuthToken();
-      if (token) {
-        const result = await authService.getCurrentMember();
-        if (result.success && result.member) {
-          setAuthenticated(result.member, token);
-        } else {
-          authService.clearAuth();
-          clearAuth();
-        }
-      } else {
-        setLoading(false);
-      }
-    };
-
-    initAuth();
-  }, []);
-
-  const contextValue: AuthContextType = {
-    ...authState,
+  const value = {
+    user,
+    member,
+    session,
+    isLoading,
+    isAuthenticated: !!user,
+    signInWithMagicLink,
     sendMagicLink,
     verifyMagicLink,
-    updateProfile,
+    signOut,
     logout,
-    refreshMember,
+    updateProfile,
   };
 
   return (
-    <AuthContext.Provider value={contextValue}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

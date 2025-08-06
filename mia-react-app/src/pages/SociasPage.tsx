@@ -1,7 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useGalleryStore } from '../store/galleryStore';
-import type { Member } from '../types';
+// import type { Member } from '../types';
 import { ANIMATION_SPECIALIZATIONS } from '../types';
+import { ProfileImage } from '../components/ProfileImage';
+import { SocialMediaIcons } from '../components/SocialMediaIcons';
+import { Card, CardContent } from '../components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../components/ui/dialog';
+import { Badge } from '../components/ui/badge';
 
 export function SociasPage() {
   const {
@@ -27,14 +32,45 @@ export function SociasPage() {
 
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
   const [activeFilterTab, setActiveFilterTab] = useState<'type' | 'specialization' | 'location' | 'availability' | 'other'>('type');
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
+  
+  // Pagination options
+  const paginationOptions = [20, 50, 75, 100];
 
   useEffect(() => {
     fetchMembers();
   }, [fetchMembers]);
 
-  const filteredMembers = getFilteredMembers();
+  const allFilteredMembers = getFilteredMembers();
   const availableLocations = getAvailableLocations();
   const memberCounts = getMemberCounts();
+  
+  // Pagination calculations
+  const totalMembers = allFilteredMembers.length;
+  const totalPages = Math.ceil(totalMembers / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentMembers = allFilteredMembers.slice(startIndex, endIndex);
+  
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filters]);
+  
+  // Handle pagination
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  
+  const handleItemsPerPageChange = (newItemsPerPage: number) => {
+    setItemsPerPage(newItemsPerPage);
+    setCurrentPage(1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -95,7 +131,12 @@ export function SociasPage() {
           <div className="mt-6 flex flex-wrap items-center justify-between">
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-700">
-                {memberCounts.total} socias encontradas
+                {totalMembers} socias encontradas
+                {totalMembers > 0 && (
+                  <span className="ml-2 text-gray-500">
+                    (mostrando {startIndex + 1}-{Math.min(endIndex, totalMembers)} de {totalMembers})
+                  </span>
+                )}
               </span>
               {getActiveFiltersCount() > 0 && (
                 <button
@@ -327,9 +368,78 @@ export function SociasPage() {
         </div>
       )}
 
+      {/* Pagination Controls - Top */}
+      {totalMembers > 0 && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 py-4 border-t border-gray-200">
+            <div className="flex items-center space-x-4">
+              <span className="text-sm text-gray-700">Mostrar:</span>
+              <select
+                value={itemsPerPage}
+                onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
+                className="text-sm border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+              >
+                {paginationOptions.map(option => (
+                  <option key={option} value={option}>{option} por página</option>
+                ))}
+              </select>
+            </div>
+            
+            {totalPages > 1 && (
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                  disabled={currentPage === 1}
+                  className="px-3 py-1 text-sm border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                >
+                  Anterior
+                </button>
+                
+                <div className="flex space-x-1">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNumber;
+                    if (totalPages <= 5) {
+                      pageNumber = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNumber = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNumber = totalPages - 4 + i;
+                    } else {
+                      pageNumber = currentPage - 2 + i;
+                    }
+                    
+                    return (
+                      <button
+                        key={pageNumber}
+                        onClick={() => handlePageChange(pageNumber)}
+                        className={`px-3 py-1 text-sm border rounded-md ${
+                          currentPage === pageNumber
+                            ? 'bg-primary-600 text-white border-primary-600'
+                            : 'border-gray-300 hover:bg-gray-50'
+                        }`}
+                      >
+                        {pageNumber}
+                      </button>
+                    );
+                  })}
+                </div>
+                
+                <button
+                  onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                  disabled={currentPage === totalPages}
+                  className="px-3 py-1 text-sm border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                >
+                  Siguiente
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Members Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {filteredMembers.length === 0 ? (
+        {totalMembers === 0 ? (
           <div className="text-center py-12">
             <svg className="mx-auto h-12 w-12 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -341,13 +451,40 @@ export function SociasPage() {
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {filteredMembers.map((member) => (
+            {currentMembers.map((member) => (
               <MemberCard
                 key={member.id}
                 member={member}
                 onClick={() => openMemberModal(member)}
               />
             ))}
+          </div>
+        )}
+        
+        {/* Pagination Controls - Bottom */}
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-8">
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 text-sm border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              >
+                Anterior
+              </button>
+              
+              <span className="px-4 py-2 text-sm text-gray-700">
+                Página {currentPage} de {totalPages}
+              </span>
+              
+              <button
+                onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 text-sm border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              >
+                Siguiente
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -364,40 +501,23 @@ export function SociasPage() {
 }
 
 interface MemberCardProps {
-  member: Member;
+  member: any;
   onClick: () => void;
 }
 
 function MemberCard({ member, onClick }: MemberCardProps) {
-  const getAvailabilityColor = (status: string) => {
-    switch (status) {
-      case 'Available': return 'bg-green-100 text-green-800';
-      case 'Busy': return 'bg-yellow-100 text-yellow-800';
-      case 'Not Available': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getMemberTypeColor = (type: string) => {
-    switch (type) {
-      case 'Full': return 'bg-primary-100 text-primary-800';
-      case 'Student': return 'bg-blue-100 text-blue-800';
-      case 'Collaborator': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
 
   return (
-    <div 
+    <Card 
       onClick={onClick}
-      className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 cursor-pointer overflow-hidden"
+      className="hover:shadow-lg transition-shadow duration-200 cursor-pointer transform hover:scale-105"
     >
-      <div className="p-6">
+      <CardContent className="p-6">
         <div className="flex items-center mb-4">
-          <img
-            className="h-12 w-12 rounded-full object-cover"
-            src={member.profileImage || 'https://via.placeholder.com/150'}
+          <ProfileImage
+            src={member.profileImage}
             alt={`${member.firstName} ${member.lastName}`}
+            size="md"
           />
           <div className="ml-4 flex-1 min-w-0">
             <p className="text-lg font-medium text-gray-900 truncate">
@@ -411,14 +531,14 @@ function MemberCard({ member, onClick }: MemberCardProps) {
 
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getMemberTypeColor(member.memberType)}`}>
+            <Badge variant={member.memberType === 'Full' ? 'default' : member.memberType === 'Student' ? 'secondary' : 'outline'}>
               {member.memberType === 'Full' ? 'Pleno Derecho' : 
                member.memberType === 'Student' ? 'Estudiante' : 'Colaborador/a'}
-            </span>
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getAvailabilityColor(member.availabilityStatus)}`}>
+            </Badge>
+            <Badge variant={member.availabilityStatus === 'Available' ? 'default' : member.availabilityStatus === 'Busy' ? 'secondary' : 'destructive'}>
               {member.availabilityStatus === 'Available' ? 'Disponible' :
                member.availabilityStatus === 'Busy' ? 'Ocupada' : 'No Disponible'}
-            </span>
+            </Badge>
           </div>
 
           <div>
@@ -430,177 +550,91 @@ function MemberCard({ member, onClick }: MemberCardProps) {
           <div>
             <p className="text-sm text-gray-700 font-medium mb-1">Especializaciones:</p>
             <div className="flex flex-wrap gap-1">
-              {member.specializations.slice(0, 3).map((spec, index) => (
-                <span
-                  key={index}
-                  className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700"
-                >
+              {member.specializations.slice(0, 3).map((spec: string, index: number) => (
+                <Badge key={index} variant="outline" className="text-xs">
                   {spec}
-                </span>
+                </Badge>
               ))}
               {member.specializations.length > 3 && (
-                <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-200 text-gray-800">
+                <Badge variant="secondary" className="text-xs">
                   +{member.specializations.length - 3} más
-                </span>
+                </Badge>
               )}
             </div>
           </div>
 
-          {Object.values(member.socialMedia).some(Boolean) && (
-            <div className="flex items-center space-x-2">
-              {member.socialMedia.linkedin && (
-                <div className="h-4 w-4 text-blue-600">
-                  <span className="text-xs">💼</span>
-                </div>
-              )}
-              {member.socialMedia.twitter && (
-                <div className="h-4 w-4 text-blue-400">
-                  <span className="text-xs">🐦</span>
-                </div>
-              )}
-              {member.socialMedia.instagram && (
-                <div className="h-4 w-4 text-pink-600">
-                  <span className="text-xs">📸</span>
-                </div>
-              )}
-              {member.socialMedia.website && (
-                <div className="h-4 w-4 text-gray-800">
-                  <span className="text-xs">🌐</span>
-                </div>
-              )}
-            </div>
-          )}
+          <SocialMediaIcons 
+            socialMedia={member.socialMedia}
+            size="sm"
+            variant="compact"
+          />
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
 
 interface MemberModalProps {
-  member: Member;
+  member: any;
   onClose: () => void;
 }
 
 function MemberModal({ member, onClose }: MemberModalProps) {
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div className="fixed inset-0 transition-opacity" aria-hidden="true">
-          <div className="absolute inset-0 bg-gray-900 bg-opacity-50" onClick={onClose}></div>
-        </div>
-
-        {/* This span is used to center the modal contents vertically */}
-        <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
-        <div className="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full z-10">
-          <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-            <div className="sm:flex sm:items-start">
-              <div className="mx-auto flex-shrink-0 flex items-center justify-center h-20 w-20 rounded-full bg-primary-100 sm:mx-0 sm:h-24 sm:w-24">
-                <img
-                  className="h-20 w-20 sm:h-24 sm:w-24 rounded-full object-cover"
-                  src={member.profileImage || 'https://via.placeholder.com/150'}
-                  alt={`${member.firstName} ${member.lastName}`}
-                />
-              </div>
-              <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left flex-1">
-                <h3 className="text-lg leading-6 font-medium text-gray-900">
-                  {member.firstName} {member.lastName}
-                </h3>
-                <div className="mt-2">
-                  <p className="text-sm text-gray-700">
-                    {member.company || 'Freelance'}
-                  </p>
-                  {member.bio && (
-                    <p className="mt-2 text-sm text-gray-700">{member.bio}</p>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-6 space-y-4">
-              <div>
-                <h4 className="text-sm font-medium text-gray-900">Especializaciones</h4>
-                <div className="mt-1 flex flex-wrap gap-1">
-                  {member.specializations.map((spec, index) => (
-                    <span
-                      key={index}
-                      className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-primary-100 text-primary-700"
-                    >
-                      {spec}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <h4 className="text-sm font-medium text-gray-900">Ubicación</h4>
-                <p className="mt-1 text-sm text-gray-800">
-                  {member.location.city && `${member.location.city}, `}
-                  {member.location.region && `${member.location.region}, `}
-                  {member.location.country}
-                </p>
-              </div>
-
-              {Object.values(member.socialMedia).some(Boolean) && (
-                <div>
-                  <h4 className="text-sm font-medium text-gray-900">Redes Sociales</h4>
-                  <div className="mt-1 space-y-1">
-                    {member.socialMedia.linkedin && (
-                      <a
-                        href={member.socialMedia.linkedin}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="block text-sm text-blue-600 hover:text-blue-800"
-                      >
-                        💼 LinkedIn
-                      </a>
-                    )}
-                    {member.socialMedia.twitter && (
-                      <a
-                        href={`https://twitter.com/${member.socialMedia.twitter.replace('@', '')}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="block text-sm text-blue-400 hover:text-blue-600"
-                      >
-                        🐦 Twitter
-                      </a>
-                    )}
-                    {member.socialMedia.instagram && (
-                      <a
-                        href={member.socialMedia.instagram}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="block text-sm text-pink-600 hover:text-pink-800"
-                      >
-                        📸 Instagram
-                      </a>
-                    )}
-                    {member.socialMedia.website && (
-                      <a
-                        href={member.socialMedia.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="block text-sm text-gray-800 hover:text-gray-900"
-                      >
-                        🌐 Sitio Web
-                      </a>
-                    )}
-                  </div>
-                </div>
+    <Dialog open={true} onOpenChange={() => onClose()}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <div className="flex items-center space-x-4">
+            <ProfileImage
+              src={member.profileImage}
+              alt={`${member.firstName} ${member.lastName}`}
+              size="xl"
+            />
+            <div>
+              <DialogTitle className="text-xl">
+                {member.firstName} {member.lastName}
+              </DialogTitle>
+              <DialogDescription className="text-base">
+                {member.company || 'Freelance'}
+              </DialogDescription>
+              {member.bio && (
+                <p className="mt-2 text-sm text-gray-600">{member.bio}</p>
               )}
             </div>
           </div>
-          <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-            <button
-              type="button"
-              className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary-600 text-base font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:ml-3 sm:w-auto sm:text-sm"
-              onClick={onClose}
-            >
-              Cerrar
-            </button>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div>
+            <h4 className="text-sm font-medium text-gray-900 mb-2">Especializaciones</h4>
+            <div className="flex flex-wrap gap-1">
+              {member.specializations.map((spec: string, index: number) => (
+                <Badge key={index} variant="default" className="text-xs">
+                  {spec}
+                </Badge>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h4 className="text-sm font-medium text-gray-900 mb-2">Ubicación</h4>
+            <p className="text-sm text-gray-800">
+              {member.location.city && `${member.location.city}, `}
+              {member.location.region && `${member.location.region}, `}
+              {member.location.country}
+            </p>
+          </div>
+
+          <div>
+            <h4 className="text-sm font-medium text-gray-900 mb-2">Redes Sociales</h4>
+            <SocialMediaIcons 
+              socialMedia={member.socialMedia}
+              size="md"
+              variant="full"
+            />
           </div>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

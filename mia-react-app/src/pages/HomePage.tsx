@@ -59,13 +59,14 @@ export function HomePage() {
   ];
 
   return (
-    <div className="bg-gray-900">
+    <div style={{ backgroundColor: 'var(--color-bg-secondary)' }}>
       {/* Hero Section */}
       <div 
         ref={heroAnimation.ref}
-        className={`hero bg-gradient-to-br from-red-600 to-red-700 transition-all duration-1000 ${
+        className={`hero transition-all duration-1000 ${
           heroAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
         }`}
+        style={{ background: `linear-gradient(to bottom right, var(--color-primary), var(--color-primary-hover))` }}
       >
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -132,18 +133,19 @@ export function HomePage() {
       {/* Key Statistics */}
       <div 
         ref={statsAnimation.ref}
-        className="py-12 md:py-20 bg-gray-800"
+        className="py-12 md:py-20"
+        style={{ backgroundColor: 'var(--color-bg-primary)' }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="lg:text-center mb-12">
-            <h2 className={`text-base text-red-400 font-semibold tracking-wide uppercase transition-all duration-1000 ${
+            <h2 className={`text-base font-semibold tracking-wide uppercase transition-all duration-1000 ${
               statsAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-            }`}>
+            }`} style={{ color: 'var(--color-primary)' }}>
               Nuestra Comunidad
             </h2>
-            <p className={`text-3xl md:text-4xl font-bold text-white mb-4 text-center transition-all duration-1000 delay-200 ${
+            <p className={`text-3xl md:text-4xl font-bold mb-4 text-center transition-all duration-1000 delay-200 ${
               statsAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-            }`}>
+            }`} style={{ color: 'var(--color-text-primary)' }}>
               Creciendo juntas
             </p>
           </div>
@@ -152,26 +154,26 @@ export function HomePage() {
             <div className={`text-center transition-all duration-1000 delay-300 ${
               statsAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`}>
-              <div className="text-4xl font-bold text-red-400">
+              <div className="text-4xl font-bold" style={{ color: 'var(--color-primary)' }}>
                 {memberCounter.formattedValue}
               </div>
-              <div className="text-sm text-gray-400 mt-2">Socias activas</div>
+              <div className="text-sm mt-2" style={{ color: 'var(--color-text-secondary)' }}>Socias activas</div>
             </div>
             <div className={`text-center transition-all duration-1000 delay-500 ${
               statsAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`}>
-              <div className="text-4xl font-bold text-red-400">
+              <div className="text-4xl font-bold" style={{ color: 'var(--color-primary)' }}>
                 {growthCounter.formattedValue}
               </div>
-              <div className="text-sm text-gray-400 mt-2">Crecimiento anual</div>
+              <div className="text-sm mt-2" style={{ color: 'var(--color-text-secondary)' }}>Crecimiento anual</div>
             </div>
             <div className={`text-center transition-all duration-1000 delay-700 ${
               statsAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`}>
-              <div className="text-4xl font-bold text-red-400">
+              <div className="text-4xl font-bold" style={{ color: 'var(--color-primary)' }}>
                 {eventCounter.formattedValue}
               </div>
-              <div className="text-sm text-gray-400 mt-2">Eventos anuales</div>
+              <div className="text-sm mt-2" style={{ color: 'var(--color-text-secondary)' }}>Eventos anuales</div>
             </div>
           </div>
         </div>
@@ -180,23 +182,24 @@ export function HomePage() {
       {/* Features Section */}
       <div 
         ref={featuresAnimation.ref}
-        className="py-12 md:py-20 bg-gray-900"
+        className="py-12 md:py-20"
+        style={{ backgroundColor: 'var(--color-bg-secondary)' }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="lg:text-center">
-            <h2 className={`text-base text-red-400 font-semibold tracking-wide uppercase transition-all duration-1000 ${
+            <h2 className={`text-base font-semibold tracking-wide uppercase transition-all duration-1000 ${
               featuresAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-            }`}>
+            }`} style={{ color: 'var(--color-primary)' }}>
               Nuestra Misión
             </h2>
-            <p className={`text-3xl md:text-4xl font-bold text-white mb-4 text-center transition-all duration-1000 delay-200 ${
+            <p className={`text-3xl md:text-4xl font-bold mb-4 text-center transition-all duration-1000 delay-200 ${
               featuresAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-            }`}>
+            }`} style={{ color: 'var(--color-text-primary)' }}>
               Empoderando a las mujeres en animación
             </p>
-            <p className={`mt-4 max-w-2xl text-xl text-gray-300 lg:mx-auto transition-all duration-1000 delay-300 ${
+            <p className={`mt-4 max-w-2xl text-xl lg:mx-auto transition-all duration-1000 delay-300 ${
               featuresAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-            }`}>
+            }`} style={{ color: 'var(--color-text-secondary)' }}>
               Trabajamos para crear un sector más diverso, inclusivo y equitativo donde el talento femenino 
               tenga las mismas oportunidades de crecimiento y reconocimiento.
             </p>

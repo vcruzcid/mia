@@ -1,8 +1,14 @@
 import { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Header } from '../components/Header';
+import { Footer } from '../components/Footer';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const profileUpdateSchema = z.object({
   firstName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
@@ -36,7 +42,20 @@ export function PortalPage() {
     joinDate: '2024-01-15',
   };
   
-  const currentMember = isDemoAuth ? demoMember : member;
+  // Create normalized member object
+  const normalizedMember = member ? {
+    ...member,
+    firstName: member.first_name,
+    lastName: member.last_name,
+    phoneNumber: member.phone,
+    bio: member.biography,
+    interests: member.other_professions || [],
+    membershipType: member.membership_type,
+    membershipStatus: member.is_active ? 'active' : 'inactive',
+    joinDate: member.created_at
+  } : null;
+
+  const currentMember = isDemoAuth ? demoMember : normalizedMember;
 
   const {
     register,
@@ -73,13 +92,21 @@ export function PortalPage() {
       return;
     }
     
-    const result = await updateProfile(data);
-    
-    if (result.success) {
-      setMessage({ type: 'success', text: result.message });
+    try {
+      // Map form data to Supabase format
+      const updateData = {
+        first_name: data.firstName,
+        last_name: data.lastName,
+        phone: data.phoneNumber,
+        biography: data.bio,
+        other_professions: data.interests
+      };
+      
+      await updateProfile(updateData);
+      setMessage({ type: 'success', text: 'Perfil actualizado correctamente' });
       reset(data);
-    } else {
-      setMessage({ type: 'error', text: result.message });
+    } catch (error) {
+      setMessage({ type: 'error', text: error instanceof Error ? error.message : 'Error al actualizar el perfil' });
     }
   };
 
@@ -104,112 +131,122 @@ export function PortalPage() {
 
   if (!currentMember && !isDemoAuth) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500"></div>
+      <div className="min-h-screen flex flex-col bg-gray-900 dark">
+        <Header />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500"></div>
+        </main>
+        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-900">
-      {/* Header */}
-      <header className="bg-gray-800 shadow">
+    <div className="min-h-screen flex flex-col bg-gray-900 dark">
+      <Header />
+      
+      {/* Portal Header */}
+      <div className="bg-gray-800 border-b border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <img className="h-8 w-auto" src="/logo-mia.svg" alt="MIA Logo" />
+              <img className="h-8 w-auto" src="/mia_logo_web-ok-177x77.png" alt="MIA Logo" />
               <h1 className="ml-3 text-xl font-semibold text-white">Portal de Socias</h1>
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-300">
-                Hola, {currentMember.firstName}
+                Hola, {currentMember?.firstName}
               </span>
-              <button
+              <Button
                 onClick={handleLogout}
-                className="bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition-colors"
+                variant="outline"
+                size="sm"
+                className="border-gray-700 text-gray-300 hover:bg-gray-700 hover:text-white"
               >
                 Salir
-              </button>
+              </Button>
             </div>
           </div>
         </div>
-      </header>
+      </div>
 
       {/* Navigation */}
-      <nav className="bg-gray-800 border-b border-gray-200">
+      <nav className="bg-gray-800 border-b border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex space-x-8">
-            <button
+            <Button
+              variant="ghost"
               onClick={() => setActiveTab('dashboard')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`py-4 px-1 border-b-2 font-medium text-sm rounded-none h-auto ${
                 activeTab === 'dashboard'
-                  ? 'border-primary text-primary'
+                  ? 'border-red-500 text-red-400 hover:text-red-300'
                   : 'border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-300'
               }`}
             >
               Dashboard
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="ghost"
               onClick={() => setActiveTab('profile')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`py-4 px-1 border-b-2 font-medium text-sm rounded-none h-auto ${
                 activeTab === 'profile'
-                  ? 'border-primary text-primary'
+                  ? 'border-red-500 text-red-400 hover:text-red-300'
                   : 'border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-300'
               }`}
             >
               Mi Perfil
-            </button>
+            </Button>
           </div>
         </div>
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+      <main className="flex-1 max-w-7xl mx-auto py-6 sm:px-6 lg:px-8 w-full">
         <div className="px-4 py-6 sm:px-0">
           {message && (
-            <div className={`rounded-md p-4 mb-6 ${
+            <div className={`p-4 rounded-lg border flex items-start gap-3 mb-6 ${
               message.type === 'success' 
-                ? 'bg-green-50 text-green-800 border border-green-200' 
-                : 'bg-red-50 text-red-800 border border-red-200'
+                ? 'bg-green-900/10 border-green-400/30 text-green-400' 
+                : 'bg-red-900/10 border-red-400/30 text-red-400'
             }`}>
-              <p className="text-sm">{message.text}</p>
+              <span className="text-sm">{message.text}</span>
             </div>
           )}
 
           {activeTab === 'dashboard' && (
             <div className="space-y-6">
               {/* Welcome Card */}
-              <div className="bg-gray-800 overflow-hidden shadow rounded-lg">
-                <div className="px-4 py-5 sm:p-6">
-                  <h3 className="text-lg leading-6 font-medium text-white">
-                    Bienvenida de vuelta, {currentMember.firstName}
-                  </h3>
-                  <div className="mt-2 max-w-xl text-sm text-gray-400">
-                    <p>Aquí encontrarás toda la información importante sobre tu membresía.</p>
-                  </div>
-                </div>
-              </div>
+              <Card className="bg-gray-800 border-gray-700">
+                <CardContent className="pt-6">
+                  <CardTitle className="text-lg text-white mb-2">
+                    Bienvenida de vuelta, {currentMember?.firstName}
+                  </CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Aquí encontrarás toda la información importante sobre tu membresía.
+                  </CardDescription>
+                </CardContent>
+              </Card>
 
               {/* Membership Info */}
-              <div className="bg-gray-800 shadow overflow-hidden sm:rounded-lg">
-                <div className="px-4 py-5 sm:px-6">
-                  <h3 className="text-lg leading-6 font-medium text-white">
+              <Card className="bg-gray-800 border-gray-700">
+                <CardHeader>
+                  <CardTitle className="text-lg text-white">
                     Información de Membresía
-                  </h3>
-                </div>
-                <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="border-t border-gray-700 pt-6">
                   <dl className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
                     <div>
                       <dt className="text-sm font-medium text-gray-400">Tipo de Membresía</dt>
                       <dd className="mt-1 text-sm text-white">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          currentMember.membershipType === 'directiva'
+                          currentMember?.membershipType === 'directiva'
                             ? 'bg-purple-100 text-purple-800'
-                            : currentMember.membershipType === 'premium'
+                            : currentMember?.membershipType === 'premium'
                             ? 'bg-yellow-100 text-yellow-800'
                             : 'bg-green-100 text-green-800'
                         }`}>
-                          {getMembershipTypeLabel(currentMember.membershipType)}
+                          {getMembershipTypeLabel(currentMember?.membershipType || '')}
                         </span>
                       </dd>
                     </div>
@@ -217,109 +254,115 @@ export function PortalPage() {
                       <dt className="text-sm font-medium text-gray-400">Estado</dt>
                       <dd className="mt-1 text-sm text-white">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          currentMember.status === 'active'
+                          (currentMember && 'status' in currentMember ? currentMember.status : (currentMember && 'membershipStatus' in currentMember ? currentMember.membershipStatus : 'expired')) === 'active'
                             ? 'bg-green-100 text-green-800'
-                            : currentMember.status === 'pending'
+                            : (currentMember && 'status' in currentMember ? currentMember.status : (currentMember && 'membershipStatus' in currentMember ? currentMember.membershipStatus : 'expired')) === 'pending'
                             ? 'bg-yellow-100 text-yellow-800'
                             : 'bg-red-100 text-red-800'
                         }`}>
-                          {getStatusLabel(currentMember.status)}
+                          {getStatusLabel((currentMember && 'status' in currentMember ? currentMember.status : (currentMember && 'membershipStatus' in currentMember ? currentMember.membershipStatus : 'expired')) as 'active' | 'pending' | 'expired')}
                         </span>
                       </dd>
                     </div>
                     <div>
                       <dt className="text-sm font-medium text-gray-400">Fecha de Ingreso</dt>
                       <dd className="mt-1 text-sm text-white">
-                        {new Date(currentMember.joinDate).toLocaleDateString('es-ES', {
+                        {currentMember?.joinDate ? new Date(currentMember.joinDate).toLocaleDateString('es-ES', {
                           year: 'numeric',
                           month: 'long',
                           day: 'numeric'
-                        })}
+                        }) : 'N/A'}
                       </dd>
                     </div>
                     <div>
                       <dt className="text-sm font-medium text-gray-400">Correo Electrónico</dt>
-                      <dd className="mt-1 text-sm text-white">{currentMember.email}</dd>
+                      <dd className="mt-1 text-sm text-white">{currentMember?.email}</dd>
                     </div>
                   </dl>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             </div>
           )}
 
           {activeTab === 'profile' && (
             <div className="space-y-6">
-              <div className="bg-gray-800 shadow sm:rounded-lg">
-                <div className="px-4 py-5 sm:p-6">
-                  <h3 className="text-lg leading-6 font-medium text-white">
+              <Card className="bg-gray-800 border-gray-700">
+                <CardHeader>
+                  <CardTitle className="text-lg text-white">
                     Mi Perfil
-                  </h3>
-                  <div className="mt-2 max-w-xl text-sm text-gray-400">
-                    <p>Actualiza tu información personal y preferencias.</p>
-                  </div>
+                  </CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Actualiza tu información personal y preferencias.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
                   
-                  <form onSubmit={handleSubmit(onUpdateProfile)} className="mt-6 space-y-6">
+                  <form onSubmit={handleSubmit(onUpdateProfile)} className="space-y-6">
                     <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
-                      <div>
-                        <label htmlFor="firstName" className="block text-sm font-medium text-gray-300">
+                      <div className="space-y-2">
+                        <Label htmlFor="firstName" className="text-gray-300">
                           Nombre
-                        </label>
-                        <input
+                        </Label>
+                        <Input
+                          id="firstName"
                           type="text"
                           {...register('firstName')}
-                          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm"
+                          className="bg-gray-900 border-gray-700 text-white placeholder-gray-500"
                         />
                         {errors.firstName && (
-                          <p className="mt-1 text-sm text-red-600">{errors.firstName.message}</p>
+                          <p className="text-sm text-red-400">{errors.firstName.message}</p>
                         )}
                       </div>
 
-                      <div>
-                        <label htmlFor="lastName" className="block text-sm font-medium text-gray-300">
+                      <div className="space-y-2">
+                        <Label htmlFor="lastName" className="text-gray-300">
                           Apellido
-                        </label>
-                        <input
+                        </Label>
+                        <Input
+                          id="lastName"
                           type="text"
                           {...register('lastName')}
-                          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm"
+                          className="bg-gray-900 border-gray-700 text-white placeholder-gray-500"
                         />
                         {errors.lastName && (
-                          <p className="mt-1 text-sm text-red-600">{errors.lastName.message}</p>
+                          <p className="text-sm text-red-400">{errors.lastName.message}</p>
                         )}
                       </div>
                     </div>
 
-                    <div>
-                      <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-300">
+                    <div className="space-y-2">
+                      <Label htmlFor="phoneNumber" className="text-gray-300">
                         Teléfono (opcional)
-                      </label>
-                      <input
+                      </Label>
+                      <Input
+                        id="phoneNumber"
                         type="tel"
                         {...register('phoneNumber')}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm"
+                        className="bg-gray-900 border-gray-700 text-white placeholder-gray-500"
                       />
                     </div>
 
-                    <div>
-                      <label htmlFor="bio" className="block text-sm font-medium text-gray-300">
+                    <div className="space-y-2">
+                      <Label htmlFor="bio" className="text-gray-300">
                         Biografía (opcional)
-                      </label>
+                      </Label>
                       <textarea
+                        id="bio"
                         {...register('bio')}
                         rows={4}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm"
+                        className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
                         placeholder="Cuéntanos un poco sobre ti..."
                       />
                       {errors.bio && (
-                        <p className="mt-1 text-sm text-red-600">{errors.bio.message}</p>
+                        <p className="text-sm text-red-400">{errors.bio.message}</p>
                       )}
                     </div>
 
                     <div className="flex justify-end">
-                      <button
+                      <Button
                         type="submit"
                         disabled={isLoading}
-                        className="bg-primary border border-transparent rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-white hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50"
+                        className="bg-red-600 hover:bg-red-700 disabled:opacity-50"
                       >
                         {isLoading ? (
                           <>
@@ -329,15 +372,16 @@ export function PortalPage() {
                         ) : (
                           'Guardar Cambios'
                         )}
-                      </button>
+                      </Button>
                     </div>
                   </form>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             </div>
           )}
         </div>
       </main>
+      <Footer />
     </div>
   );
 }

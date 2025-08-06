@@ -2,33 +2,66 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
-/* CSS Custom Properties for MIA Design System */
+/* CSS Custom Properties for MIA Design System - WordPress Match */
 :root {
-  /* Color System */
-  --color-bg-primary: #0a0a0a;
-  --color-bg-secondary: #1a1a1a;
-  --color-bg-elevated: #2a2a2a;
-  --color-bg-hover: #404040;
-  --color-border: #333333;
+  /* WordPress Exact Colors */
+  --color-primary: #d8242e;
+  --color-primary-hover: #b01f28;
+  --color-primary-light: #FE2828;
   
-  --color-text-primary: #ffffff;
-  --color-text-secondary: #b3b3b3;
-  --color-text-tertiary: #808080;
-  --color-text-muted: #666666;
+  /* Header Colors (Light) */
+  --color-header-bg: #ffffff;
+  --color-header-text: #333333;
+  --color-header-border: #d2d2d2;
   
-  --color-primary: #FF0000;
-  --color-primary-hover: #CC0000;
-  --color-primary-light: #FF3333;
+  /* Footer Colors (Black) */
+  --color-footer-bg: #000000;
+  --color-footer-text: #ffffff;
+  --color-footer-link-hover: #FE2828;
+  
+  /* Content Colors */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f8f9fa;
+  --color-text-primary: #333333;
+  --color-text-secondary: #747474;
+  --color-border: #d2d2d2;
+  
+  /* Button Colors */
+  --color-btn-primary-bg: #d8242e;
+  --color-btn-primary-hover: #b01f28;
+  --color-btn-primary-text: #ffffff;
   
   /* Typography */
   font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color-scheme: dark;
+  color-scheme: light;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* shadcn/ui CSS Variables */
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+  --primary: 346 77% 49.8%;
+  --primary-foreground: 355.7 100% 97.3%;
+  --secondary: 210 40% 96%;
+  --secondary-foreground: 222.2 84% 4.9%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --accent: 210 40% 96%;
+  --accent-foreground: 222.2 84% 4.9%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 346 77% 49.8%;
+  --radius: 0.5rem;
 }
 
 /* Base Styles */
@@ -39,9 +72,9 @@ body {
   color: var(--color-text-primary);
 }
 
-/* Dark theme by default */
-.dark {
-  color-scheme: dark;
+/* Light theme by default - WordPress style */
+.light {
+  color-scheme: light;
 }
 
 /* Reduced motion support */
@@ -57,11 +90,16 @@ body {
 @layer components {
   /* === BUTTONS === */
   .btn-primary {
-    @apply inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-lg text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200 transform hover:scale-105;
+    background-color: var(--color-btn-primary-bg);
+    color: var(--color-btn-primary-text);
+    @apply inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105;
   }
   
   .btn-secondary {
-    @apply inline-flex items-center px-6 py-3 border-2 border-gray-600 text-base font-medium rounded-lg text-white bg-gray-800 hover:bg-gray-700 hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200 transform hover:scale-105;
+    @apply inline-flex items-center px-6 py-3 border-2 text-base font-medium rounded-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2;
+    border-color: var(--color-border);
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
   }
 
   .btn-ghost {
@@ -69,7 +107,14 @@ body {
   }
   
   .btn-outline {
-    @apply inline-flex items-center px-6 py-3 border-2 border-red-600 text-base font-medium rounded-lg text-red-400 bg-transparent hover:bg-red-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200 transform hover:scale-105;
+    @apply inline-flex items-center px-6 py-3 border-2 text-base font-medium rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105;
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+  
+  .btn-outline:hover {
+    background-color: var(--color-primary);
+    color: var(--color-btn-primary-text);
   }
 
   /* === CARDS === */

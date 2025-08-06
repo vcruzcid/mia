@@ -1,9 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import type { LocationState } from '../types';
+import { Header } from '../components/Header';
+import { Footer } from '../components/Footer';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const loginSchema = z.object({
   email: z.string().email('Por favor ingresa un correo electrónico válido'),
@@ -31,12 +38,12 @@ export function LoginPage() {
   const token = searchParams.get('token');
   
   // Handle magic link verification on page load
-  useState(() => {
+  useEffect(() => {
     if (token) {
       setStep('verifying');
-      verifyMagicLink(token).then((result) => {
+      verifyMagicLink(token).then((result: { success: boolean; message: string }) => {
         if (result.success) {
-          const from = (location.state as any)?.from?.pathname || '/portal';
+          const from = (location.state as LocationState)?.from?.pathname || '/portal';
           window.location.href = from;
         } else {
           setMessage({ type: 'error', text: result.message });
@@ -44,7 +51,7 @@ export function LoginPage() {
         }
       });
     }
-  });
+  }, [token, verifyMagicLink, location.state]);
 
   const onSubmit = async (data: LoginFormData) => {
     setMessage(null);
@@ -85,123 +92,138 @@ export function LoginPage() {
 
   if (step === 'verifying') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900">
-        <div className="max-w-md w-full space-y-8 p-8">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto"></div>
-            <h2 className="mt-4 text-2xl font-bold text-white">
-              Verificando acceso...
-            </h2>
-            <p className="mt-2 text-gray-300">
-              Por favor espera mientras verificamos tu enlace mágico.
-            </p>
-          </div>
-        </div>
+      <div className="min-h-screen flex flex-col bg-gray-900 dark">
+        <Header />
+        <main className="flex-1 flex items-center justify-center">
+          <Card className="max-w-md w-full bg-gray-800 border-gray-700">
+            <CardContent className="pt-6">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto"></div>
+                <h2 className="mt-4 text-2xl font-bold text-white">
+                  Verificando acceso...
+                </h2>
+                <p className="mt-2 text-gray-300">
+                  Por favor espera mientras verificamos tu enlace mágico.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </main>
+        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900">
-      <div className="max-w-md w-full space-y-8 p-8">
-        <div className="text-center">
-          <img
-            className="mx-auto h-16 w-auto"
-            src="/mia_logo_web-ok-177x77.png"
-            alt="MIA - Mujeres en la Industria de la Animación"
-          />
-          <h2 className="mt-6 text-3xl font-bold text-white">
-            Portal de Socias
-          </h2>
-          <p className="mt-2 text-sm text-gray-300">
-            {step === 'email' 
-              ? 'Ingresa tu correo electrónico para acceder'
-              : 'Hemos enviado un enlace mágico a tu correo'
-            }
-          </p>
-        </div>
+    <div className="min-h-screen flex flex-col bg-gray-900 dark">
+      <Header />
+      <main className="flex-1 flex items-center justify-center py-12">
+        <Card className="max-w-md w-full bg-gray-800 border-gray-700">
+          <CardHeader className="text-center">
+            <img
+              className="mx-auto h-16 w-auto mb-4"
+              src="/mia_logo_web-ok-177x77.png"
+              alt="MIA - Mujeres en la Industria de la Animación"
+            />
+            <CardTitle className="text-3xl font-bold text-white">
+              Portal de Socias
+            </CardTitle>
+            <CardDescription className="text-gray-300">
+              {step === 'email' 
+                ? 'Ingresa tu correo electrónico para acceder'
+                : 'Hemos enviado un enlace mágico a tu correo'
+              }
+            </CardDescription>
+          </CardHeader>
 
-        {message && (
-          <div className={`rounded-md p-4 ${
-            message.type === 'success' 
-              ? 'bg-green-50 text-green-800 border border-green-200' 
-              : 'bg-red-50 text-red-800 border border-red-200'
-          }`}>
-            <p className="text-sm">{message.text}</p>
-          </div>
-        )}
-
-        {step === 'email' && (
-          <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-            <div>
-              <label htmlFor="email" className="form-label">
-                Correo Electrónico
-              </label>
-              <input
-                {...register('email')}
-                type="email"
-                autoComplete="email"
-                className="form-input"
-                placeholder="tu@ejemplo.com"
-              />
-              {errors.email && (
-                <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
-              )}
-            </div>
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="btn-primary w-full justify-center disabled:opacity-50"
-            >
-              {isLoading ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Enviando...
-                </>
-              ) : (
-                'Enviar Enlace Mágico'
-              )}
-            </button>
-          </form>
-        )}
-
-        {step === 'sent' && (
-          <div className="mt-8 space-y-6">
-            <div className="text-center">
-              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
-                <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
+          <CardContent className="space-y-6">
+            {message && (
+              <div className={`p-4 rounded-lg border flex items-start gap-3 ${
+                message.type === 'success' 
+                  ? 'bg-green-900/10 border-green-400/30 text-green-400' 
+                  : 'bg-red-900/10 border-red-400/30 text-red-400'
+              }`}>
+                <span className="text-sm">{message.text}</span>
               </div>
-              <h3 className="mt-2 text-lg font-medium text-white">¡Enlace enviado!</h3>
-              <p className="mt-1 text-sm text-gray-300">
-                Revisa tu correo electrónico y haz clic en el enlace para acceder al portal.
-              </p>
-              <p className="mt-2 text-xs text-gray-400">
-                El enlace será válido por 15 minutos.
-              </p>
-            </div>
+            )}
 
-            <div className="text-center">
-              <button
-                onClick={handleResendMagicLink}
-                disabled={isLoading}
-                className="text-sm text-red-400 hover:text-red-300 font-medium disabled:opacity-50"
-              >
-                {isLoading ? 'Reenviando...' : 'Reenviar enlace'}
-              </button>
-            </div>
+            {step === 'email' && (
+              <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-gray-300">
+                    Correo Electrónico
+                  </Label>
+                  <Input
+                    {...register('email')}
+                    id="email"
+                    type="email"
+                    autoComplete="email"
+                    placeholder="tu@ejemplo.com"
+                    className="bg-gray-900 border-gray-700 text-white placeholder-gray-500"
+                  />
+                  {errors.email && (
+                    <p className="text-sm text-red-400">{errors.email.message}</p>
+                  )}
+                </div>
 
-            <button
-              onClick={() => setStep('email')}
-              className="w-full text-sm text-gray-400 hover:text-gray-300"
-            >
-              ← Usar otro correo electrónico
-            </button>
-          </div>
-        )}
-      </div>
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50"
+                >
+                  {isLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Enviando...
+                    </>
+                  ) : (
+                    'Enviar Enlace Mágico'
+                  )}
+                </Button>
+              </form>
+            )}
+
+            {step === 'sent' && (
+              <div className="space-y-6">
+                <div className="text-center">
+                  <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-900/20 border border-green-400/30">
+                    <svg className="h-6 w-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <h3 className="mt-2 text-lg font-medium text-white">¡Enlace enviado!</h3>
+                  <p className="mt-1 text-sm text-gray-300">
+                    Revisa tu correo electrónico y haz clic en el enlace para acceder al portal.
+                  </p>
+                  <p className="mt-2 text-xs text-gray-400">
+                    El enlace será válido por 15 minutos.
+                  </p>
+                </div>
+
+                <div className="text-center">
+                  <Button
+                    variant="link"
+                    onClick={handleResendMagicLink}
+                    disabled={isLoading}
+                    className="text-red-400 hover:text-red-300 font-medium disabled:opacity-50 p-0"
+                  >
+                    {isLoading ? 'Reenviando...' : 'Reenviar enlace'}
+                  </Button>
+                </div>
+
+                <Button
+                  variant="ghost"
+                  onClick={() => setStep('email')}
+                  className="w-full text-gray-400 hover:text-gray-300 hover:bg-gray-800"
+                >
+                  ← Usar otro correo electrónico
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </main>
+      <Footer />
     </div>
   );
 }

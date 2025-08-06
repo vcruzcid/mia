@@ -3,6 +3,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { queryClient } from './lib/queryClient';
 import { AuthProvider } from './contexts/AuthContext';
+import { ToastProvider } from './contexts/ToastContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Layout } from './components/Layout';
 import { HomePage } from './pages/HomePage';
@@ -15,11 +16,15 @@ import { SimpleRegistrationPage } from './pages/SimpleRegistrationPage';
 import { WelcomePage } from './pages/WelcomePage';
 import { LoginPage } from './pages/LoginPage';
 import { PortalPage } from './pages/PortalPage';
+import { PoliticaCookiesPage } from './pages/PoliticaCookiesPage';
+import { TerminosUsoPage } from './pages/TerminosUsoPage';
+import { PoliticaPrivacidadPage } from './pages/PoliticaPrivacidadPage';
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
+      <ToastProvider>
+        <AuthProvider>
         <Router>
           <div className="App">
             <Routes>
@@ -33,6 +38,9 @@ function App() {
                 <Route path="directiva" element={<DirectivaPage />} />
                 <Route path="registro" element={<SimpleRegistrationPage />} />
                 <Route path="registro/bienvenida" element={<WelcomePage />} />
+                <Route path="politica-cookies" element={<PoliticaCookiesPage />} />
+                <Route path="terminos-uso" element={<TerminosUsoPage />} />
+                <Route path="politica-privacidad" element={<PoliticaPrivacidadPage />} />
               </Route>
               
               {/* Authentication routes */}
@@ -58,7 +66,8 @@ function App() {
           </div>
         </Router>
         <ReactQueryDevtools initialIsOpen={false} />
-      </AuthProvider>
+        </AuthProvider>
+      </ToastProvider>
     </QueryClientProvider>
   );
 }
