@@ -1,3 +1,5 @@
+import { Button } from '@/components/ui/button';
+
 // Using simple checkmark instead of @heroicons for now
 
 interface RegistrationProgressProps {
@@ -73,12 +75,14 @@ export function RegistrationProgress({
             <div key={step} className="flex items-center">
               {/* Step Circle */}
               <div className="flex flex-col items-center">
-                <button
+                <Button
                   onClick={() => isClickable && onStepClick(step)}
                   disabled={!isClickable}
+                  variant="ghost"
+                  size="icon"
                   className={`${getStepClasses(step)} ${
                     !isClickable ? 'cursor-not-allowed' : ''
-                  } relative group`}
+                  } relative group w-8 h-8`}
                   aria-label={`Ir al paso ${step}: ${stepTitles[step]}`}
                 >
                   {status === 'completed' ? (
@@ -96,7 +100,7 @@ export function RegistrationProgress({
                       <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
                     </div>
                   )}
-                </button>
+                </Button>
 
                 {/* Step Title (visible on larger screens) */}
                 <div className="mt-2 text-center hidden sm:block">
@@ -205,14 +209,16 @@ export function RegistrationProgressSimple({
             <div key={step} className="flex items-center">
               {/* Step Circle */}
               <div className="flex flex-col items-center">
-                <button
+                <Button
                   onClick={() => isClickable && onStepClick(step)}
                   disabled={!isClickable}
-                  className={getStepClasses(step)}
+                  variant="ghost"
+                  size="icon"
+                  className={`${getStepClasses(step)} w-8 h-8`}
                   title={stepTitles[step]}
                 >
                   {status === 'completed' ? '✓' : step}
-                </button>
+                </Button>
 
                 {/* Step Title */}
                 <div className="mt-2 text-center">

@@ -67,13 +67,13 @@ export function SocialMediaIcons({
   if (variant === 'compact') {
     return (
       <div className={`flex items-center space-x-2 ${className}`}>
-        {socialLinks.map(({ url, icon: Icon, color }) => (
+        {socialLinks.map(({ url, icon: Icon }) => (
           <a
             key={url}
             href={url.includes('twitter.com') ? url : url.startsWith('http') ? url : `https://${url}`}
             target="_blank"
             rel="noopener noreferrer"
-            className={`${color} transition-colors`}
+            className="w-10 h-10 rounded-full border-2 border-red-500 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-colors duration-200"
           >
             <Icon className={iconSize} />
           </a>

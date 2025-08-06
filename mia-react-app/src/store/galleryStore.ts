@@ -73,7 +73,7 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
   selectedMember: null,
   isModalOpen: false,
   selectedYear: new Date().getFullYear(),
-  availableYears: [2021, 2022, 2023, 2024, 2025],
+  availableYears: [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
   filters: initialFilters,
 
   fetchMembers: async () => {
@@ -238,9 +238,10 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
 
   getFilteredMembers: () => {
     return get().filteredMembers.map(member => ({
-      ...member,
+      ...member, // Pass through all original member data
       firstName: member.first_name,
       lastName: member.last_name,
+      displayName: member.display_name,
       location: {
         city: member.address, // Using address as city since there's no city field
         region: member.autonomous_community,
@@ -252,7 +253,21 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
       availabilityStatus: 'Available', // Default since there's no availability_status field
       specializations: member.other_professions || [],
       socialMedia: member.social_media,
-      profileImage: member.profile_image_url
+      profileImage: member.profile_image_url,
+      // Additional fields for enhanced modal
+      biography: member.biography,
+      bio: member.biography, // Alias for backwards compatibility
+      professional_role: member.professional_role,
+      employment_status: member.employment_status,
+      years_experience: member.years_experience,
+      education_level: member.education_level,
+      studies_completed: member.studies_completed,
+      educational_institution: member.educational_institution,
+      phone: member.phone,
+      address: member.address,
+      province: member.province,
+      autonomous_community: member.autonomous_community,
+      country: member.country
     }));
   },
 

@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { useFormContext } from 'react-hook-form';
 import type { RegistrationFormData } from '../../schemas/registrationSchema';
+import { Button } from '@/components/ui/button';
 
 interface ProfileDetailsStepProps {
   membershipType?: string;
@@ -109,17 +110,6 @@ export function ProfileDetailsStep({
     }
   }, [setValue]);
 
-  // Handle form submission
-  const handleSubmit = async () => {
-    const fieldsToValidate: (keyof RegistrationFormData)[] = ['experience'];
-    
-    const isValid = await trigger(fieldsToValidate);
-    
-    if (isValid) {
-      onSubmit();
-    }
-  };
-
   // Social media URL formatters (available if needed)
   // const formatSocialMediaUrl = (platform: string, value: string) => {
   //   if (!value) return '';
@@ -177,19 +167,21 @@ export function ProfileDetailsStep({
                   alt="Vista previa"
                   className="w-full h-full object-cover rounded-md"
                 />
-                <button
+                <Button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     removeProfileImage();
                   }}
-                  className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors duration-200"
+                  variant="destructive"
+                  size="sm"
+                  className="absolute top-2 right-2 rounded-full p-1"
                   title="Eliminar imagen"
                 >
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                   </svg>
-                </button>
+                </Button>
               </div>
             ) : (
               <div className="text-center">
@@ -619,40 +611,25 @@ export function ProfileDetailsStep({
         </div>
       )}
 
-      {/* Navigation */}
-      <div className="flex justify-between pt-6 border-t border-gray-200">
-        <button
+      {/* Navigation Buttons */}
+      <div className="flex justify-between pt-6">
+        <Button
           type="button"
           onClick={onPrevious}
+          variant="outline"
           disabled={isSubmitting}
-          className="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <svg className="mr-2 -ml-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-          </svg>
           Anterior
-        </button>
-
-        <button
+        </Button>
+        
+        <Button
           type="button"
-          onClick={handleSubmit}
+          onClick={onSubmit}
           disabled={isSubmitting}
-          className="ml-3 inline-flex justify-center py-2 px-6 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="min-w-[120px]"
         >
-          {isSubmitting ? (
-            <>
-              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Procesando...
-            </>
-          ) : membershipType === 'newsletter' ? (
-            'Suscribirse al Newsletter'
-          ) : (
-            'Completar Registro'
-          )}
-        </button>
+          {isSubmitting ? 'Guardando...' : 'Siguiente'}
+        </Button>
       </div>
 
       {/* Final Step Info */}
