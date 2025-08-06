@@ -4,6 +4,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { queryClient } from './lib/queryClient';
 import { AuthProvider } from './contexts/AuthContext';
 import { ToastProvider } from './contexts/ToastContext';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Layout } from './components/Layout';
 import { HomePage } from './pages/HomePage';
@@ -22,9 +23,10 @@ import { PoliticaPrivacidadPage } from './pages/PoliticaPrivacidadPage';
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ToastProvider>
-        <AuthProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <ToastProvider>
+          <AuthProvider>
         <Router>
           <div className="App">
             <Routes>
@@ -66,9 +68,10 @@ function App() {
           </div>
         </Router>
         <ReactQueryDevtools initialIsOpen={false} />
-        </AuthProvider>
-      </ToastProvider>
-    </QueryClientProvider>
+          </AuthProvider>
+        </ToastProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 
