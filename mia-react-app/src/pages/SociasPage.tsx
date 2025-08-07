@@ -8,6 +8,9 @@ import { Card, CardContent } from '../components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../components/ui/dialog';
 import { Badge } from '../components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Spinner } from '@/components/ui/spinner';
 
 export function SociasPage() {
   const {
@@ -39,7 +42,7 @@ export function SociasPage() {
   const [itemsPerPage, setItemsPerPage] = useState(20);
   
   // Pagination options
-  const paginationOptions = [20, 50, 75, 100];
+  const paginationOptions = [10, 20, 50, 75, 100];
 
   useEffect(() => {
     fetchMembers();
@@ -91,7 +94,7 @@ export function SociasPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <Spinner className="h-12 w-12" />
       </div>
     );
   }
@@ -103,7 +106,6 @@ export function SociasPage() {
           <div className="text-center">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
               Socias MIA
-              <span className="ml-2 text-xs bg-green-500 text-white px-2 py-1 rounded">UPDATED</span>
             </h1>
             <p className="text-xl text-gray-800 max-w-3xl mx-auto">
               Conoce a las profesionales que forman parte de nuestra comunidad de mujeres en la industria de animación.
@@ -118,11 +120,11 @@ export function SociasPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
-              <input
+              <Input
                 type="text"
                 value={searchTerm}
                 onChange={handleSearchChange}
-                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-600 focus:outline-none focus:placeholder-gray-500 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 text-base"
+                className="pl-10 h-12 text-base"
                 placeholder="Buscar por nombre, empresa, especialización o ubicación..."
               />
             </div>
@@ -205,14 +207,12 @@ export function SociasPage() {
                   <h3 className="text-sm font-medium text-gray-900 mb-3">Tipo de Socia</h3>
                   <div className="space-y-2">
                     {(['Full', 'Student', 'Collaborator'] as const).map((type) => (
-                      <label key={type} className="flex items-center">
-                        <input
-                          type="checkbox"
+                      <label key={type} className="flex items-center space-x-3">
+                        <Checkbox
                           checked={filters.memberTypes.includes(type)}
-                          onChange={() => toggleMemberType(type)}
-                          className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                          onCheckedChange={() => toggleMemberType(type)}
                         />
-                        <span className="ml-3 text-sm text-gray-700">
+                        <span className="text-sm text-gray-700">
                           {type === 'Full' ? 'Socia de Pleno Derecho' : 
                            type === 'Student' ? 'Socia Estudiante' : 'Colaborador/a'}
                           <span className="ml-2 text-gray-600">
@@ -230,14 +230,12 @@ export function SociasPage() {
                   <h3 className="text-sm font-medium text-gray-900 mb-3">Especializaciones</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 max-h-80 overflow-y-auto">
                     {ANIMATION_SPECIALIZATIONS.map((specialization) => (
-                      <label key={specialization} className="flex items-center">
-                        <input
-                          type="checkbox"
+                      <label key={specialization} className="flex items-center space-x-3">
+                        <Checkbox
                           checked={filters.specializations.includes(specialization)}
-                          onChange={() => toggleSpecialization(specialization)}
-                          className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                          onCheckedChange={() => toggleSpecialization(specialization)}
                         />
-                        <span className="ml-2 text-sm text-gray-700 truncate">
+                        <span className="text-sm text-gray-700 truncate">
                           {specialization}
                         </span>
                       </label>
@@ -251,14 +249,12 @@ export function SociasPage() {
                   <h3 className="text-sm font-medium text-gray-900 mb-3">Ubicación</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 max-h-60 overflow-y-auto">
                     {availableLocations.map((location) => (
-                      <label key={location} className="flex items-center">
-                        <input
-                          type="checkbox"
+                      <label key={location} className="flex items-center space-x-3">
+                        <Checkbox
                           checked={filters.locations.includes(location)}
-                          onChange={() => toggleLocation(location)}
-                          className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                          onCheckedChange={() => toggleLocation(location)}
                         />
-                        <span className="ml-2 text-sm text-gray-700 truncate">
+                        <span className="text-sm text-gray-700 truncate">
                           {location}
                         </span>
                       </label>
@@ -272,14 +268,12 @@ export function SociasPage() {
                   <h3 className="text-sm font-medium text-gray-900 mb-3">Estado de Disponibilidad</h3>
                   <div className="space-y-2">
                     {(['Available', 'Busy', 'Not Available'] as const).map((status) => (
-                      <label key={status} className="flex items-center">
-                        <input
-                          type="checkbox"
+                      <label key={status} className="flex items-center space-x-3">
+                        <Checkbox
                           checked={filters.availabilityStatus.includes(status)}
-                          onChange={() => toggleAvailabilityStatus(status)}
-                          className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                          onCheckedChange={() => toggleAvailabilityStatus(status)}
                         />
-                        <span className="ml-3 text-sm text-gray-700">
+                        <span className="text-sm text-gray-700">
                           {status === 'Available' ? 'Disponible' : 
                            status === 'Busy' ? 'Ocupada' : 'No Disponible'}
                           <span className="ml-2 text-gray-600">
@@ -297,7 +291,7 @@ export function SociasPage() {
                   <div>
                     <h3 className="text-sm font-medium text-gray-900 mb-3">Presencia en Redes Sociales</h3>
                     <div className="space-y-2">
-                      <label className="flex items-center">
+                      <label className="flex items-center space-x-3">
                         <input
                           type="radio"
                           name="socialMedia"
@@ -305,9 +299,9 @@ export function SociasPage() {
                           onChange={() => setFilters({ hasSocialMedia: true })}
                           className="h-4 w-4 text-primary-600 focus:ring-primary-500"
                         />
-                        <span className="ml-3 text-sm text-gray-700">Con redes sociales</span>
+                        <span className="text-sm text-gray-700">Con redes sociales</span>
                       </label>
-                      <label className="flex items-center">
+                      <label className="flex items-center space-x-3">
                         <input
                           type="radio"
                           name="socialMedia"
@@ -315,9 +309,9 @@ export function SociasPage() {
                           onChange={() => setFilters({ hasSocialMedia: false })}
                           className="h-4 w-4 text-primary-600 focus:ring-primary-500"
                         />
-                        <span className="ml-3 text-sm text-gray-700">Sin redes sociales</span>
+                        <span className="text-sm text-gray-700">Sin redes sociales</span>
                       </label>
-                      <label className="flex items-center">
+                      <label className="flex items-center space-x-3">
                         <input
                           type="radio"
                           name="socialMedia"
@@ -325,7 +319,7 @@ export function SociasPage() {
                           onChange={() => setFilters({ hasSocialMedia: null })}
                           className="h-4 w-4 text-primary-600 focus:ring-primary-500"
                         />
-                        <span className="ml-3 text-sm text-gray-700">Todos</span>
+                        <span className="text-sm text-gray-700">Todos</span>
                       </label>
                     </div>
                   </div>
@@ -333,7 +327,7 @@ export function SociasPage() {
                   <div>
                     <h3 className="text-sm font-medium text-gray-900 mb-3">Estado de Membresía</h3>
                     <div className="space-y-2">
-                      <label className="flex items-center">
+                      <label className="flex items-center space-x-3">
                         <input
                           type="radio"
                           name="isActive"
@@ -341,9 +335,9 @@ export function SociasPage() {
                           onChange={() => setFilters({ isActive: true })}
                           className="h-4 w-4 text-primary-600 focus:ring-primary-500"
                         />
-                        <span className="ml-3 text-sm text-gray-700">Membresía activa</span>
+                        <span className="text-sm text-gray-700">Membresía activa</span>
                       </label>
-                      <label className="flex items-center">
+                      <label className="flex items-center space-x-3">
                         <input
                           type="radio"
                           name="isActive"
@@ -351,9 +345,9 @@ export function SociasPage() {
                           onChange={() => setFilters({ isActive: false })}
                           className="h-4 w-4 text-primary-600 focus:ring-primary-500"
                         />
-                        <span className="ml-3 text-sm text-gray-700">Membresía inactiva</span>
+                        <span className="text-sm text-gray-700">Membresía inactiva</span>
                       </label>
-                      <label className="flex items-center">
+                      <label className="flex items-center space-x-3">
                         <input
                           type="radio"
                           name="isActive"
@@ -361,7 +355,7 @@ export function SociasPage() {
                           onChange={() => setFilters({ isActive: null })}
                           className="h-4 w-4 text-primary-600 focus:ring-primary-500"
                         />
-                        <span className="ml-3 text-sm text-gray-700">Todos</span>
+                        <span className="text-sm text-gray-700">Todos</span>
                       </label>
                     </div>
                   </div>
@@ -443,15 +437,7 @@ export function SociasPage() {
       {/* Members Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {totalMembers === 0 ? (
-          <div className="text-center py-12">
-            <svg className="mx-auto h-12 w-12 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No se encontraron socias</h3>
-            <p className="mt-1 text-sm text-gray-700">
-              Prueba a ajustar los filtros de búsqueda para encontrar más resultados.
-            </p>
-          </div>
+          <EmptyState />
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {currentMembers.map((member) => (
@@ -750,5 +736,20 @@ function MemberModal({ member, onClose }: MemberModalProps) {
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+// Empty State Component
+function EmptyState() {
+  return (
+    <div className="text-center py-12">
+      <svg className="mx-auto h-12 w-12 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+      </svg>
+      <h3 className="mt-2 text-sm font-medium text-gray-900">No se encontraron socias</h3>
+      <p className="mt-1 text-sm text-gray-700">
+        Prueba a ajustar los filtros de búsqueda para encontrar más resultados.
+      </p>
+    </div>
   );
 }
