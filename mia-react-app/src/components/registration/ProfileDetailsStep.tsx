@@ -2,6 +2,7 @@ import { useState, useCallback, useRef } from 'react';
 import { useFormContext } from 'react-hook-form';
 import type { RegistrationFormData } from '../../schemas/registrationSchema';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 interface ProfileDetailsStepProps {
   membershipType?: string;
@@ -262,10 +263,10 @@ export function ProfileDetailsStep({
           <label htmlFor="company" className="block text-sm font-medium text-gray-700">
             Empresa/Estudio (Opcional)
           </label>
-          <input
+          <Input
             type="text"
             {...register('company')}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+            className="mt-1"
             placeholder="Pixar, Netflix, Freelance..."
           />
           {errors.company && (
@@ -278,10 +279,10 @@ export function ProfileDetailsStep({
           <label htmlFor="position" className="block text-sm font-medium text-gray-700">
             Cargo/Posición (Opcional)
           </label>
-          <input
+          <Input
             type="text"
             {...register('position')}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+            className="mt-1"
             placeholder="Animadora 2D, Directora de Arte..."
           />
           {errors.position && (

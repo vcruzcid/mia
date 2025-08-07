@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Spinner } from '@/components/ui/spinner';
 
 const loginSchema = z.object({
   email: z.string().email('Por favor ingresa un correo electrónico válido'),
@@ -98,7 +99,7 @@ export function LoginPage() {
           <Card className="max-w-md w-full bg-gray-800 border-gray-700">
             <CardContent className="pt-6">
               <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto"></div>
+                <Spinner className="h-12 w-12 mx-auto" />
                 <h2 className="mt-4 text-2xl font-bold text-white">
                   Verificando acceso...
                 </h2>
@@ -173,7 +174,7 @@ export function LoginPage() {
                 >
                   {isLoading ? (
                     <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      <Spinner className="h-4 w-4 mr-2" />
                       Enviando...
                     </>
                   ) : (

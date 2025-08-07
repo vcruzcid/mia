@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
+import { Spinner } from '@/components/ui/spinner';
 
 interface UserInfo {
   name: string;
@@ -123,7 +124,7 @@ export function WelcomePage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600 mx-auto"></div>
+          <Spinner className="h-32 w-32 mx-auto" />
           <h2 className="mt-6 text-2xl font-semibold text-gray-900">
             Verificando tu registro...
           </h2>

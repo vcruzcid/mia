@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Spinner } from '@/components/ui/spinner';
 
 const profileUpdateSchema = z.object({
   firstName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
@@ -134,7 +135,7 @@ export function PortalPage() {
       <div className="min-h-screen flex flex-col bg-gray-900 dark">
         <Header />
         <main className="flex-1 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500"></div>
+          <Spinner className="h-12 w-12" />
         </main>
         <Footer />
       </div>
@@ -366,7 +367,7 @@ export function PortalPage() {
                       >
                         {isLoading ? (
                           <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                            <Spinner className="h-4 w-4 mr-2" />
                             Guardando...
                           </>
                         ) : (

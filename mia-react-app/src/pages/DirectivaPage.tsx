@@ -6,6 +6,7 @@ import { SocialMediaIcons } from '../components/SocialMediaIcons';
 import { Badge } from '../components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Spinner } from '@/components/ui/spinner';
 
 export function DirectivaPage() {
   const {
@@ -35,7 +36,7 @@ export function DirectivaPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <Spinner className="h-12 w-12" />
       </div>
     );
   }
