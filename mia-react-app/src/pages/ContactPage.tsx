@@ -5,6 +5,7 @@ import { useToastContext } from '../contexts/ToastContext';
 import { useAsyncLoading } from '../contexts/LoadingContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { SocialMediaIcons } from '../components/SocialMediaIcons';
 import { Accordion } from '@/components/ui/accordion';
 
@@ -133,11 +134,11 @@ export function ContactPage() {
                   <label htmlFor="contact-name" className="block text-sm font-medium text-gray-700">
                     Nombre completo *
                   </label>
-                  <input
+                  <Input
                     id="contact-name"
                     type="text"
                     {...register('name')}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                    className="mt-1"
                     placeholder="Tu nombre completo"
                   />
                   {errors.name && (
@@ -149,11 +150,11 @@ export function ContactPage() {
                   <label htmlFor="contact-email" className="block text-sm font-medium text-gray-700">
                     Email *
                   </label>
-                  <input
+                  <Input
                     id="contact-email"
                     type="email"
                     {...register('email')}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                    className="mt-1"
                     placeholder="tu@email.com"
                   />
                   {errors.email && (
@@ -165,11 +166,11 @@ export function ContactPage() {
                   <label htmlFor="contact-subject" className="block text-sm font-medium text-gray-700">
                     Asunto *
                   </label>
-                  <input
+                  <Input
                     id="contact-subject"
                     type="text"
                     {...register('subject')}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                    className="mt-1"
                     placeholder="¿En qué podemos ayudarte?"
                   />
                   {errors.subject && (

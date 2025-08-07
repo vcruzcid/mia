@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Spinner } from '@/components/ui/spinner';
 import { PROFESSIONAL_CATEGORIES, SPANISH_UNIVERSITIES } from '../../schemas/registrationSchema';
 import type { RegistrationFormData } from '../../schemas/registrationSchema';
 
@@ -126,10 +129,10 @@ export function PersonalInfoStep({ membershipType, onNext }: PersonalInfoStepPro
             <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
               Nombre *
             </label>
-            <input
+            <Input
               type="text"
               {...register('firstName')}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+              className="mt-1"
               placeholder="Tu nombre"
             />
             {errors.firstName && (
@@ -142,10 +145,10 @@ export function PersonalInfoStep({ membershipType, onNext }: PersonalInfoStepPro
             <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
               Apellidos *
             </label>
-            <input
+            <Input
               type="text"
               {...register('lastName')}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+              className="mt-1"
               placeholder="Tus apellidos"
             />
             {errors.lastName && (
@@ -158,10 +161,10 @@ export function PersonalInfoStep({ membershipType, onNext }: PersonalInfoStepPro
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">
               Email *
             </label>
-            <input
+            <Input
               type="email"
               {...register('email')}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+              className="mt-1"
               placeholder="tu@email.com"
             />
             {errors.email && (
@@ -174,10 +177,10 @@ export function PersonalInfoStep({ membershipType, onNext }: PersonalInfoStepPro
             <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
               Teléfono *
             </label>
-            <input
+            <Input
               type="tel"
               {...register('phone')}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+              className="mt-1"
               placeholder="+34 666 123 456"
             />
             {errors.phone && (
@@ -199,10 +202,10 @@ export function PersonalInfoStep({ membershipType, onNext }: PersonalInfoStepPro
             <label htmlFor="address.street" className="block text-sm font-medium text-gray-700">
               Dirección *
             </label>
-            <input
+            <Input
               type="text"
               {...register('address.street')}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+              className="mt-1"
               placeholder="Calle, número, piso, puerta..."
             />
             {errors.address?.street && (
@@ -217,18 +220,18 @@ export function PersonalInfoStep({ membershipType, onNext }: PersonalInfoStepPro
                 Código Postal *
               </label>
               <div className="relative">
-                <input
+                <Input
                   type="text"
                   {...register('address.postalCode', {
                     onChange: (e) => handlePostalCodeChange(e.target.value)
                   })}
                   maxLength={5}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                  className="mt-1"
                   placeholder="28001"
                 />
                 {isLoadingAddress && (
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-600"></div>
+                    <Spinner className="h-4 w-4" />
                   </div>
                 )}
               </div>
@@ -242,10 +245,10 @@ export function PersonalInfoStep({ membershipType, onNext }: PersonalInfoStepPro
               <label htmlFor="address.city" className="block text-sm font-medium text-gray-700">
                 Ciudad *
               </label>
-              <input
+              <Input
                 type="text"
                 {...register('address.city')}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                className="mt-1"
                 placeholder="Madrid"
               />
               {errors.address?.city && (
@@ -285,11 +288,11 @@ export function PersonalInfoStep({ membershipType, onNext }: PersonalInfoStepPro
         
         {/* Category Search */}
         <div className="mb-4">
-          <input
+          <Input
             type="text"
             value={categorySearch}
             onChange={(e) => setCategorySearch(e.target.value)}
-            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+            className="w-full"
             placeholder="Buscar especialización..."
           />
         </div>
@@ -328,14 +331,12 @@ export function PersonalInfoStep({ membershipType, onNext }: PersonalInfoStepPro
         <div className="max-h-80 overflow-y-auto border border-gray-200 rounded-md p-4">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
             {filteredCategories.map(category => (
-              <label key={category} className="relative flex items-start">
-                <input
-                  type="checkbox"
+              <label key={category} className="flex items-center space-x-3">
+                <Checkbox
                   checked={selectedCategories.includes(category)}
-                  onChange={() => toggleCategory(category)}
-                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                  onCheckedChange={() => toggleCategory(category)}
                 />
-                <span className="ml-2 text-sm text-gray-700">
+                <span className="text-sm text-gray-700">
                   {category}
                 </span>
               </label>

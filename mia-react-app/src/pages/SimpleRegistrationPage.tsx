@@ -5,6 +5,9 @@ import { VALID_DISCOUNT_CODES, calculateDiscountedPrice } from '../schemas/regis
 import { siteConfig } from '../config/site.config';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Spinner } from '@/components/ui/spinner';
 
 interface RegistrationState {
   selectedMembership: string | null;
@@ -282,11 +285,11 @@ export function SimpleRegistrationPage() {
                 
                 {!state.discountCode ? (
                   <div className="flex gap-3">
-                    <input
+                    <Input
                       type="text"
                       value={discountInput}
                       onChange={(e) => setDiscountInput(e.target.value.toUpperCase())}
-                      className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                      className="flex-1"
                       placeholder="Introduce tu código..."
                       maxLength={20}
                     />
@@ -376,14 +379,12 @@ export function SimpleRegistrationPage() {
                 Términos y Condiciones
               </h3>
 
-              <label className="flex items-start">
-                <input
-                  type="checkbox"
+              <label className="flex items-start space-x-3">
+                <Checkbox
                   checked={termsAccepted}
-                  onChange={(e) => setTermsAccepted(e.target.checked)}
-                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded mt-1"
+                  onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
                 />
-                <span className="ml-3 text-sm text-gray-700">
+                <span className="text-sm text-gray-700">
                   Acepto los{' '}
                   <a 
                     href="/terminos-condiciones" 
@@ -396,14 +397,12 @@ export function SimpleRegistrationPage() {
                 </span>
               </label>
 
-              <label className="flex items-start">
-                <input
-                  type="checkbox"
+              <label className="flex items-start space-x-3">
+                <Checkbox
                   checked={gdprAccepted}
-                  onChange={(e) => setGdprAccepted(e.target.checked)}
-                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded mt-1"
+                  onCheckedChange={(checked) => setGdprAccepted(checked as boolean)}
                 />
-                <span className="ml-3 text-sm text-gray-700">
+                <span className="text-sm text-gray-700">
                   Acepto el{' '}
                   <Button
                     type="button"
@@ -490,10 +489,7 @@ export function SimpleRegistrationPage() {
               >
                 {state.isProcessing ? (
                   <>
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
+                    <Spinner className="h-5 w-5 mr-3" />
                     Procesando...
                   </>
                 ) : (
