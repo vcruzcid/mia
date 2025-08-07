@@ -94,7 +94,7 @@ export function AboutPage() {
             heroAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}>
             <Button
-              onClick={() => scrollToSection('que-hace-mia')}
+              onClick={() => scrollToSection('sobre-nosotras')}
               className="w-full sm:w-auto"
             >
               Qué hace MIA
@@ -115,9 +115,9 @@ export function AboutPage() {
         </div>
       </div>
 
-      {/* Section 1: Qué hace MIA */}
+      {/* Section 1: Sobre Nosotras */}
       <section 
-        id="que-hace-mia"
+        id="sobre-nosotras"
         ref={missionAnimation.ref}
         className="py-16 bg-gray-800"
       >
@@ -126,68 +126,42 @@ export function AboutPage() {
             <h2 className={`text-3xl font-extrabold text-white sm:text-4xl transition-all duration-1000 ${
               missionAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`}>
-              Qué hace MIA
+              Sobre Nosotras
             </h2>
-            <p className={`mt-4 text-xl text-gray-300 max-w-3xl mx-auto transition-all duration-1000 delay-300 ${
+            <p className={`mt-4 text-xl text-gray-300 max-w-4xl mx-auto transition-all duration-1000 delay-300 ${
               missionAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}>
-              Nuestra misión es empoderar a las mujeres en la industria de la animación española, 
-              creando oportunidades y fomentando la igualdad profesional.
+              MIA - Mujeres en la Industria de la Animación es una asociación iberoamericana que promueve la
+              igualdad de género en el sector de la animación.
             </p>
           </div>
 
-          <div className="grid gap-8 lg:grid-cols-3">
-            {/* Key Activities */}
-            <Card className={`${
+          <div className="max-w-4xl mx-auto">
+            <div className={`text-center transition-all duration-1000 ${
               missionAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`} style={{ transitionDelay: '400ms' }}>
-              <CardContent className="text-center p-8">
-                <div className="mx-auto h-16 w-16 bg-red-600 rounded-full flex items-center justify-center mb-6">
-                  <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold text-white mb-4">Networking Profesional</h3>
-                <p className="text-gray-300 leading-relaxed">
-                  Organizamos eventos regulares, encuentros y actividades de networking para 
-                  conectar profesionales de todos los niveles en la industria de la animación.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className={`${
-              missionAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`} style={{ transitionDelay: '600ms' }}>
-              <CardContent className="text-center p-8">
-                <div className="mx-auto h-16 w-16 bg-red-600 rounded-full flex items-center justify-center mb-6">
-                  <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold text-white mb-4">Formación y Desarrollo</h3>
-                <p className="text-gray-300 leading-relaxed">
-                  Ofrecemos programas formativos especializados, talleres técnicos y recursos 
-                  educativos para el crecimiento profesional continuo de nuestras socias.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className={`${
-              missionAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`} style={{ transitionDelay: '800ms' }}>
-              <CardContent className="text-center p-8">
-                <div className="mx-auto h-16 w-16 bg-red-600 rounded-full flex items-center justify-center mb-6">
-                  <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold text-white mb-4">Visibilidad y Promoción</h3>
-                <p className="text-gray-300 leading-relaxed">
-                  Promovemos el trabajo de las mujeres en animación a través de campañas, 
-                  reconocimientos públicos y oportunidades de visibilidad mediática.
-                </p>
-              </CardContent>
-            </Card>
+              <Card className="bg-gray-700 border-gray-600">
+                <CardContent className="p-8 text-left">
+                  <h3 className="text-2xl font-bold text-white mb-6">Qué hace MIA</h3>
+                  <div className="space-y-4 text-gray-300 leading-relaxed">
+                    <p>
+                      Nuestra misión es visibilizar y fortalecer el talento femenino, impulsando su presencia 
+                      en todos los ámbitos de la industria: desde la creación y producción hasta la dirección 
+                      y liderazgo.
+                    </p>
+                    <p>
+                      Creamos una red de apoyo y colaboración entre mujeres con diferentes perfiles y niveles de
+                      experiencia, fomentando el aprendizaje mutuo, la sororidad y las oportunidades compartidas.
+                    </p>
+                    <p>
+                      Seguimos la filosofía de que juntas somos más fuertes, convencidas de que a través de la
+                      colaboración y el apoyo mutuo podemos transformar la industria en un espacio más diverso, 
+                      justo y equitativo.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </section>
