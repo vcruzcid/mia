@@ -218,7 +218,7 @@ async function extractWordPressFiles() {
   }
 }
 
-async function downloadAndUploadFile(fileInfo, memberId, fileType) {
+async function copyFileLocally(fileInfo, memberData, fileType) {
   try {
     const fileUrl = fileInfo.url;
     const fileName = fileInfo.filename;
@@ -262,39 +262,44 @@ async function downloadAndUploadFile(fileInfo, memberId, fileType) {
     
     // Read file
     const fileData = await fs.readFile(filePath);
-    console.log(`    📊 File size: ${Math.round(fileData.length / 1024)}KB`);
+    const fileSizeKB = Math.round(fileData.length / 1024);
+    const fileSizeMB = (fileData.length / (1024 * 1024)).toFixed(2);
+    console.log(`    📊 File size: ${fileSizeKB}KB (${fileSizeMB}MB)`);
     
-    // Generate storage path
+    // Create organized local destination
+    const extractedDir = path.join(__dirname, '../extracted-files');
+    const fileTypeDir = path.join(extractedDir, fileType === 'profile_image' ? 'images' : 'documents');
+    
+    // Ensure directories exist
+    await fs.mkdir(extractedDir, { recursive: true });
+    await fs.mkdir(fileTypeDir, { recursive: true });
+    
+    // Create clean filename: userid-firstname-lastname.ext
+    const memberName = `${memberData.first_name || 'Unknown'}-${memberData.last_name || 'Unknown'}`
+      .replace(/[^a-zA-Z0-9\-\.]/g, '') // Remove special characters except hyphens and dots
+      .replace(/\-+/g, '-') // Replace multiple hyphens with single
+      .toLowerCase();
+    
     const fileExt = path.extname(fileName) || (fileType === 'profile_image' ? '.jpg' : '.pdf');
-    const timestamp = Date.now();
-    const storagePath = `${fileType}s/${memberId}/${timestamp}${fileExt}`;
+    const cleanFileName = `${memberData.id}-${memberName}${fileExt}`;
+    const destinationPath = path.join(fileTypeDir, cleanFileName);
     
-    // Upload to Supabase Storage
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('member-files')
-      .upload(storagePath, fileData, {
-        cacheControl: '3600',
-        upsert: true,
-        contentType: fileType === 'profile_image' ? 'image/jpeg' : fileInfo.mime_type || 'application/pdf'
-      });
+    // Copy file to organized location
+    await fs.copyFile(filePath, destinationPath);
     
-    if (uploadError) {
-      console.log(`    ❌ Upload failed:`, uploadError.message);
-      return null;
-    }
-    
-    // Get public URL
-    const { data: urlData } = supabase.storage
-      .from('member-files')
-      .getPublicUrl(storagePath);
-    
-    console.log(`    ✅ Uploaded to: ${storagePath}`);
+    console.log(`    ✅ Copied to: ${path.relative(__dirname, destinationPath)}`);
+    console.log(`    📊 Size: ${fileSizeKB}KB - ${fileSizeMB > 10 ? '⚠️ TOO LARGE' : '✅ OK'}`);
     
     return {
-      storage_path: storagePath,
-      public_url: urlData.publicUrl,
+      local_path: destinationPath,
+      relative_path: path.relative(__dirname, destinationPath),
       file_size: fileData.length,
-      original_filename: fileName
+      size_kb: fileSizeKB,
+      size_mb: fileSizeMB,
+      original_filename: fileName,
+      clean_filename: cleanFileName,
+      needs_optimization: fileSizeMB > 5, // Flag files over 5MB for review
+      too_large: fileSizeMB > 10 // Flag files over 10MB as too large
     };
     
   } catch (error) {
