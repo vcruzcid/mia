@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Spinner } from '@/components/ui/spinner';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 export function SociasPage() {
   const {
@@ -372,15 +373,24 @@ export function SociasPage() {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 py-4 border-t border-gray-200">
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-700">Mostrar:</span>
-              <select
-                value={itemsPerPage}
-                onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
-                className="text-sm border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
-              >
-                {paginationOptions.map(option => (
-                  <option key={option} value={option}>{option} por página</option>
-                ))}
-              </select>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="text-sm">
+                    {itemsPerPage} por página
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {paginationOptions.map(option => (
+                    <DropdownMenuItem
+                      key={option}
+                      onClick={() => handleItemsPerPageChange(option)}
+                      className={itemsPerPage === option ? "bg-accent" : ""}
+                    >
+                      {option} por página
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
             
             {totalPages > 1 && (
