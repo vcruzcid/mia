@@ -1,8 +1,11 @@
 #!/usr/bin/env node
 
 /**
- * Extract WordPress Files and Update Supabase
- * Downloads profile images and resumes from WordPress and uploads to Supabase
+ * Extract WordPress Files to Local Directory
+ * Copies profile images and resumes from WordPress to organized local directories:
+ * - ./extracted-files/images/ for profile pictures
+ * - ./extracted-files/documents/ for resumes/PDFs
+ * Files are renamed as: userid-firstname-lastname.ext
  */
 
 import { createClient } from '@supabase/supabase-js';
@@ -149,16 +152,18 @@ async function extractWordPressFiles() {
       const updates = {};
       let memberSuccess = true;
       
+      const copiedFiles = [];
+      
       // Process profile image
-      if (files.profile_image && !member.profile_image_url) {
-        const imageResult = await downloadAndUploadFile(
+      if (files.profile_image) {
+        const imageResult = await copyFileLocally(
           files.profile_image,
-          member.id,
+          member,
           'profile_image'
         );
         if (imageResult) {
-          updates.profile_image_url = imageResult.public_url;
-          console.log(`  ✅ Profile image uploaded`);
+          copiedFiles.push({...imageResult, type: 'profile_image'});
+          console.log(`  ✅ Profile image copied`);
         } else {
           console.log(`  ❌ Profile image failed`);
           memberSuccess = false;
@@ -166,33 +171,34 @@ async function extractWordPressFiles() {
       }
       
       // Process resume
-      if (files.resume && !member.cv_document_url) {
-        const resumeResult = await downloadAndUploadFile(
+      if (files.resume) {
+        const resumeResult = await copyFileLocally(
           files.resume,
-          member.id,
+          member,
           'resume'
         );
         if (resumeResult) {
-          updates.cv_document_url = resumeResult.public_url;
-          console.log(`  ✅ Resume uploaded`);
+          copiedFiles.push({...resumeResult, type: 'resume'});
+          console.log(`  ✅ Resume copied`);
         } else {
           console.log(`  ❌ Resume failed`);
           memberSuccess = false;
         }
       }
       
-      // Update member record if we have new files
-      if (Object.keys(updates).length > 0) {
-        const { error: updateError } = await supabase
-          .from('members')
-          .update(updates)
-          .eq('id', member.id);
+      // Log file summary for this member
+      if (copiedFiles.length > 0) {
+        console.log(`  📁 Copied ${copiedFiles.length} files for ${member.first_name} ${member.last_name}`);
         
-        if (updateError) {
-          console.log(`  ❌ Database update failed:`, updateError.message);
-          memberSuccess = false;
-        } else {
-          console.log(`  ✅ Member updated with ${Object.keys(updates).length} files`);
+        // Flag files that need attention
+        const largeFiles = copiedFiles.filter(f => f.too_large);
+        const needsOptimization = copiedFiles.filter(f => f.needs_optimization && !f.too_large);
+        
+        if (largeFiles.length > 0) {
+          console.log(`  ⚠️  ${largeFiles.length} files too large (>10MB) - need compression`);
+        }
+        if (needsOptimization.length > 0) {
+          console.log(`  📏 ${needsOptimization.length} files large (>5MB) - consider optimization`);
         }
       }
       
@@ -210,6 +216,13 @@ async function extractWordPressFiles() {
     console.log(`✅ Successfully processed: ${successCount} members`);
     console.log(`❌ Errors: ${errorCount} members`);
     console.log(`📊 Total processed: ${processedCount} members`);
+    console.log(`\n📁 Files copied to: ./extracted-files/`);
+    console.log(`   └── images/     (profile images)`);
+    console.log(`   └── documents/  (resumes/CVs)`);
+    console.log(`\n💡 Next steps:`);
+    console.log(`   1. Review files in ./extracted-files/`);
+    console.log(`   2. Optimize large files (>5MB marked as needing optimization)`);
+    console.log(`   3. Compress files >10MB before uploading to Supabase`);
     
   } catch (error) {
     console.error('💥 File extraction failed:', error.message);
