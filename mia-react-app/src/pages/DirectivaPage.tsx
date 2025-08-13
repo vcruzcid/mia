@@ -7,6 +7,7 @@ import { Badge } from '../components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 export function DirectivaPage() {
   const {
@@ -114,12 +115,14 @@ export function DirectivaPage() {
       </div>
 
       {/* Member Modal */}
-      {isModalOpen && selectedMember && (
-        <DirectivaModal
-          member={selectedMember as any}
-          onClose={closeMemberModal}
-        />
-      )}
+      <Dialog open={isModalOpen} onOpenChange={closeMemberModal}>
+        {selectedMember && (
+          <DirectivaModal
+            member={selectedMember as any}
+            onClose={closeMemberModal}
+          />
+        )}
+      </Dialog>
     </div>
   );
 }
@@ -285,16 +288,7 @@ function DirectivaModal({ member, onClose }: DirectivaModalProps) {
   const isPresident = member.position.toLowerCase().includes('president');
   
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div className="fixed inset-0 transition-opacity" aria-hidden="true">
-          <div className="absolute inset-0 bg-gray-900 bg-opacity-50" onClick={onClose}></div>
-        </div>
-
-        {/* This span is used to center the modal contents vertically */}
-        <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
-        <div className="relative inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full z-10">
+    <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           {/* Header */}
           <div className={`bg-gradient-to-r ${isPresident ? 'from-red-600 to-red-700' : 'from-primary-500 to-primary-700'} px-6 py-4`}>
             <div className="flex items-center justify-between">
@@ -487,19 +481,7 @@ function DirectivaModal({ member, onClose }: DirectivaModalProps) {
             )}
           </div>
 
-          {/* Footer */}
-          <div className="bg-gray-50 px-6 py-4 flex justify-end">
-            <Button
-              type="button"
-              className="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary-600 text-base font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
-              onClick={onClose}
-            >
-              Cerrar
-            </Button>
-          </div>
-        </div>
-      </div>
-    </div>
+    </DialogContent>
   );
 }
 
