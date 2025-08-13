@@ -30,3 +30,6 @@ mia-wordpress/
 .serena
 **/mcp-config/*
 .mcp/
+.mcp.json
+
+db-backups/*
