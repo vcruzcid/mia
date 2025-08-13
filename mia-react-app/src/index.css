@@ -155,18 +155,7 @@ select:focus-visible,
 @layer components {
 
 
-  /* === CARDS === */
-  .card {
-    @apply bg-gray-800 rounded-xl shadow-lg border border-gray-700 transition-all duration-300;
-  }
-  
-  .card-hover {
-    @apply bg-gray-800 rounded-xl shadow-lg border border-gray-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-gray-600 cursor-pointer;
-  }
-  
-  .card-interactive {
-    @apply bg-gray-800 rounded-xl shadow-lg border border-gray-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-gray-600 cursor-pointer focus-within:ring-2 focus-within:ring-red-500 focus-within:ring-offset-2;
-  }
+
 
   /* === FORMS === */
   .form-group {
