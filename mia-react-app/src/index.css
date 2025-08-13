@@ -153,34 +153,7 @@ select:focus-visible,
 
 /* MIA Component Classes */
 @layer components {
-  /* === BUTTONS === */
-  .btn-primary {
-    background-color: var(--color-btn-primary-bg);
-    color: var(--color-btn-primary-text);
-    @apply inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105;
-  }
-  
-  .btn-secondary {
-    @apply inline-flex items-center px-6 py-3 border-2 text-base font-medium rounded-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2;
-    border-color: #6b7280;
-    background-color: var(--color-bg-primary);
-    color: var(--color-text-primary);
-  }
 
-  .btn-ghost {
-    @apply inline-flex items-center px-6 py-3 text-base font-medium rounded-lg text-red-400 hover:bg-red-900/30 hover:text-red-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200 transform hover:scale-105;
-  }
-  
-  .btn-outline {
-    @apply inline-flex items-center px-6 py-3 border-2 text-base font-medium rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105;
-    border-color: var(--color-primary);
-    color: var(--color-primary);
-  }
-  
-  .btn-outline:hover {
-    background-color: var(--color-primary);
-    color: var(--color-btn-primary-text);
-  }
 
   /* === CARDS === */
   .card {

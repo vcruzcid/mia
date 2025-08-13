@@ -390,13 +390,15 @@ export function AboutPage() {
           <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
             <Button
               onClick={() => window.location.href = '/membresia'}
-              className="btn-ghost border-2 border-white text-white hover:bg-white hover:text-red-600"
+              variant="outline"
+              className="border-2 border-white text-white hover:bg-white hover:text-red-600"
             >
               Hazte socia
             </Button>
             <Button
               onClick={() => window.location.href = '/contacto'}
-              className="btn-ghost border-2 border-white text-white hover:bg-white hover:text-red-600"
+              variant="outline"
+              className="border-2 border-white text-white hover:bg-white hover:text-red-600"
             >
               Contáctanos
             </Button>
