@@ -1,5 +1,6 @@
 import { Facebook, Twitter, Instagram, Linkedin, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { contactFormSchema, type ContactFormData } from '../utils/validation';
@@ -142,9 +143,9 @@ export function Footer() {
             <h3 className="text-lg font-semibold mb-4">ESCRÍBENOS</h3>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div>
-                <label htmlFor="footer-name" className="block text-sm font-medium text-gray-300">
+                <Label htmlFor="footer-name" className="block text-sm font-medium text-gray-300">
                   Nombre completo *
-                </label>
+                </Label>
                 <input
                   id="footer-name"
                   type="text"
@@ -158,9 +159,9 @@ export function Footer() {
               </div>
 
               <div>
-                <label htmlFor="footer-email" className="block text-sm font-medium text-gray-300">
+                <Label htmlFor="footer-email" className="block text-sm font-medium text-gray-300">
                   Email *
-                </label>
+                </Label>
                 <input
                   id="footer-email"
                   type="email"
@@ -174,9 +175,9 @@ export function Footer() {
               </div>
 
               <div>
-                <label htmlFor="footer-subject" className="block text-sm font-medium text-gray-300">
+                <Label htmlFor="footer-subject" className="block text-sm font-medium text-gray-300">
                   Asunto *
-                </label>
+                </Label>
                 <input
                   id="footer-subject"
                   type="text"
@@ -190,9 +191,9 @@ export function Footer() {
               </div>
 
               <div>
-                <label htmlFor="footer-message" className="block text-sm font-medium text-gray-300">
+                <Label htmlFor="footer-message" className="block text-sm font-medium text-gray-300">
                   Mensaje *
-                </label>
+                </Label>
                 <textarea
                   id="footer-message"
                   rows={4}

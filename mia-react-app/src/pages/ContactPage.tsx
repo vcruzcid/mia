@@ -7,6 +7,7 @@ import { useAsyncLoading } from '../contexts/LoadingContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { SocialMediaIcons } from '../components/SocialMediaIcons';
 import { Accordion } from '@/components/ui/accordion';
 
@@ -132,9 +133,9 @@ export function ContactPage() {
 
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 <div>
-                  <label htmlFor="contact-name" className="block text-sm font-medium text-gray-700">
+                  <Label htmlFor="contact-name" className="block text-sm font-medium text-gray-700">
                     Nombre completo *
-                  </label>
+                  </Label>
                   <Input
                     id="contact-name"
                     type="text"
@@ -148,9 +149,9 @@ export function ContactPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="contact-email" className="block text-sm font-medium text-gray-700">
+                  <Label htmlFor="contact-email" className="block text-sm font-medium text-gray-700">
                     Email *
-                  </label>
+                  </Label>
                   <Input
                     id="contact-email"
                     type="email"
@@ -164,9 +165,9 @@ export function ContactPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="contact-subject" className="block text-sm font-medium text-gray-700">
+                  <Label htmlFor="contact-subject" className="block text-sm font-medium text-gray-700">
                     Asunto *
-                  </label>
+                  </Label>
                   <Input
                     id="contact-subject"
                     type="text"
@@ -180,9 +181,9 @@ export function ContactPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="contact-message" className="block text-sm font-medium text-gray-700">
+                  <Label htmlFor="contact-message" className="block text-sm font-medium text-gray-700">
                     Mensaje *
-                  </label>
+                  </Label>
                   <textarea
                     id="contact-message"
                     rows={6}
