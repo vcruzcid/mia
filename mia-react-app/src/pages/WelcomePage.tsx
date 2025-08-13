@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
+import { Badge } from '@/components/ui/badge';
 
 interface UserInfo {
   name: string;
@@ -240,9 +241,7 @@ export function WelcomePage() {
                 
                 <div className="flex justify-between">
                   <span className="text-gray-600">Estado:</span>
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                    Activa
-                  </span>
+                  <Badge variant="success">Activa</Badge>
                 </div>
               </div>
             </CardContent>
