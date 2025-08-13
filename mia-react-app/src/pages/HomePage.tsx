@@ -5,6 +5,7 @@ import { useScrollAnimation } from '../hooks/useScrollAnimation';
 import { useCounterAnimation } from '../hooks/useCounterAnimation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { BackgroundImage } from '@/components/ui/background-image';
 import { useGalleryStore } from '../store/galleryStore';
 
 export function HomePage() {
@@ -342,10 +343,10 @@ export function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h2 className="text-base text-primary-600 font-semibold tracking-wide uppercase">
-              Logros Recientes
+              NUESTROS LOGROS
             </h2>
-            <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-              Celebrando nuestros éxitos
+            <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl" style={{ color: 'var(--color-primary)' }}>
+              Desde su creación, MIA ha alcanzado importantes hitos
             </p>
           </div>
 
@@ -354,14 +355,14 @@ export function HomePage() {
               <CardContent className="flex items-start">
                 <div className="flex-shrink-0">
                   <div className="flex items-center justify-center h-12 w-12 rounded-md bg-primary-500 text-white">
-                    🏆
+                    👥
                   </div>
                 </div>
                 <div className="ml-4">
-                  <h3 className="text-lg font-medium text-gray-900">Premio a la Diversidad 2024</h3>
+                  <h3 className="text-lg font-medium text-gray-900">Red de socias</h3>
                   <p className="mt-2 text-gray-600">
-                    Reconocimiento por nuestro trabajo en la promoción de la diversidad de género 
-                    en la industria de la animación española.
+                    Más de 250 profesionales iberoamericanas forman parte de MIA, creando
+                    una comunidad sólida y colaborativa.
                   </p>
                 </div>
               </CardContent>
@@ -371,14 +372,51 @@ export function HomePage() {
               <CardContent className="flex items-start">
                 <div className="flex-shrink-0">
                   <div className="flex items-center justify-center h-12 w-12 rounded-md bg-primary-500 text-white">
-                    📚
+                    📊
                   </div>
                 </div>
                 <div className="ml-4">
-                  <h3 className="text-lg font-medium text-gray-900">Programa de Mentorías</h3>
+                  <h3 className="text-lg font-medium text-gray-900">Informe MIA</h3>
                   <p className="mt-2 text-gray-600">
-                    Lanzamiento exitoso de nuestro programa de mentorías que ha conectado 
-                    a más de 100 profesionales senior con talentos emergentes.
+                    Publicación anual que analiza la situación de las mujeres en la animación en
+                    España, destacando avances y áreas de mejora.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-r from-primary-50 to-primary-100">
+              <CardContent className="flex items-start">
+                <div className="flex-shrink-0">
+                  <div className="flex items-center justify-center h-12 w-12 rounded-md bg-primary-500 text-white">
+                    🎯
+                  </div>
+                </div>
+                <div className="ml-4">
+                  <h3 className="text-lg font-medium text-gray-900">MIANIMA</h3>
+                  <p className="mt-2 text-gray-600">
+                    Programa de mentoría y pitching enfocado a impulsar los proyectos liderados
+                    por mujeres, algunos de los cuales han sido seleccionados en festivales internacionales
+                    como Annecy, Cartoon Business, los Goya.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-r from-primary-50 to-primary-100">
+              <CardContent className="flex items-start">
+                <div className="flex-shrink-0">
+                  <div className="flex items-center justify-center h-12 w-12 rounded-md bg-primary-500 text-white">
+                    🌍
+                  </div>
+                </div>
+                <div className="ml-4">
+                  <h3 className="text-lg font-medium text-gray-900">Participación en festivales</h3>
+                  <p className="mt-2 text-gray-600">
+                    Representamos la asociación en eventos nacionales e
+                    internacionales, promoviendo el talento femenino y participando en paneles y espacios
+                    dedicados a abrir el diálogo sobre las cuestiones existentes de género en la industria de la
+                    animación.
                   </p>
                 </div>
               </CardContent>
@@ -388,15 +426,18 @@ export function HomePage() {
       </div>
 
       {/* CTA Section */}
-      <div className="bg-primary-50">
-        <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between">
-          <h2 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+      <BackgroundImage 
+        imageUrl="/images/home-cta.webp"
+        className="py-12 lg:py-16"
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 lg:flex lg:items-center lg:justify-between">
+          <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
             <span className="block">¿Lista para unirte?</span>
-            <span className="block text-primary-600">Comienza tu membresía hoy.</span>
+            <span className="block text-white">Comienza tu membresía hoy.</span>
           </h2>
           <div className="mt-8 flex lg:mt-0 lg:flex-shrink-0">
             <div className="inline-flex rounded-md shadow">
-              <Button asChild>
+              <Button asChild className="bg-red-600 hover:bg-red-700 text-white">
                 <Link to="/membresia">
                   Ver opciones de membresía
                 </Link>
@@ -404,7 +445,7 @@ export function HomePage() {
             </div>
           </div>
         </div>
-      </div>
+      </BackgroundImage>
     </div>
   );
 }

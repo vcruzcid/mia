@@ -1,6 +1,6 @@
 import { createContext, useContext, useState } from 'react'
 import type { ReactNode } from 'react'
-import { LoadingSpinner } from '@/components/LoadingSpinner'
+import { Spinner } from '@/components/ui/spinner'
 
 interface LoadingContextType {
   isLoading: boolean
@@ -27,11 +27,12 @@ export function LoadingProvider({ children }: LoadingProviderProps) {
     <LoadingContext.Provider value={{ isLoading, setLoading, loadingMessage }}>
       {children}
       {isLoading && (
-        <LoadingSpinner
-          overlay
-          size="lg"
-          text={loadingMessage}
-        />
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 flex items-center space-x-3">
+            <Spinner className="h-6 w-6" />
+            <span className="text-gray-900">{loadingMessage}</span>
+          </div>
+        </div>
       )}
     </LoadingContext.Provider>
   )

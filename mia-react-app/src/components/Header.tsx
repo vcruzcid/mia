@@ -1,18 +1,25 @@
-import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '../hooks/useAuth';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
+  
+  // Check authentication status
+  const { member } = useAuth();
+  const isDemoAuth = localStorage.getItem('demo_auth') === 'true';
+  const isAuthenticated = !!(member || isDemoAuth);
 
   const navigation = [
     { name: 'Inicio', href: '/' },
-    { name: 'Sobre MIA', href: '/sobre-mia' },
+    { name: 'Sobre Nosotras', href: '/sobre-mia' },
     { name: 'Socias', href: '/socias' },
     { name: 'Directiva', href: '/directiva' },
+    { name: 'MIANIMA', href: '/mianima' },
     { name: 'Membresía', href: '/membresia' },
     { name: 'Contacto', href: '/contacto' },
   ];
@@ -59,7 +66,7 @@ export function Header() {
           <div className="flex-shrink-0">
             <Link to="/" className="flex items-center">
               <img 
-                src="/mia_logo_web-ok-177x77.png" 
+                src="/logo-main.png" 
                 alt="MIA - Mujeres en la Industria de la Animación" 
                 className="h-10 w-auto hover:opacity-90 transition-opacity duration-200"
               />
@@ -85,17 +92,27 @@ export function Header() {
                 ))}
               </div>
               
-              {/* Login & Registration */}
-              <Button variant="ghost" asChild className="mr-2 text-white hover:text-red-400 hover:bg-transparent">
-                <Link to="/login">
-                  Iniciar Sesión
-                </Link>
-              </Button>
-              <Button asChild className="bg-red-600 hover:bg-red-700 text-white">
-                <Link to="/registro">
-                  Únete a MIA
-                </Link>
-              </Button>
+              {/* Login & Registration / Dashboard */}
+              {isAuthenticated ? (
+                <Button asChild className="bg-red-600 hover:bg-red-700 text-white">
+                  <Link to="/portal">
+                    Mi Dashboard
+                  </Link>
+                </Button>
+              ) : (
+                <>
+                  <Button variant="ghost" asChild className="mr-2 text-white hover:text-red-400 hover:bg-transparent">
+                    <Link to="/login">
+                      Iniciar Sesión
+                    </Link>
+                  </Button>
+                  <Button asChild className="bg-red-600 hover:bg-red-700 text-white">
+                    <Link to="/registro">
+                      Únete a MIA
+                    </Link>
+                  </Button>
+                </>
+              )}
             </div>
           </div>
 
@@ -146,24 +163,37 @@ export function Header() {
                 </Link>
               ))}
               
-              {/* Mobile Login & Registration */}
+              {/* Mobile Login & Registration / Dashboard */}
               <div className="pt-4 pb-2 space-y-2">
-                <Button variant="ghost" asChild className="w-full text-white hover:text-red-400 hover:bg-transparent">
-                  <Link
-                    to="/login"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Iniciar Sesión
-                  </Link>
-                </Button>
-                <Button asChild className="w-full bg-red-600 hover:bg-red-700 text-white">
-                  <Link
-                    to="/registro"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Únete a MIA
-                  </Link>
-                </Button>
+                {isAuthenticated ? (
+                  <Button asChild className="w-full bg-red-600 hover:bg-red-700 text-white">
+                    <Link
+                      to="/portal"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Mi Dashboard
+                    </Link>
+                  </Button>
+                ) : (
+                  <>
+                    <Button variant="ghost" asChild className="w-full text-white hover:text-red-400 hover:bg-transparent">
+                      <Link
+                        to="/login"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Iniciar Sesión
+                      </Link>
+                    </Button>
+                    <Button asChild className="w-full bg-red-600 hover:bg-red-700 text-white">
+                      <Link
+                        to="/registro"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Únete a MIA
+                      </Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </div>

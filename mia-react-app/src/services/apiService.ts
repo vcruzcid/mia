@@ -111,16 +111,7 @@ export class ApiService {
     }
   }
 
-  // Health check
-  async checkHealth() {
-    try {
-      const response = await fetch(`${this.baseURL}/health`);
-      return await response.json();
-    } catch (error) {
-      console.error('Health check failed:', error);
-      return { status: 'error', message: 'API unavailable' };
-    }
-  }
+
 }
 
 // Utility functions

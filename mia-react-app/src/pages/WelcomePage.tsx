@@ -66,8 +66,8 @@ export function WelcomePage() {
       }
 
       try {
-        // In production, call your backend API
-        const response = await fetch(`/api/get-customer-details/${sessionId}`);
+        // Call the new Stripe session API endpoint
+        const response = await fetch(`/api/stripe-session/${sessionId}`);
         
         if (!response.ok) {
           throw new Error('Error retrieving customer information');
@@ -101,8 +101,7 @@ export function WelcomePage() {
     const names: Record<string, string> = {
       'pleno-derecho': 'Socia de Pleno Derecho',
       'colaborador': 'Colaborador',
-      'estudiante': 'Estudiante',
-      'newsletter': 'Newsletter Gratuito',
+      'estudiante': 'Estudiante'
     };
     return names[type] || type;
   };
@@ -173,7 +172,6 @@ export function WelcomePage() {
   }
 
   const { userInfo } = state;
-  const isFreeMembership = userInfo.membershipInfo.type === 'newsletter';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-blue-50">
@@ -188,12 +186,7 @@ export function WelcomePage() {
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
             ¡Bienvenida a MIA, {userInfo.name?.split(' ')[0]}!
           </h1>
-          <p className="text-xl text-gray-600">
-            {isFreeMembership 
-              ? 'Te has suscrito exitosamente a nuestro newsletter'
-              : 'Tu membresía ha sido activada exitosamente'
-            }
-          </p>
+          <p className="text-xl text-gray-600">Tu membresía ha sido activada exitosamente</p>
         </div>
 
         {/* Main Content */}
@@ -213,34 +206,30 @@ export function WelcomePage() {
                   </span>
                 </div>
                 
-                {!isFreeMembership && (
-                  <>
-                    {userInfo.membershipInfo.originalAmount !== userInfo.membershipInfo.finalAmount && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Precio original:</span>
-                        <span className="text-gray-500 line-through">
-                          €{userInfo.membershipInfo.originalAmount}
-                        </span>
-                      </div>
-                    )}
-                    
-                    {userInfo.membershipInfo.discountCode && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Descuento aplicado:</span>
-                        <span className="text-green-600 font-medium">
-                          {userInfo.membershipInfo.discountCode} (-{userInfo.membershipInfo.discountPercentage}%)
-                        </span>
-                      </div>
-                    )}
-                    
-                    <div className="flex justify-between border-t pt-4">
-                      <span className="text-lg font-semibold text-gray-900">Total pagado:</span>
-                      <span className="text-lg font-bold text-primary-600">
-                        €{userInfo.membershipInfo.finalAmount}
-                      </span>
-                    </div>
-                  </>
+                {userInfo.membershipInfo.originalAmount !== userInfo.membershipInfo.finalAmount && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Precio original:</span>
+                    <span className="text-gray-500 line-through">
+                      €{userInfo.membershipInfo.originalAmount}
+                    </span>
+                  </div>
                 )}
+                
+                {userInfo.membershipInfo.discountCode && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Descuento aplicado:</span>
+                    <span className="text-green-600 font-medium">
+                      {userInfo.membershipInfo.discountCode} (-{userInfo.membershipInfo.discountPercentage}%)
+                    </span>
+                  </div>
+                )}
+                
+                <div className="flex justify-between border-t pt-4">
+                  <span className="text-lg font-semibold text-gray-900">Total pagado:</span>
+                  <span className="text-lg font-bold text-primary-600">
+                    €{userInfo.membershipInfo.finalAmount}
+                  </span>
+                </div>
                 
                 <div className="flex justify-between">
                   <span className="text-gray-600">Fecha de registro:</span>

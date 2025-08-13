@@ -95,20 +95,26 @@ export function LoginPage() {
     return (
       <div className="min-h-screen flex flex-col bg-gray-900 dark">
         <Header />
-        <main className="flex-1 flex items-center justify-center">
-          <Card className="max-w-md w-full bg-gray-800 border-gray-700">
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <Spinner className="h-12 w-12 mx-auto" />
-                <h2 className="mt-4 text-2xl font-bold text-white">
-                  Verificando acceso...
-                </h2>
-                <p className="mt-2 text-gray-300">
-                  Por favor espera mientras verificamos tu enlace mágico.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+        <main className="flex-1 flex items-center justify-center py-12 relative">
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: 'url(/images/login-hero.webp)' }}
+          >
+            <div className="absolute inset-0 bg-black/30"></div>
+          </div>
+          <Card className="max-w-md w-full bg-gray-800 border-gray-700 relative z-10">
+                <CardContent className="pt-6">
+                  <div className="text-center">
+                    <Spinner className="h-12 w-12 mx-auto" />
+                    <h2 className="mt-4 text-2xl font-bold text-white">
+                      Verificando acceso...
+                    </h2>
+                    <p className="mt-2 text-gray-300">
+                      Por favor espera mientras verificamos tu enlace mágico.
+                    </p>
+                                  </div>
+              </CardContent>
+            </Card>
         </main>
         <Footer />
       </div>
@@ -118,12 +124,18 @@ export function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-900 dark">
       <Header />
-      <main className="flex-1 flex items-center justify-center py-12">
-        <Card className="max-w-md w-full bg-gray-800 border-gray-700">
+      <main className="flex-1 flex items-center justify-center py-12 relative">
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: 'url(/images/login-hero.webp)' }}
+        >
+          <div className="absolute inset-0 bg-black/30"></div>
+        </div>
+        <Card className="max-w-md w-full bg-gray-800 border-gray-700 relative z-10">
           <CardHeader className="text-center">
             <img
               className="mx-auto h-16 w-auto mb-4"
-              src="/mia_logo_web-ok-177x77.png"
+              src="/logo-main.png"
               alt="MIA - Mujeres en la Industria de la Animación"
             />
             <CardTitle className="text-3xl font-bold text-white">
