@@ -3,8 +3,8 @@ import type { MembershipType } from '../types';
 export const membershipTypes: MembershipType[] = [
   {
     id: 'pleno-derecho',
-    name: 'Socia de Pleno Derecho',
-    description: 'Para profesionales activas en la industria de animación',
+    name: 'Socia Pleno Derecho',
+    description: 'Acceso completo a todos los beneficios como profesional de la animación.',
     price: 60,
     stripeLinkKey: 'plenoDerecho',
     benefits: [
@@ -21,7 +21,7 @@ export const membershipTypes: MembershipType[] = [
   {
     id: 'estudiante',
     name: 'Socia Estudiante',
-    description: 'Para estudiantes de animación y carreras afines',
+    description: 'Para estudiantes en formación en el ámbito de la animación.',
     price: 30,
     stripeLinkKey: 'estudiante',
     benefits: [
@@ -36,7 +36,7 @@ export const membershipTypes: MembershipType[] = [
   {
     id: 'colaborador',
     name: 'Colaborador',
-    description: 'Para hombres y empresas que quieren apoyar nuestra organización',
+    description: 'Compañeros que apoyan la asociación.',
     price: 60,
     stripeLinkKey: 'colaborador',
     benefits: [
@@ -46,20 +46,6 @@ export const membershipTypes: MembershipType[] = [
       'Apoyo a la causa de las mujeres en animación',
       'Acceso a eventos de networking',
       'Certificado de colaboración'
-    ]
-  },
-  {
-    id: 'newsletter',
-    name: 'Suscripción Gratuita',
-    description: 'Acceso gratuito a nuestra newsletter y comunicaciones',
-    price: 0,
-    stripeLinkKey: 'newsletter',
-    benefits: [
-      'Newsletter mensual con novedades del sector',
-      'Información sobre eventos públicos',
-      'Recursos gratuitos de formación',
-      'Notificaciones de oportunidades laborales',
-      'Acceso a webinars públicos'
     ]
   }
 ];

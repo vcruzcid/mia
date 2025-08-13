@@ -1,5 +1,21 @@
-import { useState, useCallback, useRef } from 'react';
-import { useMotionPreference } from './useMotionPreference';
+import { useState, useCallback, useRef, useEffect } from 'react';
+
+// Inline motion preference hook
+function useMotionPreference() {
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mediaQuery.matches);
+
+    const handleChange = () => setPrefersReducedMotion(mediaQuery.matches);
+    mediaQuery.addEventListener('change', handleChange);
+
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
+  return { prefersReducedMotion };
+}
 
 interface UseCounterAnimationOptions {
   duration?: number;

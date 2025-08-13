@@ -78,7 +78,7 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
       );
     }
 
-    // Prepare data for Zapier webhook
+    // Enhanced data for webhook with Stripe integration metadata
     const webhookData = {
       firstName: body.firstName,
       lastName: body.lastName,
@@ -93,6 +93,15 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
       source: 'mia-website',
       userAgent: request.headers.get('User-Agent') || '',
       ip: clientIP || '',
+      // Add metadata for Stripe checkout integration
+      stripeMetadata: {
+        first_name: body.firstName,
+        last_name: body.lastName,
+        membership_type: body.membershipType,
+        phone: body.phone || '',
+        accepts_newsletter: body.acceptNewsletter ? 'true' : 'false',
+        source: 'mia-website-registration'
+      }
     };
 
     // Send to Zapier webhook
@@ -130,16 +139,26 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
       redirectUrl: zapierData.redirectUrl || zapierData.stripe_url || undefined,
     };
 
-    // If it's a paid membership but no redirect URL, generate a default one
+    // If it's a paid membership but no redirect URL, use configured Stripe URLs
     if (body.membershipType !== 'newsletter' && !response.redirectUrl) {
-      // These would be your actual Stripe payment URLs from site config
-      const stripeUrls: Record<string, string> = {
-        'estudiante': 'https://buy.stripe.com/test_student',
-        'colaboradora': 'https://buy.stripe.com/test_collaborator',
-        'pleno-derecho': 'https://buy.stripe.com/test_full',
+      // Map membership types to stripe link keys
+      const membershipToStripeKey: Record<string, string> = {
+        'estudiante': 'estudiante',
+        'colaboradora': 'colaborador',
+        'pleno-derecho': 'plenoDerecho',
       };
       
-      response.redirectUrl = stripeUrls[body.membershipType];
+      const stripeKey = membershipToStripeKey[body.membershipType];
+      if (stripeKey) {
+        // Use the URLs from site config (these should include metadata for webhook processing)
+        const stripeUrls: Record<string, string> = {
+          'estudiante': 'https://pagos.animacionesmia.com/b/00w28qcy0gJp27i3Lh7g402',
+          'colaborador': 'https://pagos.animacionesmia.com/b/9B65kC41ubp5eU495B7g403Og2Sz5ju2Hd7g400',
+          'plenoDerecho': 'https://pagos.animacionesmia.com/b/9B69ASapSeBh13e81x7g401'
+        };
+        
+        response.redirectUrl = stripeUrls[stripeKey];
+      }
     }
 
     return new Response(

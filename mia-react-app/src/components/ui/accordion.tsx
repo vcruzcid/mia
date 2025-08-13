@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 interface AccordionProps {
   items: {
     title: string
-    content: string
+    content: string | React.ReactNode
   }[]
   className?: string
 }
@@ -44,7 +44,7 @@ export function Accordion({ items, className }: AccordionProps) {
               openIndex === index ? "max-h-96" : "max-h-0"
             )}
           >
-            <div className="px-6 pb-4 text-gray-600">
+            <div className="px-8 py-6 text-gray-600">
               {item.content}
             </div>
           </div>

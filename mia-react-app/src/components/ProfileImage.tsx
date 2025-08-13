@@ -39,7 +39,7 @@ export function ProfileImage({
     return (
       <img
         className={combinedClasses}
-        src="/noPic_placeholder.jpg"
+        src="/avatar-placeholder.jpg"
         alt={alt}
         loading="lazy"
       />

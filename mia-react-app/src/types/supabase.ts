@@ -1,4 +1,4 @@
-// Generated types for Supabase integration
+// Generated types for Supabase integration with Stripe Foreign Data Wrapper
 // This file contains the TypeScript interfaces for the MIA members database
 
 export interface Member {
@@ -55,7 +55,6 @@ export interface Member {
   experienced_glass_ceiling?: boolean;
   experienced_inequality_episode?: boolean;
   stripe_customer_id?: string;
-  stripe_subscription_status?: string;
   other_associations?: string[];
   cv_document_url?: string;
   profile_image_url?: string;
@@ -84,28 +83,76 @@ export interface MemberActivity {
   created_at?: string;
 }
 
+// Stripe Foreign Data Wrapper Types
 export interface StripeCustomer {
   id: string;
-  member_id: string;
-  stripe_customer_id: string;
-  customer_data?: Record<string, any>;
-  last_sync?: string;
-  created_at?: string;
+  email: string;
+  name?: string;
+  phone?: string;
+  created: string;
+  updated: string;
+  currency?: string;
+  balance?: number;
+  delinquent?: boolean;
+  description?: string;
+  metadata?: Record<string, string>;
+  attrs?: Record<string, any>; // Additional Stripe attributes
 }
 
 export interface StripeSubscription {
   id: string;
-  member_id: string;
-  stripe_subscription_id: string;
-  status: string;
-  current_period_start?: string;
-  current_period_end?: string;
-  subscription_data?: Record<string, any>;
-  last_sync?: string;
-  created_at?: string;
+  customer: string;
+  status: 'active' | 'canceled' | 'incomplete' | 'incomplete_expired' | 'past_due' | 'trialing' | 'unpaid';
+  current_period_start: string;
+  current_period_end: string;
+  created: string;
+  cancel_at_period_end?: boolean;
+  canceled_at?: string;
+  ended_at?: string;
+  trial_start?: string;
+  trial_end?: string;
+  metadata?: Record<string, string>;
+  attrs?: Record<string, any>; // Additional Stripe attributes
 }
 
-// Database table types for Supabase
+export interface StripeProduct {
+  id: string;
+  name: string;
+  active: boolean;
+  default_price?: string;
+  description?: string;
+  created: string;
+  updated: string;
+  metadata?: Record<string, string>;
+  attrs?: Record<string, any>;
+}
+
+export interface StripePrice {
+  id: string;
+  product: string;
+  active: boolean;
+  currency: string;
+  unit_amount?: number;
+  recurring?: {
+    interval: 'month' | 'year' | 'week' | 'day';
+    interval_count: number;
+  };
+  metadata?: Record<string, string>;
+  attrs?: Record<string, any>;
+}
+
+// Member with Stripe data combined
+export interface MemberWithStripe extends Member {
+  stripe_name?: string;
+  stripe_email?: string;
+  stripe_customer_created?: string;
+  subscription_status?: string;
+  current_period_start?: string;
+  current_period_end?: string;
+  subscription_id?: string;
+}
+
+// Database table types for Supabase with Stripe schema
 export interface Database {
   public: {
     Tables: {
@@ -124,16 +171,6 @@ export interface Database {
         Insert: Omit<MemberActivity, 'id' | 'created_at'>;
         Update: Partial<Omit<MemberActivity, 'id' | 'created_at'>>;
       };
-      stripe_customers: {
-        Row: StripeCustomer;
-        Insert: Omit<StripeCustomer, 'id' | 'created_at'>;
-        Update: Partial<Omit<StripeCustomer, 'id' | 'created_at'>>;
-      };
-      stripe_subscriptions: {
-        Row: StripeSubscription;
-        Insert: Omit<StripeSubscription, 'id' | 'created_at'>;
-        Update: Partial<Omit<StripeSubscription, 'id' | 'created_at'>>;
-      };
     };
     Views: {
       public_members: {
@@ -146,6 +183,9 @@ export interface Database {
         Row: Member & {
           board_roles?: string[];
         };
+      };
+      member_stripe_data: {
+        Row: MemberWithStripe;
       };
     };
     Functions: {
@@ -164,6 +204,43 @@ export interface Database {
       update_member_last_login: {
         Args: { member_email: string };
         Returns: void;
+      };
+      get_member_subscription_status: {
+        Args: { member_email: string };
+        Returns: {
+          member_id: string;
+          subscription_status?: string;
+          current_period_end?: string;
+          subscription_id?: string;
+        }[];
+      };
+      link_member_to_stripe_customer: {
+        Args: { member_email: string; stripe_customer_id: string };
+        Returns: void;
+      };
+    };
+  };
+  stripe: {
+    Tables: {
+      customers: {
+        Row: StripeCustomer;
+        Insert: never; // Foreign table - read only via Stripe API
+        Update: never; // Foreign table - read only via Stripe API
+      };
+      subscriptions: {
+        Row: StripeSubscription;
+        Insert: never; // Foreign table - read only via Stripe API
+        Update: never; // Foreign table - read only via Stripe API
+      };
+      products: {
+        Row: StripeProduct;
+        Insert: never; // Foreign table - read only via Stripe API
+        Update: never; // Foreign table - read only via Stripe API
+      };
+      prices: {
+        Row: StripePrice;
+        Insert: never; // Foreign table - read only via Stripe API
+        Update: never; // Foreign table - read only via Stripe API
       };
     };
   };

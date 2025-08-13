@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { contactFormSchema, type ContactFormData } from '../utils/validation';
@@ -224,20 +225,42 @@ export function ContactPage() {
               <Accordion
                 items={[
                   {
-                    title: "¿Cómo puedo hacerme socia?",
-                    content: "Puedes registrarte directamente en nuestra página de membresía, eligiendo el tipo que mejor se adapte a tu perfil profesional."
+                    title: "¿Quién puede hacerse socia de MIA?",
+                    content: "Cualquier persona que se identifique como mujer y trabaje o estudie en el ámbito de la animación o sectores afines (ilustración, videojuegos, VFX, producción audiovisual, etc.) puede unirse a nuestra red."
                   },
                   {
-                    title: "¿Qué beneficios incluye la membresía?",
-                    content: "Cada tipo de membresía incluye diferentes beneficios como acceso a eventos, formación, networking y oportunidades profesionales."
+                    title: "¿Cómo me hago socia?",
+                    content: (
+                      <>
+                        Solo tienes que rellenar el formulario de inscripción disponible en nuestra web y seguir los pasos indicados. Una vez validada la solicitud, recibirás un correo de bienvenida con toda la información.{' '}
+                        <Link to="/registro" className="text-red-600 hover:text-red-700 underline font-medium">
+                          Únete a MIA
+                        </Link>
+                      </>
+                    )
                   },
                   {
-                    title: "¿Organizan eventos presenciales?",
-                    content: "Sí, organizamos eventos tanto presenciales como virtuales. Las socias reciben información prioritaria sobre todos nuestros eventos."
+                    title: "¿Qué beneficios tengo como socia?",
+                    content: "Acceso a una comunidad activa, participación en eventos y formaciones exclusivas, visibilidad profesional en nuestros canales, oportunidades de networking y colaboración, y posibilidad de participar en proyectos y comisiones de MIA."
                   },
                   {
-                    title: "¿Puedo cancelar mi membresía?",
-                    content: "Puedes cancelar tu membresía en cualquier momento contactando con nosotras. Te ayudaremos con todo el proceso."
+                    title: "¿Ser socia tiene algún coste?",
+                    content: (
+                      <>
+                        Sí, hay diferentes tipos de membresía. Te invitamos a consultar las diferentes opciones{' '}
+                        <Link to="/membresia" className="text-red-600 hover:text-red-700 underline font-medium">
+                          aquí
+                        </Link>.
+                      </>
+                    )
+                  },
+                  {
+                    title: "¿Puedo participar activamente en MIA?",
+                    content: "Sí, animamos a todas las socias a involucrarse. Puedes formar parte de grupos de trabajo, proponer iniciativas, colaborar en eventos o participar en campañas de comunicación."
+                  },
+                  {
+                    title: "¿Qué compromiso implica ser socia?",
+                    content: "No existe una obligación formal de participación. Puedes involucrarte tanto como desees o simplemente seguir nuestras actividades y disfrutar de los beneficios de la red."
                   }
                 ]}
               />

@@ -79,9 +79,8 @@ CREATE TABLE members (
   experienced_glass_ceiling BOOLEAN DEFAULT false,
   experienced_inequality_episode BOOLEAN DEFAULT false,
   
-  -- Stripe Integration
+  -- Stripe Integration (customer ID only - status comes from stripe schema)
   stripe_customer_id TEXT,
-  stripe_subscription_status TEXT,
   
   -- Member Associations
   other_associations TEXT[], -- Array of association names
@@ -124,28 +123,20 @@ CREATE TABLE member_activity (
 );
 
 -- =============================================
--- STRIPE INTEGRATION TABLE
+-- STRIPE INTEGRATION - USING FOREIGN DATA WRAPPER
 -- =============================================
-CREATE TABLE stripe_customers (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  member_id UUID REFERENCES members(id) ON DELETE CASCADE,
-  stripe_customer_id TEXT UNIQUE NOT NULL,
-  customer_data JSONB DEFAULT '{}',
-  last_sync TIMESTAMPTZ DEFAULT NOW(),
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE TABLE stripe_subscriptions (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  member_id UUID REFERENCES members(id) ON DELETE CASCADE,
-  stripe_subscription_id TEXT UNIQUE NOT NULL,
-  status TEXT NOT NULL,
-  current_period_start TIMESTAMPTZ,
-  current_period_end TIMESTAMPTZ,
-  subscription_data JSONB DEFAULT '{}',
-  last_sync TIMESTAMPTZ DEFAULT NOW(),
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
+-- NOTE: Stripe data is now accessed via the 'stripe' schema using Foreign Data Wrapper
+-- This provides real-time access to Stripe API data without manual synchronization
+-- 
+-- Available tables:
+-- - stripe.customers
+-- - stripe.subscriptions  
+-- - stripe.products
+-- - stripe.prices
+-- - stripe.checkout_sessions
+-- - stripe.payment_intents
+-- 
+-- Members are linked to Stripe customers via the stripe_customer_id field
 
 -- =============================================
 -- INDEXES FOR PERFORMANCE
@@ -162,9 +153,7 @@ CREATE INDEX idx_members_autonomous_community ON members(autonomous_community);
 CREATE INDEX idx_member_categories_member_id ON member_categories(member_id);
 CREATE INDEX idx_member_categories_type ON member_categories(category_type);
 
-CREATE INDEX idx_stripe_customers_stripe_id ON stripe_customers(stripe_customer_id);
-CREATE INDEX idx_stripe_subscriptions_stripe_id ON stripe_subscriptions(stripe_subscription_id);
-CREATE INDEX idx_stripe_subscriptions_member_id ON stripe_subscriptions(member_id);
+-- Indexes removed for manual Stripe tables (now using foreign data wrapper)
 
 -- =============================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
@@ -174,8 +163,7 @@ CREATE INDEX idx_stripe_subscriptions_member_id ON stripe_subscriptions(member_i
 ALTER TABLE members ENABLE ROW LEVEL SECURITY;
 ALTER TABLE member_categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE member_activity ENABLE ROW LEVEL SECURITY;
-ALTER TABLE stripe_customers ENABLE ROW LEVEL SECURITY;
-ALTER TABLE stripe_subscriptions ENABLE ROW LEVEL SECURITY;
+-- Note: RLS not needed on stripe schema (foreign tables are read-only via API)
 
 -- Members table policies
 CREATE POLICY "Public members are viewable by everyone" 
@@ -223,24 +211,8 @@ CREATE POLICY "Members can insert their own activity"
     )
   );
 
--- Stripe data policies (only own data)
-CREATE POLICY "Members can view their own stripe data" 
-  ON stripe_customers FOR SELECT 
-  USING (
-    member_id IN (
-      SELECT id FROM members 
-      WHERE email = auth.jwt()->>'email'
-    )
-  );
-
-CREATE POLICY "Members can view their own subscriptions" 
-  ON stripe_subscriptions FOR SELECT 
-  USING (
-    member_id IN (
-      SELECT id FROM members 
-      WHERE email = auth.jwt()->>'email'
-    )
-  );
+-- Stripe data access is controlled by the Foreign Data Wrapper
+-- Members can access their own Stripe data through the member_stripe_data view
 
 -- =============================================
 -- FUNCTIONS AND TRIGGERS
@@ -303,6 +275,45 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+-- Function to get member Stripe subscription status
+CREATE OR REPLACE FUNCTION get_member_subscription_status(member_email TEXT)
+RETURNS TABLE (
+  member_id UUID,
+  subscription_status TEXT,
+  current_period_end TIMESTAMPTZ,
+  subscription_id TEXT
+) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    msd.id,
+    msd.subscription_status,
+    msd.current_period_end,
+    msd.subscription_id
+  FROM member_stripe_data msd
+  WHERE msd.email = member_email;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Function to link a member to a Stripe customer
+CREATE OR REPLACE FUNCTION link_member_to_stripe_customer(
+  member_email TEXT,
+  stripe_customer_id TEXT
+)
+RETURNS VOID AS $$
+BEGIN
+  UPDATE members 
+  SET stripe_customer_id = stripe_customer_id
+  WHERE email = member_email;
+  
+  -- Log the activity
+  INSERT INTO member_activity (member_id, activity_type, activity_data)
+  SELECT id, 'stripe_customer_linked', jsonb_build_object('stripe_customer_id', stripe_customer_id)
+  FROM members 
+  WHERE email = member_email;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
 -- =============================================
 -- VIEWS FOR COMMON QUERIES
 -- =============================================
@@ -353,6 +364,28 @@ FROM members m
 LEFT JOIN member_categories mc ON m.id = mc.member_id
 WHERE m.is_board_member = true AND m.is_active = true
 GROUP BY m.id;
+
+-- Member with Stripe data view (requires stripe schema to be set up)
+-- This view will work once the Foreign Data Wrapper is configured
+CREATE OR REPLACE VIEW member_stripe_data AS
+SELECT 
+  m.id,
+  m.first_name,
+  m.last_name,
+  m.email,
+  m.membership_type,
+  m.stripe_customer_id,
+  sc.name as stripe_name,
+  sc.email as stripe_email,
+  sc.created as stripe_customer_created,
+  ss.status as subscription_status,
+  ss.current_period_start,
+  ss.current_period_end,
+  ss.id as subscription_id
+FROM members m
+LEFT JOIN stripe.customers sc ON m.stripe_customer_id = sc.id
+LEFT JOIN stripe.subscriptions ss ON sc.id = ss.customer
+WHERE m.is_active = true;
 
 -- =============================================
 -- INITIAL DATA SETUP

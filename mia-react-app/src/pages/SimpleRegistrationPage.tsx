@@ -87,13 +87,8 @@ export function SimpleRegistrationPage() {
     setState(prev => ({ ...prev, isProcessing: true, error: null }));
 
     try {
-      if (selectedMembership.id === 'newsletter') {
-        // For newsletter, redirect to simple Stripe Checkout for email collection
-        await handleNewsletterSignup();
-      } else {
-        // For paid memberships, redirect to Stripe Checkout
-        await handlePaidMembershipCheckout();
-      }
+      // For paid memberships, redirect to Stripe Checkout
+      await handlePaidMembershipCheckout();
     } catch (error) {
       setState(prev => ({
         ...prev,
@@ -101,23 +96,6 @@ export function SimpleRegistrationPage() {
         error: error instanceof Error ? error.message : 'Error procesando el pago',
       }));
     }
-  };
-
-  const handleNewsletterSignup = async () => {
-    // For newsletter, we still need to collect email
-    // Option 1: Use Stripe Checkout with 0 amount to collect email
-    // Option 2: Show a simple email form
-    
-    // Using Stripe Checkout for consistency
-    const checkoutData = {
-      membershipType: 'newsletter',
-      amount: 0,
-      discountCode: state.discountCode,
-      collectShipping: false, // Newsletter doesn't need address
-      mode: 'setup', // Just collect customer info
-    };
-
-    await redirectToStripeCheckout(checkoutData);
   };
 
   const handlePaidMembershipCheckout = async () => {
@@ -156,25 +134,9 @@ export function SimpleRegistrationPage() {
     await new Promise(resolve => setTimeout(resolve, 1000));
     
     if (selectedMembership) {
-      if (selectedMembership.id === 'newsletter') {
-        // For newsletter, show success message and reset form
-        setState(prev => ({ 
-          ...prev, 
-          isProcessing: false, 
-          successMessage: '¡Suscripción exitosa! Te has suscrito al newsletter de MIA.',
-          selectedMembership: null,
-          error: null 
-        }));
-        // Reset form states
-        setTermsAccepted(false);
-        setGdprAccepted(false);
-        setDiscountInput('');
-        setDiscountError('');
-      } else {
-        // Redirect to existing payment links (fallback)
-        const stripeUrl = siteConfig.stripe[selectedMembership.stripeLinkKey as keyof typeof siteConfig.stripe] || '#';
-        window.location.href = stripeUrl;
-      }
+      // Redirect to existing payment links (fallback)
+      const stripeUrl = siteConfig.stripe[selectedMembership.stripeLinkKey as keyof typeof siteConfig.stripe] || '#';
+      window.location.href = stripeUrl;
     } else {
       setState(prev => ({ ...prev, isProcessing: false }));
     }
@@ -200,79 +162,102 @@ export function SimpleRegistrationPage() {
           </p>
         </div>
 
+        {/* Proceso de Registro moved above membership */}
+        <div className="mt-0 mb-8 text-center">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+            <h3 className="text-lg font-medium text-blue-900 mb-4">
+              Proceso de Registro Simplificado
+            </h3>
+            <div className="grid md:grid-cols-3 gap-6 text-sm text-blue-800">
+              <div>
+                <div className="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center mx-auto mb-3 font-bold text-lg">
+                  1
+                </div>
+                <p><strong>Selecciona</strong><br />Elige tu tipo de membresía</p>
+              </div>
+              <div>
+                <div className="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center mx-auto mb-3 font-bold text-lg">
+                  2
+                </div>
+                <p><strong>Paga</strong><br />Completa el pago seguro con Stripe</p>
+              </div>
+              <div>
+                <div className="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center mx-auto mb-3 font-bold text-lg">
+                  3
+                </div>
+                <p><strong>Completa</strong><br />Termina tu perfil después del pago</p>
+              </div>
+            </div>
+            <p className="mt-4 text-sm text-blue-700">
+              Tus datos personales se recogerán de forma segura durante el proceso de pago.
+            </p>
+          </div>
+        </div>
+
         <Card className="bg-white overflow-hidden">
           {/* Membership Selection */}
           <CardContent className="p-8">
+            {/* Green banner at top of membership section */}
+            <div className="mb-6 bg-green-50 border border-green-200 rounded-md p-4">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-green-800">
+                    Pago 100% Seguro
+                  </h3>
+                  <div className="mt-2 text-sm text-green-700">
+                    <p>
+                      Procesado por Stripe con encriptación SSL. No guardamos información de tarjetas de crédito.
+                      Cumplimos con RGPD y estándares PCI DSS.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
             <h2 className="text-2xl font-semibold text-gray-900 mb-8 text-center">
               Selecciona tu Membresía
             </h2>
 
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
-              {membershipTypes.map((membership) => (
-                <div
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {membershipTypes.filter(m => m.price > 0).map((membership) => (
+                <Card
                   key={membership.id}
-                  className={`relative rounded-lg border-2 p-6 cursor-pointer transition-all duration-200 ${
+                  className={`relative cursor-pointer transition-all duration-200 border-2 ${
                     state.selectedMembership === membership.id
-                      ? 'border-primary-500 ring-2 ring-primary-500 bg-primary-50 transform scale-105'
-                      : 'border-gray-200 hover:border-gray-300 hover:shadow-md'
-                  } ${membership.id === 'newsletter' ? 'bg-gradient-to-br from-green-50 to-green-100' : ''}`}
+                      ? 'border-red-600 ring-2 ring-red-600 ring-opacity-50 transform scale-105'
+                      : 'border-gray-200 hover:border-red-600 hover:shadow-md'
+                  }`}
                   onClick={() => setState(prev => ({ ...prev, selectedMembership: membership.id }))}
                 >
-                  {/* Badge */}
-                  {membership.id === 'newsletter' && (
-                    <div className="absolute -top-3 -right-3 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-                      GRATIS
-                    </div>
-                  )}
-                  {membership.id === 'pleno-derecho' && (
-                    <div className="absolute -top-3 -right-3 bg-primary-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-                      POPULAR
-                    </div>
-                  )}
 
-                  <div className="text-center">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                      {membership.name}
-                    </h3>
-                    
-                    <p className="text-sm text-gray-800 mb-4 min-h-[3rem] flex items-center justify-center">
-                      {membership.description}
-                    </p>
-                    
-                    <div className="mb-6">
-                      {membership.price === 0 ? (
-                        <div className="text-3xl font-bold text-green-600">
-                          GRATUITA
-                        </div>
-                      ) : (
-                        <div>
+
+                  <CardContent className="p-6">
+                    <div className="text-center">
+                      <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                        {membership.name}
+                      </h3>
+                      
+                      <p className="text-sm text-gray-800 mb-4 min-h-[3rem] flex items-center justify-center">
+                        {membership.description}
+                      </p>
+                      
+                      <div className="mb-2">
+                        <div className="flex items-baseline justify-center">
                           <span className="text-3xl font-bold text-gray-900">
                             €{membership.price}
                           </span>
-                          <span className="text-base text-gray-700 block">
-                            por año
+                          <span className="text-base text-gray-700 ml-1">
+                            / año
                           </span>
                         </div>
-                      )}
+                      </div>
                     </div>
-
-                    <ul className="text-sm text-gray-800 space-y-2">
-                      {membership.benefits.slice(0, 4).map((benefit, index) => (
-                        <li key={index} className="flex items-start justify-center">
-                          <svg className="h-4 w-4 text-green-500 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                          <span className="text-left">{benefit}</span>
-                        </li>
-                      ))}
-                      {membership.benefits.length > 4 && (
-                        <li className="text-gray-700 text-center font-medium">
-                          +{membership.benefits.length - 4} beneficios más
-                        </li>
-                      )}
-                    </ul>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
 
@@ -296,7 +281,7 @@ export function SimpleRegistrationPage() {
                     <Button
                       type="button"
                       onClick={applyDiscountCode}
-                      variant="secondary"
+                      className="bg-red-600 hover:bg-red-700 text-white"
                       size="sm"
                     >
                       Aplicar
@@ -361,7 +346,7 @@ export function SimpleRegistrationPage() {
                   
                   <div className="flex justify-between text-xl font-bold">
                     <span>Total:</span>
-                    <span className="text-primary-600">€{pricingInfo.finalPrice}</span>
+                    <span className="text-red-600">€{pricingInfo.finalPrice}</span>
                   </div>
                   
                   {pricingInfo.finalPrice > 0 && (
@@ -494,81 +479,16 @@ export function SimpleRegistrationPage() {
                   </>
                 ) : (
                   <>
-                    {isPaidMembership ? (
-                      <>
-                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                        </svg>
-                        Proceder al Pago - €{pricingInfo?.finalPrice || 0}
-                      </>
-                    ) : (
-                      <>
-                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Completar Registro Gratuito
-                      </>
-                    )}
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                    </svg>
+                    Proceder al Pago - €{pricingInfo?.finalPrice || 0}
                   </>
                 )}
               </Button>
             </div>
           </CardContent>
         </Card>
-
-        {/* Information Section */}
-        <div className="mt-12 text-center">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-            <h3 className="text-lg font-medium text-blue-900 mb-4">
-              Proceso de Registro Simplificado
-            </h3>
-            <div className="grid md:grid-cols-3 gap-6 text-sm text-blue-800">
-              <div>
-                <div className="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center mx-auto mb-3 font-bold text-lg">
-                  1
-                </div>
-                <p><strong>Selecciona</strong><br />Elige tu tipo de membresía</p>
-              </div>
-              <div>
-                <div className="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center mx-auto mb-3 font-bold text-lg">
-                  2
-                </div>
-                <p><strong>Paga</strong><br />Completa el pago seguro con Stripe</p>
-              </div>
-              <div>
-                <div className="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center mx-auto mb-3 font-bold text-lg">
-                  3
-                </div>
-                <p><strong>Completa</strong><br />Termina tu perfil después del pago</p>
-              </div>
-            </div>
-            <p className="mt-4 text-sm text-blue-700">
-              Tus datos personales se recogerán de forma segura durante el proceso de pago.
-            </p>
-          </div>
-        </div>
-
-        {/* Security Notice */}
-        <div className="mt-8 bg-green-50 border border-green-200 rounded-md p-4">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-green-800">
-                Pago 100% Seguro
-              </h3>
-              <div className="mt-2 text-sm text-green-700">
-                <p>
-                  Procesado por Stripe con encriptación SSL. No guardamos información de tarjetas de crédito.
-                  Cumplimos con RGPD y estándares PCI DSS.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

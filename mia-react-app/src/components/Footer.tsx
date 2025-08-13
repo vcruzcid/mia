@@ -1,13 +1,19 @@
-import { FooterLink } from './FooterLink';
 import { Facebook, Twitter, Instagram, Linkedin, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { contactFormSchema, type ContactFormData } from '../utils/validation';
 import { useToastContext } from '../contexts/ToastContext';
+import { useAuth } from '../hooks/useAuth';
+import { FooterLink } from './FooterLink';
 
 export function Footer() {
   const { toast } = useToastContext();
+  
+  // Check authentication status
+  const { member } = useAuth();
+  const isDemoAuth = localStorage.getItem('demo_auth') === 'true';
+  const isAuthenticated = !!(member || isDemoAuth);
   const {
     register,
     handleSubmit,
@@ -49,13 +55,20 @@ export function Footer() {
           <div className="lg:col-span-3 flex flex-col justify-between h-full">
             <nav className="flex flex-col justify-between h-full space-y-6">
               <FooterLink to="/">INICIO</FooterLink>
-              <FooterLink to="/sobre-mia">SOBRE MIA</FooterLink>
+              <FooterLink to="/sobre-mia">SOBRE NOSOTRAS</FooterLink>
               <FooterLink to="/socias">SOCIAS</FooterLink>
               <FooterLink to="/directiva">DIRECTIVA</FooterLink>
+              <FooterLink to="/mianima">MIANIMA</FooterLink>
               <FooterLink to="/membresia">MEMBRESÍA</FooterLink>
               <FooterLink to="/contacto">CONTACTO</FooterLink>
-              <FooterLink to="/login">INICIAR SESIÓN</FooterLink>
-              <FooterLink to="/registro">ÚNETE A MIA</FooterLink>
+              {isAuthenticated ? (
+                <FooterLink to="/portal">MI DASHBOARD</FooterLink>
+              ) : (
+                <>
+                  <FooterLink to="/login">INICIAR SESIÓN</FooterLink>
+                  <FooterLink to="/registro">ÚNETE A MIA</FooterLink>
+                </>
+              )}
             </nav>
           </div>
 
@@ -63,12 +76,12 @@ export function Footer() {
           <div className="lg:col-span-6 flex flex-col">
             <div className="flex-1 flex items-start justify-center">
               <img
-                src="/images/MIA_Footer_Web_2025.png"
+                src="/images/mia-footer.png"
                 alt="MIA - Mujeres en la Industria de la Animación"
                 className="h-64 w-auto"
                 onError={(e) => {
                   // Fallback to the logo we know exists
-                  (e.target as HTMLImageElement).src = "/mia_logo_web-ok-177x77.png";
+                  (e.target as HTMLImageElement).src = "/logo-main.png";
                 }}
               />
             </div>

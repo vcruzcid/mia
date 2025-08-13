@@ -151,7 +151,7 @@ export function PortalPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <img className="h-8 w-auto" src="/mia_logo_web-ok-177x77.png" alt="MIA Logo" />
+              <img className="h-8 w-auto" src="/logo-main.png" alt="MIA Logo" />
               <h1 className="ml-3 text-xl font-semibold text-white">Portal de Socias</h1>
             </div>
             <div className="flex items-center space-x-4">
