@@ -23,13 +23,11 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           <Toast key={toast.id} variant={toast.variant}>
             {toast.title && <ToastTitle>{toast.title}</ToastTitle>}
             <ToastDescription>{toast.description}</ToastDescription>
-            <ToastAction asChild altText="Dismiss">
-              <button
-                onClick={() => toastFunctions.dismiss(toast.id)}
-                className="absolute top-2 right-2 text-white/70 hover:text-white"
-              >
-                ×
-              </button>
+            <ToastAction
+              altText="Dismiss"
+              onClick={() => toastFunctions.dismiss(toast.id)}
+            >
+              ×
             </ToastAction>
           </Toast>
         ))}

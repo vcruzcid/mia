@@ -241,7 +241,7 @@ export function WelcomePage() {
                 
                 <div className="flex justify-between">
                   <span className="text-gray-600">Estado:</span>
-                  <Badge variant="success">Activa</Badge>
+                  <Badge variant="default" className="bg-green-100 text-green-800">Activa</Badge>
                 </div>
               </div>
             </CardContent>
