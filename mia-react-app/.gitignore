@@ -32,3 +32,22 @@ optimized-files/
 *extract*.js
 *upload*.js
 *optimize*.js
+
+# Build artifacts
+dev-dist/
+test-results/
+playwright-report/
+
+# Test files (keep config but ignore results)
+tests/results/
+tests/screenshots/
+tests/videos/
+
+# Documentation and reports
+*-report.json
+CLAUDE.md
+DEPLOYMENT.md
+
+# Temporary files
+*.tmp
+*.temp
