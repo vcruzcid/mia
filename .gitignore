@@ -12,26 +12,42 @@ dist
 dist-ssr
 *.local
 
-mia-wordpress/
-
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
 .idea
 .DS_Store
-.DS_Store/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
 
-# MCP related files
-*.serena
-.serena
-**/mcp-config/*
-.mcp/
-.mcp.json
+# Migration files (completed - archived in scripts/migrationcompleted/)
+extracted-files/
+optimized-files/
+*-report.json
+*migration*.js
+*wordpress*.js
+*extract*.js
+*upload*.js
+*optimize*.js
 
-db-backups/*
-.claude/
+# Build artifacts
+dev-dist/
+test-results/
+playwright-report/
+
+# Test files (keep config but ignore results)
+tests/results/
+tests/screenshots/
+tests/videos/
+
+# Documentation and reports
+*-report.json
+CLAUDE.md
+DEPLOYMENT.md
+
+# Temporary files
+*.tmp
+*.temp
