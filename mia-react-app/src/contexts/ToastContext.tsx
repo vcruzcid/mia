@@ -24,8 +24,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             {toast.title && <ToastTitle>{toast.title}</ToastTitle>}
             <ToastDescription>{toast.description}</ToastDescription>
             <ToastAction
-              altText="Dismiss"
               onClick={() => toastFunctions.dismiss(toast.id)}
+              aria-label="Dismiss"
             >
               ×
             </ToastAction>
