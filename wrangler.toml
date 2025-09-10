@@ -6,4 +6,6 @@ pages_build_output_dir = "dist"
 
 # Environment variables for production
 [vars]
-# Only include variables that are actually used in the codebase
+# Supabase configuration (using secrets from Cloudflare)
+VITE_SUPABASE_URL = "https://sggnohsrpdhbsavzccfw.supabase.co"
+VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNnZ25vaHNycGRoYnNhdnpjY2Z3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzNDEzMTMsImV4cCI6MjA2OTkxNzMxM30.nW2ttYoRH5RrMiYH8cUUsNvn8CaVV1VxcHGtLZf57aI"

@@ -3,12 +3,6 @@ import { createClient } from '@supabase/supabase-js';
 import type { MembersRequest, MembersResponse } from '../../src/types/api';
 import type { Member } from '../../src/types';
 
-// Initialize Supabase client
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
 // CORS headers
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -130,8 +124,14 @@ function generateFilterMetadata(members: any[]): MembersResponse['filters'] {
 }
 
 // Main handler
-export async function onRequestGet(context: { request: Request }): Promise<Response> {
-  const { request } = context;
+export async function onRequestGet(context: { request: Request; env: any }): Promise<Response> {
+  const { request, env } = context;
+
+  // Initialize Supabase client with environment variables
+  const supabase = createClient(
+    env.VITE_SUPABASE_URL,
+    env.SUPABASE_SERVICE_ROLE_KEY
+  );
 
   // Handle preflight requests
   if (request.method === 'OPTIONS') {

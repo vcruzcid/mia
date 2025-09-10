@@ -2,12 +2,6 @@
 import { createClient } from '@supabase/supabase-js';
 import type { DirectivaResponse } from '../../../src/types/api';
 
-// Initialize Supabase client
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
 // CORS headers
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -20,8 +14,15 @@ const corsHeaders = {
 export async function onRequestGet(context: { 
   request: Request;
   params: { year: string };
+  env: any;
 }): Promise<Response> {
-  const { request, params } = context;
+  const { request, params, env } = context;
+
+  // Initialize Supabase client with environment variables
+  const supabase = createClient(
+    env.VITE_SUPABASE_URL,
+    env.SUPABASE_SERVICE_ROLE_KEY
+  );
 
   // Handle preflight requests
   if (request.method === 'OPTIONS') {
