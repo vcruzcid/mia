@@ -20,7 +20,7 @@ export async function onRequestGet(context: {
 
   // Initialize Supabase client with environment variables
   const supabase = createClient(
-    env.VITE_SUPABASE_URL,
+    env.SUPABASE_URL,
     env.SUPABASE_SERVICE_ROLE_KEY
   );
 
