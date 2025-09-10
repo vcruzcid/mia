@@ -25,7 +25,7 @@ npm run build
 
 # Deploy to Cloudflare Pages
 echo "🌐 Deploying to Cloudflare Pages..."
-wrangler pages deploy dist --project-name=mia-dev
+wrangler pages deploy dist --project-name=miawapp
 
 echo "✅ Deployment complete!"
 echo "🔗 Your app should be available at: https://dev.animacionesmia.com"
