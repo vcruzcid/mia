@@ -1,5 +1,4 @@
 // Cloudflare Pages Function for directiva data by year
-import { getMockDirectivaByYear, AVAILABLE_YEARS } from '../../../src/data/mockMembers';
 import type { DirectivaResponse } from '../../../src/types/api';
 
 // CORS headers
@@ -37,35 +36,13 @@ export async function onRequestGet(context: {
       );
     }
 
-    // Get directiva members for the specified year
-    const directivaMembers = getMockDirectivaByYear(year);
-
-    // Create positions array with sorted order
-    const positionOrder = [
-      'Presidenta',
-      'Vicepresidenta', 
-      'Secretaria',
-      'Tesorera',
-      'Vocal de Formación',
-      'Vocal de Comunicación',
-      'Vocal de Eventos',
-      'Vocal de Mentorías'
-    ];
-
-    const positions = positionOrder.map(position => {
-      const member = directivaMembers.find(m => m.position === position);
-      return {
-        position,
-        member: member!
-      };
-    }).filter(p => p.member); // Filter out any missing positions
-
-    // Generate response
+    // TODO: Replace with Supabase query when real data is available
+    // For now, return empty response since mock data was removed
     const response: DirectivaResponse = {
       year,
-      members: directivaMembers,
-      positions,
-      availableYears: AVAILABLE_YEARS,
+      members: [],
+      positions: [],
+      availableYears: [2024, 2025], // Default years
     };
 
     return new Response(
