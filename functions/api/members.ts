@@ -1,5 +1,4 @@
 // Cloudflare Pages Function for member data
-import { MOCK_MEMBERS } from '../../src/data/mockMembers';
 import type { MembersRequest, MembersResponse } from '../../src/types/api';
 import type { Member } from '../../src/types';
 
@@ -146,21 +145,22 @@ export async function onRequestGet(context: { request: Request }): Promise<Respo
       offset: parseInt(url.searchParams.get('offset') || '0'),
     };
 
-    // Filter members
-    const filteredMembers = filterMembers(MOCK_MEMBERS, params);
-    
-    // Apply pagination
-    const limit = Math.min(params.limit || 50, 100); // Max 100 per request
-    const offset = params.offset || 0;
-    const paginatedMembers = filteredMembers.slice(offset, offset + limit);
-
-    // Generate response
+    // TODO: Replace with Supabase query when real data is available
+    // For now, return empty response since mock data was removed
     const response: MembersResponse = {
-      members: paginatedMembers,
-      total: filteredMembers.length,
-      limit,
-      offset,
-      filters: generateFilterMetadata(MOCK_MEMBERS), // Always show all available filters
+      members: [],
+      total: 0,
+      limit: params.limit || 50,
+      offset: params.offset || 0,
+      filters: {
+        availableLocations: [],
+        availableSpecializations: [],
+        memberTypeCounts: {
+          'Full': 0,
+          'Student': 0,
+          'Collaborator': 0,
+        },
+      },
     };
 
     return new Response(
