@@ -14,10 +14,22 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
 export const memberService = {
   // Get all public members
   async getPublicMembers() {
-    const { data, error } = await supabase
+    // Try public_members view first, fallback to members table
+    let { data, error } = await supabase
       .from('public_members')
       .select('*')
       .order('created_at', { ascending: false });
+
+    if (error && (error.code === 'PGRST116' || error.code === 'PGRST205')) {
+      // View/table doesn't exist, try members table
+      console.log('public_members view not found, trying members table');
+      const result = await supabase
+        .from('members')
+        .select('*')
+        .order('created_at', { ascending: false });
+      data = result.data;
+      error = result.error;
+    }
 
     if (error) throw error;
     return data;
@@ -37,11 +49,24 @@ export const memberService = {
 
   // Search members
   async searchMembers(query: string) {
-    const { data, error } = await supabase
+    // Try public_members view first, fallback to members table
+    let { data, error } = await supabase
       .from('public_members')
       .select('*')
       .or(`first_name.ilike.%${query}%,last_name.ilike.%${query}%,main_profession.ilike.%${query}%,company.ilike.%${query}%`)
       .order('created_at', { ascending: false });
+
+    if (error && (error.code === 'PGRST116' || error.code === 'PGRST205')) {
+      // View/table doesn't exist, try members table
+      console.log('public_members view not found, trying members table');
+      const result = await supabase
+        .from('members')
+        .select('*')
+        .or(`first_name.ilike.%${query}%,last_name.ilike.%${query}%,main_profession.ilike.%${query}%,company.ilike.%${query}%`)
+        .order('created_at', { ascending: false });
+      data = result.data;
+      error = result.error;
+    }
 
     if (error) throw error;
     return data;
@@ -54,6 +79,7 @@ export const memberService = {
     limit?: number;
     offset?: number;
   }) {
+    // Try public_members view first, fallback to members table
     let query = supabase
       .from('public_members')
       .select('*');
@@ -73,17 +99,55 @@ export const memberService = {
       .range(offset, offset + limit - 1)
       .order('created_at', { ascending: false });
 
-    const { data, error } = await query;
+    let { data, error } = await query;
+    
+    if (error && (error.code === 'PGRST116' || error.code === 'PGRST205')) {
+      // View/table doesn't exist, try members table
+      console.log('public_members view not found, trying members table');
+      let fallbackQuery = supabase
+        .from('members')
+        .select('*');
+
+      if (filters.memberTypes?.length) {
+        fallbackQuery = fallbackQuery.in('membership_type', filters.memberTypes);
+      }
+
+      if (filters.locations?.length) {
+        fallbackQuery = fallbackQuery.in('autonomous_community', filters.locations);
+      }
+
+      fallbackQuery = fallbackQuery
+        .range(offset, offset + limit - 1)
+        .order('created_at', { ascending: false });
+
+      const result = await fallbackQuery;
+      data = result.data;
+      error = result.error;
+    }
+
     if (error) throw error;
     return data;
   },
 
   // Get board members
   async getBoardMembers() {
-    const { data, error } = await supabase
+    // Try board_members table first, fallback to members table with board filter
+    let { data, error } = await supabase
       .from('board_members')
       .select('*')
       .order('created_at', { ascending: false });
+
+    if (error && (error.code === 'PGRST116' || error.code === 'PGRST205')) {
+      // board_members table doesn't exist, try members table with board filter
+      console.log('board_members table not found, trying members table with board filter');
+      const result = await supabase
+        .from('members')
+        .select('*')
+        .eq('is_board_member', true)
+        .order('created_at', { ascending: false });
+      data = result.data;
+      error = result.error;
+    }
 
     if (error) throw error;
     return data;
