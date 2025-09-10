@@ -10,13 +10,8 @@ VITE_APP_NAME = "MIA - Mujeres en la Industria de la Animación"
 VITE_APP_VERSION = "2.0.0"
 VITE_CONTACT_EMAIL = "hola@animacionesmia.com"
 
-##################################
-# APPLICATION SETTINGS
-##################################
-NODE_ENV=production
-
 # Feature flags - Real data enabled
-VITE_ENABLE_MOCK_DATA=false
-VITE_ENABLE_REAL_DATA=true
-VITE_ENABLE_STRIPE=true
-VITE_ENABLE_MEMBER_PORTAL=true
+VITE_ENABLE_MOCK_DATA = "false"
+VITE_ENABLE_REAL_DATA = "true"
+VITE_ENABLE_STRIPE = "true"
+VITE_ENABLE_MEMBER_PORTAL = "true"
