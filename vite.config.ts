@@ -96,6 +96,7 @@ export default defineConfig({
   },
   build: {
     sourcemap: true,
+    cssCodeSplit: true,
     rollupOptions: {
       output: {
         manualChunks: {
@@ -106,5 +107,11 @@ export default defineConfig({
         }
       }
     }
+  },
+  css: {
+    devSourcemap: true
+  },
+  esbuild: {
+    logOverride: { 'this-is-undefined-in-esm': 'silent' }
   }
 })
