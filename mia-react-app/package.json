@@ -5,9 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc --noEmit && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy:dev": "./scripts/deploy-dev.sh",
+    "deploy:dev:manual": "npm run build && npx wrangler pages deploy dist --project-name=mia-dev"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

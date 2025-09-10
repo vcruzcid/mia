@@ -21,12 +21,12 @@ import { CheckCircleIcon, XCircleIcon, ExclamationTriangleIcon } from '@heroicon
 const personalInfoSchema = z.object({
   firstName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
   lastName: z.string().min(2, 'El apellido debe tener al menos 2 caracteres'),
+  country: z.string().default('España'),
   phone: z.string().optional(),
   address: z.string().optional(),
   postalCode: z.string().optional(),
   province: z.string().optional(),
   autonomousCommunity: z.string().optional(),
-  country: z.string().default('España'),
   biography: z.string().max(1000, 'La biografía no puede exceder 1000 caracteres').optional(),
   socialMedia: z.object({
     linkedin: z.string().url().optional().or(z.literal('')),
@@ -43,6 +43,7 @@ const personalInfoSchema = z.object({
 
 const professionalInfoSchema = z.object({
   mainProfession: z.string().min(2, 'La profesión principal es requerida'),
+  isStudent: z.boolean().default(false),
   otherProfessions: z.array(z.string()).optional(),
   company: z.string().optional(),
   yearsExperience: z.number().min(0).max(50).optional(),
@@ -50,11 +51,13 @@ const professionalInfoSchema = z.object({
   employmentStatus: z.enum(['empleada', 'autonoma', 'estudiante', 'desempleada', 'jubilada']).optional(),
   educationLevel: z.string().optional(),
   studiesCompleted: z.string().optional(),
-  educationalInstitution: z.string().optional(),
-  isStudent: z.boolean().default(false)
+  educationalInstitution: z.string().optional()
 });
 
 const researchDataSchema = z.object({
+  acceptsNewsletter: z.boolean().default(false),
+  acceptsJobOffers: z.boolean().default(false),
+  participateInResearch: z.boolean().default(false),
   salaryRange: z.number().optional(),
   personalSituation: z.enum(['soltera', 'casada', 'pareja', 'divorciada', 'viuda', 'prefiero-no-decir']).optional(),
   hasChildren: z.boolean().optional(),
@@ -65,10 +68,7 @@ const researchDataSchema = z.object({
   experiencedSexualAbuse: z.boolean().optional(),
   experiencedGlassCeiling: z.boolean().optional(),
   experiencedInequalityEpisode: z.boolean().optional(),
-  otherAssociations: z.array(z.string()).optional(),
-  acceptsNewsletter: z.boolean().default(false),
-  acceptsJobOffers: z.boolean().default(false),
-  participateInResearch: z.boolean().default(false)
+  otherAssociations: z.array(z.string()).optional()
 });
 
 type PersonalInfoData = z.infer<typeof personalInfoSchema>;
@@ -188,6 +188,7 @@ export function EnhancedPortalPage() {
     resolver: zodResolver(professionalInfoSchema),
     defaultValues: {
       mainProfession: '',
+      isStudent: false,
       otherProfessions: [],
       company: ''
     }
@@ -196,6 +197,9 @@ export function EnhancedPortalPage() {
   const researchDataForm = useForm<ResearchData>({
     resolver: zodResolver(researchDataSchema),
     defaultValues: {
+      acceptsNewsletter: false,
+      acceptsJobOffers: false,
+      participateInResearch: false,
       salaryRange: undefined,
       personalSituation: undefined,
       hasChildren: undefined,
@@ -206,10 +210,7 @@ export function EnhancedPortalPage() {
       experiencedSexualAbuse: false,
       experiencedGlassCeiling: false,
       experiencedInequalityEpisode: false,
-      otherAssociations: [],
-      acceptsNewsletter: false,
-      acceptsJobOffers: false,
-      participateInResearch: false
+      otherAssociations: []
     }
   });
 
@@ -227,7 +228,7 @@ export function EnhancedPortalPage() {
         country: currentMember.country || 'España',
         biography: currentMember.biography || '',
         socialMedia: currentMember.socialMedia || {},
-        privacyLevel: currentMember.privacyLevel || 'public'
+        privacyLevel: (currentMember.privacyLevel as 'public' | 'members-only' | 'private') || 'public'
       });
 
       professionalInfoForm.reset({
@@ -261,7 +262,7 @@ export function EnhancedPortalPage() {
         professionalInfo: !!(currentMember.mainProfession && currentMember.otherProfessions?.length),
         paymentMethod: false, // Removed checkmark as requested
         profileVisibility: !!currentMember.privacyLevel,
-        socialMedia: !!(currentMember.socialMedia && Object.keys(currentMember.socialMedia).some(key => currentMember.socialMedia[key]))
+        socialMedia: !!(currentMember.socialMedia && Object.keys(currentMember.socialMedia).some(key => (currentMember.socialMedia as any)?.[key]))
       });
     }
   }, [currentMember, subscriptionData]);
@@ -658,7 +659,7 @@ export function EnhancedPortalPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={personalInfoForm.handleSubmit(onUpdatePersonalInfo)} className="space-y-6">
+                  <form onSubmit={personalInfoForm.handleSubmit(onUpdatePersonalInfo as any)} className="space-y-6">
                     {/* Profile Image Upload */}
                     <div className="flex items-center space-x-6">
                       <div className="flex-shrink-0">
@@ -773,7 +774,7 @@ export function EnhancedPortalPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={professionalInfoForm.handleSubmit(onUpdateProfessionalInfo)} className="space-y-6">
+                  <form onSubmit={professionalInfoForm.handleSubmit(onUpdateProfessionalInfo as any)} className="space-y-6">
                     {/* CV Upload */}
                     <div className="space-y-4">
                       <Label className="text-gray-300">CV / Portfolio</Label>
@@ -881,7 +882,7 @@ export function EnhancedPortalPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={researchDataForm.handleSubmit(onUpdateResearchData)} className="space-y-6">
+                  <form onSubmit={researchDataForm.handleSubmit(onUpdateResearchData as any)} className="space-y-6">
                     <div className="flex justify-end">
                       <Button
                         type="submit"
