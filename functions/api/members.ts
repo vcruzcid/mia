@@ -129,7 +129,7 @@ export async function onRequestGet(context: { request: Request; env: any }): Pro
 
   // Initialize Supabase client with environment variables
   const supabase = createClient(
-    env.VITE_SUPABASE_URL,
+    env.SUPABASE_URL,
     env.SUPABASE_SERVICE_ROLE_KEY
   );
 
@@ -139,6 +139,8 @@ export async function onRequestGet(context: { request: Request; env: any }): Pro
   }
 
   try {
+    // Initialize Supabase connection
+    
     // Parse query parameters
     const url = new URL(request.url);
     const params: MembersRequest = {
@@ -155,12 +157,30 @@ export async function onRequestGet(context: { request: Request; env: any }): Pro
       offset: parseInt(url.searchParams.get('offset') || '0'),
     };
 
-    // Query members from Supabase using the public_members view
-    const { data: members, error: membersError } = await supabase
+    // Query members from Supabase - try public_members view first, fallback to members table
+    let members, membersError, tableName = 'public_members';
+    
+    const viewResult = await supabase
       .from('public_members')
       .select('*')
-      .limit(limit)
-      .range(offset, offset + limit - 1);
+      .limit(params.limit)
+      .range(params.offset, params.offset + params.limit - 1);
+    
+    if (viewResult.error && (viewResult.error.code === 'PGRST116' || viewResult.error.code === 'PGRST205')) {
+      // View/table doesn't exist, try members table
+      console.log('public_members not found, trying members table');
+      tableName = 'members';
+      const membersResult = await supabase
+        .from('members')
+        .select('*')
+        .limit(params.limit)
+        .range(params.offset, params.offset + params.limit - 1);
+      members = membersResult.data;
+      membersError = membersResult.error;
+    } else {
+      members = viewResult.data;
+      membersError = viewResult.error;
+    }
 
     if (membersError) {
       console.error('Error fetching members:', membersError);
@@ -173,18 +193,18 @@ export async function onRequestGet(context: { request: Request; env: any }): Pro
       );
     }
 
-    // Get total count for pagination
+    // Get total count for pagination - use same table as members query
     const { count: totalCount, error: countError } = await supabase
-      .from('public_members')
+      .from(tableName)
       .select('*', { count: 'exact', head: true });
 
     if (countError) {
       console.error('Error fetching members count:', countError);
     }
 
-    // Get filter metadata from all public members
+    // Get filter metadata from all members
     const { data: allMembers, error: filterError } = await supabase
-      .from('public_members')
+      .from(tableName)
       .select('main_profession, other_professions, country, province');
 
     if (filterError) {
@@ -197,8 +217,8 @@ export async function onRequestGet(context: { request: Request; env: any }): Pro
     const response: MembersResponse = {
       members: members || [],
       total: totalCount || 0,
-      limit,
-      offset,
+      limit: params.limit,
+      offset: params.offset,
       filters,
     };
 
