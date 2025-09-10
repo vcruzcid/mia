@@ -6,10 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
+    "build:dev": "tsc --noEmit && vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
     "deploy:dev": "./scripts/deploy-dev.sh",
-    "deploy:dev:manual": "npm run build && npx wrangler pages deploy dist --project-name=mia-dev"
+    "deploy:dev:manual": "npm run build:dev && npx wrangler pages deploy dist --project-name=miawapp"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

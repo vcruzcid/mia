@@ -120,7 +120,7 @@ function generateWelcomeHTML(firstName: string, memberNumber: number, membership
           <h4>🚀 ¿Qué puedes hacer ahora?</h4>
           <ol>
             <li><strong>Accede a tu portal de socia:</strong> 
-              <br><a href="${process.env.VITE_APP_URL}/portal" class="cta-button">Ir al Portal</a>
+              <br><a href="${process.env.APP_URL || 'https://animacionesmia.com'}/portal" class="cta-button">Ir al Portal</a>
             </li>
             <li><strong>Completa tu perfil:</strong> Añade tu información profesional, foto de perfil y CV para aparecer en nuestro directorio de socias.</li>
             <li><strong>Únete a nuestras redes sociales:</strong> Síguenos en Instagram, LinkedIn y Twitter para estar al día de todas las novedades.</li>

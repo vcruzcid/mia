@@ -83,10 +83,3 @@ export interface TurnstileVerifyResponse {
   challenge_ts?: string;
   hostname?: string;
 }
-
-// Environment variables
-export interface APIEnvironment {
-  ZAPIER_WEBHOOK_URL?: string;
-  TURNSTILE_SECRET_KEY?: string;
-  TURNSTILE_SITE_KEY?: string;
-}

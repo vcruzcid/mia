@@ -6,12 +6,4 @@ pages_build_output_dir = "dist"
 
 # Environment variables for production
 [vars]
-VITE_APP_NAME = "MIA - Mujeres en la Industria de la Animación"
-VITE_APP_VERSION = "2.0.0"
-VITE_CONTACT_EMAIL = "hola@animacionesmia.com"
-
-# Feature flags - Real data enabled
-VITE_ENABLE_MOCK_DATA = "false"
-VITE_ENABLE_REAL_DATA = "true"
-VITE_ENABLE_STRIPE = "true"
-VITE_ENABLE_MEMBER_PORTAL = "true"
+# Only include variables that are actually used in the codebase
