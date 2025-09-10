@@ -1,5 +1,12 @@
 // Cloudflare Pages Function for directiva data by year
+import { createClient } from '@supabase/supabase-js';
 import type { DirectivaResponse } from '../../../src/types/api';
+
+// Initialize Supabase client
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 // CORS headers
 const corsHeaders = {
@@ -36,13 +43,15 @@ export async function onRequestGet(context: {
       );
     }
 
-    // TODO: Replace with Supabase query when real data is available
-    // For now, return empty response since mock data was removed
+    // TODO: Implement directiva data structure and query
+    // For now, return empty response as directiva data is not yet defined
+    console.log(`Directiva data requested for year: ${year} - returning empty response`);
+    
     const response: DirectivaResponse = {
       year,
       members: [],
       positions: [],
-      availableYears: [2024, 2025], // Default years
+      availableYears: [2024, 2025], // Default years - will be updated when directiva data is implemented
     };
 
     return new Response(

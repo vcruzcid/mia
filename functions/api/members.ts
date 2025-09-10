@@ -1,6 +1,13 @@
 // Cloudflare Pages Function for member data
+import { createClient } from '@supabase/supabase-js';
 import type { MembersRequest, MembersResponse } from '../../src/types/api';
 import type { Member } from '../../src/types';
+
+// Initialize Supabase client
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 // CORS headers
 const corsHeaders = {
@@ -90,8 +97,8 @@ function filterMembers(members: Member[], params: MembersRequest): Member[] {
   return filtered;
 }
 
-// Generate filter metadata
-function generateFilterMetadata(members: Member[]): MembersResponse['filters'] {
+// Generate filter metadata from Supabase data
+function generateFilterMetadata(members: any[]): MembersResponse['filters'] {
   const locations = new Set<string>();
   const specializations = new Set<string>();
   const memberTypeCounts: Record<string, number> = {
@@ -101,15 +108,18 @@ function generateFilterMetadata(members: Member[]): MembersResponse['filters'] {
   };
 
   members.forEach(member => {
-    // Collect locations
-    locations.add(member.location.city);
-    locations.add(member.location.region);
+    // Collect locations (using country and province from Supabase)
+    if (member.country) locations.add(member.country);
+    if (member.province) locations.add(member.province);
 
-    // Collect specializations
-    member.specializations.forEach(spec => specializations.add(spec));
+    // Collect specializations (main_profession and other_professions)
+    if (member.main_profession) specializations.add(member.main_profession);
+    if (member.other_professions && Array.isArray(member.other_professions)) {
+      member.other_professions.forEach((prof: string) => specializations.add(prof));
+    }
 
-    // Count member types
-    memberTypeCounts[member.memberType]++;
+    // Note: memberTypeCounts would need to be calculated from actual membership_type data
+    // For now, we'll leave it as zeros since we don't have that data structure yet
   });
 
   return {
@@ -145,22 +155,51 @@ export async function onRequestGet(context: { request: Request }): Promise<Respo
       offset: parseInt(url.searchParams.get('offset') || '0'),
     };
 
-    // TODO: Replace with Supabase query when real data is available
-    // For now, return empty response since mock data was removed
+    // Query members from Supabase using the public_members view
+    const { data: members, error: membersError } = await supabase
+      .from('public_members')
+      .select('*')
+      .limit(limit)
+      .range(offset, offset + limit - 1);
+
+    if (membersError) {
+      console.error('Error fetching members:', membersError);
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'Error fetching members data',
+        }),
+        { status: 500, headers: corsHeaders }
+      );
+    }
+
+    // Get total count for pagination
+    const { count: totalCount, error: countError } = await supabase
+      .from('public_members')
+      .select('*', { count: 'exact', head: true });
+
+    if (countError) {
+      console.error('Error fetching members count:', countError);
+    }
+
+    // Get filter metadata from all public members
+    const { data: allMembers, error: filterError } = await supabase
+      .from('public_members')
+      .select('main_profession, other_professions, country, province');
+
+    if (filterError) {
+      console.error('Error fetching filter data:', filterError);
+    }
+
+    // Generate filter metadata
+    const filters = generateFilterMetadata(allMembers || []);
+
     const response: MembersResponse = {
-      members: [],
-      total: 0,
-      limit: params.limit || 50,
-      offset: params.offset || 0,
-      filters: {
-        availableLocations: [],
-        availableSpecializations: [],
-        memberTypeCounts: {
-          'Full': 0,
-          'Student': 0,
-          'Collaborator': 0,
-        },
-      },
+      members: members || [],
+      total: totalCount || 0,
+      limit,
+      offset,
+      filters,
     };
 
     return new Response(
