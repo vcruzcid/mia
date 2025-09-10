@@ -4,11 +4,22 @@ import type { Database } from '../types/supabase';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+// Fallback values for when environment variables are missing
+const fallbackUrl = 'https://sggnohsrpdhbsavzccfw.supabase.co';
+const fallbackKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNnZ25vaHNycGRoYnNhdnpjY2Z3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzNDEzMTMsImV4cCI6MjA2OTkxNzMxM30.nW2ttYoRH5RrMiYH8cUUsNvn8CaVV1VxcHGtLZf57aI';
+
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables');
+  console.error('Missing Supabase environment variables:', {
+    url: supabaseUrl ? 'present' : 'missing',
+    key: supabaseAnonKey ? 'present' : 'missing'
+  });
+  console.warn('Using fallback Supabase configuration');
 }
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+const finalUrl = supabaseUrl || fallbackUrl;
+const finalKey = supabaseAnonKey || fallbackKey;
+
+export const supabase = createClient<Database>(finalUrl, finalKey);
 
 // Member-related functions
 export const memberService = {
