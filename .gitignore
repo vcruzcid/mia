@@ -51,3 +51,9 @@ DEPLOYMENT.md
 # Temporary files
 *.tmp
 *.temp
+
+# Legacy WordPress site (not needed for React app)
+mia-wordpress/
+
+# Database backups (should be in separate backup system)
+db-backups/

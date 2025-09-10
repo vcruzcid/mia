@@ -3,7 +3,7 @@ import type { Member } from '../types/supabase';
 
 // Updated API service that uses Supabase instead of mock data
 export class ApiService {
-  private readonly baseURL = import.meta.env.VITE_API_BASE_URL || '/api';
+  private readonly baseURL = '/api';
 
   // Members API - now using Supabase
   async getMembers(params: {
@@ -121,13 +121,6 @@ export function getErrorMessage(error: any): string {
   return 'An unexpected error occurred';
 }
 
-export function getApiConfig() {
-  return {
-    baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
-    turnstileSecret: import.meta.env.TURNSTILE_SECRET_KEY,
-    turnstileSiteKey: import.meta.env.VITE_TURNSTILE_SITE_KEY
-  };
-}
 
 export const apiService = new ApiService();
 export default apiService;

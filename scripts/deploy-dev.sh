@@ -19,9 +19,9 @@ if ! wrangler whoami &> /dev/null; then
     wrangler login
 fi
 
-# Build the project
-echo "📦 Building the project..."
-npm run build
+# Build the project for development
+echo "📦 Building the project for development..."
+npm run build:dev
 
 # Deploy to Cloudflare Pages
 echo "🌐 Deploying to Cloudflare Pages..."
