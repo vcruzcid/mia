@@ -77,7 +77,7 @@ export function Footer() {
           <div className="lg:col-span-6 flex flex-col">
             <div className="flex-1 flex items-start justify-center">
               <img
-                src="/images/mia-footer.png"
+                src="/mia-footer.png"
                 alt="MIA - Mujeres en la Industria de la Animación"
                 className="h-64 w-auto"
                 onError={(e) => {
