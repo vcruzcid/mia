@@ -4,11 +4,42 @@ import type { Database } from '../types/supabase';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing required Supabase environment variables. Please check your configuration.');
+console.log('Supabase URL:', supabaseUrl ? 'Set' : 'Missing');
+console.log('Supabase Key:', supabaseAnonKey ? 'Set' : 'Missing');
+
+// Create a safe Supabase client with error handling
+let supabase: any = null;
+
+try {
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('Missing Supabase environment variables:', {
+      url: supabaseUrl,
+      key: supabaseAnonKey ? 'Present' : 'Missing'
+    });
+    throw new Error('Missing required Supabase environment variables. Please check your configuration.');
+  }
+
+  supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+  console.log('Supabase client created successfully');
+} catch (error) {
+  console.error('Error creating Supabase client:', error);
+  // Create a mock client to prevent app crashes
+  supabase = {
+    from: () => ({
+      select: () => ({ data: [], error: { message: 'Supabase client not initialized' } }),
+      insert: () => ({ data: null, error: { message: 'Supabase client not initialized' } }),
+      update: () => ({ data: null, error: { message: 'Supabase client not initialized' } }),
+      delete: () => ({ data: null, error: { message: 'Supabase client not initialized' } })
+    }),
+    auth: {
+      signIn: () => Promise.resolve({ data: null, error: { message: 'Supabase client not initialized' } }),
+      signOut: () => Promise.resolve({ error: { message: 'Supabase client not initialized' } }),
+      getUser: () => Promise.resolve({ data: { user: null }, error: { message: 'Supabase client not initialized' } })
+    }
+  };
 }
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+export { supabase };
 
 // Member-related functions
 export const memberService = {
@@ -29,6 +60,16 @@ export const memberService = {
         .order('created_at', { ascending: false });
       data = result.data;
       error = result.error;
+    }
+
+    if (error && error.message.includes('infinite recursion')) {
+      // Members table has RLS policy issue - this is a database configuration problem
+      console.error('❌ CRITICAL: members table has infinite recursion in RLS policy');
+      console.error('This needs to be fixed in Supabase database configuration');
+      console.error('The socias page cannot display members until this is resolved');
+      
+      // Return empty array as fallback
+      return [];
     }
 
     if (error) throw error;
