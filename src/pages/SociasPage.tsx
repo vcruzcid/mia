@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useGalleryStore } from '../store/galleryStore';
-// import type { Member } from '../types';
 import { ANIMATION_SPECIALIZATIONS } from '../types';
 import { ProfileImage } from '../components/ProfileImage';
 import { SocialMediaIcons } from '../components/SocialMediaIcons';
