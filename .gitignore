@@ -53,8 +53,8 @@ DEPLOYMENT.md
 *.temp
 .temp/
 
-# MCP configuration (contains sensitive tokens)
-.mcp.json
+# MCP configuration (now uses environment variables)
+# .mcp.json
 
 # Legacy WordPress site (not needed for React app)
 mia-wordpress/
