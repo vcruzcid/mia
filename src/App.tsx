@@ -23,7 +23,6 @@ import { EnhancedPortalPage } from './pages/EnhancedPortalPage';
 import { PoliticaCookiesPage } from './pages/PoliticaCookiesPage';
 import { TerminosUsoPage } from './pages/TerminosUsoPage';
 import { PoliticaPrivacidadPage } from './pages/PoliticaPrivacidadPage';
-import { DevTestPage } from './pages/DevTestPage';
 
 function App() {
   return (
@@ -49,7 +48,6 @@ function App() {
                 <Route path="politica-cookies" element={<PoliticaCookiesPage />} />
                 <Route path="terminos-uso" element={<TerminosUsoPage />} />
                 <Route path="politica-privacidad" element={<PoliticaPrivacidadPage />} />
-                <Route path="dev-test" element={<DevTestPage />} />
               </Route>
               
               {/* Authentication routes */}
