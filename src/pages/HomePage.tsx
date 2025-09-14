@@ -6,13 +6,13 @@ import { useCounterAnimation } from '../hooks/useCounterAnimation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { BackgroundImage } from '@/components/ui/background-image';
+import { VimeoVideo } from '@/components/VimeoVideo';
 import { useGalleryStore } from '../store/galleryStore';
 
 export function HomePage() {
   const heroAnimation = useScrollAnimation({ threshold: 0.2 });
   const statsAnimation = useScrollAnimation({ threshold: 0.3 });
   const featuresAnimation = useScrollAnimation({ threshold: 0.2 });
-  
   const testimonialsAnimation = useScrollAnimation({ threshold: 0.3 });
 
   // Get member count from database
@@ -77,26 +77,34 @@ export function HomePage() {
       {/* Hero Section */}
       <div 
         ref={heroAnimation.ref}
-        className={`hero transition-all duration-1000 ${
+        className={`hero relative overflow-hidden transition-all duration-1000 ${
           heroAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
         }`}
-        style={{ background: `linear-gradient(to bottom right, var(--color-primary), var(--color-primary-hover))` }}
+        style={{ 
+          background: `linear-gradient(to bottom right, var(--color-primary), var(--color-primary-hover))`,
+          aspectRatio: '16/9',
+          height: 'auto'
+        }}
       >
-        <div className="absolute inset-0 bg-black/10"></div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative z-10 pb-8 sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
-            <svg
-              className="hidden lg:block absolute right-0 inset-y-0 h-full w-48 text-red-700 transform translate-x-1/2 opacity-70"
-              fill="currentColor"
-              viewBox="0 0 100 100"
-              preserveAspectRatio="none"
-              aria-hidden="true"
-            >
-              <polygon points="50,0 100,0 50,100 0,100" />
-            </svg>
-
-            <main className="mt-10 mx-auto px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
-              <div className="sm:text-center lg:text-left">
+        {/* Vimeo Video Background */}
+        <div className="absolute inset-0 w-full h-full">
+          <VimeoVideo
+            videoId="928049669"
+            className="w-full h-full object-cover"
+            autoplay={true}
+            muted={true}
+            loop={true}
+            controls={false}
+            title="EVENTO FINAL 3ªEDICIÓN DE MIANIMA"
+          />
+        </div>
+        
+        {/* Dark overlay to ensure text readability */}
+        <div className="absolute inset-0 bg-black/40"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 h-full">
+          <div className="relative z-10 flex items-center justify-center h-full">
+            <main className="w-full max-w-4xl">
+              <div className="text-center">
                 <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 transition-all duration-1000 delay-300 ${
                   heroAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
                 }`}>
@@ -108,36 +116,22 @@ export function HomePage() {
                   Promovemos la igualdad y visibilidad de las mujeres en la industria de la animación española, 
                   creando oportunidades de networking, formación y desarrollo profesional.
                 </p>
-                <div className={`mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start transition-all duration-1000 delay-700 ${
+                <div className={`mt-8 flex flex-col sm:flex-row gap-4 justify-center items-center transition-all duration-1000 delay-700 ${
                   heroAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
                 }`}>
-                  <div className="rounded-md shadow-lg">
-                    <Button asChild className="w-full flex items-center justify-center py-3 md:py-4 md:text-lg md:px-10 hover:scale-105 transform">
-                      <Link to="/membresia">
-                        Únete a MIA
-                      </Link>
-                    </Button>
-                  </div>
-                  <div className="mt-3 sm:mt-0 sm:ml-3">
-                    <Button asChild className="w-full flex items-center justify-center py-3 md:py-4 md:text-lg md:px-10 hover:scale-105 transform">
-                      <Link to="/sobre-mia">
-                        Conoce más
-                      </Link>
-                    </Button>
-                  </div>
+                  <Button asChild className="w-full sm:w-auto flex items-center justify-center py-3 md:py-4 md:text-lg md:px-10 hover:scale-105 transform rounded-md shadow-lg">
+                    <Link to="/membresia">
+                      Únete a MIA
+                    </Link>
+                  </Button>
+                  <Button asChild className="w-full sm:w-auto flex items-center justify-center py-3 md:py-4 md:text-lg md:px-10 hover:scale-105 transform rounded-md shadow-lg">
+                    <Link to="/sobre-mia">
+                      Conoce más
+                    </Link>
+                  </Button>
                 </div>
               </div>
             </main>
-          </div>
-        </div>
-        <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
-          <div className="h-56 w-full bg-gradient-to-br from-red-600 to-red-800 sm:h-72 md:h-96 lg:w-full lg:h-full flex items-center justify-center relative overflow-hidden">
-            <div className="absolute inset-0 bg-red-700 opacity-20 animate-pulse"></div>
-            <div className={`text-8xl transform transition-all duration-1000 delay-1000 ${
-              heroAnimation.isIntersecting ? 'text-white opacity-30 scale-100 rotate-0' : 'text-white opacity-10 scale-75 rotate-12'
-            }`}>
-              🎬
-            </div>
           </div>
         </div>
       </div>
@@ -287,7 +281,7 @@ export function HomePage() {
         </div>
       </div>
 
-      {/* Member Testimonials Carousel */}
+      {/* Member Testimonials */}
       <div 
         ref={testimonialsAnimation.ref}
         className="py-16 bg-gray-50"
