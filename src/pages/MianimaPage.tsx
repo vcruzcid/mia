@@ -221,7 +221,7 @@ export function MianimaPage() {
           </p>
           <div className="mt-8">
             <Button asChild className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 text-lg">
-              <a href="https://www.mianima.com" target="_blank" rel="noopener noreferrer">
+              <a href="https://www.mianima.es" target="_blank" rel="noopener noreferrer">
                 Visitar MIANIMA
               </a>
             </Button>
