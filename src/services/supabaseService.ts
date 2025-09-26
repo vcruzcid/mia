@@ -690,7 +690,7 @@ export const authService = {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${window.location.origin}/portal`,
+        emailRedirectTo: `${window.location.origin}/login`,
         shouldCreateUser: false // Prevent creating new auth users
       }
     });

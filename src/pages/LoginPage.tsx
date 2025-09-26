@@ -35,14 +35,16 @@ export function LoginPage() {
     resolver: zodResolver(loginSchema),
   });
 
-  // Check if we have a token in URL params (from magic link)
-  const token = searchParams.get('token');
+  // Check if we have URL query parameters (from Supabase magic link)
+  const tokenHash = searchParams.get('token_hash');
+  const type = searchParams.get('type');
   
   // Handle magic link verification on page load
   useEffect(() => {
-    if (token) {
+    if (tokenHash && type === 'email') {
       setStep('verifying');
-      verifyMagicLink(token).then((result: { success: boolean; message: string }) => {
+      // Use the verifyMagicLink function to handle the token
+      verifyMagicLink(tokenHash).then((result) => {
         if (result.success) {
           const from = (location.state as LocationState)?.from?.pathname || '/portal';
           window.location.href = from;
@@ -52,14 +54,14 @@ export function LoginPage() {
         }
       });
     }
-  }, [token, verifyMagicLink, location.state]);
+  }, [tokenHash, type, verifyMagicLink, location.state]);
 
   const onSubmit = async (data: LoginFormData) => {
     setMessage(null);
     setUserEmail(data.email);
     
-    // Demo mode: if email is "demo@test.com", simulate successful login
-    if (data.email === 'demo@test.com') {
+    // Demo mode: if email is "dev@animacionesmia.com", simulate successful login
+    if (data.email === 'dev@animacionesmia.com') {
       // Simulate authentication success
       localStorage.setItem('demo_auth', 'true');
       setMessage({ type: 'success', text: 'Demo login successful! Redirecting...' });

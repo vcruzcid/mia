@@ -31,58 +31,58 @@ function App() {
         <LoadingProvider>
           <ToastProvider>
             <AuthProvider>
-        <Router>
-          <div className="App">
-            <Routes>
-              {/* Public routes with layout */}
-              <Route path="/" element={<Layout />}>
-                <Route index element={<HomePage />} />
-                <Route path="sobre-mia" element={<AboutPage />} />
-                <Route path="membresia" element={<MembershipPage />} />
-                <Route path="contacto" element={<ContactPage />} />
-                <Route path="socias" element={<SociasPage />} />
-                <Route path="directiva" element={<DirectivaPage />} />
-                <Route path="mianima" element={<MianimaPage />} />
-                <Route path="registro" element={<SimpleRegistrationPage />} />
-                <Route path="registro/bienvenida" element={<WelcomePage />} />
-                <Route path="politica-cookies" element={<PoliticaCookiesPage />} />
-                <Route path="terminos-uso" element={<TerminosUsoPage />} />
-                <Route path="politica-privacidad" element={<PoliticaPrivacidadPage />} />
-              </Route>
-              
-              {/* Authentication routes */}
-              <Route 
-                path="/login" 
-                element={
-                  <ProtectedRoute requireAuth={false}>
-                    <LoginPage />
-                  </ProtectedRoute>
-                } 
-              />
-              
-              {/* Protected routes */}
-              <Route 
-                path="/portal" 
-                element={
-                  <ProtectedRoute>
-                    <EnhancedPortalPage />
-                  </ProtectedRoute>
-                } 
-              />
-              
-              {/* Legacy portal route */}
-              <Route 
-                path="/portal-old" 
-                element={
-                  <ProtectedRoute>
-                    <PortalPage />
-                  </ProtectedRoute>
-                } 
-              />
-            </Routes>
-          </div>
-        </Router>
-        <ReactQueryDevtools initialIsOpen={false} />
+              <Router>
+                <div className="App">
+                  <Routes>
+                    {/* Public routes with layout */}
+                    <Route path="/" element={<Layout />}>
+                      <Route index element={<HomePage />} />
+                      <Route path="sobre-mia" element={<AboutPage />} />
+                      <Route path="membresia" element={<MembershipPage />} />
+                      <Route path="contacto" element={<ContactPage />} />
+                      <Route path="socias" element={<SociasPage />} />
+                      <Route path="directiva" element={<DirectivaPage />} />
+                      <Route path="mianima" element={<MianimaPage />} />
+                      <Route path="registro" element={<SimpleRegistrationPage />} />
+                      <Route path="registro/bienvenida" element={<WelcomePage />} />
+                      <Route path="politica-cookies" element={<PoliticaCookiesPage />} />
+                      <Route path="terminos-uso" element={<TerminosUsoPage />} />
+                      <Route path="politica-privacidad" element={<PoliticaPrivacidadPage />} />
+                    </Route>
+                    
+                    {/* Authentication routes */}
+                    <Route 
+                      path="/login" 
+                      element={
+                        <ProtectedRoute requireAuth={false}>
+                          <LoginPage />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    
+                    {/* Protected routes */}
+                    <Route 
+                      path="/portal" 
+                      element={
+                        <ProtectedRoute>
+                          <EnhancedPortalPage />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    
+                    {/* Legacy portal route */}
+                    <Route 
+                      path="/portal-old" 
+                      element={
+                        <ProtectedRoute>
+                          <PortalPage />
+                        </ProtectedRoute>
+                      } 
+                    />
+                  </Routes>
+                </div>
+              </Router>
+              <ReactQueryDevtools initialIsOpen={false} />
             </AuthProvider>
           </ToastProvider>
         </LoadingProvider>
