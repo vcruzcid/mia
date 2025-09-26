@@ -32,8 +32,8 @@ export function PortalPage() {
   // Create demo member data if using demo auth
   const demoMember = {
     id: 'demo-123',
-    email: 'demo@test.com',
-    firstName: 'Demo',
+    email: 'dev@animacionesmia.com',
+    firstName: 'Dev',
     lastName: 'User',
     phoneNumber: '+34 600 123 456',
     bio: 'Esta es una cuenta de demostración para probar el portal de MIA.',
