@@ -13,7 +13,6 @@ export function HomePage() {
   const heroAnimation = useScrollAnimation({ threshold: 0.2 });
   const statsAnimation = useScrollAnimation({ threshold: 0.3 });
   const featuresAnimation = useScrollAnimation({ threshold: 0.2 });
-  const testimonialsAnimation = useScrollAnimation({ threshold: 0.3 });
 
   // Get member count from database
   const { getMemberCounts, fetchMembers } = useGalleryStore();
@@ -51,26 +50,6 @@ export function HomePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statsAnimation.isIntersecting, memberCounter.startAnimation, growthCounter.startAnimation, eventCounter.startAnimation]);
 
-  const testimonials = [
-    {
-      name: "María García",
-      role: "Directora de Animación",
-      company: "Studio XYZ",
-      quote: "MIA me ha ayudado a conectar con profesionales increíbles y a crecer en mi carrera de formas que no imaginé.",
-    },
-    {
-      name: "Carmen López",
-      role: "Animadora 3D",
-      company: "Animation Plus",
-      quote: "La formación y networking que ofrece MIA son invaluables para cualquier mujer en la industria.",
-    },
-    {
-      name: "Ana Rodríguez",
-      role: "Character Designer",
-      company: "Creative Studios",
-      quote: "Formar parte de MIA ha sido transformador para mi desarrollo profesional y personal.",
-    },
-  ];
 
   return (
     <div style={{ backgroundColor: 'var(--color-bg-secondary)' }}>
@@ -281,56 +260,6 @@ export function HomePage() {
         </div>
       </div>
 
-      {/* Member Testimonials */}
-      <div 
-        ref={testimonialsAnimation.ref}
-        className="py-16 bg-gray-50"
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h2 className={`text-base text-primary-600 font-semibold tracking-wide uppercase transition-all duration-1000 ${
-              testimonialsAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-            }`}>
-              Testimonios
-            </h2>
-            <p className={`mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl transition-all duration-1000 delay-200 ${
-              testimonialsAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-            }`}>
-              Lo que dicen nuestras socias
-            </p>
-          </div>
-
-          <div className="mt-12 grid gap-8 lg:grid-cols-3">
-            {testimonials.map((testimonial, index) => (
-              <Card 
-                key={testimonial.name} 
-                className={`bg-white transform hover:scale-105 ${
-                  testimonialsAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-                }`} 
-                style={{ transitionDelay: `${300 + index * 200}ms` }}
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-center mb-4">
-                    <div className="w-12 h-12 bg-primary-500 rounded-full flex items-center justify-center">
-                      <span className="text-white font-semibold">
-                        {testimonial.name.split(' ').map(n => n[0]).join('')}
-                      </span>
-                    </div>
-                    <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-900">{testimonial.name}</div>
-                      <div className="text-sm text-gray-500">{testimonial.role}</div>
-                      <div className="text-xs text-primary-600">{testimonial.company}</div>
-                    </div>
-                  </div>
-                  <blockquote className="text-gray-600 italic">
-                    "{testimonial.quote}"
-                  </blockquote>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </div>
 
       {/* Recent Achievements Section */}
       <div className="py-16 bg-white">
@@ -372,7 +301,7 @@ export function HomePage() {
                 <div className="ml-4">
                   <h3 className="text-lg font-medium text-gray-900">Informe MIA</h3>
                   <p className="mt-2 text-gray-600">
-                    Publicación anual que analiza la situación de las mujeres en la animación en
+                    Publicación bienal que analiza la situación de las mujeres en la animación en
                     España, destacando avances y áreas de mejora.
                   </p>
                 </div>
