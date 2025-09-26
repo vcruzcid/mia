@@ -80,9 +80,7 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
     set({ isLoading: true, loading: true, error: null });
     
     try {
-      console.log('Fetching public members...');
       const rawMembers = await memberService.getPublicMembers();
-      console.log(`Fetched ${rawMembers.length} public members`);
       
       // Clean any encoded characters from WordPress imports
       const members = rawMembers.map(member => cleanMemberData(member));
@@ -94,7 +92,7 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
         loading: false 
       });
       
-      console.log('Members loaded successfully:', members.length);
+      // Members loaded successfully
     } catch (error) {
       console.error('Error fetching members:', error);
       set({ 
@@ -109,9 +107,7 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
     set({ isLoading: true, loading: true, error: null });
     
     try {
-      console.log('Fetching board members...');
       const rawMembers = await memberService.getBoardMembers();
-      console.log(`Fetched ${rawMembers.length} board members`);
       
       // Clean any encoded characters from WordPress imports
       const members = rawMembers.map(member => cleanMemberData(member));
@@ -123,7 +119,7 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
         loading: false 
       });
       
-      console.log('Board members loaded successfully:', members.length);
+      // Board members loaded successfully
     } catch (error) {
       console.error('Error fetching directiva:', error);
       set({ 
@@ -293,11 +289,7 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
 
   getFilteredDirectiva: () => {
     const { members, selectedYear } = get();
-    console.log('getFilteredDirectiva called with:', { 
-      totalMembers: members.length, 
-      selectedYear,
-      boardMembers: members.filter(m => m.is_board_member).length
-    });
+    // Filtering board members for selected year
     
     // Filter for board members using our new schema
     const boardMembers = members.filter(member => {
@@ -310,21 +302,12 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
       const isActiveForYear = termStart ? 
         (termStart <= selectedYear && (!termEnd || termEnd >= selectedYear)) : true;
       
-      console.log('Board member check:', {
-        email: member.email,
-        name: `${member.first_name} ${member.last_name}`,
-        isBoardMember,
-        boardPosition: member.board_position,
-        termStart,
-        termEnd,
-        selectedYear,
-        isActiveForYear
-      });
+      // Check if board member is active for selected year
       
       return isBoardMember && isActiveForYear;
     });
     
-    console.log(`Found ${boardMembers.length} board members for year ${selectedYear}`);
+    // Board members filtered for selected year
     
     return boardMembers.map(member => ({
       ...member,

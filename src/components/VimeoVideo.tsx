@@ -60,7 +60,7 @@ export function VimeoVideo({
 
           // Handle player events
           playerRef.current.on('ready', () => {
-            console.log('Vimeo player ready');
+            // Vimeo player ready
           });
 
           playerRef.current.on('error', (error: any) => {

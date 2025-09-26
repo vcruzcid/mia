@@ -27,7 +27,6 @@ export function ContactPage() {
     await withLoading(async () => {
       try {
         // Here you would typically send the data to your backend
-        console.log('Contact form submitted:', data);
         
         // Simulate API call
         await new Promise(resolve => setTimeout(resolve, 1000));

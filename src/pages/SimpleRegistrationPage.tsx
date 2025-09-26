@@ -128,7 +128,6 @@ export function SimpleRegistrationPage() {
     */
 
     // For now, simulate the API call and redirect to existing payment links
-    console.log('Checkout data:', checkoutData);
     
     // Simulate processing delay
     await new Promise(resolve => setTimeout(resolve, 1000));
