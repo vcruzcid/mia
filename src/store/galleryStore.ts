@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { memberService } from '../services/supabaseService';
+import { memberService, isActiveMember } from '../services/supabaseService';
 import type { Member } from '../types/supabase';
 import { cleanMemberData } from '../utils/textDecoding';
 
@@ -73,22 +73,28 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
   selectedMember: null,
   isModalOpen: false,
   selectedYear: new Date().getFullYear(),
-  availableYears: [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
+  availableYears: [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026],
   filters: initialFilters,
 
   fetchMembers: async () => {
     set({ isLoading: true, loading: true, error: null });
     
     try {
+      console.log('Fetching public members...');
       const rawMembers = await memberService.getPublicMembers();
+      console.log(`Fetched ${rawMembers.length} public members`);
+      
       // Clean any encoded characters from WordPress imports
       const members = rawMembers.map(member => cleanMemberData(member));
+      
       set({ 
         members, 
         filteredMembers: members, 
         isLoading: false,
         loading: false 
       });
+      
+      console.log('Members loaded successfully:', members.length);
     } catch (error) {
       console.error('Error fetching members:', error);
       set({ 
@@ -103,15 +109,21 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
     set({ isLoading: true, loading: true, error: null });
     
     try {
+      console.log('Fetching board members...');
       const rawMembers = await memberService.getBoardMembers();
+      console.log(`Fetched ${rawMembers.length} board members`);
+      
       // Clean any encoded characters from WordPress imports
       const members = rawMembers.map(member => cleanMemberData(member));
+      
       set({ 
         members, 
         filteredMembers: members, 
         isLoading: false,
         loading: false 
       });
+      
+      console.log('Board members loaded successfully:', members.length);
     } catch (error) {
       console.error('Error fetching directiva:', error);
       set({ 
@@ -215,20 +227,22 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
       );
     }
 
-    // Apply active filter
+    // Apply active filter using Stripe-centric logic
     if (filters.isActive !== null) {
-      filtered = filtered.filter(member => member.is_active === filters.isActive);
+      filtered = filtered.filter(member => 
+        filters.isActive ? isActiveMember(member) : !isActiveMember(member)
+      );
     }
 
     // Apply social media filter
     if (filters.hasSocialMedia !== null) {
       if (filters.hasSocialMedia) {
         filtered = filtered.filter(member =>
-          member.social_media && Object.keys(member.social_media).length > 0
+          member.social_media && Object.values(member.social_media).some(value => !!value)
         );
       } else {
         filtered = filtered.filter(member =>
-          !member.social_media || Object.keys(member.social_media).length === 0
+          !member.social_media || !Object.values(member.social_media).some(value => !!value)
         );
       }
     }
@@ -239,24 +253,25 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
   getFilteredMembers: () => {
     return get().filteredMembers.map(member => ({
       ...member, // Pass through all original member data
-      firstName: member.first_name,
-      lastName: member.last_name,
-      displayName: member.display_name,
+      id: member.id,
+      firstName: member.first_name || '',
+      lastName: member.last_name || '',
+      displayName: member.display_name || `${member.first_name || ''} ${member.last_name || ''}`.trim(),
       location: {
-        city: member.address, // Using address as city since there's no city field
-        region: member.autonomous_community,
+        city: member.city || member.address || '',
+        region: member.autonomous_community || member.province || '',
         country: member.country || 'España'
       },
-      memberType: member.membership_type,
-      profession: member.main_profession,
-      company: member.company,
+      memberType: member.membership_type || 'profesional',
+      profession: member.main_profession || '',
+      company: member.company || '',
       availabilityStatus: 'Available', // Default since there's no availability_status field
       specializations: member.other_professions || [],
-      socialMedia: member.social_media,
-      profileImage: member.profile_image_url,
+      socialMedia: member.social_media || {},
+      profileImage: member.profile_image_url || '', // Fixed mapping
       // Additional fields for enhanced modal
-      biography: member.biography,
-      bio: member.biography, // Alias for backwards compatibility
+      biography: member.biography || '',
+      bio: member.biography || '', // Alias for backwards compatibility
       professional_role: member.professional_role,
       employment_status: member.employment_status,
       years_experience: member.years_experience,
@@ -267,36 +282,81 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
       address: member.address,
       province: member.province,
       autonomous_community: member.autonomous_community,
-      country: member.country
+      country: member.country,
+      // Active status using Stripe logic
+      isActive: isActiveMember(member),
+      // Membership status
+      stripeSubscriptionStatus: member.stripe_subscription_status,
+      subscriptionEndDate: member.subscription_current_period_end
     }));
   },
 
   getFilteredDirectiva: () => {
     const { members, selectedYear } = get();
-    return members.filter(member => 
-      member.board_position && member.is_active
-    ).map(member => ({
+    console.log('getFilteredDirectiva called with:', { 
+      totalMembers: members.length, 
+      selectedYear,
+      boardMembers: members.filter(m => m.is_board_member).length
+    });
+    
+    // Filter for board members using our new schema
+    const boardMembers = members.filter(member => {
+      const isBoardMember = member.is_board_member === true;
+      
+      // Check if board term is active for selected year
+      const termStart = member.board_term_start ? new Date(member.board_term_start).getFullYear() : null;
+      const termEnd = member.board_term_end ? new Date(member.board_term_end).getFullYear() : null;
+      
+      const isActiveForYear = termStart ? 
+        (termStart <= selectedYear && (!termEnd || termEnd >= selectedYear)) : true;
+      
+      console.log('Board member check:', {
+        email: member.email,
+        name: `${member.first_name} ${member.last_name}`,
+        isBoardMember,
+        boardPosition: member.board_position,
+        termStart,
+        termEnd,
+        selectedYear,
+        isActiveForYear
+      });
+      
+      return isBoardMember && isActiveForYear;
+    });
+    
+    console.log(`Found ${boardMembers.length} board members for year ${selectedYear}`);
+    
+    return boardMembers.map(member => ({
       ...member,
-      position: member.board_position || 'Board Member',
-      responsibilities: [], // Using empty array since board_responsibilities doesn't exist
-      yearServed: [selectedYear],
-      isCurrentMember: true,
-      firstName: member.first_name,
-      lastName: member.last_name,
-      location: member.autonomous_community,
-      memberType: member.membership_type,
-      profession: member.main_profession,
-      company: member.company,
-      availability: 'Available', // Default since availability_status doesn't exist
+      id: member.id,
+      position: member.board_position || 'Miembro de Junta',
+      responsibilities: getPositionResponsibilities(member.board_position || ''),
+      yearServed: getYearsServed(member.board_term_start, member.board_term_end, selectedYear),
+      isCurrentMember: selectedYear === new Date().getFullYear(),
+      firstName: member.first_name || '',
+      lastName: member.last_name || '',
+      profileImage: member.profile_image_url || '', // Fixed mapping
+      location: {
+        city: member.city || member.address || '',
+        region: member.autonomous_community || member.province || '',
+        country: member.country || 'España'
+      },
+      memberType: member.membership_type || 'profesional',
+      profession: member.main_profession || '',
+      company: member.company || '',
+      bio: member.biography || '',
+      biography: member.biography || '',
       specializations: member.other_professions || [],
-      socialMedia: member.social_media
+      socialMedia: member.social_media || {},
+      joinDate: member.created_at || new Date().toISOString(),
+      previousPositions: [] // Could be enhanced later
     }));
   },
 
   getAvailableLocations: () => {
     const { members } = get();
     const locations = members
-      .map(member => member.autonomous_community)
+      .map(member => member.autonomous_community || member.province)
       .filter((location): location is string => !!location);
     return [...new Set(locations)].sort();
   },
@@ -304,7 +364,7 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
   getMemberCounts: () => {
     const { members } = get();
     const byType: Record<string, number> = {};
-    const byAvailability: Record<string, number> = { 'Available': 0 }; // Default availability
+    const byAvailability: Record<string, number> = { 'Available': 0 };
     
     members.forEach(member => {
       // Count by membership type
@@ -318,7 +378,7 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
     
     return {
       total: members.length,
-      active: members.filter(member => member.is_active).length,
+      active: members.filter(member => isActiveMember(member)).length,
       byType,
       byAvailability
     };
@@ -332,5 +392,56 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
     });
   },
 }));
+
+// Helper function to get position responsibilities
+function getPositionResponsibilities(position: string): string[] {
+  const responsibilities: Record<string, string[]> = {
+    'Presidenta': [
+      'Dirigir las sesiones de la junta directiva',
+      'Representar a MIA en eventos públicos',
+      'Supervisar la estrategia organizacional',
+      'Coordinación con otras organizaciones del sector'
+    ],
+    'Secretaria': [
+      'Redactar actas de las reuniones',
+      'Gestionar la correspondencia oficial',
+      'Mantener registros organizacionales',
+      'Coordinar comunicaciones internas'
+    ],
+    'Tesorera': [
+      'Gestionar las finanzas de la organización',
+      'Preparar informes financieros',
+      'Supervisar presupuestos y gastos',
+      'Coordinar con proveedores y patrocinadores'
+    ],
+    'Vocal': [
+      'Participar en decisiones de la junta',
+      'Apoyar iniciativas organizacionales',
+      'Representar intereses de los miembros',
+      'Colaborar en proyectos especiales'
+    ]
+  };
+  
+  return responsibilities[position] || [
+    'Participar en decisiones de la junta directiva',
+    'Colaborar en iniciativas organizacionales',
+    'Representar los intereses de los miembros'
+  ];
+}
+
+// Helper function to get years served
+function getYearsServed(startDate?: string, endDate?: string, selectedYear?: number): number[] {
+  if (!startDate) return selectedYear ? [selectedYear] : [new Date().getFullYear()];
+  
+  const start = new Date(startDate).getFullYear();
+  const end = endDate ? new Date(endDate).getFullYear() : new Date().getFullYear();
+  
+  const years = [];
+  for (let year = start; year <= end; year++) {
+    years.push(year);
+  }
+  
+  return years.length > 0 ? years : [selectedYear || new Date().getFullYear()];
+}
 
 export default useGalleryStore;
