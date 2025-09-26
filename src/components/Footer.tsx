@@ -24,10 +24,9 @@ export function Footer() {
     resolver: zodResolver(contactFormSchema),
   });
 
-  const onSubmit = async (data: ContactFormData) => {
+  const onSubmit = async (_data: ContactFormData) => {
     try {
       // Here you would typically send the data to your backend
-      console.log('Contact form submitted:', data);
       
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));

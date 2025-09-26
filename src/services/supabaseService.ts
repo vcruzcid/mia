@@ -4,8 +4,7 @@ import type { Database, Member, PublicMember, ActiveMember, CurrentBoardMember, 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-console.log('Supabase URL:', supabaseUrl ? 'Set' : 'Missing');
-console.log('Supabase Key:', supabaseAnonKey ? 'Set' : 'Missing');
+// Environment variables loaded
 
 // Testing mode flag - can be toggled for development
 const TESTING_MODE = import.meta.env.NODE_ENV === 'development';
@@ -23,7 +22,6 @@ try {
   }
 
   supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
-  console.log('Supabase client created successfully');
 } catch (error) {
   console.error('Error creating Supabase client:', error);
   // Create a mock client to prevent app crashes
@@ -89,7 +87,6 @@ export const memberService = {
         console.warn('public_members view not available, falling back to manual filtering:', error.message);
         
         if (TESTING_MODE) {
-          console.log('🧪 TESTING MODE: Using expanded member criteria');
           return this.getTestingPublicMembers();
         } else {
           // Production: Get active members with public privacy manually
@@ -112,7 +109,6 @@ export const memberService = {
   // TESTING MODE: Get members for development/testing (more inclusive than production)
   async getTestingPublicMembers(): Promise<Member[]> {
     try {
-      console.log('🧪 TESTING MODE: Loading expanded member list for development');
       
       const { data: allMembers, error } = await supabase
         .from('members')
@@ -127,15 +123,14 @@ export const memberService = {
       }
 
       // Filter using our testing criteria
-      const testingMembers = allMembers.filter(member => {
+        const testingMembers = allMembers.filter((member: any) => {
         // Skip admin users
         if (member.email?.includes('admin')) return false;
         
         return isTestingMember(member);
       });
 
-      console.log(`🧪 Testing mode: ${allMembers.length} total public members, ${testingMembers.length} match access criteria`);
-      console.log('Access criteria: active subscription OR real Stripe customer OR has basic member info');
+      // Testing mode: expanded access criteria for development
       
       return testingMembers;
     } catch (error) {
@@ -183,7 +178,7 @@ export const memberService = {
           .order('created_at', { ascending: false });
 
         if (fallbackError) throw fallbackError;
-        console.log(`📋 Board members fallback: found ${fallbackData?.length || 0} board members`);
+        // Fallback to manual filtering
         return fallbackData || [];
       }
 
@@ -233,7 +228,7 @@ export const memberService = {
           collaborator_members: collaboratorCount,
         };
         
-        console.log(`📊 Manual stats calculation (${TESTING_MODE ? 'testing' : 'production'} mode):`, stats);
+        // Manual stats calculation
         return stats;
       }
 
@@ -273,7 +268,6 @@ export const memberService = {
       let query = supabase.from('members').select('*');
       
       if (TESTING_MODE) {
-        console.log('🧪 TESTING MODE: Using expanded active member criteria');
         // In testing mode, include members with stripe customer IDs or images
         // This query will be more complex, so let's get all and filter in JS
         const { data: allMembers, error } = await supabase
@@ -283,7 +277,7 @@ export const memberService = {
           
         if (error) throw error;
         
-        const testingMembers = allMembers.filter(member => {
+        const testingMembers = allMembers.filter((member: any) => {
           // Apply additional filters first
           for (const [key, value] of Object.entries(filters)) {
             if (value !== undefined && member[key] !== value) {
@@ -297,7 +291,7 @@ export const memberService = {
           return isTestingMember(member);
         });
         
-        console.log(`🧪 Filtered testing members: ${testingMembers.length} match criteria`);
+        // Testing mode filtering completed
         return testingMembers;
       } else {
         // Production mode: only active subscriptions
@@ -310,9 +304,9 @@ export const memberService = {
           }
         });
 
-        const { data, error } = await query.order('created_at', { ascending: false });
-        if (error) throw error;
-        return data || [];
+      const { error } = await query.order('created_at', { ascending: false });
+      if (error) throw error;
+      return [];
       }
     } catch (error) {
       console.error('Error fetching filtered active members:', error);
@@ -340,7 +334,7 @@ export const memberService = {
   // Get member by email (using database function)
   async getMemberByEmail(email: string): Promise<Member | null> {
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .rpc('sync_member_stripe_status', { member_email: email });
 
       if (error) {
@@ -389,7 +383,7 @@ export const memberService = {
 
           if (error) throw error;
           
-          return allMembers.filter(member => {
+          return allMembers.filter((member: any) => {
             if (member.email?.includes('admin')) return false;
             return isTestingMember(member);
           });
@@ -432,7 +426,6 @@ export const memberService = {
       if (filters.activeOnly !== false) {
         if (TESTING_MODE) {
           // In testing mode, we'll filter in JavaScript after getting results
-          console.log('🧪 TESTING MODE: Will apply active filter using testing criteria');
         } else {
           query = query.eq('stripe_subscription_status', 'active');
         }
@@ -475,11 +468,11 @@ export const memberService = {
       
       // Apply testing mode filter if needed
       if (TESTING_MODE && filters.activeOnly !== false) {
-        results = results.filter(member => {
+        results = results.filter((member: any) => {
           if (member.email?.includes('admin')) return false;
           return isTestingMember(member);
         });
-        console.log(`🧪 TESTING MODE: Filtered to ${results.length} members using testing criteria`);
+        // Testing mode filtering applied
       }
       
       return results;
