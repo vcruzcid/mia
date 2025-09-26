@@ -13,6 +13,7 @@ interface AuthContextType {
   membershipStatus: MembershipStatus | null;
   signInWithMagicLink: (email: string) => Promise<void>;
   sendMagicLink: (email: string) => Promise<{ success: boolean; message: string }>;
+  verifyMagicLink: (tokenHash: string) => Promise<{ success: boolean; message: string }>;
   signOut: () => Promise<void>;
   updateProfile: (updates: Partial<Member>) => Promise<void>;
   refreshMemberData: () => Promise<void>;
@@ -34,7 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      async (event: any, session: Session | null) => {
         console.log('Auth state changed:', event, session?.user?.email);
         
         setSession(session);
@@ -144,6 +145,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Verify magic link token using PKCE flow
+  const verifyMagicLink = async (tokenHash: string) => {
+    try {
+      console.log('Verifying magic link with token hash:', tokenHash);
+      
+      // Use verifyOtp for PKCE flow with token_hash
+      const { data, error } = await supabase.auth.verifyOtp({
+        token_hash: tokenHash,
+        type: 'email'
+      });
+      
+      if (error) {
+        console.error('Magic link verification error:', error);
+        return { 
+          success: false, 
+          message: error.message || 'Failed to verify magic link. Please try again.' 
+        };
+      }
+      
+      if (data?.session) {
+        console.log('Magic link verified successfully:', data.session.user?.email);
+        return { 
+          success: true, 
+          message: 'Magic link verified successfully!' 
+        };
+      } else {
+        return { 
+          success: false, 
+          message: 'Magic link verification failed. Please request a new one.' 
+        };
+      }
+    } catch (error) {
+      console.error('Magic link verification error:', error);
+      return { 
+        success: false, 
+        message: 'Failed to verify magic link. Please try again.' 
+      };
+    }
+  };
+
   // Sign out user
   const signOut = async () => {
     try {
@@ -240,6 +281,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     membershipStatus,
     signInWithMagicLink,
     sendMagicLink,
+    verifyMagicLink,
     signOut,
     updateProfile,
     refreshMemberData,
