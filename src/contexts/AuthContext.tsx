@@ -36,7 +36,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event: any, session: Session | null) => {
-        console.log('Auth state changed:', event, session?.user?.email);
+        // Auth state changed
         
         setSession(session);
         setUser(session?.user ?? null);
@@ -47,7 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // Update last login timestamp on sign in
           if (event === 'SIGNED_IN') {
             await authService.updateLastLogin(session.user.email);
-            console.log('Updated last login for:', session.user.email);
+            // Updated last login
           }
         } else {
           // Clear member data on sign out
@@ -82,7 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Load member profile and calculate membership status
   const loadMemberProfile = async (email: string) => {
     try {
-      console.log('Loading member profile for:', email);
+      // Loading member profile
       
       // Get member data (this also syncs with Stripe)
       const memberProfile = await memberService.getMemberByEmail(email);
@@ -100,12 +100,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         setMembershipStatus(status);
         
-        console.log('Member profile loaded:', {
-          name: getMemberDisplayName(memberProfile),
-          isActive: status.isActive,
-          subscriptionStatus: status.subscriptionStatus,
-          membershipType: status.membershipType
-        });
+        // Member profile loaded successfully
       } else {
         console.warn('No member profile found for email:', email);
         setMember(null);
@@ -148,7 +143,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Verify magic link token using PKCE flow
   const verifyMagicLink = async (tokenHash: string) => {
     try {
-      console.log('Verifying magic link with token hash:', tokenHash);
+      // Verifying magic link
       
       // Use verifyOtp for PKCE flow with token_hash
       const { data, error } = await supabase.auth.verifyOtp({
@@ -165,7 +160,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       
       if (data?.session) {
-        console.log('Magic link verified successfully:', data.session.user?.email);
+        // Magic link verified successfully
         return { 
           success: true, 
           message: 'Magic link verified successfully!' 
@@ -188,7 +183,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Sign out user
   const signOut = async () => {
     try {
-      console.log('Signing out user:', user?.email);
+      // Signing out user
       await authService.signOut();
       
       // Clear local state
@@ -208,7 +203,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     
     try {
-      console.log('Updating member profile:', Object.keys(updates));
+      // Updating member profile
       
       const updatedMember = await memberService.updateMemberProfile(member.id, updates);
       
@@ -226,7 +221,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setMembershipStatus(status);
         }
         
-        console.log('Profile updated successfully');
+        // Profile updated successfully
       } else {
         throw new Error('Failed to update profile');
       }
@@ -243,7 +238,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     
-    console.log('Refreshing member data for:', user.email);
+    // Refreshing member data
     await loadMemberProfile(user.email);
   };
 
@@ -255,13 +250,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     
     try {
-      console.log('Syncing Stripe status for:', user.email);
+      // Syncing Stripe status
       const success = await memberService.syncMemberStripeStatus(user.email);
       
       if (success) {
         // Refresh member data after sync
         await refreshMemberData();
-        console.log('Stripe sync completed successfully');
+        // Stripe sync completed successfully
       }
       
       return success;
