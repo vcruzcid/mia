@@ -1,28 +1,44 @@
 // Generated types for Supabase integration with Stripe Foreign Data Wrapper
-// This file contains the TypeScript interfaces for the MIA members database
+// Updated for Phase 4: Simplified Stripe-centric member schema
 
 export interface Member {
   id: string;
-  member_number?: number;
+  email: string;
   first_name: string;
   last_name: string;
   display_name?: string;
-  email: string;
+  member_number?: string;
   phone?: string;
-  birth_date?: string;
-  main_profession?: string;
-  other_professions?: string[];
-  company?: string;
-  years_experience?: number;
-  biography?: string;
-  professional_role?: string;
-  employment_status?: string;
-  salary_range?: number;
-  address?: string;
+  address: string; // Required for Stripe billing
+  city: string; // Required for Stripe billing
   postal_code?: string;
   province?: string;
   autonomous_community?: string;
-  country?: string;
+  country: string; // Required for Stripe billing, defaults to 'Spain'
+  main_profession?: string;
+  other_professions?: string[];
+  professional_role?: string;
+  company?: string;
+  years_experience?: number;
+  biography?: string;
+  employment_status?: string;
+  education_level?: string;
+  studies_completed?: string;
+  educational_institution?: string;
+  is_student?: boolean;
+  membership_type: string; // Required: 'profesional', 'estudiante', 'colaborador'
+  stripe_customer_id: string; // Required for all members
+  stripe_subscription_id?: string;
+  stripe_subscription_status?: string;
+  subscription_current_period_end?: string;
+  is_board_member?: boolean;
+  board_position?: string;
+  board_term_start?: string;
+  board_term_end?: string;
+  accepts_newsletter?: boolean;
+  accepts_job_offers?: boolean;
+  privacy_level?: 'public' | 'members-only' | 'private';
+  gdpr_accepted?: boolean;
   social_media?: {
     linkedin?: string;
     instagram?: string;
@@ -33,62 +49,37 @@ export interface Member {
     vimeo?: string;
     artstation?: string;
   };
-  education_level?: string;
-  studies_completed?: string;
-  educational_institution?: string;
-  is_student?: boolean;
-  membership_type?: string;
-  is_board_member?: boolean;
-  board_position?: string;
-  is_active?: boolean;
-  accepts_newsletter?: boolean;
-  accepts_job_offers?: boolean;
-  gdpr_accepted?: boolean;
-  privacy_level?: 'public' | 'members-only' | 'private';
-  personal_situation?: string;
-  has_children?: boolean;
-  work_life_balance?: boolean;
-  experienced_gender_discrimination?: boolean;
-  experienced_salary_discrimination?: boolean;
-  experienced_sexual_harassment?: boolean;
-  experienced_sexual_abuse?: boolean;
-  experienced_glass_ceiling?: boolean;
-  experienced_inequality_episode?: boolean;
-  stripe_customer_id?: string;
-  other_associations?: string[];
-  cv_document_url?: string;
   profile_image_url?: string;
+  cv_document_url?: string;
+  birth_date?: string;
+  other_associations?: string[];
   created_at?: string;
   updated_at?: string;
   last_login?: string;
 }
 
-export interface MemberCategory {
+// Separate table for board member management with terms
+export interface BoardMember {
   id: string;
   member_id: string;
-  category_type: 'profession' | 'other_profession' | 'member_type' | 'board_role' | 'country';
-  category_name: string;
-  category_slug: string;
-  is_primary?: boolean;
+  position: 'Presidenta' | 'Secretaria' | 'Tesorera' | 'Vocal'; // Feminine positions for women-only org
+  term_start: string;
+  term_end: string;
   created_at?: string;
 }
 
-export interface MemberActivity {
-  id: string;
-  member_id: string;
-  activity_type: 'login' | 'profile_update' | 'registration' | 'payment';
-  activity_data?: Record<string, any>;
-  ip_address?: string;
-  user_agent?: string;
-  created_at?: string;
-}
-
-// Stripe Foreign Data Wrapper Types
+// Stripe Foreign Data Wrapper Types (unchanged)
 export interface StripeCustomer {
   id: string;
   email: string;
   name?: string;
   phone?: string;
+  address_line1?: string;
+  address_line2?: string;
+  address_city?: string;
+  address_state?: string;
+  address_postal_code?: string;
+  address_country?: string;
   created: string;
   updated: string;
   currency?: string;
@@ -96,7 +87,7 @@ export interface StripeCustomer {
   delinquent?: boolean;
   description?: string;
   metadata?: Record<string, string>;
-  attrs?: Record<string, any>; // Additional Stripe attributes
+  attrs?: Record<string, any>;
 }
 
 export interface StripeSubscription {
@@ -112,7 +103,7 @@ export interface StripeSubscription {
   trial_start?: string;
   trial_end?: string;
   metadata?: Record<string, string>;
-  attrs?: Record<string, any>; // Additional Stripe attributes
+  attrs?: Record<string, any>;
 }
 
 export interface StripeProduct {
@@ -141,107 +132,216 @@ export interface StripePrice {
   attrs?: Record<string, any>;
 }
 
-// Member with Stripe data combined
-export interface MemberWithStripe extends Member {
-  stripe_name?: string;
-  stripe_email?: string;
-  stripe_customer_created?: string;
-  subscription_status?: string;
-  current_period_start?: string;
-  current_period_end?: string;
-  subscription_id?: string;
+// View Types for our business logic views
+export interface PublicMember extends Member {
+  // Only active members with public privacy
 }
 
-// Database table types for Supabase with Stripe schema
+export interface ActiveMember extends Member {
+  // All members with stripe_subscription_status = 'active'
+}
+
+export interface CurrentBoardMember extends Member {
+  // Board members with active terms
+  board_position: string;
+  board_term_start: string;
+  board_term_end?: string;
+}
+
+export interface MemberStats {
+  total_members: number;
+  active_members: number;
+  board_members: number;
+  professional_members: number;
+  student_members: number;
+  collaborator_members: number;
+}
+
+// Function return types
+export interface MemberSyncResult {
+  success: boolean;
+  member_email?: string;
+  stripe_customer_id?: string;
+  subscription_status?: string;
+  error?: string;
+  updated_at?: string;
+}
+
+export interface BatchSyncResult {
+  success: boolean;
+  total_members: number;
+  synced_successfully: number;
+  errors: number;
+  sync_timestamp: string;
+}
+
+export interface WebhookHandlerResult {
+  success: boolean;
+  event_type: string;
+  customer_id: string;
+  member_email?: string;
+  affected_rows?: number;
+  processed_at: string;
+  error?: string;
+}
+
+export interface UpsertMemberResult {
+  success: boolean;
+  action: 'created' | 'updated';
+  member_id: string;
+  email: string;
+  error?: string;
+}
+
+export interface BoardManagementResult {
+  success: boolean;
+  action: 'assigned' | 'removed';
+  board_id?: string;
+  member_email: string;
+  position?: string;
+  term_start?: string;
+  term_end?: string;
+  error?: string;
+}
+
+// Database table types for Supabase
 export interface Database {
   public: {
     Tables: {
       members: {
         Row: Member;
-        Insert: Omit<Member, 'id' | 'created_at' | 'updated_at'>;
+        Insert: Omit<Member, 'id' | 'created_at' | 'updated_at'> & {
+          stripe_customer_id: string; // Required
+          address: string; // Required
+          city: string; // Required
+          country: string; // Required
+          membership_type: string; // Required
+        };
         Update: Partial<Omit<Member, 'id' | 'created_at'>>;
       };
-      member_categories: {
-        Row: MemberCategory;
-        Insert: Omit<MemberCategory, 'id' | 'created_at'>;
-        Update: Partial<Omit<MemberCategory, 'id' | 'created_at'>>;
-      };
-      member_activity: {
-        Row: MemberActivity;
-        Insert: Omit<MemberActivity, 'id' | 'created_at'>;
-        Update: Partial<Omit<MemberActivity, 'id' | 'created_at'>>;
+      directiva: {
+        Row: BoardMember;
+        Insert: Omit<BoardMember, 'id' | 'created_at'>;
+        Update: Partial<Omit<BoardMember, 'id' | 'created_at'>>;
       };
     };
     Views: {
+      active_members: {
+        Row: ActiveMember;
+      };
       public_members: {
-        Row: Member & {
-          professions?: string[];
-          specializations?: string[];
-        };
+        Row: PublicMember;
       };
       board_members: {
-        Row: Member & {
-          board_roles?: string[];
-        };
+        Row: CurrentBoardMember;
+      };
+      members_only: {
+        Row: Member;
+      };
+      student_members: {
+        Row: Member;
+      };
+      professional_members: {
+        Row: Member;
+      };
+      member_stats: {
+        Row: MemberStats;
+      };
+      member_search: {
+        Row: Member;
       };
       member_stripe_data: {
-        Row: MemberWithStripe;
+        Row: Member & {
+          stripe_name?: string;
+          stripe_phone?: string;
+          stripe_address?: string;
+        };
+      };
+      expired_members: {
+        Row: Member;
       };
     };
     Functions: {
-      get_member_by_email: {
+      sync_member_stripe_status: {
         Args: { member_email: string };
-        Returns: {
-          id: string;
-          first_name: string;
-          last_name: string;
-          display_name?: string;
-          email: string;
-          membership_type?: string;
-          is_active: boolean;
-        }[];
+        Returns: MemberSyncResult;
       };
-      update_member_last_login: {
-        Args: { member_email: string };
-        Returns: void;
+      sync_all_members_with_stripe: {
+        Args: Record<string, never>;
+        Returns: BatchSyncResult;
       };
-      get_member_subscription_status: {
-        Args: { member_email: string };
-        Returns: {
-          member_id: string;
-          subscription_status?: string;
-          current_period_end?: string;
-          subscription_id?: string;
-        }[];
+      handle_stripe_webhook: {
+        Args: { 
+          event_type: string; 
+          customer_id: string; 
+          subscription_data?: Record<string, any> 
+        };
+        Returns: WebhookHandlerResult;
       };
-      link_member_to_stripe_customer: {
-        Args: { member_email: string; stripe_customer_id: string };
-        Returns: void;
+      upsert_member: {
+        Args: { 
+          p_email: string;
+          p_first_name?: string;
+          p_last_name?: string;
+          p_stripe_customer_id?: string;
+          p_phone?: string;
+          p_additional_data?: Record<string, any>;
+        };
+        Returns: UpsertMemberResult;
+      };
+      manage_board_member: {
+        Args: {
+          p_member_email: string;
+          p_position: string;
+          p_term_start: string;
+          p_term_end: string;
+          p_action?: 'assign' | 'remove';
+        };
+        Returns: BoardManagementResult;
       };
     };
   };
-  stripe: {
+  stripeschema: {
     Tables: {
       customers: {
         Row: StripeCustomer;
-        Insert: never; // Foreign table - read only via Stripe API
-        Update: never; // Foreign table - read only via Stripe API
+        Insert: never;
+        Update: never;
       };
       subscriptions: {
         Row: StripeSubscription;
-        Insert: never; // Foreign table - read only via Stripe API
-        Update: never; // Foreign table - read only via Stripe API
+        Insert: never;
+        Update: never;
       };
       products: {
         Row: StripeProduct;
-        Insert: never; // Foreign table - read only via Stripe API
-        Update: never; // Foreign table - read only via Stripe API
+        Insert: never;
+        Update: never;
       };
       prices: {
         Row: StripePrice;
-        Insert: never; // Foreign table - read only via Stripe API
-        Update: never; // Foreign table - read only via Stripe API
+        Insert: never;
+        Update: never;
       };
     };
   };
+}
+
+// Helper type for active membership check
+export type ActiveMembershipStatus = 'active' | 'inactive';
+
+// Utility function types
+export interface MembershipStatus {
+  isActive: boolean;
+  subscriptionStatus?: string;
+  subscriptionEnd?: string;
+  membershipType: string;
+}
+
+export interface MemberProfile {
+  basicInfo: Pick<Member, 'id' | 'email' | 'first_name' | 'last_name' | 'display_name' | 'phone'>;
+  address: Pick<Member, 'address' | 'city' | 'postal_code' | 'province' | 'autonomous_community' | 'country'>;
+  professional: Pick<Member, 'main_profession' | 'other_professions' | 'professional_role' | 'company' | 'years_experience' | 'employment_status'>;
+  membership: Pick<Member, 'membership_type' | 'stripe_subscription_status' | 'is_board_member' | 'board_position'>;
+  preferences: Pick<Member, 'privacy_level' | 'accepts_newsletter' | 'accepts_job_offers'>;
 }
