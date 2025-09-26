@@ -60,8 +60,8 @@ export const isTestingMember = (member: Partial<Member>): boolean => {
     return true;
   }
   
-  // Include members with profile images
-  if (member.profile_image_url && member.profile_image_url.trim() !== '') {
+  // Include any member with basic info (email, first name, last name)
+  if (member.email && member.first_name && member.last_name) {
     return true;
   }
   
@@ -134,8 +134,8 @@ export const memberService = {
         return isTestingMember(member);
       });
 
-      console.log(`🧪 Testing mode: ${allMembers.length} total public members, ${testingMembers.length} match testing criteria`);
-      console.log('Testing criteria: active subscription OR real Stripe customer OR has profile image');
+      console.log(`🧪 Testing mode: ${allMembers.length} total public members, ${testingMembers.length} match access criteria`);
+      console.log('Access criteria: active subscription OR real Stripe customer OR has basic member info');
       
       return testingMembers;
     } catch (error) {
@@ -681,7 +681,7 @@ export const authService = {
     
     if (!hasAccess) {
       const modeMsg = TESTING_MODE ? 
-        'Your account does not meet testing criteria (active subscription, Stripe customer, or profile image).' :
+        'Your account does not meet access criteria (active subscription, Stripe customer, or basic member info).' :
         'Your membership subscription is not active. Please renew your subscription to access the portal.';
       throw new Error(modeMsg);
     }
