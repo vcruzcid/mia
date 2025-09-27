@@ -103,7 +103,7 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
   boardPositionHistory: [],
   boardResponsibilities: [],
   selectedPeriod: '2025-2026', // Current period
-  availablePeriods: ['2018', '2019-2020', '2021-2022', '2023-2024', '2025-2026'],
+  availablePeriods: ['2025-2026', '2023-2024', '2021-2022', '2019-2020', '2018'],
   directivaData: null,
 
   fetchMembers: async () => {
