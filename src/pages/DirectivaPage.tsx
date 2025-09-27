@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useGalleryStore } from '../store/galleryStore';
-import type { DirectivaMember } from '../types';
+import type { DirectivaMember, BoardPosition } from '../types';
 import { ProfileImage } from '../components/ProfileImage';
 import { SocialMediaIcons } from '../components/SocialMediaIcons';
 import { Badge } from '../components/ui/badge';
@@ -8,30 +8,34 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 export function DirectivaPage() {
   const {
     loading,
-    selectedYear,
-    availableYears,
+    selectedPeriod,
+    availablePeriods,
     selectedMember,
     isModalOpen,
-    getFilteredDirectiva,
-    setSelectedYear,
+    getCurrentBoardMembers,
+    getBoardMembersForPeriod,
+    setSelectedPeriod,
     openMemberModal,
     closeMemberModal,
-    fetchDirectiva,
+    fetchBoardData,
   } = useGalleryStore();
 
   useEffect(() => {
-    fetchDirectiva();
-  }, [fetchDirectiva]);
+    fetchBoardData();
+  }, [fetchBoardData]);
 
-  const filteredDirectiva = getFilteredDirectiva();
-  const currentYear = new Date().getFullYear();
+  const currentBoardMembers = getCurrentBoardMembers();
+  const selectedPeriodMembers = getBoardMembersForPeriod(selectedPeriod);
+  const isCurrentPeriod = selectedPeriod === '2025-2026';
 
-  const handleYearChange = (year: number) => {
-    setSelectedYear(year);
+  const handlePeriodChange = (period: string) => {
+    setSelectedPeriod(period);
   };
 
   if (loading) {
@@ -55,63 +59,103 @@ export function DirectivaPage() {
           </p>
         </div>
 
-        {/* Year Selector */}
-        <div className="mt-10 max-w-md mx-auto">
+        {/* Period Selector */}
+        <div className="mt-10 max-w-2xl mx-auto">
           <label className="block text-sm font-medium text-gray-300 mb-3 text-center">
-            Seleccionar año de la directiva
+            Seleccionar período de la directiva
           </label>
-          <div className="grid grid-cols-4 gap-2">
-            {availableYears.slice().reverse().map((year) => (
-              <Button
-                key={year}
-                onClick={() => handleYearChange(year)}
-                variant={selectedYear === year ? "default" : "secondary"}
-                className={`px-4 py-3 rounded-lg font-medium text-sm transition-all duration-200 ${
-                  selectedYear === year
-                    ? 'transform scale-105'
-                    : 'border-2 border-white text-white hover:bg-white hover:text-gray-900'
-                }`}
-              >
-                {year}
-                {year === currentYear && (
-                  <span className="block text-xs opacity-75">
-                    Actual
-                  </span>
-                )}
-              </Button>
-            ))}
-          </div>
+          <Tabs value={selectedPeriod} onValueChange={handlePeriodChange} className="w-full">
+            <TabsList className="grid w-full grid-cols-5 bg-gray-800 border border-gray-700">
+              {availablePeriods.map((period) => (
+                <TabsTrigger
+                  key={period}
+                  value={period}
+                  className={`text-sm font-medium transition-all duration-200 ${
+                    period === '2025-2026' ? 'bg-primary-600 text-white' : 'text-gray-300 hover:text-white'
+                  }`}
+                >
+                  {period}
+                  {period === '2025-2026' && (
+                    <span className="ml-1 text-xs opacity-75">(Actual)</span>
+                  )}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
         </div>
       </div>
 
-      {/* Directiva Grid */}
+      {/* Directiva Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-        {filteredDirectiva.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="mx-auto h-24 w-24 bg-gray-200 rounded-full flex items-center justify-center mb-4">
-              <svg className="h-12 w-12 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              No hay información disponible
-            </h3>
-            <p className="text-gray-700">
-              No se encontraron miembros de la directiva para el año {selectedYear}.
-            </p>
-          </div>
-        ) : (
-          <div className="grid gap-8 lg:grid-cols-2">
-            {filteredDirectiva.map((member, index) => (
-              <DirectivaCard
-                key={member.id}
-                member={member}
-                index={index}
-                onClick={() => openMemberModal(member)}
-              />
-            ))}
-          </div>
-        )}
+        <Tabs value={selectedPeriod} onValueChange={handlePeriodChange}>
+          {availablePeriods.map((period) => (
+            <TabsContent key={period} value={period} className="mt-8">
+              {getBoardMembersForPeriod(period).length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="mx-auto h-24 w-24 bg-gray-200 rounded-full flex items-center justify-center mb-4">
+                    <svg className="h-12 w-12 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-medium text-white mb-2">
+                    No hay información disponible
+                  </h3>
+                  <p className="text-gray-300">
+                    No se encontraron miembros de la directiva para el período {period}.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-8">
+                  {/* Period Header */}
+                  <div className="text-center">
+                    <h2 className="text-2xl font-bold text-white mb-2">
+                      Período {period}
+                    </h2>
+                    {period === '2025-2026' && (
+                      <Badge variant="default" className="bg-green-600 text-white">
+                        Período Actual
+                      </Badge>
+                    )}
+                  </div>
+
+                  {/* Board Members Grid */}
+                  <div className="grid gap-8 lg:grid-cols-2">
+                    {getBoardMembersForPeriod(period).map((member, index) => (
+                      <DirectivaCard
+                        key={member.id}
+                        member={member}
+                        index={index}
+                        onClick={() => openMemberModal(member)}
+                        isCurrentPeriod={period === '2025-2026'}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Contact Board Section */}
+                  {period === '2025-2026' && (
+                    <div className="mt-12 text-center">
+                      <Card className="bg-gray-800 border-gray-700">
+                        <CardContent className="p-8">
+                          <h3 className="text-xl font-bold text-white mb-4">
+                            ¿Necesitas contactar con la Junta Directiva?
+                          </h3>
+                          <p className="text-gray-300 mb-6">
+                            Cada posición tiene su propio email para facilitar la comunicación directa.
+                          </p>
+                          <Button asChild className="bg-primary-600 hover:bg-primary-700">
+                            <a href="/contacto">
+                              Contactar con la Junta
+                            </a>
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  )}
+                </div>
+              )}
+            </TabsContent>
+          ))}
+        </Tabs>
       </div>
 
       {/* Member Modal */}
@@ -131,23 +175,48 @@ interface DirectivaCardProps {
   member: DirectivaMember;
   index: number;
   onClick: () => void;
+  isCurrentPeriod?: boolean;
 }
 
-function DirectivaCard({ member, index, onClick }: DirectivaCardProps) {
-
-  
-  const getPositionStyle = () => {
-    return 'from-red-600 to-red-700 text-white';
+function DirectivaCard({ member, index, onClick, isCurrentPeriod = false }: DirectivaCardProps) {
+  const getPositionStyle = (position: string) => {
+    const positionStyles: Record<string, string> = {
+      'Presidenta': 'from-red-600 to-red-700 text-white',
+      'Vice-Presidenta': 'from-orange-600 to-orange-700 text-white',
+      'Secretaria': 'from-blue-600 to-blue-700 text-white',
+      'Tesorera': 'from-green-600 to-green-700 text-white',
+      'Vocal Formacion': 'from-purple-600 to-purple-700 text-white',
+      'Vocal Comunicacion': 'from-pink-600 to-pink-700 text-white',
+      'Vocal Mianima': 'from-indigo-600 to-indigo-700 text-white',
+      'Vocal Financiacion': 'from-yellow-600 to-yellow-700 text-white',
+      'Vocal Socias': 'from-teal-600 to-teal-700 text-white',
+      'Vocal Festivales': 'from-cyan-600 to-cyan-700 text-white',
+      'Vocal': 'from-gray-600 to-gray-700 text-white',
+    };
+    return positionStyles[position] || 'from-gray-600 to-gray-700 text-white';
   };
 
-  const getCardStyle = () => {
-    return 'ring-2 ring-red-200 shadow-lg';
+  const getCardStyle = (position: string) => {
+    const cardStyles: Record<string, string> = {
+      'Presidenta': 'ring-2 ring-red-200 shadow-lg',
+      'Vice-Presidenta': 'ring-2 ring-orange-200 shadow-lg',
+      'Secretaria': 'ring-2 ring-blue-200 shadow-lg',
+      'Tesorera': 'ring-2 ring-green-200 shadow-lg',
+      'Vocal Formacion': 'ring-2 ring-purple-200 shadow-lg',
+      'Vocal Comunicacion': 'ring-2 ring-pink-200 shadow-lg',
+      'Vocal Mianima': 'ring-2 ring-indigo-200 shadow-lg',
+      'Vocal Financiacion': 'ring-2 ring-yellow-200 shadow-lg',
+      'Vocal Socias': 'ring-2 ring-teal-200 shadow-lg',
+      'Vocal Festivales': 'ring-2 ring-cyan-200 shadow-lg',
+      'Vocal': 'ring-2 ring-gray-200 shadow-lg',
+    };
+    return cardStyles[position] || 'ring-2 ring-gray-200 shadow-lg';
   };
 
   return (
     <Card 
       onClick={onClick}
-      className={`bg-white overflow-hidden transition-all duration-300 cursor-pointer transform hover:scale-105 ${getCardStyle()}`}
+      className={`bg-white overflow-hidden transition-all duration-300 cursor-pointer transform hover:scale-105 ${getCardStyle(member.position)}`}
       style={{
         animationDelay: `${index * 100}ms`,
         animation: 'fadeInUp 0.6s ease-out forwards'
@@ -155,7 +224,7 @@ function DirectivaCard({ member, index, onClick }: DirectivaCardProps) {
     >
       <div className="relative">
         {/* Header with gradient background */}
-        <div className={`bg-gradient-to-r ${getPositionStyle()} h-24`}>
+        <div className={`bg-gradient-to-r ${getPositionStyle(member.position)} h-24`}>
         </div>
         
         {/* Profile Image */}
@@ -167,7 +236,7 @@ function DirectivaCard({ member, index, onClick }: DirectivaCardProps) {
               size="lg"
               className="border-4 border-white shadow-lg"
             />
-            {member.isCurrentMember && (
+            {isCurrentPeriod && (
               <div className="absolute -top-1 -right-1 h-5 w-5 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
                 <svg className="h-3 w-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -183,7 +252,7 @@ function DirectivaCard({ member, index, onClick }: DirectivaCardProps) {
           <h3 className="text-xl font-bold text-gray-900 mb-1">
             {member.firstName} {member.lastName}
           </h3>
-          <div className={`inline-block px-3 py-1 rounded-full text-sm font-semibold bg-gradient-to-r ${getPositionStyle()}`}>
+          <div className={`inline-block px-3 py-1 rounded-full text-sm font-semibold bg-gradient-to-r ${getPositionStyle(member.position)}`}>
             {member.position}
           </div>
           {member.company && (
@@ -287,10 +356,27 @@ interface DirectivaModalProps {
 function DirectivaModal({ member, onClose }: DirectivaModalProps) {
   const isPresident = member.position.toLowerCase().includes('president');
   
+  const getPositionStyle = (position: string) => {
+    const positionStyles: Record<string, string> = {
+      'Presidenta': 'from-red-600 to-red-700',
+      'Vice-Presidenta': 'from-orange-600 to-orange-700',
+      'Secretaria': 'from-blue-600 to-blue-700',
+      'Tesorera': 'from-green-600 to-green-700',
+      'Vocal Formacion': 'from-purple-600 to-purple-700',
+      'Vocal Comunicacion': 'from-pink-600 to-pink-700',
+      'Vocal Mianima': 'from-indigo-600 to-indigo-700',
+      'Vocal Financiacion': 'from-yellow-600 to-yellow-700',
+      'Vocal Socias': 'from-teal-600 to-teal-700',
+      'Vocal Festivales': 'from-cyan-600 to-cyan-700',
+      'Vocal': 'from-gray-600 to-gray-700',
+    };
+    return positionStyles[position] || 'from-primary-500 to-primary-700';
+  };
+  
   return (
     <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           {/* Header */}
-          <div className={`bg-gradient-to-r ${isPresident ? 'from-red-600 to-red-700' : 'from-primary-500 to-primary-700'} px-6 py-4`}>
+          <div className={`bg-gradient-to-r ${getPositionStyle(member.position)} px-6 py-4`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <ProfileImage
@@ -378,36 +464,39 @@ function DirectivaModal({ member, onClose }: DirectivaModalProps) {
               </div>
             </div>
 
+            {/* Personal Commitment */}
+            {member.board_personal_commitment && (
+              <div>
+                <h4 className="text-sm font-semibold text-gray-900 mb-3">Compromiso personal</h4>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <p className="text-sm text-gray-700 leading-relaxed italic">
+                    "{member.board_personal_commitment}"
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Years and Previous Positions */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h4 className="text-sm font-semibold text-gray-900 mb-3">Años de servicio</h4>
+                <h4 className="text-sm font-semibold text-gray-900 mb-3">Período actual</h4>
                 <div className="flex flex-wrap gap-2">
-                  {member.yearServed.map((year) => (
-                    <span
-                      key={year}
-                      className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                        year === new Date().getFullYear()
-                          ? 'bg-green-100 text-green-700 ring-1 ring-green-200'
-                          : 'bg-gray-100 text-gray-700'
-                      }`}
-                    >
-                      {year}
-                      {year === new Date().getFullYear() && ' ✓'}
-                    </span>
-                  ))}
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700 ring-1 ring-green-200">
+                    {member.board_term_start?.split('-')[0]} - {member.board_term_end?.split('-')[0]}
+                    <span className="ml-1">✓</span>
+                  </span>
                 </div>
               </div>
 
-              {member.previousPositions && member.previousPositions.length > 0 && (
+              {member.position_history && member.position_history.length > 0 && (
                 <div>
-                  <h4 className="text-sm font-semibold text-gray-900 mb-3">Cargos anteriores</h4>
+                  <h4 className="text-sm font-semibold text-gray-900 mb-3">Historial de cargos</h4>
                   <div className="space-y-2">
-                    {member.previousPositions.map((prev, idx) => (
+                    {member.position_history.map((prev, idx) => (
                       <div key={idx} className="flex items-center justify-between p-2 bg-gray-50 rounded-md">
                         <span className="text-sm text-gray-700">{prev.position}</span>
                         <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded border">
-                          {prev.year}
+                          {prev.term_start?.split('-')[0]} - {prev.term_end?.split('-')[0]}
                         </span>
                       </div>
                     ))}
