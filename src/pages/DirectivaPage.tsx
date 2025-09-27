@@ -9,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Accordion } from '@/components/ui/accordion';
 
 export function DirectivaPage() {
   const {
@@ -288,23 +288,24 @@ function DirectivaCard({ member, index, onClick, isCurrentPeriod = false }: Dire
           
           {/* Mobile collapsible version */}
           <div className="sm:hidden">
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="responsibilities" className="border-none">
-                <AccordionTrigger className="text-sm font-semibold text-gray-900 py-2 hover:no-underline">
-                  Responsabilidades
-                </AccordionTrigger>
-                <AccordionContent className="space-y-1 pt-2">
-                  {member.responsibilities.map((responsibility, idx) => (
-                    <div key={idx} className="flex items-start">
-                      <svg className="h-4 w-4 text-primary-500 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <span className="text-xs text-gray-700">{responsibility}</span>
-                    </div>
-                  ))}
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
+            <Accordion 
+              items={[{
+                title: "Responsabilidades",
+                content: (
+                  <div className="space-y-1">
+                    {member.responsibilities.map((responsibility, idx) => (
+                      <div key={idx} className="flex items-start">
+                        <svg className="h-4 w-4 text-primary-500 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className="text-xs text-gray-700">{responsibility}</span>
+                      </div>
+                    ))}
+                  </div>
+                )
+              }]}
+              className="w-full"
+            />
           </div>
         </div>
 
