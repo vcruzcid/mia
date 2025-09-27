@@ -32,9 +32,10 @@ export interface Member {
   stripe_subscription_status?: string;
   subscription_current_period_end?: string;
   is_board_member?: boolean;
-  board_position?: string;
+  board_position?: BoardPosition;
   board_term_start?: string;
   board_term_end?: string;
+  board_personal_commitment?: string;
   accepts_newsletter?: boolean;
   accepts_job_offers?: boolean;
   privacy_level?: 'public' | 'members-only' | 'private';
@@ -58,14 +59,48 @@ export interface Member {
   last_login?: string;
 }
 
+// Board position types - all positions for women-only organization
+export type BoardPosition = 
+  | 'Presidenta'
+  | 'Vice-Presidenta'
+  | 'Secretaria'
+  | 'Tesorera'
+  | 'Vocal Formacion'
+  | 'Vocal Comunicacion'
+  | 'Vocal Mianima'
+  | 'Vocal Financiacion'
+  | 'Vocal Socias'
+  | 'Vocal Festivales'
+  | 'Vocal';
+
 // Separate table for board member management with terms
 export interface BoardMember {
   id: string;
   member_id: string;
-  position: 'Presidenta' | 'Secretaria' | 'Tesorera' | 'Vocal'; // Feminine positions for women-only org
+  position: BoardPosition;
   term_start: string;
   term_end: string;
   created_at?: string;
+}
+
+// Board position history for tracking past positions
+export interface BoardPositionHistory {
+  id: string;
+  member_id: string;
+  position: BoardPosition;
+  term_start: string;
+  term_end: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+// Board position responsibilities
+export interface BoardPositionResponsibilities {
+  id: string;
+  position: BoardPosition;
+  default_responsibilities: string[];
+  created_at?: string;
+  updated_at?: string;
 }
 
 // Stripe Foreign Data Wrapper Types (unchanged)
@@ -143,9 +178,10 @@ export interface ActiveMember extends Member {
 
 export interface CurrentBoardMember extends Member {
   // Board members with active terms
-  board_position: string;
+  board_position: BoardPosition;
   board_term_start: string;
   board_term_end?: string;
+  board_personal_commitment?: string;
 }
 
 export interface MemberStats {
@@ -223,6 +259,16 @@ export interface Database {
         Row: BoardMember;
         Insert: Omit<BoardMember, 'id' | 'created_at'>;
         Update: Partial<Omit<BoardMember, 'id' | 'created_at'>>;
+      };
+      board_position_history: {
+        Row: BoardPositionHistory;
+        Insert: Omit<BoardPositionHistory, 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Omit<BoardPositionHistory, 'id' | 'created_at' | 'updated_at'>>;
+      };
+      board_position_responsibilities: {
+        Row: BoardPositionResponsibilities;
+        Insert: Omit<BoardPositionResponsibilities, 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Omit<BoardPositionResponsibilities, 'id' | 'created_at' | 'updated_at'>>;
       };
     };
     Views: {
@@ -344,4 +390,23 @@ export interface MemberProfile {
   professional: Pick<Member, 'main_profession' | 'other_professions' | 'professional_role' | 'company' | 'years_experience' | 'employment_status'>;
   membership: Pick<Member, 'membership_type' | 'stripe_subscription_status' | 'is_board_member' | 'board_position'>;
   preferences: Pick<Member, 'privacy_level' | 'accepts_newsletter' | 'accepts_job_offers'>;
+}
+
+// Directiva page specific types
+export interface BoardMemberWithHistory extends CurrentBoardMember {
+  position_history: BoardPositionHistory[];
+  position_responsibilities: string[];
+}
+
+export interface BoardPeriod {
+  term_start: string;
+  term_end: string;
+  is_current: boolean;
+  members: BoardMemberWithHistory[];
+}
+
+export interface DirectivaPageData {
+  current_period: BoardPeriod;
+  historical_periods: BoardPeriod[];
+  all_responsibilities: Record<BoardPosition, string[]>;
 }
