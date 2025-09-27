@@ -60,23 +60,24 @@ export function DirectivaPage() {
         </div>
 
         {/* Period Selector */}
-        <div className="mt-10 max-w-2xl mx-auto">
+        <div className="mt-10 max-w-2xl mx-auto px-4">
           <label className="block text-sm font-medium text-gray-300 mb-3 text-center">
             Seleccionar período de la directiva
           </label>
           <Tabs value={selectedPeriod} onValueChange={handlePeriodChange} className="w-full">
-            <TabsList className="grid w-full grid-cols-5 bg-gray-800 border border-gray-700">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 bg-gray-800 border border-gray-700">
               {availablePeriods.map((period) => (
                 <TabsTrigger
                   key={period}
                   value={period}
-                  className={`text-sm font-medium transition-all duration-200 ${
+                  className={`text-xs sm:text-sm font-medium transition-all duration-200 ${
                     period === '2025-2026' ? 'bg-primary-600 text-white' : 'text-gray-300 hover:text-white'
                   }`}
                 >
-                  {period}
+                  <span className="hidden sm:inline">{period}</span>
+                  <span className="sm:hidden">{period.split('-')[0]}</span>
                   {period === '2025-2026' && (
-                    <span className="ml-1 text-xs opacity-75">(Actual)</span>
+                    <span className="ml-1 text-xs opacity-75 hidden sm:inline">(Actual)</span>
                   )}
                 </TabsTrigger>
               ))}
@@ -119,7 +120,7 @@ export function DirectivaPage() {
                   </div>
 
                   {/* Board Members Grid */}
-                  <div className="grid gap-8 lg:grid-cols-2">
+                  <div className="grid gap-6 sm:gap-8 grid-cols-1 lg:grid-cols-2">
                     {getBoardMembersForPeriod(period).map((member, index) => (
                       <DirectivaCard
                         key={member.id}
@@ -247,40 +248,63 @@ function DirectivaCard({ member, index, onClick, isCurrentPeriod = false }: Dire
         </div>
       </div>
 
-      <CardContent className="pt-10 p-6">
+      <CardContent className="pt-10 p-4 sm:p-6">
         <div className="mb-4">
-          <h3 className="text-xl font-bold text-gray-900 mb-1">
+          <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">
             {member.firstName} {member.lastName}
           </h3>
-          <div className={`inline-block px-3 py-1 rounded-full text-sm font-semibold bg-gradient-to-r ${getPositionStyle(member.position)}`}>
+          <div className={`inline-block px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold bg-gradient-to-r ${getPositionStyle(member.position)}`}>
             {member.position}
           </div>
           {member.company && (
-            <p className="text-sm text-gray-700 mt-2">
+            <p className="text-xs sm:text-sm text-gray-700 mt-2">
               {member.company}
             </p>
           )}
         </div>
 
-        {/* Responsibilities */}
+        {/* Responsibilities - Collapsible on mobile */}
         <div className="mb-4">
-          <h4 className="text-sm font-semibold text-gray-900 mb-2">Responsabilidades</h4>
-          <div className="space-y-1">
-            {member.responsibilities.slice(0, 3).map((responsibility, idx) => (
-              <div key={idx} className="flex items-center">
-                <svg className="h-4 w-4 text-primary-500 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span className="text-sm text-gray-700">{responsibility}</span>
-              </div>
-            ))}
-            {member.responsibilities.length > 3 && (
-              <div className="flex items-center">
-                <Badge variant="secondary" className="text-xs ml-6">
-                  +{member.responsibilities.length - 3} más responsabilidades
-                </Badge>
-              </div>
-            )}
+          <div className="sm:block">
+            <h4 className="text-sm font-semibold text-gray-900 mb-2">Responsabilidades</h4>
+            <div className="space-y-1">
+              {member.responsibilities.slice(0, 3).map((responsibility, idx) => (
+                <div key={idx} className="flex items-center">
+                  <svg className="h-4 w-4 text-primary-500 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span className="text-xs sm:text-sm text-gray-700">{responsibility}</span>
+                </div>
+              ))}
+              {member.responsibilities.length > 3 && (
+                <div className="flex items-center">
+                  <Badge variant="secondary" className="text-xs ml-6">
+                    +{member.responsibilities.length - 3} más responsabilidades
+                  </Badge>
+                </div>
+              )}
+            </div>
+          </div>
+          
+          {/* Mobile collapsible version */}
+          <div className="sm:hidden">
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="responsibilities" className="border-none">
+                <AccordionTrigger className="text-sm font-semibold text-gray-900 py-2 hover:no-underline">
+                  Responsabilidades
+                </AccordionTrigger>
+                <AccordionContent className="space-y-1 pt-2">
+                  {member.responsibilities.map((responsibility, idx) => (
+                    <div key={idx} className="flex items-start">
+                      <svg className="h-4 w-4 text-primary-500 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span className="text-xs text-gray-700">{responsibility}</span>
+                    </div>
+                  ))}
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </div>
         </div>
 
@@ -374,9 +398,9 @@ function DirectivaModal({ member, onClose }: DirectivaModalProps) {
   };
   
   return (
-    <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+    <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto mx-4 sm:mx-0">
           {/* Header */}
-          <div className={`bg-gradient-to-r ${getPositionStyle(member.position)} px-6 py-4`}>
+          <div className={`bg-gradient-to-r ${getPositionStyle(member.position)} px-4 sm:px-6 py-4`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <ProfileImage
@@ -412,7 +436,7 @@ function DirectivaModal({ member, onClose }: DirectivaModalProps) {
           </div>
 
           {/* Content */}
-          <div className="px-6 py-6 space-y-6">
+          <div className="px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
             {member.bio && (
               <div>
                 <h4 className="text-sm font-semibold text-gray-900 mb-2">Biografía</h4>
@@ -420,7 +444,7 @@ function DirectivaModal({ member, onClose }: DirectivaModalProps) {
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div>
                 <h4 className="text-sm font-semibold text-gray-900 mb-3">Responsabilidades</h4>
                 <div className="space-y-2">
@@ -477,7 +501,7 @@ function DirectivaModal({ member, onClose }: DirectivaModalProps) {
             )}
 
             {/* Years and Previous Positions */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div>
                 <h4 className="text-sm font-semibold text-gray-900 mb-3">Período actual</h4>
                 <div className="flex flex-wrap gap-2">
