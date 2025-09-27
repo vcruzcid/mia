@@ -1,6 +1,14 @@
 import { create } from 'zustand';
 import { memberService, isActiveMember } from '../services/supabaseService';
-import type { Member } from '../types/supabase';
+import type { 
+  Member, 
+  BoardPosition, 
+  BoardPositionHistory, 
+  BoardPositionResponsibilities,
+  BoardMemberWithHistory,
+  BoardPeriod,
+  DirectivaPageData
+} from '../types/supabase';
 import { cleanMemberData } from '../utils/textDecoding';
 
 interface GalleryState {
@@ -23,12 +31,24 @@ interface GalleryState {
     isActive: boolean | null;
   };
   
+  // Board-specific state
+  boardMembers: BoardMemberWithHistory[];
+  boardPositionHistory: BoardPositionHistory[];
+  boardResponsibilities: BoardPositionResponsibilities[];
+  selectedPeriod: string; // Format: "2025-2026"
+  availablePeriods: string[];
+  directivaData: DirectivaPageData | null;
+  
   // Actions
   fetchMembers: () => Promise<void>;
   fetchDirectiva: () => Promise<void>;
+  fetchBoardData: () => Promise<void>;
+  fetchBoardPositionHistory: () => Promise<void>;
+  fetchBoardResponsibilities: () => Promise<void>;
   setSearchTerm: (term: string) => void;
   setFilters: (filters: Partial<GalleryState['filters']>) => void;
   setSelectedYear: (year: number) => void;
+  setSelectedPeriod: (period: string) => void;
   applyFilters: () => void;
   resetFilters: () => void;
   
@@ -45,6 +65,8 @@ interface GalleryState {
   // Getters
   getFilteredMembers: () => Member[];
   getFilteredDirectiva: () => any[];
+  getBoardMembersForPeriod: (period?: string) => BoardMemberWithHistory[];
+  getCurrentBoardMembers: () => BoardMemberWithHistory[];
   getAvailableLocations: () => string[];
   getMemberCounts: () => { 
     total: number; 
@@ -75,6 +97,14 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
   selectedYear: new Date().getFullYear(),
   availableYears: [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026],
   filters: initialFilters,
+  
+  // Board-specific state
+  boardMembers: [],
+  boardPositionHistory: [],
+  boardResponsibilities: [],
+  selectedPeriod: '2025-2026', // Current period
+  availablePeriods: ['2018', '2019-2020', '2021-2022', '2023-2024', '2025-2026'],
+  directivaData: null,
 
   fetchMembers: async () => {
     set({ isLoading: true, loading: true, error: null });
@@ -130,6 +160,67 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
     }
   },
 
+  fetchBoardData: async () => {
+    set({ isLoading: true, error: null });
+    
+    try {
+      // Fetch all board-related data in parallel
+      const [boardMembers, positionHistory, responsibilities] = await Promise.all([
+        memberService.getBoardMembers(),
+        get().fetchBoardPositionHistory(),
+        get().fetchBoardResponsibilities()
+      ]);
+      
+      // Clean and process board members
+      const cleanedBoardMembers = boardMembers.map(member => cleanMemberData(member));
+      
+      // Create board members with history
+      const boardMembersWithHistory: BoardMemberWithHistory[] = cleanedBoardMembers.map(member => ({
+        ...member,
+        position_history: get().boardPositionHistory.filter(history => history.member_id === member.id),
+        position_responsibilities: get().getPositionResponsibilities(member.board_position || 'Vocal')
+      }));
+      
+      set({ 
+        boardMembers: boardMembersWithHistory,
+        isLoading: false
+      });
+      
+    } catch (error) {
+      console.error('Error fetching board data:', error);
+      set({ 
+        error: error instanceof Error ? error.message : 'Failed to fetch board data',
+        isLoading: false
+      });
+    }
+  },
+
+  fetchBoardPositionHistory: async () => {
+    try {
+      // This would be implemented in supabaseService
+      // For now, return empty array as placeholder
+      const positionHistory: BoardPositionHistory[] = [];
+      set({ boardPositionHistory: positionHistory });
+      return positionHistory;
+    } catch (error) {
+      console.error('Error fetching board position history:', error);
+      return [];
+    }
+  },
+
+  fetchBoardResponsibilities: async () => {
+    try {
+      // This would be implemented in supabaseService
+      // For now, return empty array as placeholder
+      const responsibilities: BoardPositionResponsibilities[] = [];
+      set({ boardResponsibilities: responsibilities });
+      return responsibilities;
+    } catch (error) {
+      console.error('Error fetching board responsibilities:', error);
+      return [];
+    }
+  },
+
   setSearchTerm: (searchTerm: string) => {
     set({ searchTerm });
     get().applyFilters();
@@ -145,6 +236,10 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
   setSelectedYear: (selectedYear: number) => {
     set({ selectedYear });
     get().applyFilters();
+  },
+
+  setSelectedPeriod: (selectedPeriod: string) => {
+    set({ selectedPeriod });
   },
 
   openMemberModal: (selectedMember: Member) => {
@@ -336,6 +431,28 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
     }));
   },
 
+  getBoardMembersForPeriod: (period?: string) => {
+    const { boardMembers, selectedPeriod } = get();
+    const targetPeriod = period || selectedPeriod;
+    
+    return boardMembers.filter(member => {
+      const memberPeriod = `${member.board_term_start?.split('-')[0]}-${member.board_term_end?.split('-')[0]}`;
+      return memberPeriod === targetPeriod;
+    });
+  },
+
+  getCurrentBoardMembers: () => {
+    const { boardMembers } = get();
+    const currentYear = new Date().getFullYear();
+    
+    return boardMembers.filter(member => {
+      const termStart = member.board_term_start ? new Date(member.board_term_start).getFullYear() : null;
+      const termEnd = member.board_term_end ? new Date(member.board_term_end).getFullYear() : null;
+      
+      return termStart && termStart <= currentYear && (!termEnd || termEnd >= currentYear);
+    });
+  },
+
   getAvailableLocations: () => {
     const { members } = get();
     const locations = members
@@ -377,38 +494,91 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
 }));
 
 // Helper function to get position responsibilities
-function getPositionResponsibilities(position: string): string[] {
-  const responsibilities: Record<string, string[]> = {
+function getPositionResponsibilities(position: BoardPosition | string): string[] {
+  const responsibilities: Record<BoardPosition, string[]> = {
     'Presidenta': [
-      'Dirigir las sesiones de la junta directiva',
-      'Representar a MIA en eventos públicos',
-      'Supervisar la estrategia organizacional',
-      'Coordinación con otras organizaciones del sector'
+      'Representar legalmente a la asociación',
+      'Convocar y presidir las reuniones de la Junta Directiva',
+      'Ejecutar los acuerdos adoptados por la Asamblea General',
+      'Supervisar el cumplimiento de los estatutos y reglamentos',
+      'Mantener relaciones institucionales con otras organizaciones'
+    ],
+    'Vice-Presidenta': [
+      'Sustituir a la Presidenta en caso de ausencia',
+      'Colaborar en la representación de la asociación',
+      'Apoyar en la coordinación de actividades',
+      'Participar en la toma de decisiones estratégicas',
+      'Facilitar la comunicación entre miembros de la Junta'
     ],
     'Secretaria': [
-      'Redactar actas de las reuniones',
-      'Gestionar la correspondencia oficial',
-      'Mantener registros organizacionales',
-      'Coordinar comunicaciones internas'
+      'Redactar y custodiar las actas de las reuniones',
+      'Gestionar la correspondencia oficial de la asociación',
+      'Mantener actualizado el registro de socias',
+      'Organizar la documentación administrativa',
+      'Coordinar la comunicación interna y externa'
     ],
     'Tesorera': [
-      'Gestionar las finanzas de la organización',
-      'Preparar informes financieros',
-      'Supervisar presupuestos y gastos',
-      'Coordinar con proveedores y patrocinadores'
+      'Gestionar las finanzas de la asociación',
+      'Elaborar presupuestos anuales',
+      'Controlar ingresos y gastos',
+      'Presentar informes financieros periódicos',
+      'Mantener la contabilidad actualizada'
+    ],
+    'Vocal Formacion': [
+      'Organizar cursos y talleres de formación',
+      'Coordinar programas educativos',
+      'Gestionar colaboraciones con instituciones formativas',
+      'Desarrollar contenidos pedagógicos',
+      'Evaluar la calidad de las actividades formativas'
+    ],
+    'Vocal Comunicacion': [
+      'Gestionar las redes sociales de la asociación',
+      'Coordinar la comunicación digital',
+      'Elaborar materiales promocionales',
+      'Mantener la página web actualizada',
+      'Organizar eventos de difusión'
+    ],
+    'Vocal Mianima': [
+      'Coordinar el festival MIANIMA',
+      'Gestionar la programación del evento',
+      'Organizar actividades paralelas',
+      'Coordinar con patrocinadores del festival',
+      'Supervisar la logística del evento'
+    ],
+    'Vocal Financiacion': [
+      'Buscar fuentes de financiación',
+      'Elaborar propuestas de subvenciones',
+      'Gestionar relaciones con patrocinadores',
+      'Coordinar campañas de crowdfunding',
+      'Desarrollar estrategias de sostenibilidad económica'
+    ],
+    'Vocal Socias': [
+      'Gestionar el proceso de incorporación de nuevas socias',
+      'Organizar actividades de networking',
+      'Coordinar programas de mentoría',
+      'Facilitar la integración de nuevas miembros',
+      'Mantener el contacto directo con las socias'
+    ],
+    'Vocal Festivales': [
+      'Coordinar la participación en festivales externos',
+      'Gestionar la presencia de MIA en eventos del sector',
+      'Organizar proyecciones y muestras',
+      'Coordinar con otros festivales de animación',
+      'Desarrollar estrategias de visibilidad'
     ],
     'Vocal': [
-      'Participar en decisiones de la junta',
-      'Apoyar iniciativas organizacionales',
-      'Representar intereses de los miembros',
-      'Colaborar en proyectos especiales'
+      'Participar en las decisiones de la Junta Directiva',
+      'Colaborar en proyectos específicos',
+      'Apoyar a otros vocales en sus funciones',
+      'Representar a la asociación en eventos',
+      'Contribuir al desarrollo de nuevas iniciativas'
     ]
   };
   
-  return responsibilities[position] || [
-    'Participar en decisiones de la junta directiva',
-    'Colaborar en iniciativas organizacionales',
-    'Representar los intereses de los miembros'
+  return responsibilities[position as BoardPosition] || [
+    'Participar en las decisiones de la Junta Directiva',
+    'Colaborar en proyectos específicos',
+    'Representar a la asociación en eventos'
   ];
 }
 
