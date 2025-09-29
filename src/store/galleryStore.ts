@@ -69,6 +69,7 @@ interface GalleryState {
   getCurrentBoardMembers: () => BoardMemberWithHistory[];
   getAvailableLocations: () => string[];
   getPositionResponsibilitiesFromDB: (position: string) => string[];
+  getAvailablePeriods: () => string[];
   getMemberCounts: () => { 
     total: number; 
     active: number; 
@@ -491,6 +492,41 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
     const { boardResponsibilities } = get();
     const responsibility = boardResponsibilities.find(r => r.position === position);
     return responsibility?.default_responsibilities || getPositionResponsibilities(position);
+  },
+
+  getAvailablePeriods: () => {
+    const { boardMembers, boardPositionHistory } = get();
+    
+    // Get all unique periods from current board members and history
+    const periods = new Set<string>();
+    
+    // Add periods from current board members
+    boardMembers.forEach(member => {
+      if (member.board_term_start) {
+        const startYear = new Date(member.board_term_start).getFullYear();
+        const endYear = member.board_term_end ? new Date(member.board_term_end).getFullYear() : new Date().getFullYear();
+        periods.add(`${startYear}-${endYear}`);
+      }
+    });
+    
+    // Add periods from historical data
+    boardPositionHistory.forEach(history => {
+      if (history.term_start) {
+        const startYear = new Date(history.term_start).getFullYear();
+        const endYear = history.term_end ? new Date(history.term_end).getFullYear() : new Date().getFullYear();
+        periods.add(`${startYear}-${endYear}`);
+      }
+    });
+    
+    // Convert to array and sort (newest first)
+    const sortedPeriods = Array.from(periods).sort((a, b) => {
+      const aStart = parseInt(a.split('-')[0]);
+      const bStart = parseInt(b.split('-')[0]);
+      return bStart - aStart;
+    });
+    
+    // If no periods found, return default periods
+    return sortedPeriods.length > 0 ? sortedPeriods : ['2025-2026', '2023-2024', '2021-2022', '2019-2020', '2018'];
   },
 
   getMemberCounts: () => {

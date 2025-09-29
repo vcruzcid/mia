@@ -64,11 +64,11 @@ export function DirectivaPage() {
   const {
     loading,
     selectedPeriod,
-    availablePeriods,
     selectedMember,
     isModalOpen,
     getCurrentBoardMembers,
     getBoardMembersForPeriod,
+    getAvailablePeriods,
     setSelectedPeriod,
     openMemberModal,
     closeMemberModal,
@@ -79,6 +79,7 @@ export function DirectivaPage() {
     fetchBoardData();
   }, [fetchBoardData]);
 
+  const availablePeriods = getAvailablePeriods();
   const currentBoardMembers = getCurrentBoardMembers().map(transformBoardMemberToDirectivaMember);
   const selectedPeriodMembers = getBoardMembersForPeriod(selectedPeriod).map(transformBoardMemberToDirectivaMember);
   const isCurrentPeriod = selectedPeriod === '2025-2026';
