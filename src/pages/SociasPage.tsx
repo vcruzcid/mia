@@ -242,15 +242,14 @@ export function SociasPage() {
                 <div>
                   <h3 className="text-sm font-medium text-gray-900 mb-3">Estado de Disponibilidad</h3>
                   <div className="space-y-2">
-                    {(['Available', 'Busy', 'Not Available'] as const).map((status) => (
+                    {(['Disponible', 'Empleada', 'Freelance'] as const).map((status) => (
                       <label key={status} className="flex items-center space-x-3">
                         <Checkbox
                           checked={filters.availabilityStatus.includes(status)}
                           onCheckedChange={() => toggleAvailabilityStatus(status)}
                         />
                         <span className="text-sm text-gray-700">
-                          {status === 'Available' ? 'Disponible' : 
-                           status === 'Busy' ? 'Ocupada' : 'No Disponible'}
+                          {status}
                           <span className="ml-2 text-gray-600">
                             ({memberCounts.byAvailability[status] || 0})
                           </span>
@@ -469,27 +468,23 @@ function MemberCard({ member, onClick }: MemberCardProps) {
               {member.firstName} {member.lastName}
             </p>
             <p className="text-sm text-gray-700 truncate">
-              {member.company || 'Freelance'}
+              {member.profession || member.company || 'Profesional'}
             </p>
           </div>
         </div>
 
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <Badge variant={member.memberType === 'socia-pleno-derecho' ? 'default' : 'outline'}>
-              {member.memberType === 'socia-pleno-derecho' ? 'Pleno Derecho' : 'Colaborador/a'}
-            </Badge>
-            <Badge variant={member.availabilityStatus === 'Available' ? 'default' : member.availabilityStatus === 'Busy' ? 'secondary' : 'destructive'}>
-              {member.availabilityStatus === 'Available' ? 'Disponible' :
-               member.availabilityStatus === 'Busy' ? 'Ocupada' : 'No Disponible'}
+          <div className="flex items-center justify-end">
+            <Badge variant={member.availabilityStatus === 'Disponible' ? 'default' : member.availabilityStatus === 'Empleada' ? 'secondary' : 'outline'}>
+              <span className="flex items-center space-x-1">
+                {member.availabilityStatus === 'Disponible' && <span>🟢</span>}
+                {member.availabilityStatus === 'Empleada' && <span>🟡</span>}
+                {member.availabilityStatus === 'Freelance' && <span>🔵</span>}
+                <span>{member.availabilityStatus}</span>
+              </span>
             </Badge>
           </div>
 
-          <div>
-            <p className="text-sm text-gray-800">
-              📍 {member.location.city && `${member.location.city}, `}{member.location.country}
-            </p>
-          </div>
 
           <div>
             <p className="text-sm text-gray-700 font-medium mb-1">Especializaciones:</p>
@@ -547,12 +542,13 @@ function MemberModal({ member, onClose }: MemberModalProps) {
                 )}
               </DialogDescription>
               <div className="flex gap-2 mt-2">
-                <Badge variant={member.memberType === 'socia-pleno-derecho' ? 'default' : 'outline'}>
-                  {member.memberType === 'socia-pleno-derecho' ? 'Pleno Derecho' : 'Colaborador/a'}
-                </Badge>
-                <Badge variant={member.availabilityStatus === 'Available' ? 'default' : member.availabilityStatus === 'Busy' ? 'secondary' : 'destructive'}>
-                  {member.availabilityStatus === 'Available' ? 'Disponible' :
-                   member.availabilityStatus === 'Busy' ? 'Ocupada' : 'No Disponible'}
+                <Badge variant={member.availabilityStatus === 'Disponible' ? 'default' : member.availabilityStatus === 'Empleada' ? 'secondary' : 'outline'}>
+                  <span className="flex items-center space-x-1">
+                    {member.availabilityStatus === 'Disponible' && <span>🟢</span>}
+                    {member.availabilityStatus === 'Empleada' && <span>🟡</span>}
+                    {member.availabilityStatus === 'Freelance' && <span>🔵</span>}
+                    <span>{member.availabilityStatus}</span>
+                  </span>
                 </Badge>
               </div>
             </div>
@@ -598,6 +594,12 @@ function MemberModal({ member, onClose }: MemberModalProps) {
                   <p className="text-gray-900">{member.employment_status}</p>
                 </div>
               )}
+              <div>
+                <span className="text-gray-600">Tipo de membresía:</span>
+                <p className="text-gray-900">
+                  {member.memberType === 'socia-pleno-derecho' ? 'Socia de Pleno Derecho' : 'Colaborador/a'}
+                </p>
+              </div>
             </div>
           </div>
 
@@ -646,12 +648,6 @@ function MemberModal({ member, onClose }: MemberModalProps) {
           <div>
             <h4 className="text-sm font-medium text-gray-900 mb-2">Ubicación</h4>
             <div className="text-sm text-gray-700 space-y-1">
-              {(member.address || member.location?.city) && (
-                <p className="flex items-center">
-                  <span className="text-gray-500 mr-2">🏠</span>
-                  {member.address || member.location?.city}
-                </p>
-              )}
               {(member.province || member.location?.region) && (
                 <p className="flex items-center">
                   <span className="text-gray-500 mr-2">🌍</span>
