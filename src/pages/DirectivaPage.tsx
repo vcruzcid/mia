@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useGalleryStore } from '../store/galleryStore';
 import type { DirectivaMember, BoardPosition } from '../types';
+import type { BoardMemberWithHistory } from '../types/supabase';
 import { ProfileImage } from '../components/ProfileImage';
 import { SocialMediaIcons } from '../components/SocialMediaIcons';
 import { Badge } from '../components/ui/badge';
@@ -10,6 +11,54 @@ import { Spinner } from '@/components/ui/spinner';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion } from '@/components/ui/accordion';
+
+// Helper function to transform database data to UI format
+function transformBoardMemberToDirectivaMember(member: BoardMemberWithHistory): DirectivaMember {
+  return {
+    id: member.id,
+    firstName: member.first_name || '',
+    lastName: member.last_name || '',
+    displayName: member.display_name || `${member.first_name || ''} ${member.last_name || ''}`.trim(),
+    position: member.board_position || 'Vocal',
+    responsibilities: member.position_responsibilities || [],
+    profileImage: member.profile_image_url || '',
+    company: member.company || '',
+    location: {
+      city: member.city || '',
+      region: member.autonomous_community || member.province || '',
+      country: member.country || 'España'
+    },
+    bio: member.biography || '',
+    biography: member.biography || '',
+    yearServed: getYearsServed(member.board_term_start, member.board_term_end),
+    joinDate: member.created_at || new Date().toISOString(),
+    socialMedia: member.social_media || {},
+    specializations: member.other_professions || [],
+    previousPositions: member.position_history?.map(history => ({
+      position: history.position,
+      year: new Date(history.term_start).getFullYear().toString()
+    })) || [],
+    board_term_start: member.board_term_start,
+    board_term_end: member.board_term_end,
+    board_personal_commitment: member.board_personal_commitment,
+    position_history: member.position_history || []
+  };
+}
+
+// Helper function to calculate years served
+function getYearsServed(startDate?: string, endDate?: string): number[] {
+  if (!startDate) return [new Date().getFullYear()];
+  
+  const start = new Date(startDate).getFullYear();
+  const end = endDate ? new Date(endDate).getFullYear() : new Date().getFullYear();
+  
+  const years = [];
+  for (let year = start; year <= end; year++) {
+    years.push(year);
+  }
+  
+  return years.length > 0 ? years : [new Date().getFullYear()];
+}
 
 export function DirectivaPage() {
   const {
@@ -30,8 +79,8 @@ export function DirectivaPage() {
     fetchBoardData();
   }, [fetchBoardData]);
 
-  const currentBoardMembers = getCurrentBoardMembers();
-  const selectedPeriodMembers = getBoardMembersForPeriod(selectedPeriod);
+  const currentBoardMembers = getCurrentBoardMembers().map(transformBoardMemberToDirectivaMember);
+  const selectedPeriodMembers = getBoardMembersForPeriod(selectedPeriod).map(transformBoardMemberToDirectivaMember);
   const isCurrentPeriod = selectedPeriod === '2025-2026';
 
   const handlePeriodChange = (period: string) => {
@@ -121,12 +170,12 @@ export function DirectivaPage() {
 
                   {/* Board Members Grid */}
                   <div className="grid gap-6 sm:gap-8 grid-cols-1 lg:grid-cols-2">
-                    {getBoardMembersForPeriod(period).map((member, index) => (
+                    {getBoardMembersForPeriod(period).map(transformBoardMemberToDirectivaMember).map((member, index) => (
                       <DirectivaCard
                         key={member.id}
                         member={member}
                         index={index}
-                        onClick={() => openMemberModal(member)}
+                        onClick={() => openMemberModal(member as any)}
                         isCurrentPeriod={period === '2025-2026'}
                       />
                     ))}
