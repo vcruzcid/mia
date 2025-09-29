@@ -97,6 +97,16 @@ export function DirectivaPage() {
   // Check if we have any board members data at all
   const hasBoardData = getCurrentBoardMembers().length > 0;
 
+  // Debug logging
+  console.log('DirectivaPage Debug:', {
+    loading,
+    hasBoardData,
+    availablePeriods: availablePeriods.length,
+    currentBoardMembers: getCurrentBoardMembers().length,
+    selectedPeriod,
+    selectedPeriodMembers: getBoardMembersForPeriod(selectedPeriod).length
+  });
+
   const handlePeriodChange = (period: string) => {
     setSelectedPeriod(period);
   };
