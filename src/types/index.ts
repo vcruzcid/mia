@@ -46,7 +46,7 @@ export interface Member {
   memberType: 'socia-pleno-derecho' | 'colaborador';
   membershipType?: string;
   specializations: string[];
-  availabilityStatus: 'Available' | 'Busy' | 'Not Available';
+  availabilityStatus: 'Disponible' | 'Empleada' | 'Freelance';
   socialMedia: {
     linkedin?: string;
     twitter?: string;
@@ -73,7 +73,7 @@ export interface FilterState {
   memberTypes: ('socia-pleno-derecho' | 'colaborador')[];
   specializations: string[];
   locations: string[];
-  availabilityStatus: ('Available' | 'Busy' | 'Not Available')[];
+  availabilityStatus: ('Disponible' | 'Empleada' | 'Freelance')[];
   hasSocialMedia: boolean | null;
   isActive: boolean | null;
 }

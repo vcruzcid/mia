@@ -344,7 +344,7 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
     // Apply availability status filter
     if (filters.availabilityStatus.length > 0) {
       filtered = filtered.filter(member => {
-        const availability = member.availability_status || 'Available';
+        const availability = member.availability_status || 'Disponible';
         return filters.availabilityStatus.includes(availability);
       });
     }
@@ -392,7 +392,7 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
       memberType: member.membership_type || 'colaborador',
       profession: member.main_profession || '',
       company: member.company || '',
-      availabilityStatus: member.availability_status || 'Available',
+      availabilityStatus: member.availability_status || 'Disponible',
       specializations: member.other_professions || [],
       socialMedia: member.social_media || {},
       profileImage: member.profile_image_url || '', // Fixed mapping
