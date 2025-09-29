@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { memberService, isActiveMember } from '../services/supabaseService';
+import { memberService, isActiveMember, supabase } from '../services/supabaseService';
 import type { 
   Member, 
   BoardPosition, 
@@ -68,6 +68,7 @@ interface GalleryState {
   getBoardMembersForPeriod: (period?: string) => BoardMemberWithHistory[];
   getCurrentBoardMembers: () => BoardMemberWithHistory[];
   getAvailableLocations: () => string[];
+  getPositionResponsibilitiesFromDB: (position: string) => string[];
   getMemberCounts: () => { 
     total: number; 
     active: number; 
@@ -178,7 +179,7 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
       const boardMembersWithHistory: BoardMemberWithHistory[] = cleanedBoardMembers.map(member => ({
         ...member,
         position_history: get().boardPositionHistory.filter(history => history.member_id === member.id),
-        position_responsibilities: get().getPositionResponsibilities(member.board_position || 'Vocal')
+        position_responsibilities: get().getPositionResponsibilitiesFromDB(member.board_position || 'Vocal')
       }));
       
       set({ 
@@ -197,9 +198,19 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
 
   fetchBoardPositionHistory: async () => {
     try {
-      // This would be implemented in supabaseService
-      // For now, return empty array as placeholder
-      const positionHistory: BoardPositionHistory[] = [];
+      const { data, error } = await supabase
+        .from('board_position_history')
+        .select('*')
+        .order('term_start', { ascending: false });
+
+      if (error) {
+        console.warn('board_position_history table not available:', error.message);
+        const positionHistory: BoardPositionHistory[] = [];
+        set({ boardPositionHistory: positionHistory });
+        return positionHistory;
+      }
+
+      const positionHistory: BoardPositionHistory[] = data || [];
       set({ boardPositionHistory: positionHistory });
       return positionHistory;
     } catch (error) {
@@ -210,9 +221,19 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
 
   fetchBoardResponsibilities: async () => {
     try {
-      // This would be implemented in supabaseService
-      // For now, return empty array as placeholder
-      const responsibilities: BoardPositionResponsibilities[] = [];
+      const { data, error } = await supabase
+        .from('board_position_responsibilities')
+        .select('*')
+        .order('position');
+
+      if (error) {
+        console.warn('board_position_responsibilities table not available:', error.message);
+        const responsibilities: BoardPositionResponsibilities[] = [];
+        set({ boardResponsibilities: responsibilities });
+        return responsibilities;
+      }
+
+      const responsibilities: BoardPositionResponsibilities[] = data || [];
       set({ boardResponsibilities: responsibilities });
       return responsibilities;
     } catch (error) {
@@ -436,7 +457,12 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
     const targetPeriod = period || selectedPeriod;
     
     return boardMembers.filter(member => {
-      const memberPeriod = `${member.board_term_start?.split('-')[0]}-${member.board_term_end?.split('-')[0]}`;
+      if (!member.board_term_start) return false;
+      
+      const startYear = new Date(member.board_term_start).getFullYear();
+      const endYear = member.board_term_end ? new Date(member.board_term_end).getFullYear() : new Date().getFullYear();
+      const memberPeriod = `${startYear}-${endYear}`;
+      
       return memberPeriod === targetPeriod;
     });
   },
@@ -459,6 +485,12 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
       .map(member => member.autonomous_community || member.province)
       .filter((location): location is string => !!location);
     return [...new Set(locations)].sort();
+  },
+
+  getPositionResponsibilitiesFromDB: (position: string) => {
+    const { boardResponsibilities } = get();
+    const responsibility = boardResponsibilities.find(r => r.position === position);
+    return responsibility?.default_responsibilities || getPositionResponsibilities(position);
   },
 
   getMemberCounts: () => {
