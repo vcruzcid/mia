@@ -1,10 +1,10 @@
-name: Deploy to Cloudflare Pages (Dev)
+name: Deploy to Cloudflare Pages
 
 on:
   push:
-    branches: [ dev ]
+    branches: [ main, feature/directiva-page ]
   pull_request:
-    branches: [ dev ]
+    branches: [ main ]
 
 jobs:
   deploy:
@@ -22,14 +22,11 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
-          cache-dependency-path: 'mia-react-app/package-lock.json'
 
       - name: Install dependencies
-        working-directory: ./mia-react-app
         run: npm ci
 
       - name: Build
-        working-directory: ./mia-react-app
         run: npm run build
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
@@ -45,5 +42,5 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy mia-react-app/dist --project-name=mia-dev
+          command: pages deploy dist --project-name=miawapp
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
