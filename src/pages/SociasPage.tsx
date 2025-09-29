@@ -206,15 +206,14 @@ export function SociasPage() {
                 <div>
                   <h3 className="text-sm font-medium text-gray-900 mb-3">Tipo de Socia</h3>
                   <div className="space-y-2">
-                    {(['Full', 'Student', 'Collaborator'] as const).map((type) => (
+                    {(['socia-pleno-derecho', 'colaborador'] as const).map((type) => (
                       <label key={type} className="flex items-center space-x-3">
                         <Checkbox
                           checked={filters.memberTypes.includes(type)}
                           onCheckedChange={() => toggleMemberType(type)}
                         />
                         <span className="text-sm text-gray-700">
-                          {type === 'Full' ? 'Socia de Pleno Derecho' : 
-                           type === 'Student' ? 'Socia Estudiante' : 'Colaborador/a'}
+                          {type === 'socia-pleno-derecho' ? 'Socia de Pleno Derecho' : 'Colaborador/a'}
                           <span className="ml-2 text-gray-600">
                             ({memberCounts.byType[type] || 0})
                           </span>
@@ -536,9 +535,8 @@ function MemberCard({ member, onClick }: MemberCardProps) {
 
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Badge variant={member.memberType === 'Full' ? 'default' : member.memberType === 'Student' ? 'secondary' : 'outline'}>
-              {member.memberType === 'Full' ? 'Pleno Derecho' : 
-               member.memberType === 'Student' ? 'Estudiante' : 'Colaborador/a'}
+            <Badge variant={member.memberType === 'socia-pleno-derecho' ? 'default' : 'outline'}>
+              {member.memberType === 'socia-pleno-derecho' ? 'Pleno Derecho' : 'Colaborador/a'}
             </Badge>
             <Badge variant={member.availabilityStatus === 'Available' ? 'default' : member.availabilityStatus === 'Busy' ? 'secondary' : 'destructive'}>
               {member.availabilityStatus === 'Available' ? 'Disponible' :
@@ -608,9 +606,8 @@ function MemberModal({ member, onClose }: MemberModalProps) {
                 )}
               </DialogDescription>
               <div className="flex gap-2 mt-2">
-                <Badge variant={member.memberType === 'Full' ? 'default' : member.memberType === 'Student' ? 'secondary' : 'outline'}>
-                  {member.memberType === 'Full' ? 'Pleno Derecho' : 
-                   member.memberType === 'Student' ? 'Estudiante' : 'Colaborador/a'}
+                <Badge variant={member.memberType === 'socia-pleno-derecho' ? 'default' : 'outline'}>
+                  {member.memberType === 'socia-pleno-derecho' ? 'Pleno Derecho' : 'Colaborador/a'}
                 </Badge>
                 <Badge variant={member.availabilityStatus === 'Available' ? 'default' : member.availabilityStatus === 'Busy' ? 'secondary' : 'destructive'}>
                   {member.availabilityStatus === 'Available' ? 'Disponible' :
