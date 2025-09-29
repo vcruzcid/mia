@@ -93,12 +93,16 @@ export function DirectivaPage() {
   const currentBoardMembers = getCurrentBoardMembers().map(transformBoardMemberToDirectivaMember);
   const selectedPeriodMembers = getBoardMembersForPeriod(selectedPeriod).map(transformBoardMemberToDirectivaMember);
   const isCurrentPeriod = selectedPeriod === '2025-2026';
+  
+  // Check if we have any board members data at all
+  const hasBoardData = getCurrentBoardMembers().length > 0;
 
   const handlePeriodChange = (period: string) => {
     setSelectedPeriod(period);
   };
 
-  if (loading) {
+  // Show loading state if we're loading OR if we have no data yet
+  if (loading || (!hasBoardData && availablePeriods.length === 0)) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
         <div className="text-center">
@@ -154,12 +158,7 @@ export function DirectivaPage() {
         <Tabs value={selectedPeriod} onValueChange={handlePeriodChange}>
           {availablePeriods.map((period) => (
             <TabsContent key={period} value={period} className="mt-8">
-              {loading ? (
-                <div className="text-center py-12">
-                  <Spinner className="h-12 w-12 text-white mx-auto mb-4" />
-                  <p className="text-gray-300">Cargando información de la directiva...</p>
-                </div>
-              ) : getBoardMembersForPeriod(period).length === 0 ? (
+              {getBoardMembersForPeriod(period).length === 0 ? (
                 <div className="text-center py-12">
                   <div className="mx-auto h-24 w-24 bg-gray-700 rounded-full flex items-center justify-center mb-4">
                     <svg className="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
