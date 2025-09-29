@@ -46,7 +46,7 @@ export { supabase };
 
 // Helper function to check if member is active
 export const isActiveMember = (member: Partial<Member>): boolean => {
-  return member.stripe_subscription_status === 'active';
+  return member.membership_status === 'active';
 };
 
 // Temporary helper function to check if member is active based on Stripe customer with recent transactions
@@ -280,13 +280,14 @@ export const memberService = {
       if (error) {
         console.warn('board_members view not available, falling back to filtered members:', error.message);
         // Fallback: Get members with is_board_member = true, exclude admin
+        // Include all board members regardless of membership status
         console.log('🔄 Executing fallback query...');
         const { data: fallbackData, error: fallbackError } = await supabase
           .from('members')
           .select('*')
           .eq('is_board_member', true)
           .not('email', 'like', '%admin%') // Exclude admin users
-          .order('created_at', { ascending: false });
+          .order('board_term_start', { ascending: false });
 
         console.log('📊 Fallback query result:', { 
           data: fallbackData?.length || 0, 
