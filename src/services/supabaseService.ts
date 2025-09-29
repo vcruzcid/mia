@@ -162,20 +162,30 @@ export const memberService = {
   // Get current board members (with active terms)
   async getBoardMembers(): Promise<CurrentBoardMember[]> {
     try {
+      console.log('🔍 Attempting to fetch from board_members view...');
       const { data, error } = await supabase
         .from('board_members')
         .select('*')
         .order('board_term_start', { ascending: false });
 
+      console.log('📊 board_members view result:', { data: data?.length || 0, error: error?.message });
+
       if (error) {
         console.warn('board_members view not available, falling back to filtered members:', error.message);
         // Fallback: Get members with is_board_member = true, exclude admin
+        console.log('🔄 Executing fallback query...');
         const { data: fallbackData, error: fallbackError } = await supabase
           .from('members')
           .select('*')
           .eq('is_board_member', true)
           .not('email', 'like', '%admin%') // Exclude admin users
           .order('created_at', { ascending: false });
+
+        console.log('📊 Fallback query result:', { 
+          data: fallbackData?.length || 0, 
+          error: fallbackError?.message,
+          firstMember: fallbackData?.[0]?.first_name 
+        });
 
         if (fallbackError) throw fallbackError;
         // Fallback to manual filtering
