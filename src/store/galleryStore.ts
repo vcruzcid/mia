@@ -163,7 +163,7 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
   },
 
   fetchBoardData: async () => {
-    set({ isLoading: true, error: null });
+    set({ isLoading: true, loading: true, error: null });
     
     try {
       // Fetch all board-related data in parallel
@@ -189,14 +189,16 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
       
       set({ 
         boardMembers: boardMembersWithHistory,
-        isLoading: false
+        isLoading: false,
+        loading: false
       });
       
     } catch (error) {
       console.error('Error fetching board data:', error);
       set({ 
         error: error instanceof Error ? error.message : 'Failed to fetch board data',
-        isLoading: false
+        isLoading: false,
+        loading: false
       });
     }
   },
