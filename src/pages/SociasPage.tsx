@@ -367,7 +367,7 @@ export function SociasPage() {
       )}
 
       {/* Pagination Controls - Top */}
-      {totalMembers > 0 && (
+      {!loading && totalMembers > 0 && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 py-4 border-t border-gray-200">
             <div className="flex items-center space-x-4">
@@ -445,7 +445,12 @@ export function SociasPage() {
 
       {/* Members Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {totalMembers === 0 ? (
+        {loading ? (
+          <div className="text-center py-12">
+            <Spinner className="h-12 w-12 text-primary-600 mx-auto mb-4" />
+            <p className="text-gray-600">Cargando información de las socias...</p>
+          </div>
+        ) : totalMembers === 0 ? (
           <EmptyState />
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -460,7 +465,7 @@ export function SociasPage() {
         )}
         
         {/* Pagination Controls - Bottom */}
-        {totalPages > 1 && (
+        {!loading && totalPages > 1 && (
           <div className="flex justify-center mt-8">
             <div className="flex items-center space-x-2">
               <Button

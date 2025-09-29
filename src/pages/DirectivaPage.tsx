@@ -154,10 +154,15 @@ export function DirectivaPage() {
         <Tabs value={selectedPeriod} onValueChange={handlePeriodChange}>
           {availablePeriods.map((period) => (
             <TabsContent key={period} value={period} className="mt-8">
-              {getBoardMembersForPeriod(period).length === 0 ? (
+              {loading ? (
                 <div className="text-center py-12">
-                  <div className="mx-auto h-24 w-24 bg-gray-200 rounded-full flex items-center justify-center mb-4">
-                    <svg className="h-12 w-12 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <Spinner className="h-12 w-12 text-white mx-auto mb-4" />
+                  <p className="text-gray-300">Cargando información de la directiva...</p>
+                </div>
+              ) : getBoardMembersForPeriod(period).length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="mx-auto h-24 w-24 bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                    <svg className="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                     </svg>
                   </div>
@@ -184,22 +189,7 @@ export function DirectivaPage() {
 
                   {/* Board Members Grid */}
                   <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                    {getBoardMembersForPeriod(period).length === 0 ? (
-                <div className="text-center py-12">
-                  <div className="mx-auto h-24 w-24 bg-gray-700 rounded-full flex items-center justify-center mb-4">
-                    <svg className="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
-                  </div>
-                  <h3 className="text-lg font-medium text-white mb-2">
-                    No hay información disponible
-                  </h3>
-                  <p className="text-gray-300">
-                    No se encontraron miembros de la directiva para el período {period}.
-                  </p>
-                </div>
-              ) : (
-                getBoardMembersForPeriod(period).map(transformBoardMemberToDirectivaMember).map((member, index) => (
+                    {getBoardMembersForPeriod(period).map(transformBoardMemberToDirectivaMember).map((member, index) => (
                       <DirectivaCard
                         key={member.id}
                         member={member}
@@ -207,8 +197,7 @@ export function DirectivaPage() {
                         onClick={() => openMemberModal(member as any)}
                         isCurrentPeriod={period === '2025-2026'}
                       />
-                    ))
-                  )}
+                    ))}
                   </div>
 
                   {/* Contact Board Section */}
