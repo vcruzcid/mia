@@ -90,8 +90,11 @@ export function DirectivaPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center">
-        <Spinner className="h-12 w-12" />
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <Spinner className="h-12 w-12 text-white mx-auto mb-4" />
+          <p className="text-gray-300">Cargando información de la Junta Directiva...</p>
+        </div>
       </div>
     );
   }
@@ -171,7 +174,22 @@ export function DirectivaPage() {
 
                   {/* Board Members Grid */}
                   <div className="grid gap-6 sm:gap-8 grid-cols-1 lg:grid-cols-2">
-                    {getBoardMembersForPeriod(period).map(transformBoardMemberToDirectivaMember).map((member, index) => (
+                    {getBoardMembersForPeriod(period).length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="mx-auto h-24 w-24 bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                    <svg className="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-medium text-white mb-2">
+                    No hay información disponible
+                  </h3>
+                  <p className="text-gray-300">
+                    No se encontraron miembros de la directiva para el período {period}.
+                  </p>
+                </div>
+              ) : (
+                getBoardMembersForPeriod(period).map(transformBoardMemberToDirectivaMember).map((member, index) => (
                       <DirectivaCard
                         key={member.id}
                         member={member}
@@ -179,25 +197,93 @@ export function DirectivaPage() {
                         onClick={() => openMemberModal(member as any)}
                         isCurrentPeriod={period === '2025-2026'}
                       />
-                    ))}
+                    ))
+                  )}
                   </div>
 
                   {/* Contact Board Section */}
                   {period === '2025-2026' && (
-                    <div className="mt-12 text-center">
+                    <div className="mt-12">
                       <Card className="bg-gray-800 border-gray-700">
                         <CardContent className="p-8">
-                          <h3 className="text-xl font-bold text-white mb-4">
+                          <h3 className="text-xl font-bold text-white mb-4 text-center">
                             ¿Necesitas contactar con la Junta Directiva?
                           </h3>
-                          <p className="text-gray-300 mb-6">
+                          <p className="text-gray-300 mb-6 text-center">
                             Cada posición tiene su propio email para facilitar la comunicación directa.
                           </p>
-                          <Button asChild className="bg-primary-600 hover:bg-primary-700">
-                            <a href="/contacto">
-                              Contactar con la Junta
-                            </a>
-                          </Button>
+                          
+                          {/* Contact Information Grid */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                            <div className="bg-gray-700 rounded-lg p-4">
+                              <h4 className="text-sm font-semibold text-white mb-2">Presidencia</h4>
+                              <a href="mailto:presidencia@animacionesmia.com" className="text-primary-400 hover:text-primary-300 text-sm">
+                                presidencia@animacionesmia.com
+                              </a>
+                            </div>
+                            <div className="bg-gray-700 rounded-lg p-4">
+                              <h4 className="text-sm font-semibold text-white mb-2">Vice-Presidencia</h4>
+                              <a href="mailto:vicepresidencia@animacionesmia.com" className="text-primary-400 hover:text-primary-300 text-sm">
+                                vicepresidencia@animacionesmia.com
+                              </a>
+                            </div>
+                            <div className="bg-gray-700 rounded-lg p-4">
+                              <h4 className="text-sm font-semibold text-white mb-2">Secretaría</h4>
+                              <a href="mailto:secretaria@animacionesmia.com" className="text-primary-400 hover:text-primary-300 text-sm">
+                                secretaria@animacionesmia.com
+                              </a>
+                            </div>
+                            <div className="bg-gray-700 rounded-lg p-4">
+                              <h4 className="text-sm font-semibold text-white mb-2">Tesorería</h4>
+                              <a href="mailto:tesoreria@animacionesmia.com" className="text-primary-400 hover:text-primary-300 text-sm">
+                                tesoreria@animacionesmia.com
+                              </a>
+                            </div>
+                            <div className="bg-gray-700 rounded-lg p-4">
+                              <h4 className="text-sm font-semibold text-white mb-2">Formación</h4>
+                              <a href="mailto:formacion@animacionesmia.com" className="text-primary-400 hover:text-primary-300 text-sm">
+                                formacion@animacionesmia.com
+                              </a>
+                            </div>
+                            <div className="bg-gray-700 rounded-lg p-4">
+                              <h4 className="text-sm font-semibold text-white mb-2">Comunicación</h4>
+                              <a href="mailto:comunicacion@animacionesmia.com" className="text-primary-400 hover:text-primary-300 text-sm">
+                                comunicacion@animacionesmia.com
+                              </a>
+                            </div>
+                            <div className="bg-gray-700 rounded-lg p-4">
+                              <h4 className="text-sm font-semibold text-white mb-2">MIANIMA</h4>
+                              <a href="mailto:mianima@animacionesmia.com" className="text-primary-400 hover:text-primary-300 text-sm">
+                                mianima@animacionesmia.com
+                              </a>
+                            </div>
+                            <div className="bg-gray-700 rounded-lg p-4">
+                              <h4 className="text-sm font-semibold text-white mb-2">Financiación</h4>
+                              <a href="mailto:financiacion@animacionesmia.com" className="text-primary-400 hover:text-primary-300 text-sm">
+                                financiacion@animacionesmia.com
+                              </a>
+                            </div>
+                            <div className="bg-gray-700 rounded-lg p-4">
+                              <h4 className="text-sm font-semibold text-white mb-2">Socias</h4>
+                              <a href="mailto:socias@animacionesmia.com" className="text-primary-400 hover:text-primary-300 text-sm">
+                                socias@animacionesmia.com
+                              </a>
+                            </div>
+                            <div className="bg-gray-700 rounded-lg p-4">
+                              <h4 className="text-sm font-semibold text-white mb-2">Festivales</h4>
+                              <a href="mailto:festivales@animacionesmia.com" className="text-primary-400 hover:text-primary-300 text-sm">
+                                festivales@animacionesmia.com
+                              </a>
+                            </div>
+                          </div>
+                          
+                          <div className="text-center">
+                            <Button asChild className="bg-primary-600 hover:bg-primary-700">
+                              <a href="/contacto">
+                                Formulario de Contacto General
+                              </a>
+                            </Button>
+                          </div>
                         </CardContent>
                       </Card>
                     </div>
