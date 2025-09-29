@@ -173,9 +173,9 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
         get().fetchBoardResponsibilities()
       ]);
       
-      console.log('Fetched board members:', boardMembers);
-      console.log('Fetched position history:', positionHistory);
-      console.log('Fetched responsibilities:', responsibilities);
+      // Debug logging
+      console.log('Fetched board members count:', boardMembers.length);
+      console.log('Board members with 2025-2026 terms:', boardMembers.filter(m => m.board_term_start?.includes('2025')));
       
       // Clean and process board members
       const cleanedBoardMembers = boardMembers.map(member => cleanMemberData(member));
@@ -461,15 +461,27 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
     const { boardMembers, selectedPeriod } = get();
     const targetPeriod = period || selectedPeriod;
     
-    return boardMembers.filter(member => {
+    console.log('getBoardMembersForPeriod called with:', { period, targetPeriod, boardMembersCount: boardMembers.length });
+    
+    const filtered = boardMembers.filter(member => {
       if (!member.board_term_start) return false;
       
       const startYear = new Date(member.board_term_start).getFullYear();
       const endYear = member.board_term_end ? new Date(member.board_term_end).getFullYear() : new Date().getFullYear();
       const memberPeriod = `${startYear}-${endYear}`;
       
+      console.log('Member period check:', { 
+        memberName: `${member.first_name} ${member.last_name}`, 
+        memberPeriod, 
+        targetPeriod, 
+        matches: memberPeriod === targetPeriod 
+      });
+      
       return memberPeriod === targetPeriod;
     });
+    
+    console.log('Filtered members for period', targetPeriod, ':', filtered.length);
+    return filtered;
   },
 
   getCurrentBoardMembers: () => {
