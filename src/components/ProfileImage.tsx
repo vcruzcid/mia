@@ -3,7 +3,7 @@ import { useState } from 'react';
 interface ProfileImageProps {
   src?: string | null;
   alt: string;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
   className?: string;
 }
 
@@ -11,7 +11,8 @@ const sizeClasses = {
   sm: 'h-8 w-8',
   md: 'h-12 w-12',
   lg: 'h-20 w-20',
-  xl: 'h-24 w-24'
+  xl: 'h-24 w-24',
+  '2xl': 'h-32 w-32'
 };
 
 export function ProfileImage({ 

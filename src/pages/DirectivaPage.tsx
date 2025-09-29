@@ -137,11 +137,11 @@ export function DirectivaPage() {
                     period === '2025-2026' ? 'bg-primary-600 text-white' : 'text-gray-300 hover:text-white'
                   }`}
                 >
-                  <span className="hidden sm:inline">{period}</span>
+                  <span className="hidden sm:inline">
+                    {period}
+                    {period === '2025-2026' && <span className="ml-1 text-xs opacity-75">(Actual)</span>}
+                  </span>
                   <span className="sm:hidden">{period.split('-')[0]}</span>
-                  {period === '2025-2026' && (
-                    <span className="ml-1 text-xs opacity-75 hidden sm:inline">(Actual)</span>
-                  )}
                 </TabsTrigger>
               ))}
             </TabsList>
@@ -183,7 +183,7 @@ export function DirectivaPage() {
                   </div>
 
                   {/* Board Members Grid */}
-                  <div className="grid gap-6 sm:gap-8 grid-cols-1 lg:grid-cols-2">
+                  <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                     {getBoardMembersForPeriod(period).length === 0 ? (
                 <div className="text-center py-12">
                   <div className="mx-auto h-24 w-24 bg-gray-700 rounded-full flex items-center justify-center mb-4">
@@ -212,92 +212,6 @@ export function DirectivaPage() {
                   </div>
 
                   {/* Contact Board Section */}
-                  {period === '2025-2026' && (
-                    <div className="mt-12">
-                      <Card className="bg-gray-800 border-gray-700">
-                        <CardContent className="p-8">
-                          <h3 className="text-xl font-bold text-white mb-4 text-center">
-                            ¿Necesitas contactar con la Junta Directiva?
-                          </h3>
-                          <p className="text-gray-300 mb-6 text-center">
-                            Cada posición tiene su propio email para facilitar la comunicación directa.
-                          </p>
-                          
-                          {/* Contact Information Grid */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                            <div className="bg-gray-700 rounded-lg p-4">
-                              <h4 className="text-sm font-semibold text-white mb-2">Presidencia</h4>
-                              <a href="mailto:presidencia@animacionesmia.com" className="text-primary-400 hover:text-primary-300 text-sm">
-                                presidencia@animacionesmia.com
-                              </a>
-                            </div>
-                            <div className="bg-gray-700 rounded-lg p-4">
-                              <h4 className="text-sm font-semibold text-white mb-2">Vice-Presidencia</h4>
-                              <a href="mailto:vicepresidencia@animacionesmia.com" className="text-primary-400 hover:text-primary-300 text-sm">
-                                vicepresidencia@animacionesmia.com
-                              </a>
-                            </div>
-                            <div className="bg-gray-700 rounded-lg p-4">
-                              <h4 className="text-sm font-semibold text-white mb-2">Secretaría</h4>
-                              <a href="mailto:secretaria@animacionesmia.com" className="text-primary-400 hover:text-primary-300 text-sm">
-                                secretaria@animacionesmia.com
-                              </a>
-                            </div>
-                            <div className="bg-gray-700 rounded-lg p-4">
-                              <h4 className="text-sm font-semibold text-white mb-2">Tesorería</h4>
-                              <a href="mailto:tesoreria@animacionesmia.com" className="text-primary-400 hover:text-primary-300 text-sm">
-                                tesoreria@animacionesmia.com
-                              </a>
-                            </div>
-                            <div className="bg-gray-700 rounded-lg p-4">
-                              <h4 className="text-sm font-semibold text-white mb-2">Formación</h4>
-                              <a href="mailto:formacion@animacionesmia.com" className="text-primary-400 hover:text-primary-300 text-sm">
-                                formacion@animacionesmia.com
-                              </a>
-                            </div>
-                            <div className="bg-gray-700 rounded-lg p-4">
-                              <h4 className="text-sm font-semibold text-white mb-2">Comunicación</h4>
-                              <a href="mailto:comunicacion@animacionesmia.com" className="text-primary-400 hover:text-primary-300 text-sm">
-                                comunicacion@animacionesmia.com
-                              </a>
-                            </div>
-                            <div className="bg-gray-700 rounded-lg p-4">
-                              <h4 className="text-sm font-semibold text-white mb-2">MIANIMA</h4>
-                              <a href="mailto:mianima@animacionesmia.com" className="text-primary-400 hover:text-primary-300 text-sm">
-                                mianima@animacionesmia.com
-                              </a>
-                            </div>
-                            <div className="bg-gray-700 rounded-lg p-4">
-                              <h4 className="text-sm font-semibold text-white mb-2">Financiación</h4>
-                              <a href="mailto:financiacion@animacionesmia.com" className="text-primary-400 hover:text-primary-300 text-sm">
-                                financiacion@animacionesmia.com
-                              </a>
-                            </div>
-                            <div className="bg-gray-700 rounded-lg p-4">
-                              <h4 className="text-sm font-semibold text-white mb-2">Socias</h4>
-                              <a href="mailto:socias@animacionesmia.com" className="text-primary-400 hover:text-primary-300 text-sm">
-                                socias@animacionesmia.com
-                              </a>
-                            </div>
-                            <div className="bg-gray-700 rounded-lg p-4">
-                              <h4 className="text-sm font-semibold text-white mb-2">Festivales</h4>
-                              <a href="mailto:festivales@animacionesmia.com" className="text-primary-400 hover:text-primary-300 text-sm">
-                                festivales@animacionesmia.com
-                              </a>
-                            </div>
-                          </div>
-                          
-                          <div className="text-center">
-                            <Button asChild className="bg-primary-600 hover:bg-primary-700">
-                              <a href="/contacto">
-                                Formulario de Contacto General
-                              </a>
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  )}
                 </div>
               )}
             </TabsContent>
@@ -327,37 +241,56 @@ interface DirectivaCardProps {
 
 function DirectivaCard({ member, index, onClick, isCurrentPeriod = false }: DirectivaCardProps) {
   const getPositionStyle = (position: string) => {
+    // Use red theme for all positions
     const positionStyles: Record<string, string> = {
       'Presidenta': 'from-red-600 to-red-700 text-white',
-      'Vice-Presidenta': 'from-orange-600 to-orange-700 text-white',
-      'Secretaria': 'from-blue-600 to-blue-700 text-white',
-      'Tesorera': 'from-green-600 to-green-700 text-white',
-      'Vocal Formacion': 'from-purple-600 to-purple-700 text-white',
-      'Vocal Comunicacion': 'from-pink-600 to-pink-700 text-white',
-      'Vocal Mianima': 'from-indigo-600 to-indigo-700 text-white',
-      'Vocal Financiacion': 'from-yellow-600 to-yellow-700 text-white',
-      'Vocal Socias': 'from-teal-600 to-teal-700 text-white',
-      'Vocal Festivales': 'from-cyan-600 to-cyan-700 text-white',
-      'Vocal': 'from-gray-600 to-gray-700 text-white',
+      'Vice-Presidenta': 'from-red-500 to-red-600 text-white',
+      'Secretaria': 'from-red-700 to-red-800 text-white',
+      'Tesorera': 'from-red-600 to-red-700 text-white',
+      'Vocal Formacion': 'from-red-500 to-red-600 text-white',
+      'Vocal Comunicacion': 'from-red-600 to-red-700 text-white',
+      'Vocal Mianima': 'from-red-500 to-red-600 text-white',
+      'Vocal Financiacion': 'from-red-600 to-red-700 text-white',
+      'Vocal Socias': 'from-red-500 to-red-600 text-white',
+      'Vocal Festivales': 'from-red-600 to-red-700 text-white',
+      'Vocal': 'from-red-500 to-red-600 text-white',
     };
-    return positionStyles[position] || 'from-gray-600 to-gray-700 text-white';
+    return positionStyles[position] || 'from-red-500 to-red-600 text-white';
   };
 
   const getCardStyle = (position: string) => {
+    // Use red theme for all card borders
     const cardStyles: Record<string, string> = {
       'Presidenta': 'ring-2 ring-red-200 shadow-lg',
-      'Vice-Presidenta': 'ring-2 ring-orange-200 shadow-lg',
-      'Secretaria': 'ring-2 ring-blue-200 shadow-lg',
-      'Tesorera': 'ring-2 ring-green-200 shadow-lg',
-      'Vocal Formacion': 'ring-2 ring-purple-200 shadow-lg',
-      'Vocal Comunicacion': 'ring-2 ring-pink-200 shadow-lg',
-      'Vocal Mianima': 'ring-2 ring-indigo-200 shadow-lg',
-      'Vocal Financiacion': 'ring-2 ring-yellow-200 shadow-lg',
-      'Vocal Socias': 'ring-2 ring-teal-200 shadow-lg',
-      'Vocal Festivales': 'ring-2 ring-cyan-200 shadow-lg',
-      'Vocal': 'ring-2 ring-gray-200 shadow-lg',
+      'Vice-Presidenta': 'ring-2 ring-red-200 shadow-lg',
+      'Secretaria': 'ring-2 ring-red-200 shadow-lg',
+      'Tesorera': 'ring-2 ring-red-200 shadow-lg',
+      'Vocal Formacion': 'ring-2 ring-red-200 shadow-lg',
+      'Vocal Comunicacion': 'ring-2 ring-red-200 shadow-lg',
+      'Vocal Mianima': 'ring-2 ring-red-200 shadow-lg',
+      'Vocal Financiacion': 'ring-2 ring-red-200 shadow-lg',
+      'Vocal Socias': 'ring-2 ring-red-200 shadow-lg',
+      'Vocal Festivales': 'ring-2 ring-red-200 shadow-lg',
+      'Vocal': 'ring-2 ring-red-200 shadow-lg',
     };
-    return cardStyles[position] || 'ring-2 ring-gray-200 shadow-lg';
+    return cardStyles[position] || 'ring-2 ring-red-200 shadow-lg';
+  };
+
+  const getPositionEmail = (position: string) => {
+    const emailMap: { [key: string]: string } = {
+      'Presidenta': 'presidencia@animacionesmia.com',
+      'Vice-Presidenta': 'vicepresidencia@animacionesmia.com',
+      'Secretaria': 'secretaria@animacionesmia.com',
+      'Tesorera': 'tesoreria@animacionesmia.com',
+      'Vocal Formacion': 'formacion@animacionesmia.com',
+      'Vocal Comunicacion': 'comunicacion@animacionesmia.com',
+      'Vocal Mianima': 'mianima@animacionesmia.com',
+      'Vocal Financiacion': 'financiacion@animacionesmia.com',
+      'Vocal Socias': 'socias@animacionesmia.com',
+      'Vocal Festivales': 'festivales@animacionesmia.com',
+      'Vocal': 'informemia@animacionesmia.com'
+    };
+    return emailMap[position] || '';
   };
 
   return (
@@ -371,17 +304,17 @@ function DirectivaCard({ member, index, onClick, isCurrentPeriod = false }: Dire
     >
       <div className="relative">
         {/* Header with gradient background */}
-        <div className={`bg-gradient-to-r ${getPositionStyle(member.position)} h-24`}>
+        <div className={`bg-gradient-to-r ${getPositionStyle(member.position)} h-16`}>
         </div>
         
         {/* Profile Image */}
-        <div className="absolute -bottom-8 left-6">
+        <div className="absolute -bottom-6 left-4">
           <div className="relative">
             <ProfileImage
               src={member.profileImage}
               alt={`${member.firstName} ${member.lastName}`}
               size="lg"
-              className="border-4 border-white shadow-lg"
+              className="border-3 border-white shadow-lg"
             />
             {isCurrentPeriod && (
               <div className="absolute -top-1 -right-1 h-5 w-5 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
@@ -394,7 +327,7 @@ function DirectivaCard({ member, index, onClick, isCurrentPeriod = false }: Dire
         </div>
       </div>
 
-      <CardContent className="pt-10 p-4 sm:p-6">
+      <CardContent className="pt-8 p-3 sm:p-4">
         <div className="mb-4">
           <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">
             {member.firstName} {member.lastName}
@@ -409,82 +342,22 @@ function DirectivaCard({ member, index, onClick, isCurrentPeriod = false }: Dire
           )}
         </div>
 
-        {/* Responsibilities - Collapsible on mobile */}
-        <div className="mb-4">
-          <div className="sm:block">
-            <h4 className="text-sm font-semibold text-gray-900 mb-2">Responsabilidades</h4>
-            <div className="space-y-1">
-              {member.responsibilities.slice(0, 3).map((responsibility, idx) => (
-                <div key={idx} className="flex items-center">
-                  <svg className="h-4 w-4 text-primary-500 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span className="text-xs sm:text-sm text-gray-700">{responsibility}</span>
-                </div>
-              ))}
-              {member.responsibilities.length > 3 && (
-                <div className="flex items-center">
-                  <Badge variant="secondary" className="text-xs ml-6">
-                    +{member.responsibilities.length - 3} más responsabilidades
-                  </Badge>
-                </div>
-              )}
-            </div>
-          </div>
-          
-          {/* Mobile collapsible version */}
-          <div className="sm:hidden">
-            <Accordion 
-              items={[{
-                title: "Responsabilidades",
-                content: (
-                  <div className="space-y-1">
-                    {member.responsibilities.map((responsibility, idx) => (
-                      <div key={idx} className="flex items-start">
-                        <svg className="h-4 w-4 text-primary-500 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span className="text-xs text-gray-700">{responsibility}</span>
-                      </div>
-                    ))}
-                  </div>
-                )
-              }]}
-              className="w-full"
-            />
-          </div>
-        </div>
 
-        {/* Years Served */}
-        <div className="mb-4">
-          <h4 className="text-sm font-semibold text-gray-900 mb-2">Años de servicio</h4>
-          <div className="flex flex-wrap gap-1">
-            {member.yearServed.map((year) => (
-              <Badge
-                key={year}
-                variant={year === new Date().getFullYear() ? 'default' : 'outline'}
-                className="text-xs"
+
+        {/* Email */}
+        {getPositionEmail(member.position) && (
+          <div className="border-t border-gray-200 pt-4 pb-3">
+            <div className="flex items-center text-sm text-gray-600">
+              <svg className="h-4 w-4 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              <a 
+                href={`mailto:${getPositionEmail(member.position)}`}
+                className="text-red-600 hover:text-red-700 transition-colors"
+                onClick={(e) => e.stopPropagation()}
               >
-                {year}
-                {year === new Date().getFullYear() && ' (Actual)'}
-              </Badge>
-            ))}
-          </div>
-        </div>
-
-        {/* Previous Positions */}
-        {member.previousPositions && member.previousPositions.length > 0 && (
-          <div className="mb-4">
-            <h4 className="text-sm font-semibold text-gray-900 mb-2">Cargos anteriores</h4>
-            <div className="space-y-1">
-              {member.previousPositions.slice(0, 2).map((prev, idx) => (
-                <div key={idx} className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">{prev.position}</span>
-                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                    {prev.year}
-                  </span>
-                </div>
-              ))}
+                {getPositionEmail(member.position)}
+              </a>
             </div>
           </div>
         )}
@@ -545,40 +418,30 @@ function DirectivaModal({ member, onClose }: DirectivaModalProps) {
   };
   
   return (
-    <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto mx-4 sm:mx-0">
+    <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto mx-4 sm:mx-0">
           {/* Header */}
-          <div className={`bg-gradient-to-r ${getPositionStyle(member.position)} px-4 sm:px-6 py-4`}>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <ProfileImage
-                  src={member.profileImage}
-                  alt={`${member.firstName} ${member.lastName}`}
-                  size="lg"
-                  className="border-3 border-white"
-                />
-                <div className="ml-4">
-                  <h3 className="text-xl font-bold text-white">
-                    {member.firstName} {member.lastName}
-                  </h3>
-                  <p className="text-sm text-white/90">{member.position}</p>
-                  {isPresident && (
-                    <div className="flex items-center mt-1">
-                      <svg className="h-4 w-4 text-red-200 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                      <span className="text-xs text-red-200">Presidencia</span>
-                    </div>
-                  )}
-                </div>
+          <div className={`bg-gradient-to-r ${getPositionStyle(member.position)} px-4 sm:px-6 py-2`}>
+            <div className="flex items-start gap-6">
+              <ProfileImage
+                src={member.profileImage}
+                alt={`${member.firstName} ${member.lastName}`}
+                size="2xl"
+                className="border-3 border-white flex-shrink-0"
+              />
+              <div className="flex-1 pt-2">
+                <h3 className="text-2xl font-bold text-white mb-1">
+                  {member.firstName} {member.lastName}
+                </h3>
+                <p className="text-lg text-white/90 mb-2">{member.position}</p>
+                {isPresident && (
+                  <div className="flex items-center">
+                    <svg className="h-5 w-5 text-red-200 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                    <span className="text-sm text-red-200">Presidencia</span>
+                  </div>
+                )}
               </div>
-              <Button
-                onClick={onClose}
-                className="text-white/80 hover:text-white transition-colors"
-              >
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </Button>
             </div>
           </div>
 
@@ -659,21 +522,6 @@ function DirectivaModal({ member, onClose }: DirectivaModalProps) {
                 </div>
               </div>
 
-              {member.position_history && member.position_history.length > 0 && (
-                <div>
-                  <h4 className="text-sm font-semibold text-gray-900 mb-3">Historial de cargos</h4>
-                  <div className="space-y-2">
-                    {member.position_history.map((prev, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-2 bg-gray-50 rounded-md">
-                        <span className="text-sm text-gray-700">{prev.position}</span>
-                        <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded border">
-                          {prev.term_start?.split('-')[0]} - {prev.term_end?.split('-')[0]}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* Specializations */}

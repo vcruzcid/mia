@@ -1,0 +1,6 @@
+<testsuites id="" name="" tests="1" failures="0" skipped="0" errors="0" time="3.3763089999999996">
+<testsuite name="directiva.spec.ts" timestamp="2025-09-29T04:48:48.114Z" hostname="chromium" tests="1" failures="0" skipped="0" time="2.234" errors="0">
+<testcase name="Directiva Page Tests › should display contact information for current period" classname="directiva.spec.ts" time="2.234">
+</testcase>
+</testsuite>
+</testsuites>
