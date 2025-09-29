@@ -475,11 +475,17 @@ function MemberCard({ member, onClick }: MemberCardProps) {
 
         <div className="space-y-3">
           <div className="flex items-center justify-end">
-            <Badge variant={member.availabilityStatus === 'Disponible' ? 'default' : member.availabilityStatus === 'Empleada' ? 'secondary' : 'outline'}>
+            <Badge variant={member.availabilityStatus === 'Disponible' ? 'default' : member.availabilityStatus === 'Empleada' ? 'destructive' : 'secondary'}>
               <span className="flex items-center space-x-1">
-                {member.availabilityStatus === 'Disponible' && <span>🟢</span>}
-                {member.availabilityStatus === 'Empleada' && <span>🟡</span>}
-                {member.availabilityStatus === 'Freelance' && <span>🔵</span>}
+                {member.availabilityStatus === 'Disponible' && (
+                  <span title="Disponible - Abierta a nuevas oportunidades laborales">🟢</span>
+                )}
+                {member.availabilityStatus === 'Empleada' && (
+                  <span title="Empleada - Actualmente trabajando, no disponible para nuevas oportunidades">🔴</span>
+                )}
+                {member.availabilityStatus === 'Freelance' && (
+                  <span title="Freelance - Trabajando por cuenta propia, disponible para proyectos">🔵</span>
+                )}
                 <span>{member.availabilityStatus}</span>
               </span>
             </Badge>
@@ -540,13 +546,22 @@ function MemberModal({ member, onClose }: MemberModalProps) {
                 {member.company && (
                   <span className="block">{member.company}</span>
                 )}
+                <span className="block text-sm text-gray-600 mt-1">
+                  Tipo de membresía: {member.memberType === 'socia-pleno-derecho' ? 'Socia de Pleno Derecho' : 'Colaborador/a'}
+                </span>
               </DialogDescription>
               <div className="flex gap-2 mt-2">
-                <Badge variant={member.availabilityStatus === 'Disponible' ? 'default' : member.availabilityStatus === 'Empleada' ? 'secondary' : 'outline'}>
+                <Badge variant={member.availabilityStatus === 'Disponible' ? 'default' : member.availabilityStatus === 'Empleada' ? 'destructive' : 'secondary'}>
                   <span className="flex items-center space-x-1">
-                    {member.availabilityStatus === 'Disponible' && <span>🟢</span>}
-                    {member.availabilityStatus === 'Empleada' && <span>🟡</span>}
-                    {member.availabilityStatus === 'Freelance' && <span>🔵</span>}
+                    {member.availabilityStatus === 'Disponible' && (
+                      <span title="Disponible - Abierta a nuevas oportunidades laborales">🟢</span>
+                    )}
+                    {member.availabilityStatus === 'Empleada' && (
+                      <span title="Empleada - Actualmente trabajando, no disponible para nuevas oportunidades">🔴</span>
+                    )}
+                    {member.availabilityStatus === 'Freelance' && (
+                      <span title="Freelance - Trabajando por cuenta propia, disponible para proyectos">🔵</span>
+                    )}
                     <span>{member.availabilityStatus}</span>
                   </span>
                 </Badge>
@@ -576,6 +591,12 @@ function MemberModal({ member, onClose }: MemberModalProps) {
                   <p className="text-gray-900">{member.profession}</p>
                 </div>
               )}
+              {member.specializations && member.specializations.length > 0 && (
+                <div>
+                  <span className="text-gray-600">Profesiones secundarias:</span>
+                  <p className="text-gray-900">{member.specializations.join(', ')}</p>
+                </div>
+              )}
               {member.professional_role && (
                 <div>
                   <span className="text-gray-600">Rol profesional:</span>
@@ -594,28 +615,9 @@ function MemberModal({ member, onClose }: MemberModalProps) {
                   <p className="text-gray-900">{member.employment_status}</p>
                 </div>
               )}
-              <div>
-                <span className="text-gray-600">Tipo de membresía:</span>
-                <p className="text-gray-900">
-                  {member.memberType === 'socia-pleno-derecho' ? 'Socia de Pleno Derecho' : 'Colaborador/a'}
-                </p>
-              </div>
             </div>
           </div>
 
-          {/* Specializations */}
-          {member.specializations && member.specializations.length > 0 && (
-            <div>
-              <h4 className="text-sm font-medium text-gray-900 mb-2">Especializaciones</h4>
-              <div className="flex flex-wrap gap-2">
-                {member.specializations.map((spec: string, index: number) => (
-                  <Badge key={index} variant="outline" className="text-xs">
-                    {spec}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* Education */}
           {(member.education_level || member.studies_completed || member.educational_institution) && (
