@@ -173,6 +173,10 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
         get().fetchBoardResponsibilities()
       ]);
       
+      console.log('Fetched board members:', boardMembers);
+      console.log('Fetched position history:', positionHistory);
+      console.log('Fetched responsibilities:', responsibilities);
+      
       // Clean and process board members
       const cleanedBoardMembers = boardMembers.map(member => cleanMemberData(member));
       
