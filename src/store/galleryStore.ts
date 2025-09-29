@@ -525,8 +525,17 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
       return bStart - aStart;
     });
     
-    // If no periods found, return default periods
-    return sortedPeriods.length > 0 ? sortedPeriods : ['2025-2026', '2023-2024', '2021-2022', '2019-2020', '2018'];
+    // Always include current period and fallback periods
+    const defaultPeriods = ['2025-2026', '2023-2024', '2021-2022', '2019-2020', '2018'];
+    
+    // Merge with default periods and remove duplicates
+    const allPeriods = [...new Set([...sortedPeriods, ...defaultPeriods])].sort((a, b) => {
+      const aStart = parseInt(a.split('-')[0]);
+      const bStart = parseInt(b.split('-')[0]);
+      return bStart - aStart;
+    });
+    
+    return allPeriods;
   },
 
   getMemberCounts: () => {

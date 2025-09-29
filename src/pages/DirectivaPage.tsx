@@ -79,6 +79,14 @@ export function DirectivaPage() {
     fetchBoardData();
   }, [fetchBoardData]);
 
+  // Ensure selected period is set to current period when data loads
+  useEffect(() => {
+    const availablePeriods = getAvailablePeriods();
+    if (availablePeriods.length > 0 && availablePeriods[0] === '2025-2026') {
+      setSelectedPeriod('2025-2026');
+    }
+  }, [getAvailablePeriods, setSelectedPeriod]);
+
   const availablePeriods = getAvailablePeriods();
   const currentBoardMembers = getCurrentBoardMembers().map(transformBoardMemberToDirectivaMember);
   const selectedPeriodMembers = getBoardMembersForPeriod(selectedPeriod).map(transformBoardMemberToDirectivaMember);
