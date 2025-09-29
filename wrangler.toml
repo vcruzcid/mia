@@ -1,0 +1,17 @@
+name = "miawapp"
+compatibility_date = "2024-12-15"
+
+# Pages configuration
+pages_build_output_dir = "dist"
+
+# Environment variables for production
+[vars]
+# Public environment variables (safe to expose)
+VITE_SUPABASE_URL = "https://sggnohsrpdhbsavzccfw.supabase.co"
+VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNnZ25vaHNycGRoYnNhdnpjY2Z3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzNDEzMTMsImV4cCI6MjA2OTkxNzMxM30.nW2ttYoRH5RrMiYH8cUUsNvn8CaVV1VxcHGtLZf57aI"
+
+# Note: Sensitive variables are managed through Cloudflare secrets:
+# - STRIPE_SECRET_KEY
+# - SUPABASE_SERVICE_ROLE_KEY  
+# - STRIPE_WEBHOOK_SECRET
+# - APP_URL

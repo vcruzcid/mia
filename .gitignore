@@ -23,8 +23,41 @@ dist-ssr
 *.sln
 *.sw?
 
-# MCP related files
-*.serena
-.serena
-**/mcp-config/*
-.mcp/
+# Migration files (completed - archived in scripts/migrationcompleted/)
+extracted-files/
+optimized-files/
+*-report.json
+*migration*.js
+*wordpress*.js
+*extract*.js
+*upload*.js
+*optimize*.js
+
+# Build artifacts
+dev-dist/
+test-results/
+playwright-report/
+
+# Test files (keep config but ignore results)
+tests/results/
+tests/screenshots/
+tests/videos/
+
+# Documentation and reports
+*-report.json
+CLAUDE.md
+DEPLOYMENT.md
+
+# Temporary files
+*.tmp
+*.temp
+.temp/
+
+# MCP configuration (now uses environment variables)
+# .mcp.json
+
+# Legacy WordPress site (not needed for React app)
+mia-wordpress/
+
+# Database backups (should be in separate backup system)
+db-backups/
