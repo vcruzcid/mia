@@ -49,6 +49,113 @@ export const isActiveMember = (member: Partial<Member>): boolean => {
   return member.stripe_subscription_status === 'active';
 };
 
+// Temporary helper function to check if member is active based on Stripe customer with recent transactions
+export const isActiveMemberByStripeTransactions = async (member: Partial<Member>): Promise<boolean> => {
+  if (!member.stripe_customer_id || member.stripe_customer_id.startsWith('placeholder_')) {
+    return false;
+  }
+
+  try {
+    // Check if customer has an active subscription with recent transaction activity
+    const { data, error } = await supabase
+      .from('stripeschema.subscriptions')
+      .select('attrs')
+      .eq('customer', member.stripe_customer_id)
+      .eq('attrs->status', 'active')
+      .not('attrs->latest_invoice', 'is', null)
+      .single();
+
+    if (error) {
+      console.warn(`Could not find active subscription for customer ${member.stripe_customer_id}:`, error.message);
+      return false;
+    }
+
+    // If we have an active subscription with a latest invoice, consider them active
+    return !!data && data.attrs?.latest_invoice;
+  } catch (error) {
+    console.error('Error checking Stripe customer transaction activity:', error);
+    return false;
+  }
+};
+
+// Batch function to get active customer IDs from Stripe (those with active subscriptions and recent transactions)
+export const getActiveStripeCustomerIds = async (): Promise<Set<string>> => {
+  try {
+    const { data, error } = await supabase
+      .from('stripeschema.subscriptions')
+      .select('customer')
+      .eq('attrs->status', 'active')
+      .not('attrs->latest_invoice', 'is', null);
+
+    if (error) {
+      console.error('Error fetching active Stripe customers:', error);
+      return new Set();
+    }
+
+    return new Set(data?.map(sub => sub.customer) || []);
+  } catch (error) {
+    console.error('Error fetching active Stripe customers:', error);
+    return new Set();
+  }
+};
+
+// Temporary helper function to check if member is active (synchronous version using cached data)
+export const isActiveMemberByStripeTransactionsSync = (member: Partial<Member>, activeCustomerIds: Set<string>): boolean => {
+  if (!member.stripe_customer_id || member.stripe_customer_id.startsWith('placeholder_')) {
+    return false;
+  }
+  
+  return activeCustomerIds.has(member.stripe_customer_id);
+};
+
+// Function to map Stripe customers to real member users by email matching
+export const mapStripeCustomersToMembers = async (): Promise<{ customerId: string; memberId: string; email: string }[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('stripeschema.customers')
+      .select(`
+        id,
+        email,
+        name,
+        created,
+        subscriptions!inner(
+          attrs
+        )
+      `)
+      .eq('subscriptions.attrs->status', 'active')
+      .not('subscriptions.attrs->latest_invoice', 'is', null);
+
+    if (error) {
+      console.error('Error fetching Stripe customers with active subscriptions:', error);
+      return [];
+    }
+
+    const mappings: { customerId: string; memberId: string; email: string }[] = [];
+
+    for (const customer of data || []) {
+      // Try to find matching member by email
+      const { data: member, error: memberError } = await supabase
+        .from('members')
+        .select('id, email, first_name, last_name')
+        .eq('email', customer.email)
+        .single();
+
+      if (!memberError && member) {
+        mappings.push({
+          customerId: customer.id,
+          memberId: member.id,
+          email: customer.email
+        });
+      }
+    }
+
+    return mappings;
+  } catch (error) {
+    console.error('Error mapping Stripe customers to members:', error);
+    return [];
+  }
+};
+
 // Helper function to check if member should be shown in testing mode
 export const isTestingMember = (member: Partial<Member>): boolean => {
   if (isActiveMember(member)) return true; // Always include active members
@@ -162,20 +269,30 @@ export const memberService = {
   // Get current board members (with active terms)
   async getBoardMembers(): Promise<CurrentBoardMember[]> {
     try {
+      console.log('🔍 Attempting to fetch from board_members view...');
       const { data, error } = await supabase
         .from('board_members')
         .select('*')
         .order('board_term_start', { ascending: false });
 
+      console.log('📊 board_members view result:', { data: data?.length || 0, error: error?.message });
+
       if (error) {
         console.warn('board_members view not available, falling back to filtered members:', error.message);
         // Fallback: Get members with is_board_member = true, exclude admin
+        console.log('🔄 Executing fallback query...');
         const { data: fallbackData, error: fallbackError } = await supabase
           .from('members')
           .select('*')
           .eq('is_board_member', true)
           .not('email', 'like', '%admin%') // Exclude admin users
           .order('created_at', { ascending: false });
+
+        console.log('📊 Fallback query result:', { 
+          data: fallbackData?.length || 0, 
+          error: fallbackError?.message,
+          firstMember: fallbackData?.[0]?.first_name 
+        });
 
         if (fallbackError) throw fallbackError;
         // Fallback to manual filtering
@@ -878,6 +995,10 @@ export const supabaseService = {
 
   // Helper functions
   isActiveMember,
+  isActiveMemberByStripeTransactions,
+  isActiveMemberByStripeTransactionsSync,
+  getActiveStripeCustomerIds,
+  mapStripeCustomersToMembers,
   isTestingMember,
   getMemberDisplayName,
 
