@@ -87,7 +87,9 @@ export function DirectivaPage() {
     }
   }, [getAvailablePeriods, setSelectedPeriod]);
 
-  const availablePeriods = getAvailablePeriods();
+  const allPeriods = getAvailablePeriods();
+  // Only show current and recent periods to avoid clutter
+  const availablePeriods = allPeriods.slice(0, 5);
   const currentBoardMembers = getCurrentBoardMembers().map(transformBoardMemberToDirectivaMember);
   const selectedPeriodMembers = getBoardMembersForPeriod(selectedPeriod).map(transformBoardMemberToDirectivaMember);
   const isCurrentPeriod = selectedPeriod === '2025-2026';
@@ -126,7 +128,7 @@ export function DirectivaPage() {
             Seleccionar período de la directiva
           </label>
           <Tabs value={selectedPeriod} onValueChange={handlePeriodChange} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 bg-gray-800 border border-gray-700">
+            <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 bg-gray-800 border border-gray-700">
               {availablePeriods.map((period) => (
                 <TabsTrigger
                   key={period}
