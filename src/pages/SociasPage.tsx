@@ -547,7 +547,7 @@ function MemberModal({ member, onClose }: MemberModalProps) {
                   <span className="block">{member.company}</span>
                 )}
                 <span className="block text-sm text-gray-600 mt-1">
-                  Tipo de membresía: {member.memberType === 'socia-pleno-derecho' ? 'Socia de Pleno Derecho' : 'Colaborador/a'}
+                  {member.memberType === 'socia-pleno-derecho' ? 'Socia de Pleno Derecho' : 'Colaborador/a'}
                 </span>
               </DialogDescription>
               <div className="flex gap-2 mt-2">
