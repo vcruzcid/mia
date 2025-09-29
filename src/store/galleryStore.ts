@@ -458,7 +458,7 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
   },
 
   getBoardMembersForPeriod: (period?: string) => {
-    const { boardMembers, selectedPeriod } = get();
+    const { boardMembers, selectedPeriod, boardResponsibilities } = get();
     const targetPeriod = period || selectedPeriod;
     
     console.log('getBoardMembersForPeriod called with:', { period, targetPeriod, boardMembersCount: boardMembers.length });
@@ -466,8 +466,12 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
     const filtered = boardMembers.filter(member => {
       if (!member.board_term_start) return false;
       
-      const startYear = new Date(member.board_term_start).getFullYear();
-      const endYear = member.board_term_end ? new Date(member.board_term_end).getFullYear() : new Date().getFullYear();
+      // Parse dates more carefully to avoid timezone issues
+      const startDate = new Date(member.board_term_start + 'T00:00:00');
+      const endDate = member.board_term_end ? new Date(member.board_term_end + 'T00:00:00') : new Date();
+      
+      const startYear = startDate.getFullYear();
+      const endYear = endDate.getFullYear();
       const memberPeriod = `${startYear}-${endYear}`;
       
       console.log('Member period check:', { 
@@ -480,19 +484,46 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
       return memberPeriod === targetPeriod;
     });
     
-    console.log('Filtered members for period', targetPeriod, ':', filtered.length);
-    return filtered;
+    // Sort board members using database sort_order from board_position_responsibilities
+    const sorted = filtered.sort((a, b) => {
+      const positionA = boardResponsibilities.find(r => r.position === a.board_position);
+      const positionB = boardResponsibilities.find(r => r.position === b.board_position);
+      
+      const orderA = positionA?.sort_order || 999;
+      const orderB = positionB?.sort_order || 999;
+      
+      return orderA - orderB;
+    });
+    
+    console.log('Filtered and sorted members for period', targetPeriod, ':', sorted.length);
+    return sorted;
   },
 
   getCurrentBoardMembers: () => {
-    const { boardMembers } = get();
+    const { boardMembers, boardResponsibilities } = get();
     const currentYear = new Date().getFullYear();
     
-    return boardMembers.filter(member => {
-      const termStart = member.board_term_start ? new Date(member.board_term_start).getFullYear() : null;
-      const termEnd = member.board_term_end ? new Date(member.board_term_end).getFullYear() : null;
+    const filtered = boardMembers.filter(member => {
+      if (!member.board_term_start) return false;
       
-      return termStart && termStart <= currentYear && (!termEnd || termEnd >= currentYear);
+      const startDate = new Date(member.board_term_start + 'T00:00:00');
+      const endDate = member.board_term_end ? new Date(member.board_term_end + 'T00:00:00') : new Date();
+      
+      const termStart = startDate.getFullYear();
+      const termEnd = endDate.getFullYear();
+      
+      return termStart <= currentYear && (!member.board_term_end || termEnd >= currentYear);
+    });
+    
+    // Sort board members using database sort_order from board_position_responsibilities
+    return filtered.sort((a, b) => {
+      const positionA = boardResponsibilities.find(r => r.position === a.board_position);
+      const positionB = boardResponsibilities.find(r => r.position === b.board_position);
+      
+      const orderA = positionA?.sort_order || 999;
+      const orderB = positionB?.sort_order || 999;
+      
+      return orderA - orderB;
     });
   },
 
@@ -519,8 +550,10 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
     // Add periods from current board members
     boardMembers.forEach(member => {
       if (member.board_term_start) {
-        const startYear = new Date(member.board_term_start).getFullYear();
-        const endYear = member.board_term_end ? new Date(member.board_term_end).getFullYear() : new Date().getFullYear();
+        const startDate = new Date(member.board_term_start + 'T00:00:00');
+        const endDate = member.board_term_end ? new Date(member.board_term_end + 'T00:00:00') : new Date();
+        const startYear = startDate.getFullYear();
+        const endYear = endDate.getFullYear();
         periods.add(`${startYear}-${endYear}`);
       }
     });
@@ -528,8 +561,10 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
     // Add periods from historical data
     boardPositionHistory.forEach(history => {
       if (history.term_start) {
-        const startYear = new Date(history.term_start).getFullYear();
-        const endYear = history.term_end ? new Date(history.term_end).getFullYear() : new Date().getFullYear();
+        const startDate = new Date(history.term_start + 'T00:00:00');
+        const endDate = history.term_end ? new Date(history.term_end + 'T00:00:00') : new Date();
+        const startYear = startDate.getFullYear();
+        const endYear = endDate.getFullYear();
         periods.add(`${startYear}-${endYear}`);
       }
     });

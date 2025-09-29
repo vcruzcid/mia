@@ -99,6 +99,7 @@ export interface BoardPositionResponsibilities {
   id: string;
   position: BoardPosition;
   default_responsibilities: string[];
+  sort_order: number;
   created_at?: string;
   updated_at?: string;
 }
