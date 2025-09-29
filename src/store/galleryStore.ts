@@ -1,6 +1,14 @@
 import { create } from 'zustand';
-import { memberService, isActiveMember } from '../services/supabaseService';
-import type { Member } from '../types/supabase';
+import { memberService, isActiveMember, supabase } from '../services/supabaseService';
+import type { 
+  Member, 
+  BoardPosition, 
+  BoardPositionHistory, 
+  BoardPositionResponsibilities,
+  BoardMemberWithHistory,
+  BoardPeriod,
+  DirectivaPageData
+} from '../types/supabase';
 import { cleanMemberData } from '../utils/textDecoding';
 
 interface GalleryState {
@@ -23,12 +31,24 @@ interface GalleryState {
     isActive: boolean | null;
   };
   
+  // Board-specific state
+  boardMembers: BoardMemberWithHistory[];
+  boardPositionHistory: BoardPositionHistory[];
+  boardResponsibilities: BoardPositionResponsibilities[];
+  selectedPeriod: string; // Format: "2025-2026"
+  availablePeriods: string[];
+  directivaData: DirectivaPageData | null;
+  
   // Actions
   fetchMembers: () => Promise<void>;
   fetchDirectiva: () => Promise<void>;
+  fetchBoardData: () => Promise<void>;
+  fetchBoardPositionHistory: () => Promise<void>;
+  fetchBoardResponsibilities: () => Promise<void>;
   setSearchTerm: (term: string) => void;
   setFilters: (filters: Partial<GalleryState['filters']>) => void;
   setSelectedYear: (year: number) => void;
+  setSelectedPeriod: (period: string) => void;
   applyFilters: () => void;
   resetFilters: () => void;
   
@@ -45,7 +65,11 @@ interface GalleryState {
   // Getters
   getFilteredMembers: () => Member[];
   getFilteredDirectiva: () => any[];
+  getBoardMembersForPeriod: (period?: string) => BoardMemberWithHistory[];
+  getCurrentBoardMembers: () => BoardMemberWithHistory[];
   getAvailableLocations: () => string[];
+  getPositionResponsibilitiesFromDB: (position: string) => string[];
+  getAvailablePeriods: () => string[];
   getMemberCounts: () => { 
     total: number; 
     active: number; 
@@ -75,6 +99,14 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
   selectedYear: new Date().getFullYear(),
   availableYears: [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026],
   filters: initialFilters,
+  
+  // Board-specific state
+  boardMembers: [],
+  boardPositionHistory: [],
+  boardResponsibilities: [],
+  selectedPeriod: '2025-2026', // Current period
+  availablePeriods: ['2025-2026', '2023-2024', '2021-2022', '2019-2020', '2018'],
+  directivaData: null,
 
   fetchMembers: async () => {
     set({ isLoading: true, loading: true, error: null });
@@ -130,6 +162,93 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
     }
   },
 
+  fetchBoardData: async () => {
+    set({ isLoading: true, loading: true, error: null });
+    
+    try {
+      // Fetch all board-related data in parallel
+      const [boardMembers, positionHistory, responsibilities] = await Promise.all([
+        memberService.getBoardMembers(),
+        get().fetchBoardPositionHistory(),
+        get().fetchBoardResponsibilities()
+      ]);
+      
+      // Debug logging
+      console.log('Fetched board members count:', boardMembers.length);
+      console.log('Board members with 2025-2026 terms:', boardMembers.filter(m => m.board_term_start?.includes('2025')));
+      
+      // Clean and process board members
+      const cleanedBoardMembers = boardMembers.map(member => cleanMemberData(member));
+      
+      // Create board members with history
+      const boardMembersWithHistory: BoardMemberWithHistory[] = cleanedBoardMembers.map(member => ({
+        ...member,
+        position_history: get().boardPositionHistory.filter(history => history.member_id === member.id),
+        position_responsibilities: get().getPositionResponsibilitiesFromDB(member.board_position || 'Vocal')
+      }));
+      
+      set({ 
+        boardMembers: boardMembersWithHistory,
+        isLoading: false,
+        loading: false
+      });
+      
+    } catch (error) {
+      console.error('Error fetching board data:', error);
+      set({ 
+        error: error instanceof Error ? error.message : 'Failed to fetch board data',
+        isLoading: false,
+        loading: false
+      });
+    }
+  },
+
+  fetchBoardPositionHistory: async () => {
+    try {
+      const { data, error } = await supabase
+        .from('board_position_history')
+        .select('*')
+        .order('term_start', { ascending: false });
+
+      if (error) {
+        console.warn('board_position_history table not available:', error.message);
+        const positionHistory: BoardPositionHistory[] = [];
+        set({ boardPositionHistory: positionHistory });
+        return positionHistory;
+      }
+
+      const positionHistory: BoardPositionHistory[] = data || [];
+      set({ boardPositionHistory: positionHistory });
+      return positionHistory;
+    } catch (error) {
+      console.error('Error fetching board position history:', error);
+      return [];
+    }
+  },
+
+  fetchBoardResponsibilities: async () => {
+    try {
+      const { data, error } = await supabase
+        .from('board_position_responsibilities')
+        .select('*')
+        .order('position');
+
+      if (error) {
+        console.warn('board_position_responsibilities table not available:', error.message);
+        const responsibilities: BoardPositionResponsibilities[] = [];
+        set({ boardResponsibilities: responsibilities });
+        return responsibilities;
+      }
+
+      const responsibilities: BoardPositionResponsibilities[] = data || [];
+      set({ boardResponsibilities: responsibilities });
+      return responsibilities;
+    } catch (error) {
+      console.error('Error fetching board responsibilities:', error);
+      return [];
+    }
+  },
+
   setSearchTerm: (searchTerm: string) => {
     set({ searchTerm });
     get().applyFilters();
@@ -145,6 +264,10 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
   setSelectedYear: (selectedYear: number) => {
     set({ selectedYear });
     get().applyFilters();
+  },
+
+  setSelectedPeriod: (selectedPeriod: string) => {
+    set({ selectedPeriod });
   },
 
   openMemberModal: (selectedMember: Member) => {
@@ -336,12 +459,136 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
     }));
   },
 
+  getBoardMembersForPeriod: (period?: string) => {
+    const { boardMembers, selectedPeriod, boardResponsibilities } = get();
+    const targetPeriod = period || selectedPeriod;
+    
+    console.log('getBoardMembersForPeriod called with:', { period, targetPeriod, boardMembersCount: boardMembers.length });
+    
+    const filtered = boardMembers.filter(member => {
+      if (!member.board_term_start) return false;
+      
+      // Parse dates more carefully to avoid timezone issues
+      const startDate = new Date(member.board_term_start + 'T00:00:00');
+      const endDate = member.board_term_end ? new Date(member.board_term_end + 'T00:00:00') : new Date();
+      
+      const startYear = startDate.getFullYear();
+      const endYear = endDate.getFullYear();
+      const memberPeriod = `${startYear}-${endYear}`;
+      
+      console.log('Member period check:', { 
+        memberName: `${member.first_name} ${member.last_name}`, 
+        memberPeriod, 
+        targetPeriod, 
+        matches: memberPeriod === targetPeriod 
+      });
+      
+      return memberPeriod === targetPeriod;
+    });
+    
+    // Sort board members using database sort_order from board_position_responsibilities
+    const sorted = filtered.sort((a, b) => {
+      const positionA = boardResponsibilities.find(r => r.position === a.board_position);
+      const positionB = boardResponsibilities.find(r => r.position === b.board_position);
+      
+      const orderA = positionA?.sort_order || 999;
+      const orderB = positionB?.sort_order || 999;
+      
+      return orderA - orderB;
+    });
+    
+    console.log('Filtered and sorted members for period', targetPeriod, ':', sorted.length);
+    return sorted;
+  },
+
+  getCurrentBoardMembers: () => {
+    const { boardMembers, boardResponsibilities } = get();
+    const currentYear = new Date().getFullYear();
+    
+    const filtered = boardMembers.filter(member => {
+      if (!member.board_term_start) return false;
+      
+      const startDate = new Date(member.board_term_start + 'T00:00:00');
+      const endDate = member.board_term_end ? new Date(member.board_term_end + 'T00:00:00') : new Date();
+      
+      const termStart = startDate.getFullYear();
+      const termEnd = endDate.getFullYear();
+      
+      return termStart <= currentYear && (!member.board_term_end || termEnd >= currentYear);
+    });
+    
+    // Sort board members using database sort_order from board_position_responsibilities
+    return filtered.sort((a, b) => {
+      const positionA = boardResponsibilities.find(r => r.position === a.board_position);
+      const positionB = boardResponsibilities.find(r => r.position === b.board_position);
+      
+      const orderA = positionA?.sort_order || 999;
+      const orderB = positionB?.sort_order || 999;
+      
+      return orderA - orderB;
+    });
+  },
+
   getAvailableLocations: () => {
     const { members } = get();
     const locations = members
       .map(member => member.autonomous_community || member.province)
       .filter((location): location is string => !!location);
     return [...new Set(locations)].sort();
+  },
+
+  getPositionResponsibilitiesFromDB: (position: string) => {
+    const { boardResponsibilities } = get();
+    const responsibility = boardResponsibilities.find(r => r.position === position);
+    return responsibility?.default_responsibilities || getPositionResponsibilities(position);
+  },
+
+  getAvailablePeriods: () => {
+    const { boardMembers, boardPositionHistory } = get();
+    
+    // Get all unique periods from current board members and history
+    const periods = new Set<string>();
+    
+    // Add periods from current board members
+    boardMembers.forEach(member => {
+      if (member.board_term_start) {
+        const startDate = new Date(member.board_term_start + 'T00:00:00');
+        const endDate = member.board_term_end ? new Date(member.board_term_end + 'T00:00:00') : new Date();
+        const startYear = startDate.getFullYear();
+        const endYear = endDate.getFullYear();
+        periods.add(`${startYear}-${endYear}`);
+      }
+    });
+    
+    // Add periods from historical data
+    boardPositionHistory.forEach(history => {
+      if (history.term_start) {
+        const startDate = new Date(history.term_start + 'T00:00:00');
+        const endDate = history.term_end ? new Date(history.term_end + 'T00:00:00') : new Date();
+        const startYear = startDate.getFullYear();
+        const endYear = endDate.getFullYear();
+        periods.add(`${startYear}-${endYear}`);
+      }
+    });
+    
+    // Convert to array and sort (newest first)
+    const sortedPeriods = Array.from(periods).sort((a, b) => {
+      const aStart = parseInt(a.split('-')[0]);
+      const bStart = parseInt(b.split('-')[0]);
+      return bStart - aStart;
+    });
+    
+    // Always include current period and fallback periods
+    const defaultPeriods = ['2025-2026', '2023-2024', '2021-2022', '2019-2020', '2018'];
+    
+    // Merge with default periods and remove duplicates
+    const allPeriods = [...new Set([...sortedPeriods, ...defaultPeriods])].sort((a, b) => {
+      const aStart = parseInt(a.split('-')[0]);
+      const bStart = parseInt(b.split('-')[0]);
+      return bStart - aStart;
+    });
+    
+    return allPeriods;
   },
 
   getMemberCounts: () => {
@@ -377,38 +624,91 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
 }));
 
 // Helper function to get position responsibilities
-function getPositionResponsibilities(position: string): string[] {
-  const responsibilities: Record<string, string[]> = {
+function getPositionResponsibilities(position: BoardPosition | string): string[] {
+  const responsibilities: Record<BoardPosition, string[]> = {
     'Presidenta': [
-      'Dirigir las sesiones de la junta directiva',
-      'Representar a MIA en eventos públicos',
-      'Supervisar la estrategia organizacional',
-      'Coordinación con otras organizaciones del sector'
+      'Representar legalmente a la asociación',
+      'Convocar y presidir las reuniones de la Junta Directiva',
+      'Ejecutar los acuerdos adoptados por la Asamblea General',
+      'Supervisar el cumplimiento de los estatutos y reglamentos',
+      'Mantener relaciones institucionales con otras organizaciones'
+    ],
+    'Vice-Presidenta': [
+      'Sustituir a la Presidenta en caso de ausencia',
+      'Colaborar en la representación de la asociación',
+      'Apoyar en la coordinación de actividades',
+      'Participar en la toma de decisiones estratégicas',
+      'Facilitar la comunicación entre miembros de la Junta'
     ],
     'Secretaria': [
-      'Redactar actas de las reuniones',
-      'Gestionar la correspondencia oficial',
-      'Mantener registros organizacionales',
-      'Coordinar comunicaciones internas'
+      'Redactar y custodiar las actas de las reuniones',
+      'Gestionar la correspondencia oficial de la asociación',
+      'Mantener actualizado el registro de socias',
+      'Organizar la documentación administrativa',
+      'Coordinar la comunicación interna y externa'
     ],
     'Tesorera': [
-      'Gestionar las finanzas de la organización',
-      'Preparar informes financieros',
-      'Supervisar presupuestos y gastos',
-      'Coordinar con proveedores y patrocinadores'
+      'Gestionar las finanzas de la asociación',
+      'Elaborar presupuestos anuales',
+      'Controlar ingresos y gastos',
+      'Presentar informes financieros periódicos',
+      'Mantener la contabilidad actualizada'
+    ],
+    'Vocal Formacion': [
+      'Organizar cursos y talleres de formación',
+      'Coordinar programas educativos',
+      'Gestionar colaboraciones con instituciones formativas',
+      'Desarrollar contenidos pedagógicos',
+      'Evaluar la calidad de las actividades formativas'
+    ],
+    'Vocal Comunicacion': [
+      'Gestionar las redes sociales de la asociación',
+      'Coordinar la comunicación digital',
+      'Elaborar materiales promocionales',
+      'Mantener la página web actualizada',
+      'Organizar eventos de difusión'
+    ],
+    'Vocal Mianima': [
+      'Coordinar el festival MIANIMA',
+      'Gestionar la programación del evento',
+      'Organizar actividades paralelas',
+      'Coordinar con patrocinadores del festival',
+      'Supervisar la logística del evento'
+    ],
+    'Vocal Financiacion': [
+      'Buscar fuentes de financiación',
+      'Elaborar propuestas de subvenciones',
+      'Gestionar relaciones con patrocinadores',
+      'Coordinar campañas de crowdfunding',
+      'Desarrollar estrategias de sostenibilidad económica'
+    ],
+    'Vocal Socias': [
+      'Gestionar el proceso de incorporación de nuevas socias',
+      'Organizar actividades de networking',
+      'Coordinar programas de mentoría',
+      'Facilitar la integración de nuevas miembros',
+      'Mantener el contacto directo con las socias'
+    ],
+    'Vocal Festivales': [
+      'Coordinar la participación en festivales externos',
+      'Gestionar la presencia de MIA en eventos del sector',
+      'Organizar proyecciones y muestras',
+      'Coordinar con otros festivales de animación',
+      'Desarrollar estrategias de visibilidad'
     ],
     'Vocal': [
-      'Participar en decisiones de la junta',
-      'Apoyar iniciativas organizacionales',
-      'Representar intereses de los miembros',
-      'Colaborar en proyectos especiales'
+      'Participar en las decisiones de la Junta Directiva',
+      'Colaborar en proyectos específicos',
+      'Apoyar a otros vocales en sus funciones',
+      'Representar a la asociación en eventos',
+      'Contribuir al desarrollo de nuevas iniciativas'
     ]
   };
   
-  return responsibilities[position] || [
-    'Participar en decisiones de la junta directiva',
-    'Colaborar en iniciativas organizacionales',
-    'Representar los intereses de los miembros'
+  return responsibilities[position as BoardPosition] || [
+    'Participar en las decisiones de la Junta Directiva',
+    'Colaborar en proyectos específicos',
+    'Representar a la asociación en eventos'
   ];
 }
 
