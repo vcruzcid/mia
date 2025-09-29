@@ -346,6 +346,24 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
       );
     }
 
+    // Apply availability status filter
+    if (filters.availabilityStatus.length > 0) {
+      filtered = filtered.filter(member => {
+        const availability = member.availability_status || 'Available';
+        return filters.availabilityStatus.includes(availability);
+      });
+    }
+
+    // Apply specialization filter
+    if (filters.specializations.length > 0) {
+      filtered = filtered.filter(member =>
+        member.other_professions && 
+        filters.specializations.some(spec => 
+          member.other_professions?.includes(spec)
+        )
+      );
+    }
+
     // Apply active filter using Stripe-centric logic
     if (filters.isActive !== null) {
       filtered = filtered.filter(member => 
@@ -381,10 +399,10 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
         region: member.autonomous_community || member.province || '',
         country: member.country || 'España'
       },
-      memberType: member.membership_type || 'profesional',
+      memberType: member.membership_type || 'colaborador',
       profession: member.main_profession || '',
       company: member.company || '',
-      availabilityStatus: 'Available', // Default since there's no availability_status field
+      availabilityStatus: member.availability_status || 'Available',
       specializations: member.other_professions || [],
       socialMedia: member.social_media || {},
       profileImage: member.profile_image_url || '', // Fixed mapping
@@ -447,7 +465,7 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
         region: member.autonomous_community || member.province || '',
         country: member.country || 'España'
       },
-      memberType: member.membership_type || 'profesional',
+      memberType: member.membership_type || 'colaborador',
       profession: member.main_profession || '',
       company: member.company || '',
       bio: member.biography || '',
@@ -594,7 +612,7 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
   getMemberCounts: () => {
     const { members } = get();
     const byType: Record<string, number> = {};
-    const byAvailability: Record<string, number> = { 'Available': 0 };
+    const byAvailability: Record<string, number> = {};
     
     members.forEach(member => {
       // Count by membership type
@@ -602,8 +620,9 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
         byType[member.membership_type] = (byType[member.membership_type] || 0) + 1;
       }
       
-      // Count by availability status (defaulting to Available)
-      byAvailability['Available'] = byAvailability['Available'] + 1;
+      // Count by availability status
+      const availability = member.availability_status || 'Available';
+      byAvailability[availability] = (byAvailability[availability] || 0) + 1;
     });
     
     return {
