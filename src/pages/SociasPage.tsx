@@ -35,7 +35,7 @@ export function SociasPage() {
   } = useGalleryStore();
 
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
-  const [activeFilterTab, setActiveFilterTab] = useState<'type' | 'specialization' | 'location' | 'availability' | 'other'>('type');
+  const [activeFilterTab, setActiveFilterTab] = useState<'specialization' | 'location' | 'availability' | 'other'>('specialization');
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -82,12 +82,10 @@ export function SociasPage() {
 
   const getActiveFiltersCount = () => {
     return (
-      filters.memberTypes.length +
       filters.specializations.length +
       filters.locations.length +
       filters.availabilityStatus.length +
-      (filters.hasSocialMedia !== null ? 1 : 0) +
-      (filters.isActive !== null ? 1 : 0)
+      (filters.hasSocialMedia !== null ? 1 : 0)
     );
   };
 
@@ -173,15 +171,14 @@ export function SociasPage() {
             <div className="border-b border-gray-200">
               <nav className="-mb-px flex space-x-8">
                 {[
-                  { key: 'type', label: 'Tipo de Socia', count: filters.memberTypes.length },
                   { key: 'specialization', label: 'Especializaciones', count: filters.specializations.length },
                   { key: 'location', label: 'Ubicación', count: filters.locations.length },
                   { key: 'availability', label: 'Disponibilidad', count: filters.availabilityStatus.length },
-                  { key: 'other', label: 'Otros', count: (filters.hasSocialMedia !== null ? 1 : 0) + (filters.isActive !== null ? 1 : 0) },
+                  { key: 'other', label: 'Otros', count: (filters.hasSocialMedia !== null ? 1 : 0) },
                 ].map((tab) => (
                   <Button
                     key={tab.key}
-                    onClick={() => setActiveFilterTab(tab.key as 'type' | 'specialization' | 'location' | 'availability' | 'other')}
+                    onClick={() => setActiveFilterTab(tab.key as 'specialization' | 'location' | 'availability' | 'other')}
                     variant="ghost"
                     className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap rounded-none ${
                       activeFilterTab === tab.key
@@ -202,27 +199,6 @@ export function SociasPage() {
 
             {/* Filter Content */}
             <div className="mt-6">
-              {activeFilterTab === 'type' && (
-                <div>
-                  <h3 className="text-sm font-medium text-gray-900 mb-3">Tipo de Socia</h3>
-                  <div className="space-y-2">
-                    {(['socia-pleno-derecho', 'colaborador'] as const).map((type) => (
-                      <label key={type} className="flex items-center space-x-3">
-                        <Checkbox
-                          checked={filters.memberTypes.includes(type)}
-                          onCheckedChange={() => toggleMemberType(type)}
-                        />
-                        <span className="text-sm text-gray-700">
-                          {type === 'socia-pleno-derecho' ? 'Socia de Pleno Derecho' : 'Colaborador/a'}
-                          <span className="ml-2 text-gray-600">
-                            ({memberCounts.byType[type] || 0})
-                          </span>
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              )}
 
               {activeFilterTab === 'specialization' && (
                 <div>
@@ -323,41 +299,6 @@ export function SociasPage() {
                     </div>
                   </div>
 
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-900 mb-3">Estado de Membresía</h3>
-                    <div className="space-y-2">
-                      <label className="flex items-center space-x-3">
-                        <input
-                          type="radio"
-                          name="isActive"
-                          checked={filters.isActive === true}
-                          onChange={() => setFilters({ isActive: true })}
-                          className="h-4 w-4 text-primary-600 focus:ring-primary-500"
-                        />
-                        <span className="text-sm text-gray-700">Membresía activa</span>
-                      </label>
-                      <label className="flex items-center space-x-3">
-                        <input
-                          type="radio"
-                          name="isActive"
-                          checked={filters.isActive === false}
-                          onChange={() => setFilters({ isActive: false })}
-                          className="h-4 w-4 text-primary-600 focus:ring-primary-500"
-                        />
-                        <span className="text-sm text-gray-700">Membresía inactiva</span>
-                      </label>
-                      <label className="flex items-center space-x-3">
-                        <input
-                          type="radio"
-                          name="isActive"
-                          checked={filters.isActive === null}
-                          onChange={() => setFilters({ isActive: null })}
-                          className="h-4 w-4 text-primary-600 focus:ring-primary-500"
-                        />
-                        <span className="text-sm text-gray-700">Todos</span>
-                      </label>
-                    </div>
-                  </div>
                 </div>
               )}
             </div>

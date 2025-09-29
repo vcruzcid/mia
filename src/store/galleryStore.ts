@@ -332,12 +332,7 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
       );
     }
 
-    // Apply member type filter
-    if (filters.memberTypes.length > 0) {
-      filtered = filtered.filter(member =>
-        member.membership_type && filters.memberTypes.includes(member.membership_type)
-      );
-    }
+    // Member type filter removed - no longer filtering by membership type
 
     // Apply location filter
     if (filters.locations.length > 0) {
@@ -364,12 +359,7 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
       );
     }
 
-    // Apply active filter using Stripe-centric logic
-    if (filters.isActive !== null) {
-      filtered = filtered.filter(member => 
-        filters.isActive ? isActiveMember(member) : !isActiveMember(member)
-      );
-    }
+    // Active filter removed - no longer filtering by membership status
 
     // Apply social media filter
     if (filters.hasSocialMedia !== null) {
