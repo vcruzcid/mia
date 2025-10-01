@@ -571,6 +571,7 @@ function MemberModal({ member, onClose }: MemberModalProps) {
                 )}
                 <span className="block text-sm text-gray-400 mt-1">
                   {member.memberType === 'socia-pleno-derecho' ? 'Socia de Pleno Derecho' : 'Colaborador/a'}
+                  {member.created_at && ` • Socia desde ${new Date(member.created_at).getFullYear()}`}
                 </span>
               </DialogDescription>
               <div className="flex gap-2 mt-2">
