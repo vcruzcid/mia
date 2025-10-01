@@ -184,14 +184,27 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
       const cleanedBoardMembers = boardMembers.map(member => cleanMemberData(member));
       const cleanedAllMembers = allMembers.map(member => cleanMemberData(member));
       
-      // Create board members with history (include all members for historical lookups)
-      const boardMembersWithHistory: BoardMemberWithHistory[] = cleanedAllMembers
-        .filter(member => member.board_position || get().boardPositionHistory.some(history => history.member_id === member.id))
+      // Create board members with history (include current board members + historical members)
+      const currentBoardMembersWithHistory: BoardMemberWithHistory[] = cleanedBoardMembers.map(member => ({
+        ...member,
+        position_history: get().boardPositionHistory.filter(history => history.member_id === member.id),
+        position_responsibilities: get().getPositionResponsibilitiesFromDB(member.board_position || 'Vocal')
+      }));
+
+      // Add historical members who are not current board members
+      const historicalMembersWithHistory: BoardMemberWithHistory[] = cleanedAllMembers
+        .filter(member => !member.board_position && get().boardPositionHistory.some(history => history.member_id === member.id))
         .map(member => ({
           ...member,
           position_history: get().boardPositionHistory.filter(history => history.member_id === member.id),
-          position_responsibilities: get().getPositionResponsibilitiesFromDB(member.board_position || 'Vocal')
+          position_responsibilities: get().getPositionResponsibilitiesFromDB('Vocal')
         }));
+
+      const boardMembersWithHistory: BoardMemberWithHistory[] = [...currentBoardMembersWithHistory, ...historicalMembersWithHistory];
+      
+      console.log('Current board members with history:', currentBoardMembersWithHistory.length);
+      console.log('Historical members with history:', historicalMembersWithHistory.length);
+      console.log('Total board members with history:', boardMembersWithHistory.length);
       
       set({ 
         boardMembers: boardMembersWithHistory,
