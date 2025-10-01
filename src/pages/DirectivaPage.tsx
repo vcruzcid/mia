@@ -114,10 +114,11 @@ export function DirectivaPage() {
   // Ensure selected period is set to current period when data loads
   useEffect(() => {
     const availablePeriods = getAvailablePeriods();
-    if (availablePeriods.length > 0 && availablePeriods[0] === '2025-2027') {
-      setSelectedPeriod('2025-2027');
+    if (availablePeriods.length > 0 && !selectedPeriod) {
+      // Set the first period (current period) as default
+      setSelectedPeriod(availablePeriods[0]);
     }
-  }, [getAvailablePeriods, setSelectedPeriod]);
+  }, [getAvailablePeriods, setSelectedPeriod, selectedPeriod]);
 
   const allPeriods = getAvailablePeriods();
   // Only show current and recent periods to avoid clutter
@@ -159,7 +160,7 @@ export function DirectivaPage() {
           <label className="block text-sm font-medium text-gray-300 mb-3 text-center">
             Seleccionar período de la directiva
           </label>
-          <Tabs value={selectedPeriod} onValueChange={handlePeriodChange} className="w-full">
+          <Tabs value={selectedPeriod || availablePeriods[0]} onValueChange={handlePeriodChange} className="w-full">
             <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 bg-gray-800 border border-gray-700">
               {availablePeriods.map((period) => (
                 <TabsTrigger
