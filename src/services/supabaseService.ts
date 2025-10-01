@@ -46,7 +46,7 @@ export { supabase };
 
 // Helper function to check if member is active
 export const isActiveMember = (member: Partial<Member>): boolean => {
-  return member.membership_status === 'active';
+  return member.stripe_subscription_status === 'active';
 };
 
 // Temporary helper function to check if member is active based on Stripe customer with recent transactions
