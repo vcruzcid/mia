@@ -624,7 +624,7 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
     });
     
     // Always include current period and fallback periods
-    const defaultPeriods = ['2025-2026', '2023-2024', '2021-2022', '2019-2020', '2018'];
+    const defaultPeriods = ['2025-2027', '2023-2025', '2021-2023', '2019-2020'];
     
     // Merge with default periods and remove duplicates
     const allPeriods = [...new Set([...sortedPeriods, ...defaultPeriods])].sort((a, b) => {
