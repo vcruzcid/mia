@@ -194,10 +194,13 @@ export function DirectivaPage() {
                     </svg>
                   </div>
                   <h3 className="text-lg font-medium text-white mb-2">
-                    No hay información disponible
+                    {period === '2025-2026' ? 'No hay información disponible' : 'Información histórica no disponible'}
                   </h3>
                   <p className="text-gray-300">
-                    No se encontraron miembros de la directiva para el período {period}.
+                    {period === '2025-2026' 
+                      ? 'No se encontraron miembros de la directiva para el período actual.'
+                      : 'Los datos de períodos anteriores no están disponibles en la base de datos.'
+                    }
                   </p>
                 </div>
               ) : (
@@ -307,8 +310,8 @@ function DirectivaCard({ member, index, onClick, isCurrentPeriod = false }: Dire
 
 
 
-        {/* Email */}
-        {getPositionEmail(member.position) && (
+        {/* Email - only show for current period */}
+        {isCurrentPeriod && getPositionEmail(member.position) && (
           <div className="border-t border-gray-200 pt-4 pb-3">
             <div className="flex items-center text-sm text-gray-600">
               <svg className="h-4 w-4 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -378,7 +381,7 @@ function DirectivaModal({ member, onClose }: DirectivaModalProps) {
                   {member.firstName} {member.lastName}
                 </h3>
                 <p className="text-lg text-white/90 mb-1">{member.position}</p>
-                {getPositionEmail(member.position) && (
+                {member.board_term_start?.startsWith('2025') && getPositionEmail(member.position) && (
                   <p className="text-sm text-white/80 mb-2">
                     <a 
                       href={`mailto:${getPositionEmail(member.position)}`}
