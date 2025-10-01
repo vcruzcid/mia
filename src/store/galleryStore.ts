@@ -32,6 +32,7 @@ interface GalleryState {
   
   // Board-specific state
   boardMembers: BoardMemberWithHistory[];
+  boardMembersByPeriod: Record<string, BoardMemberWithHistory[]>;
   boardPositionHistory: BoardPositionHistory[];
   boardResponsibilities: BoardPositionResponsibilities[];
   selectedPeriod: string; // Format: "2025-2026"
@@ -86,6 +87,24 @@ const initialFilters = {
   isActive: null,
 };
 
+const extractYear = (value?: string | null): number | null => {
+  if (!value) return null;
+  if (value === 'Present') return new Date().getFullYear();
+
+  const match = value.match(/\d{4}/);
+  return match ? Number(match[0]) : null;
+};
+
+const formatBoardPeriod = (start?: string | null, end?: string | null): string | null => {
+  const startYear = extractYear(start);
+  if (!startYear) return null;
+
+  const endYear = extractYear(end);
+  const resolvedEndYear = endYear && endYear >= startYear ? endYear : startYear + 2;
+
+  return `${startYear}-${resolvedEndYear}`;
+};
+
 const normalizeAvailabilityStatus = (status?: string | null) => {
   if (!status) return 'Disponible';
   const normalized = status.toLowerCase();
@@ -112,6 +131,7 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
   
   // Board-specific state
   boardMembers: [],
+  boardMembersByPeriod: {},
   boardPositionHistory: [],
   boardResponsibilities: [],
   selectedPeriod: '2025-2027', // Current period
@@ -176,10 +196,8 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
     set({ isLoading: true, loading: true, error: null });
     
     try {
-      await Promise.all([
-        get().fetchBoardPositionHistory(),
-        get().fetchBoardResponsibilities()
-      ]);
+      const positionHistory = await get().fetchBoardPositionHistory();
+      await get().fetchBoardResponsibilities();
 
       const [boardMembers, allMembers] = await Promise.all([
         memberService.getBoardMembers(),
@@ -187,41 +205,89 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
       ]);
       
       // Debug logging
-      console.log('Fetched board members count:', boardMembers.length);
-      console.log('Board members with 2025-2027 terms:', boardMembers.filter(m => m.board_term_start?.includes('2025')));
-      console.log('All members count:', allMembers.length);
-      console.log('Members with board positions:', allMembers.filter(m => m.board_position).length);
-      
-      // Clean and process board members
+// Clean and process board members
       const cleanedBoardMembers = boardMembers.map(member => cleanMemberData(member));
       const cleanedAllMembers = allMembers.map(member => cleanMemberData(member));
-      
-      // Create board members with history (include current board members + historical members)
-      const currentBoardMembersWithHistory: BoardMemberWithHistory[] = cleanedBoardMembers.map(member => ({
-        ...member,
-        board_position: member.board_position || 'Vocal',
-        position_history: get().boardPositionHistory.filter(history => history.member_id === member.id),
-        position_responsibilities: get().getPositionResponsibilitiesFromDB(member.board_position || 'Vocal')
-      }));
 
-      // Add historical members who are not current board members
-      const historicalMembersWithHistory: BoardMemberWithHistory[] = cleanedAllMembers
-        .filter(member => !member.board_position && get().boardPositionHistory.some(history => history.member_id === member.id))
-        .map(member => ({
-          ...member,
-          board_position: 'Vocal',
-          position_history: get().boardPositionHistory.filter(history => history.member_id === member.id),
-          position_responsibilities: get().getPositionResponsibilitiesFromDB('Vocal')
-        }));
+      // Build a map of all members for quick lookup by id
+      const allMembersMap = new Map<string, typeof cleanedAllMembers[number]>();
+      cleanedAllMembers.forEach(member => {
+        if (member.id) {
+          allMembersMap.set(member.id, member);
+        }
+      });
 
-      const boardMembersWithHistory: BoardMemberWithHistory[] = [...currentBoardMembersWithHistory, ...historicalMembersWithHistory];
+      cleanedBoardMembers.forEach(member => {
+        if (member.id) {
+          allMembersMap.set(member.id, member);
+        }
+      });
       
-      console.log('Current board members with history:', currentBoardMembersWithHistory.length);
-      console.log('Historical members with history:', historicalMembersWithHistory.length);
-      console.log('Total board members with history:', boardMembersWithHistory.length);
+      const historyEntries = positionHistory ?? [];
       
-      set({ 
-        boardMembers: boardMembersWithHistory,
+const boardMembersByPeriod: Record<string, BoardMemberWithHistory[]> = {};
+
+      // ONLY use position history as source of truth for periods
+      // Group members by their historical periods from board_position_history table
+      historyEntries.forEach(history => {
+        if (!history.member_id) return;
+
+        const memberData = allMembersMap.get(history.member_id);
+        if (!memberData) return;
+
+        const period = formatBoardPeriod(history.term_start, history.term_end);
+        if (!period) return;
+
+        const boardPosition = history.position || 'Vocal';
+
+        if (!boardMembersByPeriod[period]) {
+          boardMembersByPeriod[period] = [];
+        }
+
+        // Check if this member is already in this period (to avoid duplicates)
+        const alreadyExists = boardMembersByPeriod[period].some(
+          m => m.id === history.member_id && m.board_position === boardPosition
+        );
+
+        if (!alreadyExists) {
+          boardMembersByPeriod[period].push({
+            ...memberData,
+            board_position: boardPosition,
+            board_term_start: history.term_start || '',
+            board_term_end: history.term_end || '',
+            position_history: historyEntries.filter(h => h.member_id === history.member_id),
+            position_responsibilities: get().getPositionResponsibilitiesFromDB(boardPosition)
+          });
+        }
+      });
+
+      // Add current board members (2025-2027) from board_members view if not in history
+      cleanedBoardMembers.forEach(member => {
+        const period = formatBoardPeriod(member.board_term_start, member.board_term_end);
+        if (!period) return;
+
+        if (!boardMembersByPeriod[period]) {
+          boardMembersByPeriod[period] = [];
+        }
+
+        // Check if this member is already in this period
+        const alreadyExists = boardMembersByPeriod[period].some(m => m.id === member.id);
+
+        if (!alreadyExists) {
+          boardMembersByPeriod[period].push({
+            ...member,
+            board_position: member.board_position || 'Vocal',
+            position_history: historyEntries.filter(history => history.member_id === member.id),
+            position_responsibilities: get().getPositionResponsibilitiesFromDB(member.board_position || 'Vocal')
+          });
+        }
+      });
+
+      const combinedBoardMembers: BoardMemberWithHistory[] = Object.values(boardMembersByPeriod).flat();
+
+set({ 
+        boardMembers: combinedBoardMembers,
+        boardMembersByPeriod,
         isLoading: false,
         loading: false
       });
@@ -501,102 +567,61 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
   },
 
   getBoardMembersForPeriod: (period?: string) => {
-    const { boardMembers, selectedPeriod, boardResponsibilities, boardPositionHistory } = get();
+    const { boardMembers, boardMembersByPeriod, selectedPeriod, boardResponsibilities, boardPositionHistory } = get();
     const targetPeriod = period || selectedPeriod;
-    
-    console.log('getBoardMembersForPeriod called with:', { period, targetPeriod, boardMembersCount: boardMembers.length, historyCount: boardPositionHistory.length });
-    console.log('Board members with positions:', boardMembers.filter(m => m.board_position).length);
-    
-    // First, get current board members for the period
-    const currentMembers = boardMembers.filter(member => {
-      if (!member.board_term_start) return false;
-      
-      // Parse dates more carefully to avoid timezone issues
-      const startDate = new Date(member.board_term_start + 'T00:00:00');
-      const endDate = member.board_term_end ? new Date(member.board_term_end + 'T00:00:00') : new Date();
-      
-      const startYear = startDate.getFullYear();
-      const endYear = endDate.getFullYear();
-      const memberPeriod = `${startYear}-${endYear}`;
-      
-      console.log('Current member period check:', { 
-        memberName: `${member.first_name} ${member.last_name}`, 
-        memberPeriod, 
-        targetPeriod, 
-        matches: memberPeriod === targetPeriod 
-      });
-      
-      return memberPeriod === targetPeriod;
-    });
 
-    // For current period, only use current members to avoid duplicates
-    let filtered: BoardMemberWithHistory[];
-    if (targetPeriod === '2025-2027') {
-      filtered = currentMembers;
-    } else {
-      // For historical periods, get historical members
-      const historicalMembers = boardPositionHistory
-        .filter(history => {
-          if (!history.term_start) return false;
-          
-          const startDate = new Date(history.term_start + 'T00:00:00');
-          const endDate = history.term_end ? new Date(history.term_end + 'T00:00:00') : new Date();
-          
-          const startYear = startDate.getFullYear();
-          const endYear = endDate.getFullYear();
-          const historyPeriod = `${startYear}-${endYear}`;
-          
-          return historyPeriod === targetPeriod;
-        })
-        .map(history => {
-          // Find the member data for this historical position
-          const member = boardMembers.find(m => m.id === history.member_id);
-          if (!member) return null;
-          
-          // Create a BoardMemberWithHistory object for this historical period
-          return {
-            ...member,
-            board_position: history.position,
-            board_term_start: history.term_start,
-            board_term_end: history.term_end,
-            position_history: get().boardPositionHistory.filter(h => h.member_id === member.id),
-            position_responsibilities: get().getPositionResponsibilitiesFromDB(history.position)
-          };
-        })
-        .filter(Boolean) as BoardMemberWithHistory[];
-
-      filtered = historicalMembers;
+    if (!targetPeriod) {
+      return [];
     }
-    
-    // Sort board members using database sort_order from board_position_responsibilities
+
+    let filtered = boardMembersByPeriod[targetPeriod] || [];
+
+    if (filtered.length === 0) {
+      filtered = boardPositionHistory
+        .filter(history => formatBoardPeriod(history.term_start, history.term_end) === targetPeriod)
+        .map(history => {
+          if (!history.member_id) return null;
+
+          const baseMember = boardMembers.find(m => m.id === history.member_id);
+
+          if (!baseMember) return null;
+
+          return {
+            ...baseMember,
+            board_position: history.position || baseMember.board_position || 'Vocal',
+            board_term_start: history.term_start || baseMember.board_term_start,
+            board_term_end: history.term_end || baseMember.board_term_end,
+            position_history: boardPositionHistory.filter(h => h.member_id === history.member_id),
+            position_responsibilities: get().getPositionResponsibilitiesFromDB(history.position || baseMember.board_position || 'Vocal')
+          } as BoardMemberWithHistory;
+        })
+        .filter((member): member is BoardMemberWithHistory => member !== null);
+    }
+
     const sorted = filtered.sort((a, b) => {
       const positionA = boardResponsibilities.find(r => r.position === a.board_position);
       const positionB = boardResponsibilities.find(r => r.position === b.board_position);
-      
-      const orderA = positionA?.sort_order || 999;
-      const orderB = positionB?.sort_order || 999;
-      
+
+      const orderA = positionA?.sort_order ?? 999;
+      const orderB = positionB?.sort_order ?? 999;
+
       return orderA - orderB;
     });
-    
-    console.log('Filtered and sorted members for period', targetPeriod, ':', sorted.length);
+
     return sorted;
   },
 
   getCurrentBoardMembers: () => {
     const { boardMembers, boardResponsibilities } = get();
     const currentYear = new Date().getFullYear();
-    
+
     const filtered = boardMembers.filter(member => {
-      if (!member.board_term_start) return false;
-      
-      const startDate = new Date(member.board_term_start + 'T00:00:00');
-      const endDate = member.board_term_end ? new Date(member.board_term_end + 'T00:00:00') : new Date();
-      
-      const termStart = startDate.getFullYear();
-      const termEnd = endDate.getFullYear();
-      
-      return termStart <= currentYear && (!member.board_term_end || termEnd >= currentYear);
+      const startYear = extractYear(member.board_term_start);
+      if (!startYear) return false;
+
+      const endYear = extractYear(member.board_term_end) ?? startYear + 2;
+
+      return startYear <= currentYear && endYear >= currentYear;
     });
     
     // Sort board members using database sort_order from board_position_responsibilities
@@ -626,51 +651,27 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
   },
 
   getAvailablePeriods: () => {
-    const { boardMembers, boardPositionHistory } = get();
-    
-    // Get all unique periods from current board members and history
+    const { boardMembersByPeriod, boardPositionHistory } = get();
+
     const periods = new Set<string>();
-    
-    // Add periods from current board members
-    boardMembers.forEach(member => {
-      if (member.board_term_start) {
-        const startDate = new Date(member.board_term_start + 'T00:00:00');
-        const endDate = member.board_term_end ? new Date(member.board_term_end + 'T00:00:00') : new Date();
-        const startYear = startDate.getFullYear();
-        const endYear = endDate.getFullYear();
-        periods.add(`${startYear}-${endYear}`);
-      }
-    });
-    
-    // Add periods from historical data
+
+    Object.keys(boardMembersByPeriod).forEach(period => periods.add(period));
+
     boardPositionHistory.forEach(history => {
-      if (history.term_start) {
-        const startDate = new Date(history.term_start + 'T00:00:00');
-        const endDate = history.term_end ? new Date(history.term_end + 'T00:00:00') : new Date();
-        const startYear = startDate.getFullYear();
-        const endYear = endDate.getFullYear();
-        periods.add(`${startYear}-${endYear}`);
+      const period = formatBoardPeriod(history.term_start, history.term_end);
+      if (period) {
+        periods.add(period);
       }
     });
-    
-    // Convert to array and sort (newest first)
-    const sortedPeriods = Array.from(periods).sort((a, b) => {
-      const aStart = parseInt(a.split('-')[0]);
-      const bStart = parseInt(b.split('-')[0]);
-      return bStart - aStart;
-    });
-    
-    // Always include current period and fallback periods
+
     const defaultPeriods = ['2025-2027', '2023-2025', '2021-2023', '2019-2020'];
-    
-    // Merge with default periods and remove duplicates
-    const allPeriods = [...new Set([...sortedPeriods, ...defaultPeriods])].sort((a, b) => {
-      const aStart = parseInt(a.split('-')[0]);
-      const bStart = parseInt(b.split('-')[0]);
+    defaultPeriods.forEach(period => periods.add(period));
+
+    return Array.from(periods).sort((a, b) => {
+      const aStart = parseInt(a.split('-')[0], 10);
+      const bStart = parseInt(b.split('-')[0], 10);
       return bStart - aStart;
     });
-    
-    return allPeriods;
   },
 
   getMemberCounts: () => {
