@@ -7,6 +7,7 @@ import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 export function MianimaPage() {
   const heroAnimation = useScrollAnimation({ threshold: 0.2 });
   const contentAnimation = useScrollAnimation({ threshold: 0.3 });
+  const secondContentAnimation = useScrollAnimation({ threshold: 0.3 });
   const successAnimation = useScrollAnimation({ threshold: 0.2 });
 
   return (
@@ -188,13 +189,13 @@ export function MianimaPage() {
       </div>
       {/* Second Content Section */}
       <div 
-        ref={contentAnimation.ref}
+        ref={secondContentAnimation.ref}
         className="py-16 bg-white"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto">
             <div className={`transition-all duration-1000 ${
-              contentAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+              secondContentAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`}>
 
               <p className="text-lg text-gray-700 leading-relaxed mb-8">
