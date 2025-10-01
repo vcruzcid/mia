@@ -497,39 +497,44 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
       return memberPeriod === targetPeriod;
     });
 
-    // Then, get historical members for the period
-    const historicalMembers = boardPositionHistory
-      .filter(history => {
-        if (!history.term_start) return false;
-        
-        const startDate = new Date(history.term_start + 'T00:00:00');
-        const endDate = history.term_end ? new Date(history.term_end + 'T00:00:00') : new Date();
-        
-        const startYear = startDate.getFullYear();
-        const endYear = endDate.getFullYear();
-        const historyPeriod = `${startYear}-${endYear}`;
-        
-        return historyPeriod === targetPeriod;
-      })
-      .map(history => {
-        // Find the member data for this historical position
-        const member = boardMembers.find(m => m.id === history.member_id);
-        if (!member) return null;
-        
-        // Create a BoardMemberWithHistory object for this historical period
-        return {
-          ...member,
-          board_position: history.position,
-          board_term_start: history.term_start,
-          board_term_end: history.term_end,
-          position_history: get().boardPositionHistory.filter(h => h.member_id === member.id),
-          position_responsibilities: get().getPositionResponsibilitiesFromDB(history.position)
-        };
-      })
-      .filter(Boolean) as BoardMemberWithHistory[];
+    // For current period, only use current members to avoid duplicates
+    let filtered: BoardMemberWithHistory[];
+    if (targetPeriod === '2025-2027') {
+      filtered = currentMembers;
+    } else {
+      // For historical periods, get historical members
+      const historicalMembers = boardPositionHistory
+        .filter(history => {
+          if (!history.term_start) return false;
+          
+          const startDate = new Date(history.term_start + 'T00:00:00');
+          const endDate = history.term_end ? new Date(history.term_end + 'T00:00:00') : new Date();
+          
+          const startYear = startDate.getFullYear();
+          const endYear = endDate.getFullYear();
+          const historyPeriod = `${startYear}-${endYear}`;
+          
+          return historyPeriod === targetPeriod;
+        })
+        .map(history => {
+          // Find the member data for this historical position
+          const member = boardMembers.find(m => m.id === history.member_id);
+          if (!member) return null;
+          
+          // Create a BoardMemberWithHistory object for this historical period
+          return {
+            ...member,
+            board_position: history.position,
+            board_term_start: history.term_start,
+            board_term_end: history.term_end,
+            position_history: get().boardPositionHistory.filter(h => h.member_id === member.id),
+            position_responsibilities: get().getPositionResponsibilitiesFromDB(history.position)
+          };
+        })
+        .filter(Boolean) as BoardMemberWithHistory[];
 
-    // Combine current and historical members
-    const filtered = [...currentMembers, ...historicalMembers];
+      filtered = historicalMembers;
+    }
     
     // Sort board members using database sort_order from board_position_responsibilities
     const sorted = filtered.sort((a, b) => {
