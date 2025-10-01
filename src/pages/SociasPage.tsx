@@ -686,6 +686,21 @@ function MemberModal({ member, onClose }: MemberModalProps) {
             </div>
           </div>
 
+          {/* CV Download */}
+          {member.cv_document_url && (
+            <div>
+              <Button
+                onClick={() => window.open(member.cv_document_url, '_blank')}
+                className="w-full sm:w-auto bg-primary-600 hover:bg-primary-700 text-white"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Descargar CV
+              </Button>
+            </div>
+          )}
+
           {/* Contact & Social Media */}
           <div>
             <h4 className="text-sm font-medium text-gray-200 mb-3">Contacto y Redes Sociales</h4>
