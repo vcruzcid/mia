@@ -35,7 +35,7 @@ export function SociasPage() {
   } = useGalleryStore();
 
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
-  const [activeFilterTab, setActiveFilterTab] = useState<'type' | 'specialization' | 'location' | 'availability' | 'other'>('type');
+  const [activeFilterTab, setActiveFilterTab] = useState<'specialization' | 'location' | 'availability' | 'other'>('specialization');
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -82,12 +82,10 @@ export function SociasPage() {
 
   const getActiveFiltersCount = () => {
     return (
-      filters.memberTypes.length +
       filters.specializations.length +
       filters.locations.length +
       filters.availabilityStatus.length +
-      (filters.hasSocialMedia !== null ? 1 : 0) +
-      (filters.isActive !== null ? 1 : 0)
+      (filters.hasSocialMedia !== null ? 1 : 0)
     );
   };
 
@@ -173,15 +171,14 @@ export function SociasPage() {
             <div className="border-b border-gray-200">
               <nav className="-mb-px flex space-x-8">
                 {[
-                  { key: 'type', label: 'Tipo de Socia', count: filters.memberTypes.length },
                   { key: 'specialization', label: 'Especializaciones', count: filters.specializations.length },
                   { key: 'location', label: 'Ubicación', count: filters.locations.length },
                   { key: 'availability', label: 'Disponibilidad', count: filters.availabilityStatus.length },
-                  { key: 'other', label: 'Otros', count: (filters.hasSocialMedia !== null ? 1 : 0) + (filters.isActive !== null ? 1 : 0) },
+                  { key: 'other', label: 'Otros', count: (filters.hasSocialMedia !== null ? 1 : 0) },
                 ].map((tab) => (
                   <Button
                     key={tab.key}
-                    onClick={() => setActiveFilterTab(tab.key as 'type' | 'specialization' | 'location' | 'availability' | 'other')}
+                    onClick={() => setActiveFilterTab(tab.key as 'specialization' | 'location' | 'availability' | 'other')}
                     variant="ghost"
                     className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap rounded-none ${
                       activeFilterTab === tab.key
@@ -202,28 +199,6 @@ export function SociasPage() {
 
             {/* Filter Content */}
             <div className="mt-6">
-              {activeFilterTab === 'type' && (
-                <div>
-                  <h3 className="text-sm font-medium text-gray-900 mb-3">Tipo de Socia</h3>
-                  <div className="space-y-2">
-                    {(['Full', 'Student', 'Collaborator'] as const).map((type) => (
-                      <label key={type} className="flex items-center space-x-3">
-                        <Checkbox
-                          checked={filters.memberTypes.includes(type)}
-                          onCheckedChange={() => toggleMemberType(type)}
-                        />
-                        <span className="text-sm text-gray-700">
-                          {type === 'Full' ? 'Socia de Pleno Derecho' : 
-                           type === 'Student' ? 'Socia Estudiante' : 'Colaborador/a'}
-                          <span className="ml-2 text-gray-600">
-                            ({memberCounts.byType[type] || 0})
-                          </span>
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              )}
 
               {activeFilterTab === 'specialization' && (
                 <div>
@@ -267,15 +242,14 @@ export function SociasPage() {
                 <div>
                   <h3 className="text-sm font-medium text-gray-900 mb-3">Estado de Disponibilidad</h3>
                   <div className="space-y-2">
-                    {(['Available', 'Busy', 'Not Available'] as const).map((status) => (
+                    {(['Disponible', 'Empleada', 'Freelance'] as const).map((status) => (
                       <label key={status} className="flex items-center space-x-3">
                         <Checkbox
                           checked={filters.availabilityStatus.includes(status)}
                           onCheckedChange={() => toggleAvailabilityStatus(status)}
                         />
                         <span className="text-sm text-gray-700">
-                          {status === 'Available' ? 'Disponible' : 
-                           status === 'Busy' ? 'Ocupada' : 'No Disponible'}
+                          {status}
                           <span className="ml-2 text-gray-600">
                             ({memberCounts.byAvailability[status] || 0})
                           </span>
@@ -324,41 +298,6 @@ export function SociasPage() {
                     </div>
                   </div>
 
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-900 mb-3">Estado de Membresía</h3>
-                    <div className="space-y-2">
-                      <label className="flex items-center space-x-3">
-                        <input
-                          type="radio"
-                          name="isActive"
-                          checked={filters.isActive === true}
-                          onChange={() => setFilters({ isActive: true })}
-                          className="h-4 w-4 text-primary-600 focus:ring-primary-500"
-                        />
-                        <span className="text-sm text-gray-700">Membresía activa</span>
-                      </label>
-                      <label className="flex items-center space-x-3">
-                        <input
-                          type="radio"
-                          name="isActive"
-                          checked={filters.isActive === false}
-                          onChange={() => setFilters({ isActive: false })}
-                          className="h-4 w-4 text-primary-600 focus:ring-primary-500"
-                        />
-                        <span className="text-sm text-gray-700">Membresía inactiva</span>
-                      </label>
-                      <label className="flex items-center space-x-3">
-                        <input
-                          type="radio"
-                          name="isActive"
-                          checked={filters.isActive === null}
-                          onChange={() => setFilters({ isActive: null })}
-                          className="h-4 w-4 text-primary-600 focus:ring-primary-500"
-                        />
-                        <span className="text-sm text-gray-700">Todos</span>
-                      </label>
-                    </div>
-                  </div>
                 </div>
               )}
             </div>
@@ -529,28 +468,29 @@ function MemberCard({ member, onClick }: MemberCardProps) {
               {member.firstName} {member.lastName}
             </p>
             <p className="text-sm text-gray-700 truncate">
-              {member.company || 'Freelance'}
+              {member.profession || member.company || 'Profesional'}
             </p>
           </div>
         </div>
 
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <Badge variant={member.memberType === 'Full' ? 'default' : member.memberType === 'Student' ? 'secondary' : 'outline'}>
-              {member.memberType === 'Full' ? 'Pleno Derecho' : 
-               member.memberType === 'Student' ? 'Estudiante' : 'Colaborador/a'}
-            </Badge>
-            <Badge variant={member.availabilityStatus === 'Available' ? 'default' : member.availabilityStatus === 'Busy' ? 'secondary' : 'destructive'}>
-              {member.availabilityStatus === 'Available' ? 'Disponible' :
-               member.availabilityStatus === 'Busy' ? 'Ocupada' : 'No Disponible'}
+          <div className="flex items-center justify-end">
+            <Badge variant={member.availabilityStatus === 'Disponible' ? 'default' : member.availabilityStatus === 'Empleada' ? 'destructive' : 'secondary'}>
+              <span className="flex items-center space-x-1">
+                {member.availabilityStatus === 'Disponible' && (
+                  <span title="Disponible - Abierta a nuevas oportunidades laborales">🟢</span>
+                )}
+                {member.availabilityStatus === 'Empleada' && (
+                  <span title="Empleada - Actualmente trabajando, no disponible para nuevas oportunidades">🔴</span>
+                )}
+                {member.availabilityStatus === 'Freelance' && (
+                  <span title="Freelance - Trabajando por cuenta propia, disponible para proyectos">🔵</span>
+                )}
+                <span>{member.availabilityStatus}</span>
+              </span>
             </Badge>
           </div>
 
-          <div>
-            <p className="text-sm text-gray-800">
-              📍 {member.location.city && `${member.location.city}, `}{member.location.country}
-            </p>
-          </div>
 
           <div>
             <p className="text-sm text-gray-700 font-medium mb-1">Especializaciones:</p>
@@ -606,15 +546,24 @@ function MemberModal({ member, onClose }: MemberModalProps) {
                 {member.company && (
                   <span className="block">{member.company}</span>
                 )}
+                <span className="block text-sm text-gray-600 mt-1">
+                  {member.memberType === 'socia-pleno-derecho' ? 'Socia de Pleno Derecho' : 'Colaborador/a'}
+                </span>
               </DialogDescription>
               <div className="flex gap-2 mt-2">
-                <Badge variant={member.memberType === 'Full' ? 'default' : member.memberType === 'Student' ? 'secondary' : 'outline'}>
-                  {member.memberType === 'Full' ? 'Pleno Derecho' : 
-                   member.memberType === 'Student' ? 'Estudiante' : 'Colaborador/a'}
-                </Badge>
-                <Badge variant={member.availabilityStatus === 'Available' ? 'default' : member.availabilityStatus === 'Busy' ? 'secondary' : 'destructive'}>
-                  {member.availabilityStatus === 'Available' ? 'Disponible' :
-                   member.availabilityStatus === 'Busy' ? 'Ocupada' : 'No Disponible'}
+                <Badge variant={member.availabilityStatus === 'Disponible' ? 'default' : member.availabilityStatus === 'Empleada' ? 'destructive' : 'secondary'}>
+                  <span className="flex items-center space-x-1">
+                    {member.availabilityStatus === 'Disponible' && (
+                      <span title="Disponible - Abierta a nuevas oportunidades laborales">🟢</span>
+                    )}
+                    {member.availabilityStatus === 'Empleada' && (
+                      <span title="Empleada - Actualmente trabajando, no disponible para nuevas oportunidades">🔴</span>
+                    )}
+                    {member.availabilityStatus === 'Freelance' && (
+                      <span title="Freelance - Trabajando por cuenta propia, disponible para proyectos">🔵</span>
+                    )}
+                    <span>{member.availabilityStatus}</span>
+                  </span>
                 </Badge>
               </div>
             </div>
@@ -642,6 +591,12 @@ function MemberModal({ member, onClose }: MemberModalProps) {
                   <p className="text-gray-900">{member.profession}</p>
                 </div>
               )}
+              {member.specializations && member.specializations.length > 0 && (
+                <div>
+                  <span className="text-gray-600">Profesiones secundarias:</span>
+                  <p className="text-gray-900">{member.specializations.join(', ')}</p>
+                </div>
+              )}
               {member.professional_role && (
                 <div>
                   <span className="text-gray-600">Rol profesional:</span>
@@ -663,19 +618,6 @@ function MemberModal({ member, onClose }: MemberModalProps) {
             </div>
           </div>
 
-          {/* Specializations */}
-          {member.specializations && member.specializations.length > 0 && (
-            <div>
-              <h4 className="text-sm font-medium text-gray-900 mb-2">Especializaciones</h4>
-              <div className="flex flex-wrap gap-2">
-                {member.specializations.map((spec: string, index: number) => (
-                  <Badge key={index} variant="outline" className="text-xs">
-                    {spec}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* Education */}
           {(member.education_level || member.studies_completed || member.educational_institution) && (
@@ -708,12 +650,6 @@ function MemberModal({ member, onClose }: MemberModalProps) {
           <div>
             <h4 className="text-sm font-medium text-gray-900 mb-2">Ubicación</h4>
             <div className="text-sm text-gray-700 space-y-1">
-              {(member.address || member.location?.city) && (
-                <p className="flex items-center">
-                  <span className="text-gray-500 mr-2">🏠</span>
-                  {member.address || member.location?.city}
-                </p>
-              )}
               {(member.province || member.location?.region) && (
                 <p className="flex items-center">
                   <span className="text-gray-500 mr-2">🌍</span>

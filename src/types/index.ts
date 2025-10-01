@@ -43,10 +43,10 @@ export interface Member {
     region?: string;
     country: string;
   };
-  memberType: 'Full' | 'Student' | 'Collaborator';
+  memberType: 'socia-pleno-derecho' | 'colaborador';
   membershipType?: string;
   specializations: string[];
-  availabilityStatus: 'Available' | 'Busy' | 'Not Available';
+  availabilityStatus: 'Disponible' | 'Empleada' | 'Freelance';
   socialMedia: {
     linkedin?: string;
     twitter?: string;
@@ -70,10 +70,10 @@ export interface DirectivaMember extends Member {
 }
 
 export interface FilterState {
-  memberTypes: ('Full' | 'Student' | 'Collaborator')[];
+  memberTypes: ('socia-pleno-derecho' | 'colaborador')[];
   specializations: string[];
   locations: string[];
-  availabilityStatus: ('Available' | 'Busy' | 'Not Available')[];
+  availabilityStatus: ('Disponible' | 'Empleada' | 'Freelance')[];
   hasSocialMedia: boolean | null;
   isActive: boolean | null;
 }
@@ -90,60 +90,47 @@ export interface GalleryState {
   isModalOpen: boolean;
 }
 
-// Animation specializations constants
+// Animation profession categories constants
 export const ANIMATION_SPECIALIZATIONS = [
-  '2D Animation',
-  '3D Animation',
-  'Stop Motion',
-  'Character Design',
-  'Background Art',
-  'Storyboarding',
+  'Guión',
+  'Dirección',
+  'Storyboard',
+  'Dirección de arte',
   'Concept Art',
+  'Diseño de personajes',
+  'Diseño de sets',
   'Visual Development',
-  'Layout',
-  'Cleanup',
-  'Inbetweening',
-  'Coloring',
-  'Compositing',
-  'VFX',
+  'Modelado 3D',
   'Motion Graphics',
-  'UI/UX Animation',
-  'Game Animation',
-  'Rigging',
-  'Modeling',
-  'Texturing',
+  'Layout 2D',
+  'Layout 3D',
+  'Color BG',
+  'Rigging 2D',
+  'Rigging 3D',
+  'Animación 2D',
+  '2D FX',
+  'Clean Up',
+  'Ink and Paint',
+  'Animación 3D',
+  'Animación StopMotion',
+  'Artista para Stopmotion',
+  'Composición Digital',
+  'Sonido/ Música/ SFX',
+  'Montaje',
+  'Pipeline',
+  'Producción',
+  'Asistente de producción',
+  'Directora de producción',
+  'Coordinadora de producción',
+  'Line producer',
+  'Producción ejecutiva',
+  'Matte painting',
+  'Render wrangler',
   'Lighting',
-  'Rendering',
-  'Direction',
-  'Production',
-  'Producing',
-  'Sound Design',
-  'Voice Acting',
-  'Music Composition',
-  'Script Writing',
-  'Technical Animation',
-  'Pipeline Development',
-  'Tools Programming',
-  'Previz',
-  'Animatics',
-  'Educational Content',
-  'Documentary',
-  'Advertising',
-  'Feature Film',
-  'TV Series',
-  'Web Series',
-  'Mobile Content',
-  'AR/VR Animation',
-  'Interactive Media',
-  'Projection Mapping',
-  'Installation Art',
-  'Art Direction',
-  'Creative Direction',
-  'Brand Animation',
-  'Explainer Videos',
-  'Medical Animation',
-  'Scientific Visualization',
-  'Architectural Visualization'
+  'Shading',
+  'Marketing',
+  'Groom artist',
+  'Compositora musical'
 ] as const;
 
 export type AnimationSpecialization = typeof ANIMATION_SPECIALIZATIONS[number];
