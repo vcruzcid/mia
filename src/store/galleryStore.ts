@@ -176,18 +176,22 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
       
       // Debug logging
       console.log('Fetched board members count:', boardMembers.length);
-      console.log('Board members with 2025-2026 terms:', boardMembers.filter(m => m.board_term_start?.includes('2025')));
+      console.log('Board members with 2025-2027 terms:', boardMembers.filter(m => m.board_term_start?.includes('2025')));
+      console.log('All members count:', allMembers.length);
+      console.log('Members with board positions:', allMembers.filter(m => m.board_position).length);
       
       // Clean and process board members
       const cleanedBoardMembers = boardMembers.map(member => cleanMemberData(member));
       const cleanedAllMembers = allMembers.map(member => cleanMemberData(member));
       
       // Create board members with history (include all members for historical lookups)
-      const boardMembersWithHistory: BoardMemberWithHistory[] = cleanedAllMembers.map(member => ({
-        ...member,
-        position_history: get().boardPositionHistory.filter(history => history.member_id === member.id),
-        position_responsibilities: get().getPositionResponsibilitiesFromDB(member.board_position || 'Vocal')
-      }));
+      const boardMembersWithHistory: BoardMemberWithHistory[] = cleanedAllMembers
+        .filter(member => member.board_position || get().boardPositionHistory.some(history => history.member_id === member.id))
+        .map(member => ({
+          ...member,
+          position_history: get().boardPositionHistory.filter(history => history.member_id === member.id),
+          position_responsibilities: get().getPositionResponsibilitiesFromDB(member.board_position || 'Vocal')
+        }));
       
       set({ 
         boardMembers: boardMembersWithHistory,
@@ -474,6 +478,7 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
     const targetPeriod = period || selectedPeriod;
     
     console.log('getBoardMembersForPeriod called with:', { period, targetPeriod, boardMembersCount: boardMembers.length, historyCount: boardPositionHistory.length });
+    console.log('Board members with positions:', boardMembers.filter(m => m.board_position).length);
     
     // First, get current board members for the period
     const currentMembers = boardMembers.filter(member => {
