@@ -36,6 +36,7 @@ export interface Member {
   id: string;
   firstName: string;
   lastName: string;
+  displayName?: string;
   email: string;
   company?: string;
   location: {
@@ -67,6 +68,10 @@ export interface DirectivaMember extends Member {
   yearServed: number[];
   isCurrentMember: boolean;
   previousPositions?: { position: string; year: number }[];
+  board_term_start?: string;
+  board_term_end?: string;
+  board_personal_commitment?: string;
+  position_history?: any[];
 }
 
 export interface FilterState {

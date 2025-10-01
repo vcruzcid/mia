@@ -1,16 +1,49 @@
 import { useEffect } from 'react';
 import { useGalleryStore } from '../store/galleryStore';
-import type { DirectivaMember, BoardPosition } from '../types';
+import type { DirectivaMember } from '../types';
 import type { BoardMemberWithHistory } from '../types/supabase';
 import { ProfileImage } from '../components/ProfileImage';
 import { SocialMediaIcons } from '../components/SocialMediaIcons';
 import { Badge } from '../components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Accordion } from '@/components/ui/accordion';
+
+// Shared utility functions
+const getPositionEmail = (position: string): string => {
+  const emailMap: { [key: string]: string } = {
+    'Presidenta': 'presidencia@animacionesmia.com',
+    'Vice-Presidenta': 'vicepresidencia@animacionesmia.com',
+    'Secretaria': 'secretaria@animacionesmia.com',
+    'Tesorera': 'tesoreria@animacionesmia.com',
+    'Vocal Formacion': 'formacion@animacionesmia.com',
+    'Vocal Comunicacion': 'comunicacion@animacionesmia.com',
+    'Vocal Informes MIA': 'informemia@animacionesmia.com',
+    'Vocal Financiacion': 'financiacion@animacionesmia.com',
+    'Vocal Socias': 'socias@animacionesmia.com',
+    'Vocal Festivales': 'festivales@animacionesmia.com',
+    'Vocal': 'hola@animacionesmia.com'
+  };
+  return emailMap[position] || '';
+};
+
+const getPositionStyle = (position: string): string => {
+  const positionStyles: Record<string, string> = {
+    'Presidenta': 'from-red-600 to-red-700',
+    'Vice-Presidenta': 'from-red-500 to-red-600',
+    'Secretaria': 'from-red-700 to-red-800',
+    'Tesorera': 'from-red-600 to-red-700',
+    'Vocal Formacion': 'from-red-500 to-red-600',
+    'Vocal Comunicacion': 'from-red-600 to-red-700',
+    'Vocal Mianima': 'from-red-500 to-red-600',
+    'Vocal Financiacion': 'from-red-600 to-red-700',
+    'Vocal Socias': 'from-red-500 to-red-600',
+    'Vocal Festivales': 'from-red-600 to-red-700',
+    'Vocal': 'from-red-500 to-red-600',
+  };
+  return positionStyles[position] || 'from-red-500 to-red-600';
+};
 
 // Helper function to transform database data to UI format
 function transformBoardMemberToDirectivaMember(member: BoardMemberWithHistory): DirectivaMember {
@@ -19,24 +52,28 @@ function transformBoardMemberToDirectivaMember(member: BoardMemberWithHistory): 
     firstName: member.first_name || '',
     lastName: member.last_name || '',
     displayName: member.display_name || `${member.first_name || ''} ${member.last_name || ''}`.trim(),
+    email: member.email || '',
     position: member.board_position || 'Vocal',
     responsibilities: member.position_responsibilities || [],
     profileImage: member.profile_image_url || '',
     company: member.company || '',
+    memberType: member.membership_type as 'socia-pleno-derecho' | 'colaborador' || 'colaborador',
+    availabilityStatus: 'Disponible' as 'Disponible' | 'Empleada' | 'Freelance',
     location: {
       city: member.city || '',
       region: member.autonomous_community || member.province || '',
       country: member.country || 'España'
     },
     bio: member.biography || '',
-    biography: member.biography || '',
     yearServed: getYearsServed(member.board_term_start, member.board_term_end),
     joinDate: member.created_at || new Date().toISOString(),
     socialMedia: member.social_media || {},
     specializations: member.other_professions || [],
+    isCurrentMember: Boolean(member.board_term_start?.startsWith('2025') && member.board_term_end?.includes('2027')),
+    isActive: member.stripe_subscription_status === 'active' || false,
     previousPositions: member.position_history?.map(history => ({
       position: history.position,
-      year: new Date(history.term_start).getFullYear().toString()
+      year: new Date(history.term_start).getFullYear()
     })) || [],
     board_term_start: member.board_term_start,
     board_term_end: member.board_term_end,
@@ -66,6 +103,8 @@ export function DirectivaPage() {
     selectedPeriod,
     selectedMember,
     isModalOpen,
+    boardMembers,
+    boardPositionHistory,
     getCurrentBoardMembers,
     getBoardMembersForPeriod,
     getAvailablePeriods,
@@ -82,30 +121,23 @@ export function DirectivaPage() {
   // Ensure selected period is set to current period when data loads
   useEffect(() => {
     const availablePeriods = getAvailablePeriods();
-    if (availablePeriods.length > 0 && availablePeriods[0] === '2025-2026') {
-      setSelectedPeriod('2025-2026');
+    if (availablePeriods.length > 0) {
+      // Always set to the current period (2025-2027) if available, otherwise first period
+      const currentPeriod = availablePeriods.find(period => period === '2025-2027') || availablePeriods[0];
+      if (selectedPeriod !== currentPeriod) {
+        setSelectedPeriod(currentPeriod);
+      }
     }
-  }, [getAvailablePeriods, setSelectedPeriod]);
+  }, [boardMembers, boardPositionHistory, getAvailablePeriods, setSelectedPeriod, selectedPeriod]);
 
   const allPeriods = getAvailablePeriods();
   // Only show current and recent periods to avoid clutter
   const availablePeriods = allPeriods.slice(0, 5);
-  const currentBoardMembers = getCurrentBoardMembers().map(transformBoardMemberToDirectivaMember);
-  const selectedPeriodMembers = getBoardMembersForPeriod(selectedPeriod).map(transformBoardMemberToDirectivaMember);
-  const isCurrentPeriod = selectedPeriod === '2025-2026';
   
+  // Ensure we always have a selected period
+  const currentSelectedPeriod = selectedPeriod || availablePeriods[0] || '2025-2027';
   // Check if we have any board members data at all
   const hasBoardData = getCurrentBoardMembers().length > 0;
-
-  // Debug logging
-  console.log('DirectivaPage Debug:', {
-    loading,
-    hasBoardData,
-    availablePeriods: availablePeriods.length,
-    currentBoardMembers: getCurrentBoardMembers().length,
-    selectedPeriod,
-    selectedPeriodMembers: getBoardMembersForPeriod(selectedPeriod).length
-  });
 
   const handlePeriodChange = (period: string) => {
     setSelectedPeriod(period);
@@ -141,19 +173,24 @@ export function DirectivaPage() {
           <label className="block text-sm font-medium text-gray-300 mb-3 text-center">
             Seleccionar período de la directiva
           </label>
-          <Tabs value={selectedPeriod} onValueChange={handlePeriodChange} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 bg-gray-800 border border-gray-700">
+          <Tabs value={currentSelectedPeriod} onValueChange={handlePeriodChange} className="w-full">
+            <TabsList className={`grid w-full bg-gray-800 border border-gray-700 ${
+              availablePeriods.length === 2 ? 'grid-cols-2' :
+              availablePeriods.length === 3 ? 'grid-cols-3' :
+              availablePeriods.length === 4 ? 'grid-cols-2 sm:grid-cols-4' :
+              'grid-cols-2 sm:grid-cols-4 lg:grid-cols-5'
+            }`}>
               {availablePeriods.map((period) => (
                 <TabsTrigger
                   key={period}
                   value={period}
                   className={`text-xs sm:text-sm font-medium transition-all duration-200 ${
-                    period === '2025-2026' ? 'bg-primary-600 text-white' : 'text-gray-300 hover:text-white'
+                    period === '2025-2027' ? 'bg-red-600 text-white' : 'text-gray-300 hover:text-white'
                   }`}
                 >
                   <span className="hidden sm:inline">
                     {period}
-                    {period === '2025-2026' && <span className="ml-1 text-xs opacity-75">(Actual)</span>}
+                    {period === '2025-2027' && <span className="ml-1 text-xs opacity-75">(Actual)</span>}
                   </span>
                   <span className="sm:hidden">{period.split('-')[0]}</span>
                 </TabsTrigger>
@@ -165,7 +202,7 @@ export function DirectivaPage() {
 
       {/* Directiva Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-        <Tabs value={selectedPeriod} onValueChange={handlePeriodChange}>
+        <Tabs value={currentSelectedPeriod} onValueChange={handlePeriodChange}>
           {availablePeriods.map((period) => (
             <TabsContent key={period} value={period} className="mt-8">
               {getBoardMembersForPeriod(period).length === 0 ? (
@@ -176,10 +213,13 @@ export function DirectivaPage() {
                     </svg>
                   </div>
                   <h3 className="text-lg font-medium text-white mb-2">
-                    No hay información disponible
+                    {period === '2025-2027' ? 'No hay información disponible' : 'Información histórica no disponible'}
                   </h3>
                   <p className="text-gray-300">
-                    No se encontraron miembros de la directiva para el período {period}.
+                    {period === '2025-2027' 
+                      ? 'No se encontraron miembros de la directiva para el período actual.'
+                      : 'Los datos de períodos anteriores no están disponibles en la base de datos.'
+                    }
                   </p>
                 </div>
               ) : (
@@ -189,7 +229,7 @@ export function DirectivaPage() {
                     <h2 className="text-2xl font-bold text-white mb-2">
                       Período {period}
                     </h2>
-                    {period === '2025-2026' && (
+                    {period === '2025-2027' && (
                       <Badge variant="default" className="bg-green-600 text-white">
                         Período Actual
                       </Badge>
@@ -204,12 +244,11 @@ export function DirectivaPage() {
                         member={member}
                         index={index}
                         onClick={() => openMemberModal(member as any)}
-                        isCurrentPeriod={period === '2025-2026'}
+                        isCurrentPeriod={period === '2025-2027'}
                       />
                     ))}
                   </div>
 
-                  {/* Contact Board Section */}
                 </div>
               )}
             </TabsContent>
@@ -238,63 +277,11 @@ interface DirectivaCardProps {
 }
 
 function DirectivaCard({ member, index, onClick, isCurrentPeriod = false }: DirectivaCardProps) {
-  const getPositionStyle = (position: string) => {
-    // Use red theme for all positions
-    const positionStyles: Record<string, string> = {
-      'Presidenta': 'from-red-600 to-red-700 text-white',
-      'Vice-Presidenta': 'from-red-500 to-red-600 text-white',
-      'Secretaria': 'from-red-700 to-red-800 text-white',
-      'Tesorera': 'from-red-600 to-red-700 text-white',
-      'Vocal Formacion': 'from-red-500 to-red-600 text-white',
-      'Vocal Comunicacion': 'from-red-600 to-red-700 text-white',
-      'Vocal Mianima': 'from-red-500 to-red-600 text-white',
-      'Vocal Financiacion': 'from-red-600 to-red-700 text-white',
-      'Vocal Socias': 'from-red-500 to-red-600 text-white',
-      'Vocal Festivales': 'from-red-600 to-red-700 text-white',
-      'Vocal': 'from-red-500 to-red-600 text-white',
-    };
-    return positionStyles[position] || 'from-red-500 to-red-600 text-white';
-  };
-
-  const getCardStyle = (position: string) => {
-    // Use red theme for all card borders
-    const cardStyles: Record<string, string> = {
-      'Presidenta': 'ring-2 ring-red-200 shadow-lg',
-      'Vice-Presidenta': 'ring-2 ring-red-200 shadow-lg',
-      'Secretaria': 'ring-2 ring-red-200 shadow-lg',
-      'Tesorera': 'ring-2 ring-red-200 shadow-lg',
-      'Vocal Formacion': 'ring-2 ring-red-200 shadow-lg',
-      'Vocal Comunicacion': 'ring-2 ring-red-200 shadow-lg',
-      'Vocal Mianima': 'ring-2 ring-red-200 shadow-lg',
-      'Vocal Financiacion': 'ring-2 ring-red-200 shadow-lg',
-      'Vocal Socias': 'ring-2 ring-red-200 shadow-lg',
-      'Vocal Festivales': 'ring-2 ring-red-200 shadow-lg',
-      'Vocal': 'ring-2 ring-red-200 shadow-lg',
-    };
-    return cardStyles[position] || 'ring-2 ring-red-200 shadow-lg';
-  };
-
-  const getPositionEmail = (position: string) => {
-    const emailMap: { [key: string]: string } = {
-      'Presidenta': 'presidencia@animacionesmia.com',
-      'Vice-Presidenta': 'vicepresidencia@animacionesmia.com',
-      'Secretaria': 'secretaria@animacionesmia.com',
-      'Tesorera': 'tesoreria@animacionesmia.com',
-      'Vocal Formacion': 'formacion@animacionesmia.com',
-      'Vocal Comunicacion': 'comunicacion@animacionesmia.com',
-      'Vocal Informes MIA': 'informemia@animacionesmia.com',
-      'Vocal Financiacion': 'financiacion@animacionesmia.com',
-      'Vocal Socias': 'socias@animacionesmia.com',
-      'Vocal Festivales': 'festivales@animacionesmia.com',
-      'Vocal': 'hola@animacionesmia.com'
-    };
-    return emailMap[position] || '';
-  };
 
   return (
     <Card 
       onClick={onClick}
-      className={`bg-white overflow-hidden transition-all duration-300 cursor-pointer transform hover:scale-105 ${getCardStyle(member.position)}`}
+      className="bg-white overflow-hidden transition-all duration-300 cursor-pointer transform hover:scale-105 ring-2 ring-red-200 shadow-lg"
       style={{
         animationDelay: `${index * 100}ms`,
         animation: 'fadeInUp 0.6s ease-out forwards'
@@ -302,7 +289,7 @@ function DirectivaCard({ member, index, onClick, isCurrentPeriod = false }: Dire
     >
       <div className="relative">
         {/* Header with gradient background */}
-        <div className={`bg-gradient-to-r ${getPositionStyle(member.position)} h-16`}>
+        <div className={`bg-gradient-to-r ${getPositionStyle(member.position)} text-white h-16`}>
         </div>
         
         {/* Profile Image */}
@@ -330,7 +317,7 @@ function DirectivaCard({ member, index, onClick, isCurrentPeriod = false }: Dire
           <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">
             {member.firstName} {member.lastName}
           </h3>
-          <div className={`inline-block px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold bg-gradient-to-r ${getPositionStyle(member.position)}`}>
+          <div className={`inline-block px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold bg-gradient-to-r ${getPositionStyle(member.position)} text-white`}>
             {member.position}
           </div>
           {member.company && (
@@ -342,8 +329,8 @@ function DirectivaCard({ member, index, onClick, isCurrentPeriod = false }: Dire
 
 
 
-        {/* Email */}
-        {getPositionEmail(member.position) && (
+        {/* Email - only show for current period */}
+        {isCurrentPeriod && getPositionEmail(member.position) && (
           <div className="border-t border-gray-200 pt-4 pb-3">
             <div className="flex items-center text-sm text-gray-600">
               <svg className="h-4 w-4 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -396,24 +383,6 @@ interface DirectivaModalProps {
 }
 
 function DirectivaModal({ member, onClose }: DirectivaModalProps) {
-  const isPresident = member.position.toLowerCase().includes('president');
-  
-  const getPositionStyle = (position: string) => {
-    const positionStyles: Record<string, string> = {
-      'Presidenta': 'from-red-600 to-red-700',
-      'Vice-Presidenta': 'from-orange-600 to-orange-700',
-      'Secretaria': 'from-blue-600 to-blue-700',
-      'Tesorera': 'from-green-600 to-green-700',
-      'Vocal Formacion': 'from-purple-600 to-purple-700',
-      'Vocal Comunicacion': 'from-pink-600 to-pink-700',
-      'Vocal Mianima': 'from-indigo-600 to-indigo-700',
-      'Vocal Financiacion': 'from-yellow-600 to-yellow-700',
-      'Vocal Socias': 'from-teal-600 to-teal-700',
-      'Vocal Festivales': 'from-cyan-600 to-cyan-700',
-      'Vocal': 'from-gray-600 to-gray-700',
-    };
-    return positionStyles[position] || 'from-primary-500 to-primary-700';
-  };
   
   return (
     <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto mx-4 sm:mx-0">
@@ -430,14 +399,16 @@ function DirectivaModal({ member, onClose }: DirectivaModalProps) {
                 <h3 className="text-2xl font-bold text-white mb-1">
                   {member.firstName} {member.lastName}
                 </h3>
-                <p className="text-lg text-white/90 mb-2">{member.position}</p>
-                {isPresident && (
-                  <div className="flex items-center">
-                    <svg className="h-5 w-5 text-red-200 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                    <span className="text-sm text-red-200">Presidencia</span>
-                  </div>
+                <p className="text-lg text-white/90 mb-1">{member.position}</p>
+                {member.board_term_start?.startsWith('2025') && member.board_term_end?.includes('2027') && getPositionEmail(member.position) && (
+                  <p className="text-sm text-white/80 mb-2">
+                    <a 
+                      href={`mailto:${getPositionEmail(member.position)}`}
+                      className="hover:text-white transition-colors"
+                    >
+                      {getPositionEmail(member.position)}
+                    </a>
+                  </p>
                 )}
               </div>
             </div>
@@ -458,7 +429,7 @@ function DirectivaModal({ member, onClose }: DirectivaModalProps) {
                 <div className="space-y-2">
                   {member.responsibilities.map((responsibility, idx) => (
                     <div key={idx} className="flex items-start">
-                      <svg className="h-4 w-4 text-primary-500 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="h-4 w-4 text-red-500 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                       <span className="text-sm text-gray-700">{responsibility}</span>
@@ -529,7 +500,7 @@ function DirectivaModal({ member, onClose }: DirectivaModalProps) {
                 {member.specializations.map((spec, idx) => (
                   <span
                     key={idx}
-                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-100 text-primary-700"
+                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-700"
                   >
                     {spec}
                   </span>
