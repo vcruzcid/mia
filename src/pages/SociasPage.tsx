@@ -561,6 +561,9 @@ function MemberModal({ member, onClose }: MemberModalProps) {
             <div className="flex-1">
               <DialogTitle className="text-xl text-white">
                 {member.firstName} {member.lastName}
+                {member.display_name && member.display_name !== `${member.firstName} ${member.lastName}` && (
+                  <span className="text-sm text-gray-400 ml-2">({member.display_name})</span>
+                )}
               </DialogTitle>
               <DialogDescription className="text-base text-gray-300">
                 {member.profession && (
@@ -647,8 +650,28 @@ function MemberModal({ member, onClose }: MemberModalProps) {
                   <p className="text-gray-100">{member.employment_status}</p>
                 </div>
               )}
+              {member.is_student !== undefined && (
+                <div>
+                  <span className="text-gray-400">Estudiante:</span>
+                  <p className="text-gray-100">{member.is_student ? 'Sí' : 'No'}</p>
+                </div>
+              )}
             </div>
           </div>
+
+          {/* Professional Associations */}
+          {member.other_associations && member.other_associations.length > 0 && (
+            <div>
+              <h4 className="text-sm font-medium text-gray-200 mb-2">Otras Asociaciones Profesionales</h4>
+              <div className="flex flex-wrap gap-2">
+                {member.other_associations.map((association, index) => (
+                  <Badge key={index} variant="secondary" className="text-xs">
+                    {association}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Education */}
           {(member.education_level || member.studies_completed || member.educational_institution) && (
