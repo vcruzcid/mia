@@ -6,7 +6,6 @@ import type {
   BoardPositionHistory, 
   BoardPositionResponsibilities,
   BoardMemberWithHistory,
-  BoardPeriod,
   DirectivaPageData
 } from '../types/supabase';
 import { cleanMemberData } from '../utils/textDecoding';
@@ -43,8 +42,8 @@ interface GalleryState {
   fetchMembers: () => Promise<void>;
   fetchDirectiva: () => Promise<void>;
   fetchBoardData: () => Promise<void>;
-  fetchBoardPositionHistory: () => Promise<void>;
-  fetchBoardResponsibilities: () => Promise<void>;
+  fetchBoardPositionHistory: () => Promise<BoardPositionHistory[]>;
+  fetchBoardResponsibilities: () => Promise<BoardPositionResponsibilities[]>;
   setSearchTerm: (term: string) => void;
   setFilters: (filters: Partial<GalleryState['filters']>) => void;
   setSelectedYear: (year: number) => void;
@@ -85,6 +84,17 @@ const initialFilters = {
   availabilityStatus: [],
   hasSocialMedia: null,
   isActive: null,
+};
+
+const normalizeAvailabilityStatus = (status?: string | null) => {
+  if (!status) return 'Disponible';
+  const normalized = status.toLowerCase();
+
+  if (normalized.includes('emplead')) return 'Empleada';
+  if (normalized.includes('free')) return 'Freelance';
+
+  // Default to Disponible for any other value including "available"
+  return 'Disponible';
 };
 
 export const useGalleryStore = create<GalleryState>((set, get) => ({
@@ -166,12 +176,14 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
     set({ isLoading: true, loading: true, error: null });
     
     try {
-      // Fetch all board-related data in parallel
-      const [boardMembers, allMembers, positionHistory, responsibilities] = await Promise.all([
-        memberService.getBoardMembers(),
-        memberService.getAllMembers(), // Fetch all members for historical data
+      await Promise.all([
         get().fetchBoardPositionHistory(),
         get().fetchBoardResponsibilities()
+      ]);
+
+      const [boardMembers, allMembers] = await Promise.all([
+        memberService.getBoardMembers(),
+        memberService.getAllMembers()
       ]);
       
       // Debug logging
@@ -187,6 +199,7 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
       // Create board members with history (include current board members + historical members)
       const currentBoardMembersWithHistory: BoardMemberWithHistory[] = cleanedBoardMembers.map(member => ({
         ...member,
+        board_position: member.board_position || 'Vocal',
         position_history: get().boardPositionHistory.filter(history => history.member_id === member.id),
         position_responsibilities: get().getPositionResponsibilitiesFromDB(member.board_position || 'Vocal')
       }));
@@ -196,6 +209,7 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
         .filter(member => !member.board_position && get().boardPositionHistory.some(history => history.member_id === member.id))
         .map(member => ({
           ...member,
+          board_position: 'Vocal',
           position_history: get().boardPositionHistory.filter(history => history.member_id === member.id),
           position_responsibilities: get().getPositionResponsibilitiesFromDB('Vocal')
         }));
@@ -363,7 +377,7 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
     // Apply availability status filter
     if (filters.availabilityStatus.length > 0) {
       filtered = filtered.filter(member => {
-        const availability = member.availability_status || 'Disponible';
+        const availability = normalizeAvailabilityStatus(member.availability_status);
         return filters.availabilityStatus.includes(availability);
       });
     }
@@ -671,7 +685,7 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
       }
       
       // Count by availability status
-      const availability = member.availability_status || 'Available';
+      const availability = normalizeAvailabilityStatus(member.availability_status);
       byAvailability[availability] = (byAvailability[availability] || 0) + 1;
     });
     
@@ -705,72 +719,54 @@ function getPositionResponsibilities(position: BoardPosition | string): string[]
     'Vice-Presidenta': [
       'Sustituir a la Presidenta en caso de ausencia',
       'Colaborar en la representación de la asociación',
-      'Apoyar en la coordinación de actividades',
-      'Participar en la toma de decisiones estratégicas',
-      'Facilitar la comunicación entre miembros de la Junta'
+      'Apoyar en la coordinación de actividades'
+      
     ],
     'Secretaria': [
       'Redactar y custodiar las actas de las reuniones',
       'Gestionar la correspondencia oficial de la asociación',
-      'Mantener actualizado el registro de socias',
-      'Organizar la documentación administrativa',
-      'Coordinar la comunicación interna y externa'
+      'Organizar la documentación administrativa'
     ],
     'Tesorera': [
       'Gestionar las finanzas de la asociación',
       'Elaborar presupuestos anuales',
       'Controlar ingresos y gastos',
-      'Presentar informes financieros periódicos',
-      'Mantener la contabilidad actualizada'
+      'Presentar informes financieros periódicos'
     ],
     'Vocal Formacion': [
       'Organizar cursos y talleres de formación',
       'Coordinar programas educativos',
-      'Gestionar colaboraciones con instituciones formativas',
-      'Desarrollar contenidos pedagógicos',
-      'Evaluar la calidad de las actividades formativas'
+      'Gestionar colaboraciones con instituciones formativas'
     ],
     'Vocal Comunicacion': [
       'Gestionar las redes sociales de la asociación',
-      'Coordinar la comunicación digital',
-      'Elaborar materiales promocionales',
-      'Mantener la página web actualizada',
-      'Organizar eventos de difusión'
+      'Coordinar la comunicación digital'
     ],
     'Vocal Mianima': [
       'Coordinar el festival MIANIMA',
       'Gestionar la programación del evento',
-      'Organizar actividades paralelas',
-      'Coordinar con patrocinadores del festival',
-      'Supervisar la logística del evento'
+      'Coordinar con patrocinadores del festival'
+      
     ],
     'Vocal Financiacion': [
       'Buscar fuentes de financiación',
       'Elaborar propuestas de subvenciones',
-      'Gestionar relaciones con patrocinadores',
-      'Coordinar campañas de crowdfunding',
-      'Desarrollar estrategias de sostenibilidad económica'
+      'Coordinar campañas de crowdfunding'
     ],
     'Vocal Socias': [
       'Gestionar el proceso de incorporación de nuevas socias',
-      'Organizar actividades de networking',
-      'Coordinar programas de mentoría',
-      'Facilitar la integración de nuevas miembros',
-      'Mantener el contacto directo con las socias'
+      'Facilitar la integración de nuevas miembros'
+      
     ],
     'Vocal Festivales': [
       'Coordinar la participación en festivales externos',
-      'Gestionar la presencia de MIA en eventos del sector',
-      'Organizar proyecciones y muestras',
-      'Coordinar con otros festivales de animación',
-      'Desarrollar estrategias de visibilidad'
+      'Gestionar la presencia de MIA en eventos del sector'
+      
     ],
     'Vocal': [
       'Participar en las decisiones de la Junta Directiva',
       'Colaborar en proyectos específicos',
-      'Apoyar a otros vocales en sus funciones',
-      'Representar a la asociación en eventos',
-      'Contribuir al desarrollo de nuevas iniciativas'
+      'Apoyar a otros vocales en sus funciones'
     ]
   };
   
