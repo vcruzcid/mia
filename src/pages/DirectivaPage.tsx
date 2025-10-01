@@ -121,11 +121,14 @@ export function DirectivaPage() {
   // Ensure selected period is set to current period when data loads
   useEffect(() => {
     const availablePeriods = getAvailablePeriods();
-    if (availablePeriods.length > 0 && !selectedPeriod) {
-      // Set the first period (current period) as default
-      setSelectedPeriod(availablePeriods[0]);
+    if (availablePeriods.length > 0) {
+      // Always set to the current period (2025-2027) if available, otherwise first period
+      const currentPeriod = availablePeriods.find(period => period === '2025-2027') || availablePeriods[0];
+      if (selectedPeriod !== currentPeriod) {
+        setSelectedPeriod(currentPeriod);
+      }
     }
-  }, [boardMembers, boardPositionHistory]); // Depend on data changes, not functions
+  }, [boardMembers, boardPositionHistory, getAvailablePeriods, setSelectedPeriod, selectedPeriod]);
 
   const allPeriods = getAvailablePeriods();
   // Only show current and recent periods to avoid clutter
