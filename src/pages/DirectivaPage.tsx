@@ -118,17 +118,15 @@ export function DirectivaPage() {
     fetchBoardData();
   }, [fetchBoardData]);
 
-  // Ensure selected period is set to current period when data loads
+  // Ensure selected period is set to current period when data loads (only once)
   useEffect(() => {
     const availablePeriods = getAvailablePeriods();
-    if (availablePeriods.length > 0) {
-      // Always set to the current period (2025-2027) if available, otherwise first period
+    if (availablePeriods.length > 0 && !selectedPeriod) {
+      // Set initial period only if no period is selected
       const currentPeriod = availablePeriods.find(period => period === '2025-2027') || availablePeriods[0];
-      if (selectedPeriod !== currentPeriod) {
-        setSelectedPeriod(currentPeriod);
-      }
+      setSelectedPeriod(currentPeriod);
     }
-  }, [boardMembers, boardPositionHistory, getAvailablePeriods, setSelectedPeriod, selectedPeriod]);
+  }, [getAvailablePeriods, setSelectedPeriod, selectedPeriod]);
 
   const allPeriods = getAvailablePeriods();
   // Only show current and recent periods to avoid clutter
@@ -202,9 +200,8 @@ export function DirectivaPage() {
 
       {/* Directiva Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-        <Tabs value={currentSelectedPeriod} onValueChange={handlePeriodChange}>
-          {availablePeriods.map((period) => (
-            <TabsContent key={period} value={period} className="mt-8">
+        {availablePeriods.map((period) => (
+          <div key={period} className={period === currentSelectedPeriod ? 'mt-8' : 'hidden'}>
               {getBoardMembersForPeriod(period).length === 0 ? (
                 <div className="text-center py-12">
                   <div className="mx-auto h-24 w-24 bg-gray-700 rounded-full flex items-center justify-center mb-4">
@@ -238,22 +235,24 @@ export function DirectivaPage() {
 
                   {/* Board Members Grid */}
                   <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                    {getBoardMembersForPeriod(period).map(transformBoardMemberToDirectivaMember).map((member, index) => (
+                    {getBoardMembersForPeriod(period).map(transformBoardMemberToDirectivaMember).map((member, index) => {
+                      const uniqueKey = `${member.id}-${member.position}-${member.board_term_start || period}-${index}`;
+                      return (
                       <DirectivaCard
-                        key={member.id}
+                        key={uniqueKey}
                         member={member}
                         index={index}
                         onClick={() => openMemberModal(member as any)}
                         isCurrentPeriod={period === '2025-2027'}
                       />
-                    ))}
+                    );
+                    })}
                   </div>
 
                 </div>
               )}
-            </TabsContent>
-          ))}
-        </Tabs>
+            </div>
+        ))}
       </div>
 
       {/* Member Modal */}
