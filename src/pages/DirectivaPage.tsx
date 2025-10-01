@@ -52,10 +52,13 @@ function transformBoardMemberToDirectivaMember(member: BoardMemberWithHistory): 
     firstName: member.first_name || '',
     lastName: member.last_name || '',
     displayName: member.display_name || `${member.first_name || ''} ${member.last_name || ''}`.trim(),
+    email: member.email || '',
     position: member.board_position || 'Vocal',
     responsibilities: member.position_responsibilities || [],
     profileImage: member.profile_image_url || '',
     company: member.company || '',
+    memberType: member.membership_type as 'socia-pleno-derecho' | 'colaborador' || 'colaborador',
+    availabilityStatus: 'Disponible' as 'Disponible' | 'Empleada' | 'Freelance',
     location: {
       city: member.city || '',
       region: member.autonomous_community || member.province || '',
@@ -66,6 +69,8 @@ function transformBoardMemberToDirectivaMember(member: BoardMemberWithHistory): 
     joinDate: member.created_at || new Date().toISOString(),
     socialMedia: member.social_media || {},
     specializations: member.other_professions || [],
+    isCurrentMember: Boolean(member.board_term_start?.startsWith('2025') && member.board_term_end?.includes('2027')),
+    isActive: member.stripe_subscription_status === 'active' || false,
     previousPositions: member.position_history?.map(history => ({
       position: history.position,
       year: new Date(history.term_start).getFullYear()
@@ -98,6 +103,8 @@ export function DirectivaPage() {
     selectedPeriod,
     selectedMember,
     isModalOpen,
+    boardMembers,
+    boardPositionHistory,
     getCurrentBoardMembers,
     getBoardMembersForPeriod,
     getAvailablePeriods,
@@ -118,11 +125,14 @@ export function DirectivaPage() {
       // Set the first period (current period) as default
       setSelectedPeriod(availablePeriods[0]);
     }
-  }, [getAvailablePeriods, setSelectedPeriod, selectedPeriod]);
+  }, [boardMembers, boardPositionHistory]); // Depend on data changes, not functions
 
   const allPeriods = getAvailablePeriods();
   // Only show current and recent periods to avoid clutter
   const availablePeriods = allPeriods.slice(0, 5);
+  
+  // Ensure we always have a selected period
+  const currentSelectedPeriod = selectedPeriod || availablePeriods[0] || '2025-2027';
   // Check if we have any board members data at all
   const hasBoardData = getCurrentBoardMembers().length > 0;
 
@@ -160,8 +170,13 @@ export function DirectivaPage() {
           <label className="block text-sm font-medium text-gray-300 mb-3 text-center">
             Seleccionar período de la directiva
           </label>
-          <Tabs value={selectedPeriod || availablePeriods[0]} onValueChange={handlePeriodChange} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 bg-gray-800 border border-gray-700">
+          <Tabs value={currentSelectedPeriod} onValueChange={handlePeriodChange} className="w-full">
+            <TabsList className={`grid w-full bg-gray-800 border border-gray-700 ${
+              availablePeriods.length === 2 ? 'grid-cols-2' :
+              availablePeriods.length === 3 ? 'grid-cols-3' :
+              availablePeriods.length === 4 ? 'grid-cols-2 sm:grid-cols-4' :
+              'grid-cols-2 sm:grid-cols-4 lg:grid-cols-5'
+            }`}>
               {availablePeriods.map((period) => (
                 <TabsTrigger
                   key={period}
@@ -184,7 +199,7 @@ export function DirectivaPage() {
 
       {/* Directiva Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-        <Tabs value={selectedPeriod} onValueChange={handlePeriodChange}>
+        <Tabs value={currentSelectedPeriod} onValueChange={handlePeriodChange}>
           {availablePeriods.map((period) => (
             <TabsContent key={period} value={period} className="mt-8">
               {getBoardMembersForPeriod(period).length === 0 ? (
