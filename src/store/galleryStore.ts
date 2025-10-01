@@ -167,8 +167,9 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
     
     try {
       // Fetch all board-related data in parallel
-      const [boardMembers, positionHistory, responsibilities] = await Promise.all([
+      const [boardMembers, allMembers, positionHistory, responsibilities] = await Promise.all([
         memberService.getBoardMembers(),
+        memberService.getAllMembers(), // Fetch all members for historical data
         get().fetchBoardPositionHistory(),
         get().fetchBoardResponsibilities()
       ]);
@@ -179,9 +180,10 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
       
       // Clean and process board members
       const cleanedBoardMembers = boardMembers.map(member => cleanMemberData(member));
+      const cleanedAllMembers = allMembers.map(member => cleanMemberData(member));
       
-      // Create board members with history
-      const boardMembersWithHistory: BoardMemberWithHistory[] = cleanedBoardMembers.map(member => ({
+      // Create board members with history (include all members for historical lookups)
+      const boardMembersWithHistory: BoardMemberWithHistory[] = cleanedAllMembers.map(member => ({
         ...member,
         position_history: get().boardPositionHistory.filter(history => history.member_id === member.id),
         position_responsibilities: get().getPositionResponsibilitiesFromDB(member.board_position || 'Vocal')
@@ -468,12 +470,13 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
   },
 
   getBoardMembersForPeriod: (period?: string) => {
-    const { boardMembers, selectedPeriod, boardResponsibilities } = get();
+    const { boardMembers, selectedPeriod, boardResponsibilities, boardPositionHistory } = get();
     const targetPeriod = period || selectedPeriod;
     
-    console.log('getBoardMembersForPeriod called with:', { period, targetPeriod, boardMembersCount: boardMembers.length });
+    console.log('getBoardMembersForPeriod called with:', { period, targetPeriod, boardMembersCount: boardMembers.length, historyCount: boardPositionHistory.length });
     
-    const filtered = boardMembers.filter(member => {
+    // First, get current board members for the period
+    const currentMembers = boardMembers.filter(member => {
       if (!member.board_term_start) return false;
       
       // Parse dates more carefully to avoid timezone issues
@@ -484,7 +487,7 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
       const endYear = endDate.getFullYear();
       const memberPeriod = `${startYear}-${endYear}`;
       
-      console.log('Member period check:', { 
+      console.log('Current member period check:', { 
         memberName: `${member.first_name} ${member.last_name}`, 
         memberPeriod, 
         targetPeriod, 
@@ -493,6 +496,40 @@ export const useGalleryStore = create<GalleryState>((set, get) => ({
       
       return memberPeriod === targetPeriod;
     });
+
+    // Then, get historical members for the period
+    const historicalMembers = boardPositionHistory
+      .filter(history => {
+        if (!history.term_start) return false;
+        
+        const startDate = new Date(history.term_start + 'T00:00:00');
+        const endDate = history.term_end ? new Date(history.term_end + 'T00:00:00') : new Date();
+        
+        const startYear = startDate.getFullYear();
+        const endYear = endDate.getFullYear();
+        const historyPeriod = `${startYear}-${endYear}`;
+        
+        return historyPeriod === targetPeriod;
+      })
+      .map(history => {
+        // Find the member data for this historical position
+        const member = boardMembers.find(m => m.id === history.member_id);
+        if (!member) return null;
+        
+        // Create a BoardMemberWithHistory object for this historical period
+        return {
+          ...member,
+          board_position: history.position,
+          board_term_start: history.term_start,
+          board_term_end: history.term_end,
+          position_history: get().boardPositionHistory.filter(h => h.member_id === member.id),
+          position_responsibilities: get().getPositionResponsibilitiesFromDB(history.position)
+        };
+      })
+      .filter(Boolean) as BoardMemberWithHistory[];
+
+    // Combine current and historical members
+    const filtered = [...currentMembers, ...historicalMembers];
     
     // Sort board members using database sort_order from board_position_responsibilities
     const sorted = filtered.sort((a, b) => {
