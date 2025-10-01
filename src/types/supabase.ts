@@ -22,6 +22,7 @@ export interface Member {
   years_experience?: number;
   biography?: string;
   employment_status?: string;
+  availability_status?: string;
   education_level?: string;
   studies_completed?: string;
   educational_institution?: string;

@@ -11,6 +11,8 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Spinner } from '@/components/ui/spinner';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { BackgroundImage } from '@/components/ui/background-image';
+import { useScrollAnimation } from '../hooks/useScrollAnimation';
 
 export function SociasPage() {
   const {
@@ -25,7 +27,6 @@ export function SociasPage() {
     setFilters,
     resetFilters,
     setSearchTerm,
-    toggleMemberType,
     toggleSpecialization,
     toggleLocation,
     toggleAvailabilityStatus,
@@ -34,13 +35,16 @@ export function SociasPage() {
     fetchMembers,
   } = useGalleryStore();
 
+  // Animation hooks
+  const filtersAnimation = useScrollAnimation({ threshold: 0.2 });
+
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
   const [activeFilterTab, setActiveFilterTab] = useState<'specialization' | 'location' | 'availability' | 'other'>('specialization');
-  
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
-  
+
   // Pagination options
   const paginationOptions = [10, 20, 50, 75, 100];
 
@@ -91,30 +95,38 @@ export function SociasPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Spinner className="h-12 w-12" />
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <Spinner className="h-12 w-12 text-primary-500" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Socias MIA
-            </h1>
-            <p className="text-xl text-gray-800 max-w-3xl mx-auto">
-              Conoce a las profesionales que forman parte de nuestra comunidad de mujeres en la industria de animación.
-            </p>
-          </div>
+    <div className="min-h-screen bg-gray-900">
+      {/* Hero Section */}
+      <BackgroundImage
+        imageUrl="/images/home-cta.webp"
+        className="w-full py-16 px-4 sm:px-6 lg:px-8"
+      >
+        <div className="max-w-7xl mx-auto text-center">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-6">
+            Socias MIA
+          </h1>
+          <p className="text-lg md:text-xl text-gray-200 mb-8 max-w-3xl mx-auto">
+            Conoce a nuestras socias, busca y filtra entre las profesionales de la animación en España.
+            Encuentra el talento que necesitas para tus proyectos.
+          </p>
+        </div>
+      </BackgroundImage>
 
+      {/* Search and Filters Section */}
+      <div className="bg-gray-900 border-t border-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Search Bar */}
-          <div className="mt-8 max-w-lg mx-auto">
+          <div className="max-w-lg mx-auto mb-8">
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
@@ -122,19 +134,19 @@ export function SociasPage() {
                 type="text"
                 value={searchTerm}
                 onChange={handleSearchChange}
-                className="pl-10 h-12 text-base"
+                className="pl-10 h-12 text-base bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500"
                 placeholder="Buscar por nombre, empresa, especialización o ubicación..."
               />
             </div>
           </div>
 
           {/* Results Summary */}
-          <div className="mt-6 flex flex-wrap items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between mb-6">
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-700">
+              <span className="text-sm text-gray-300">
                 {totalMembers} socias encontradas
                 {totalMembers > 0 && (
-                  <span className="ml-2 text-gray-500">
+                  <span className="ml-2 text-gray-400">
                     (mostrando {startIndex + 1}-{Math.min(endIndex, totalMembers)} de {totalMembers})
                   </span>
                 )}
@@ -143,7 +155,7 @@ export function SociasPage() {
                 <Button
                   onClick={resetFilters}
                   variant="ghost"
-                  className="text-sm text-primary-600 hover:text-primary-800 underline"
+                  className="text-sm text-primary-400 hover:text-primary-300 underline"
                 >
                   Limpiar filtros ({getActiveFiltersCount()})
                 </Button>
@@ -152,7 +164,9 @@ export function SociasPage() {
             <Button
               onClick={() => setIsFiltersExpanded(!isFiltersExpanded)}
               variant="outline"
-              className="inline-flex items-center px-4 py-2"
+              className={`inline-flex items-center px-4 py-2 border-gray-700 text-gray-300 hover:bg-gray-800 transition-all duration-300 ${
+                filtersAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+              }`}
             >
               <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
@@ -165,10 +179,10 @@ export function SociasPage() {
 
       {/* Advanced Filters Panel */}
       {isFiltersExpanded && (
-        <div className="bg-white border-b shadow-sm">
+        <div className="bg-gray-800 border-b border-gray-700">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             {/* Filter Tabs */}
-            <div className="border-b border-gray-200">
+            <div className="border-b border-gray-600">
               <nav className="-mb-px flex space-x-8">
                 {[
                   { key: 'specialization', label: 'Especializaciones', count: filters.specializations.length },
@@ -182,13 +196,13 @@ export function SociasPage() {
                     variant="ghost"
                     className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap rounded-none ${
                       activeFilterTab === tab.key
-                        ? 'border-primary-500 text-primary-600 bg-transparent'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 bg-transparent'
+                        ? 'border-primary-500 text-primary-400 bg-transparent'
+                        : 'border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-500 bg-transparent'
                     }`}
                   >
                     {tab.label}
                     {tab.count > 0 && (
-                      <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
+                      <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-900 text-primary-200">
                         {tab.count}
                       </span>
                     )}
@@ -202,15 +216,16 @@ export function SociasPage() {
 
               {activeFilterTab === 'specialization' && (
                 <div>
-                  <h3 className="text-sm font-medium text-gray-900 mb-3">Especializaciones</h3>
+                  <h3 className="text-sm font-medium text-gray-200 mb-3">Especializaciones</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 max-h-80 overflow-y-auto">
                     {ANIMATION_SPECIALIZATIONS.map((specialization) => (
-                      <label key={specialization} className="flex items-center space-x-3">
+                      <label key={specialization} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-700">
                         <Checkbox
                           checked={filters.specializations.includes(specialization)}
                           onCheckedChange={() => toggleSpecialization(specialization)}
+                          className="text-primary-500 focus:ring-primary-500"
                         />
-                        <span className="text-sm text-gray-700 truncate">
+                        <span className="text-sm text-gray-300 truncate">
                           {specialization}
                         </span>
                       </label>
@@ -221,15 +236,16 @@ export function SociasPage() {
 
               {activeFilterTab === 'location' && (
                 <div>
-                  <h3 className="text-sm font-medium text-gray-900 mb-3">Ubicación</h3>
+                  <h3 className="text-sm font-medium text-gray-200 mb-3">Ubicación</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 max-h-60 overflow-y-auto">
                     {availableLocations.map((location) => (
-                      <label key={location} className="flex items-center space-x-3">
+                      <label key={location} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-700">
                         <Checkbox
                           checked={filters.locations.includes(location)}
                           onCheckedChange={() => toggleLocation(location)}
+                          className="text-primary-500 focus:ring-primary-500"
                         />
-                        <span className="text-sm text-gray-700 truncate">
+                        <span className="text-sm text-gray-300 truncate">
                           {location}
                         </span>
                       </label>
@@ -240,17 +256,18 @@ export function SociasPage() {
 
               {activeFilterTab === 'availability' && (
                 <div>
-                  <h3 className="text-sm font-medium text-gray-900 mb-3">Estado de Disponibilidad</h3>
+                  <h3 className="text-sm font-medium text-gray-200 mb-3">Estado de Disponibilidad</h3>
                   <div className="space-y-2">
                     {(['Disponible', 'Empleada', 'Freelance'] as const).map((status) => (
-                      <label key={status} className="flex items-center space-x-3">
+                      <label key={status} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-700">
                         <Checkbox
                           checked={filters.availabilityStatus.includes(status)}
                           onCheckedChange={() => toggleAvailabilityStatus(status)}
+                          className="text-primary-500 focus:ring-primary-500"
                         />
-                        <span className="text-sm text-gray-700">
+                        <span className="text-sm text-gray-300">
                           {status}
-                          <span className="ml-2 text-gray-600">
+                          <span className="ml-2 text-gray-400">
                             ({memberCounts.byAvailability[status] || 0})
                           </span>
                         </span>
@@ -263,37 +280,37 @@ export function SociasPage() {
               {activeFilterTab === 'other' && (
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-sm font-medium text-gray-900 mb-3">Presencia en Redes Sociales</h3>
+                    <h3 className="text-sm font-medium text-gray-200 mb-3">Presencia en Redes Sociales</h3>
                     <div className="space-y-2">
-                      <label className="flex items-center space-x-3">
+                      <label className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-700">
                         <input
                           type="radio"
                           name="socialMedia"
                           checked={filters.hasSocialMedia === true}
                           onChange={() => setFilters({ hasSocialMedia: true })}
-                          className="h-4 w-4 text-primary-600 focus:ring-primary-500"
+                          className="h-4 w-4 text-primary-500 focus:ring-primary-500 border-gray-600"
                         />
-                        <span className="text-sm text-gray-700">Con redes sociales</span>
+                        <span className="text-sm text-gray-300">Con redes sociales</span>
                       </label>
-                      <label className="flex items-center space-x-3">
+                      <label className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-700">
                         <input
                           type="radio"
                           name="socialMedia"
                           checked={filters.hasSocialMedia === false}
                           onChange={() => setFilters({ hasSocialMedia: false })}
-                          className="h-4 w-4 text-primary-600 focus:ring-primary-500"
+                          className="h-4 w-4 text-primary-500 focus:ring-primary-500 border-gray-600"
                         />
-                        <span className="text-sm text-gray-700">Sin redes sociales</span>
+                        <span className="text-sm text-gray-300">Sin redes sociales</span>
                       </label>
-                      <label className="flex items-center space-x-3">
+                      <label className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-700">
                         <input
                           type="radio"
                           name="socialMedia"
                           checked={filters.hasSocialMedia === null}
                           onChange={() => setFilters({ hasSocialMedia: null })}
-                          className="h-4 w-4 text-primary-600 focus:ring-primary-500"
+                          className="h-4 w-4 text-primary-500 focus:ring-primary-500 border-gray-600"
                         />
-                        <span className="text-sm text-gray-700">Todos</span>
+                        <span className="text-sm text-gray-300">Todos</span>
                       </label>
                     </div>
                   </div>
@@ -308,21 +325,21 @@ export function SociasPage() {
       {/* Pagination Controls - Top */}
       {!loading && totalMembers > 0 && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 py-4 border-t border-gray-200">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 py-4 border-t border-gray-700">
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-700">Mostrar:</span>
+              <span className="text-sm text-gray-300">Mostrar:</span>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="text-sm">
+                  <Button variant="outline" size="sm" className="text-sm border-gray-600 text-gray-300 hover:bg-gray-800">
                     {itemsPerPage} por página
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent>
+                <DropdownMenuContent className="bg-gray-800 border-gray-700">
                   {paginationOptions.map(option => (
                     <DropdownMenuItem
                       key={option}
                       onClick={() => handleItemsPerPageChange(option)}
-                      className={itemsPerPage === option ? "bg-accent" : ""}
+                      className={`text-gray-300 hover:bg-gray-700 ${itemsPerPage === option ? "bg-primary-900" : ""}`}
                     >
                       {option} por página
                     </DropdownMenuItem>
@@ -330,7 +347,7 @@ export function SociasPage() {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-            
+
             {totalPages > 1 && (
               <div className="flex items-center space-x-2">
                 <Button
@@ -338,10 +355,11 @@ export function SociasPage() {
                   disabled={currentPage === 1}
                   variant="outline"
                   size="sm"
+                  className="border-gray-600 text-gray-300 hover:bg-gray-800"
                 >
                   Anterior
                 </Button>
-                
+
                 <div className="flex space-x-1">
                   {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                     let pageNumber;
@@ -354,25 +372,30 @@ export function SociasPage() {
                     } else {
                       pageNumber = currentPage - 2 + i;
                     }
-                    
+
                     return (
                       <Button
                         key={pageNumber}
                         onClick={() => handlePageChange(pageNumber)}
                         variant={currentPage === pageNumber ? "default" : "outline"}
                         size="sm"
+                        className={currentPage === pageNumber
+                          ? "bg-primary-600 text-white"
+                          : "border-gray-600 text-gray-300 hover:bg-gray-800"
+                        }
                       >
                         {pageNumber}
                       </Button>
                     );
                   })}
                 </div>
-                
+
                 <Button
                   onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                   disabled={currentPage === totalPages}
                   variant="outline"
                   size="sm"
+                  className="border-gray-600 text-gray-300 hover:bg-gray-800"
                 >
                   Siguiente
                 </Button>
@@ -386,8 +409,8 @@ export function SociasPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {loading ? (
           <div className="text-center py-12">
-            <Spinner className="h-12 w-12 text-primary-600 mx-auto mb-4" />
-            <p className="text-gray-600">Cargando información de las socias...</p>
+            <Spinner className="h-12 w-12 text-primary-500 mx-auto mb-4" />
+            <p className="text-gray-400">Cargando información de las socias...</p>
           </div>
         ) : totalMembers === 0 ? (
           <EmptyState />
@@ -402,7 +425,7 @@ export function SociasPage() {
             ))}
           </div>
         )}
-        
+
         {/* Pagination Controls - Bottom */}
         {!loading && totalPages > 1 && (
           <div className="flex justify-center mt-8">
@@ -412,19 +435,21 @@ export function SociasPage() {
                 disabled={currentPage === 1}
                 variant="outline"
                 size="sm"
+                className="border-gray-600 text-gray-300 hover:bg-gray-800"
               >
                 Anterior
               </Button>
-              
-              <span className="px-4 py-2 text-sm text-gray-700">
+
+              <span className="px-4 py-2 text-sm text-gray-400">
                 Página {currentPage} de {totalPages}
               </span>
-              
+
               <Button
                 onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
                 variant="outline"
                 size="sm"
+                className="border-gray-600 text-gray-300 hover:bg-gray-800"
               >
                 Siguiente
               </Button>
@@ -450,11 +475,10 @@ interface MemberCardProps {
 }
 
 function MemberCard({ member, onClick }: MemberCardProps) {
-
   return (
-    <Card 
+    <Card
       onClick={onClick}
-      className="hover:shadow-lg transition-shadow duration-200 cursor-pointer transform hover:scale-105"
+      className="hover:shadow-lg transition-all duration-200 cursor-pointer transform hover:scale-105 bg-gray-800 border-gray-700 hover:bg-gray-750"
     >
       <CardContent className="p-6">
         <div className="flex items-center mb-4">
@@ -464,10 +488,10 @@ function MemberCard({ member, onClick }: MemberCardProps) {
             size="md"
           />
           <div className="ml-4 flex-1 min-w-0">
-            <p className="text-lg font-medium text-gray-900 truncate">
+            <p className="text-lg font-medium text-white truncate">
               {member.firstName} {member.lastName}
             </p>
-            <p className="text-sm text-gray-700 truncate">
+            <p className="text-sm text-gray-300 truncate">
               {member.profession || member.company || 'Profesional'}
             </p>
           </div>
@@ -491,24 +515,23 @@ function MemberCard({ member, onClick }: MemberCardProps) {
             </Badge>
           </div>
 
-
           <div>
-            <p className="text-sm text-gray-700 font-medium mb-1">Especializaciones:</p>
+            <p className="text-sm text-gray-300 font-medium mb-1">Especializaciones:</p>
             <div className="flex flex-wrap gap-1">
               {member.specializations.slice(0, 3).map((spec: string, index: number) => (
-                <Badge key={index} variant="outline" className="text-xs">
+                <Badge key={index} variant="outline" className="text-xs border-gray-600 text-gray-300">
                   {spec}
                 </Badge>
               ))}
               {member.specializations.length > 3 && (
-                <Badge variant="secondary" className="text-xs">
+                <Badge variant="secondary" className="text-xs bg-gray-700 text-gray-300">
                   +{member.specializations.length - 3} más
                 </Badge>
               )}
             </div>
           </div>
 
-          <SocialMediaIcons 
+          <SocialMediaIcons
             socialMedia={member.socialMedia}
             size="sm"
             variant="compact"
@@ -527,7 +550,7 @@ interface MemberModalProps {
 function MemberModal({ member, onClose }: MemberModalProps) {
   return (
     <Dialog open={true} onOpenChange={() => onClose()}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto bg-gray-800 border-gray-700">
         <DialogHeader>
           <div className="flex items-start space-x-4">
             <ProfileImage
@@ -536,17 +559,17 @@ function MemberModal({ member, onClose }: MemberModalProps) {
               size="xl"
             />
             <div className="flex-1">
-              <DialogTitle className="text-xl text-gray-900">
+              <DialogTitle className="text-xl text-white">
                 {member.firstName} {member.lastName}
               </DialogTitle>
-              <DialogDescription className="text-base text-gray-700">
+              <DialogDescription className="text-base text-gray-300">
                 {member.profession && (
                   <span className="block font-medium">{member.profession}</span>
                 )}
                 {member.company && (
                   <span className="block">{member.company}</span>
                 )}
-                <span className="block text-sm text-gray-600 mt-1">
+                <span className="block text-sm text-gray-400 mt-1">
                   {member.memberType === 'socia-pleno-derecho' ? 'Socia de Pleno Derecho' : 'Colaborador/a'}
                 </span>
               </DialogDescription>
@@ -574,8 +597,8 @@ function MemberModal({ member, onClose }: MemberModalProps) {
           {/* Biography Section */}
           {(member.biography || member.bio) && (
             <div>
-              <h4 className="text-sm font-medium text-gray-900 mb-2">Biografía</h4>
-              <p className="text-sm text-gray-700 leading-relaxed">
+              <h4 className="text-sm font-medium text-gray-200 mb-2">Biografía</h4>
+              <p className="text-sm text-gray-300 leading-relaxed">
                 {member.biography || member.bio}
               </p>
             </div>
@@ -583,63 +606,62 @@ function MemberModal({ member, onClose }: MemberModalProps) {
 
           {/* Professional Information */}
           <div>
-            <h4 className="text-sm font-medium text-gray-900 mb-3">Información Profesional</h4>
+            <h4 className="text-sm font-medium text-gray-200 mb-3">Información Profesional</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               {member.profession && (
                 <div>
-                  <span className="text-gray-600">Profesión principal:</span>
-                  <p className="text-gray-900">{member.profession}</p>
+                  <span className="text-gray-400">Profesión principal:</span>
+                  <p className="text-gray-100">{member.profession}</p>
                 </div>
               )}
               {member.specializations && member.specializations.length > 0 && (
                 <div>
-                  <span className="text-gray-600">Profesiones secundarias:</span>
-                  <p className="text-gray-900">{member.specializations.join(', ')}</p>
+                  <span className="text-gray-400">Profesiones secundarias:</span>
+                  <p className="text-gray-100">{member.specializations.join(', ')}</p>
                 </div>
               )}
               {member.professional_role && (
                 <div>
-                  <span className="text-gray-600">Rol profesional:</span>
-                  <p className="text-gray-900">{member.professional_role}</p>
+                  <span className="text-gray-400">Rol profesional:</span>
+                  <p className="text-gray-100">{member.professional_role}</p>
                 </div>
               )}
               {member.years_experience && (
                 <div>
-                  <span className="text-gray-600">Años de experiencia:</span>
-                  <p className="text-gray-900">{member.years_experience} años</p>
+                  <span className="text-gray-400">Años de experiencia:</span>
+                  <p className="text-gray-100">{member.years_experience} años</p>
                 </div>
               )}
               {member.employment_status && (
                 <div>
-                  <span className="text-gray-600">Estado laboral:</span>
-                  <p className="text-gray-900">{member.employment_status}</p>
+                  <span className="text-gray-400">Estado laboral:</span>
+                  <p className="text-gray-100">{member.employment_status}</p>
                 </div>
               )}
             </div>
           </div>
 
-
           {/* Education */}
           {(member.education_level || member.studies_completed || member.educational_institution) && (
             <div>
-              <h4 className="text-sm font-medium text-gray-900 mb-3">Formación Académica</h4>
+              <h4 className="text-sm font-medium text-gray-200 mb-3">Formación Académica</h4>
               <div className="space-y-2 text-sm">
                 {member.education_level && (
                   <div>
-                    <span className="text-gray-600">Nivel educativo:</span>
-                    <p className="text-gray-900">{member.education_level}</p>
+                    <span className="text-gray-400">Nivel educativo:</span>
+                    <p className="text-gray-100">{member.education_level}</p>
                   </div>
                 )}
                 {member.studies_completed && (
                   <div>
-                    <span className="text-gray-600">Estudios completados:</span>
-                    <p className="text-gray-900">{member.studies_completed}</p>
+                    <span className="text-gray-400">Estudios completados:</span>
+                    <p className="text-gray-100">{member.studies_completed}</p>
                   </div>
                 )}
                 {member.educational_institution && (
                   <div>
-                    <span className="text-gray-600">Institución educativa:</span>
-                    <p className="text-gray-900">{member.educational_institution}</p>
+                    <span className="text-gray-400">Institución educativa:</span>
+                    <p className="text-gray-100">{member.educational_institution}</p>
                   </div>
                 )}
               </div>
@@ -648,8 +670,8 @@ function MemberModal({ member, onClose }: MemberModalProps) {
 
           {/* Location */}
           <div>
-            <h4 className="text-sm font-medium text-gray-900 mb-2">Ubicación</h4>
-            <div className="text-sm text-gray-700 space-y-1">
+            <h4 className="text-sm font-medium text-gray-200 mb-2">Ubicación</h4>
+            <div className="text-sm text-gray-300 space-y-1">
               {(member.province || member.location?.region) && (
                 <p className="flex items-center">
                   <span className="text-gray-500 mr-2">🌍</span>
@@ -666,16 +688,16 @@ function MemberModal({ member, onClose }: MemberModalProps) {
 
           {/* Contact & Social Media */}
           <div>
-            <h4 className="text-sm font-medium text-gray-900 mb-3">Contacto y Redes Sociales</h4>
+            <h4 className="text-sm font-medium text-gray-200 mb-3">Contacto y Redes Sociales</h4>
             <div className="space-y-3">
               {member.phone && (
                 <div className="flex items-center text-sm">
                   <span className="text-gray-500 mr-2">📞</span>
-                  <span className="text-gray-700">{member.phone}</span>
+                  <span className="text-gray-300">{member.phone}</span>
                 </div>
               )}
               <div>
-                <SocialMediaIcons 
+                <SocialMediaIcons
                   socialMedia={member.socialMedia}
                   size="md"
                   variant="full"
@@ -696,8 +718,8 @@ function EmptyState() {
       <svg className="mx-auto h-12 w-12 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
       </svg>
-      <h3 className="mt-2 text-sm font-medium text-gray-900">No se encontraron socias</h3>
-      <p className="mt-1 text-sm text-gray-700">
+      <h3 className="mt-2 text-sm font-medium text-gray-200">No se encontraron socias</h3>
+      <p className="mt-1 text-sm text-gray-400">
         Prueba a ajustar los filtros de búsqueda para encontrar más resultados.
       </p>
     </div>
