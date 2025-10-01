@@ -64,3 +64,6 @@ db-backups/
 
 # Playwright test files
 .playwright-mcp/*
+
+#serena
+.serena/.serena/
