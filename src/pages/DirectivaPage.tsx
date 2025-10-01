@@ -396,23 +396,39 @@ interface DirectivaModalProps {
 }
 
 function DirectivaModal({ member, onClose }: DirectivaModalProps) {
-  const isPresident = member.position.toLowerCase().includes('president');
+  const getPositionEmail = (position: string) => {
+    const emailMap: { [key: string]: string } = {
+      'Presidenta': 'presidencia@animacionesmia.com',
+      'Vice-Presidenta': 'vicepresidencia@animacionesmia.com',
+      'Secretaria': 'secretaria@animacionesmia.com',
+      'Tesorera': 'tesoreria@animacionesmia.com',
+      'Vocal Formacion': 'formacion@animacionesmia.com',
+      'Vocal Comunicacion': 'comunicacion@animacionesmia.com',
+      'Vocal Informes MIA': 'informemia@animacionesmia.com',
+      'Vocal Financiacion': 'financiacion@animacionesmia.com',
+      'Vocal Socias': 'socias@animacionesmia.com',
+      'Vocal Festivales': 'festivales@animacionesmia.com',
+      'Vocal': 'hola@animacionesmia.com'
+    };
+    return emailMap[position] || '';
+  };
   
   const getPositionStyle = (position: string) => {
+    // Use red theme for all positions to match the card styling
     const positionStyles: Record<string, string> = {
       'Presidenta': 'from-red-600 to-red-700',
-      'Vice-Presidenta': 'from-orange-600 to-orange-700',
-      'Secretaria': 'from-blue-600 to-blue-700',
-      'Tesorera': 'from-green-600 to-green-700',
-      'Vocal Formacion': 'from-purple-600 to-purple-700',
-      'Vocal Comunicacion': 'from-pink-600 to-pink-700',
-      'Vocal Mianima': 'from-indigo-600 to-indigo-700',
-      'Vocal Financiacion': 'from-yellow-600 to-yellow-700',
-      'Vocal Socias': 'from-teal-600 to-teal-700',
-      'Vocal Festivales': 'from-cyan-600 to-cyan-700',
-      'Vocal': 'from-gray-600 to-gray-700',
+      'Vice-Presidenta': 'from-red-500 to-red-600',
+      'Secretaria': 'from-red-700 to-red-800',
+      'Tesorera': 'from-red-600 to-red-700',
+      'Vocal Formacion': 'from-red-500 to-red-600',
+      'Vocal Comunicacion': 'from-red-600 to-red-700',
+      'Vocal Mianima': 'from-red-500 to-red-600',
+      'Vocal Financiacion': 'from-red-600 to-red-700',
+      'Vocal Socias': 'from-red-500 to-red-600',
+      'Vocal Festivales': 'from-red-600 to-red-700',
+      'Vocal': 'from-red-500 to-red-600',
     };
-    return positionStyles[position] || 'from-primary-500 to-primary-700';
+    return positionStyles[position] || 'from-red-500 to-red-600';
   };
   
   return (
@@ -430,14 +446,16 @@ function DirectivaModal({ member, onClose }: DirectivaModalProps) {
                 <h3 className="text-2xl font-bold text-white mb-1">
                   {member.firstName} {member.lastName}
                 </h3>
-                <p className="text-lg text-white/90 mb-2">{member.position}</p>
-                {isPresident && (
-                  <div className="flex items-center">
-                    <svg className="h-5 w-5 text-red-200 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                    <span className="text-sm text-red-200">Presidencia</span>
-                  </div>
+                <p className="text-lg text-white/90 mb-1">{member.position}</p>
+                {getPositionEmail(member.position) && (
+                  <p className="text-sm text-white/80 mb-2">
+                    <a 
+                      href={`mailto:${getPositionEmail(member.position)}`}
+                      className="hover:text-white transition-colors"
+                    >
+                      {getPositionEmail(member.position)}
+                    </a>
+                  </p>
                 )}
               </div>
             </div>
