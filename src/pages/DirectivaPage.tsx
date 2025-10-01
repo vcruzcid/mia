@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useGalleryStore } from '../store/galleryStore';
-import type { DirectivaMember, BoardPosition } from '../types';
+import type { DirectivaMember } from '../types';
 import type { BoardMemberWithHistory } from '../types/supabase';
 import { ProfileImage } from '../components/ProfileImage';
 import { SocialMediaIcons } from '../components/SocialMediaIcons';
@@ -68,7 +68,7 @@ function transformBoardMemberToDirectivaMember(member: BoardMemberWithHistory): 
     specializations: member.other_professions || [],
     previousPositions: member.position_history?.map(history => ({
       position: history.position,
-      year: new Date(history.term_start).getFullYear().toString()
+      year: new Date(history.term_start).getFullYear()
     })) || [],
     board_term_start: member.board_term_start,
     board_term_end: member.board_term_end,
@@ -114,8 +114,8 @@ export function DirectivaPage() {
   // Ensure selected period is set to current period when data loads
   useEffect(() => {
     const availablePeriods = getAvailablePeriods();
-    if (availablePeriods.length > 0 && availablePeriods[0] === '2025-2026') {
-      setSelectedPeriod('2025-2026');
+    if (availablePeriods.length > 0 && availablePeriods[0] === '2025-2027') {
+      setSelectedPeriod('2025-2027');
     }
   }, [getAvailablePeriods, setSelectedPeriod]);
 
@@ -166,12 +166,12 @@ export function DirectivaPage() {
                   key={period}
                   value={period}
                   className={`text-xs sm:text-sm font-medium transition-all duration-200 ${
-                    period === '2025-2026' ? 'bg-red-600 text-white' : 'text-gray-300 hover:text-white'
+                    period === '2025-2027' ? 'bg-red-600 text-white' : 'text-gray-300 hover:text-white'
                   }`}
                 >
                   <span className="hidden sm:inline">
                     {period}
-                    {period === '2025-2026' && <span className="ml-1 text-xs opacity-75">(Actual)</span>}
+                    {period === '2025-2027' && <span className="ml-1 text-xs opacity-75">(Actual)</span>}
                   </span>
                   <span className="sm:hidden">{period.split('-')[0]}</span>
                 </TabsTrigger>
@@ -194,10 +194,10 @@ export function DirectivaPage() {
                     </svg>
                   </div>
                   <h3 className="text-lg font-medium text-white mb-2">
-                    {period === '2025-2026' ? 'No hay información disponible' : 'Información histórica no disponible'}
+                    {period === '2025-2027' ? 'No hay información disponible' : 'Información histórica no disponible'}
                   </h3>
                   <p className="text-gray-300">
-                    {period === '2025-2026' 
+                    {period === '2025-2027' 
                       ? 'No se encontraron miembros de la directiva para el período actual.'
                       : 'Los datos de períodos anteriores no están disponibles en la base de datos.'
                     }
@@ -210,7 +210,7 @@ export function DirectivaPage() {
                     <h2 className="text-2xl font-bold text-white mb-2">
                       Período {period}
                     </h2>
-                    {period === '2025-2026' && (
+                    {period === '2025-2027' && (
                       <Badge variant="default" className="bg-green-600 text-white">
                         Período Actual
                       </Badge>
@@ -225,7 +225,7 @@ export function DirectivaPage() {
                         member={member}
                         index={index}
                         onClick={() => openMemberModal(member as any)}
-                        isCurrentPeriod={period === '2025-2026'}
+                        isCurrentPeriod={period === '2025-2027'}
                       />
                     ))}
                   </div>
@@ -381,7 +381,7 @@ function DirectivaModal({ member, onClose }: DirectivaModalProps) {
                   {member.firstName} {member.lastName}
                 </h3>
                 <p className="text-lg text-white/90 mb-1">{member.position}</p>
-                {member.board_term_start?.startsWith('2025') && getPositionEmail(member.position) && (
+                {member.board_term_start?.startsWith('2025') && member.board_term_end?.includes('2027') && getPositionEmail(member.position) && (
                   <p className="text-sm text-white/80 mb-2">
                     <a 
                       href={`mailto:${getPositionEmail(member.position)}`}
