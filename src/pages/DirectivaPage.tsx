@@ -282,11 +282,11 @@ function DirectivaCard({ member, index, onClick, isCurrentPeriod = false }: Dire
       'Tesorera': 'tesoreria@animacionesmia.com',
       'Vocal Formacion': 'formacion@animacionesmia.com',
       'Vocal Comunicacion': 'comunicacion@animacionesmia.com',
-      'Vocal Mianima': 'mianima@animacionesmia.com',
+      'Vocal Informes MIA': 'informemia@animacionesmia.com',
       'Vocal Financiacion': 'financiacion@animacionesmia.com',
       'Vocal Socias': 'socias@animacionesmia.com',
       'Vocal Festivales': 'festivales@animacionesmia.com',
-      'Vocal': 'informemia@animacionesmia.com'
+      'Vocal': 'hola@animacionesmia.com'
     };
     return emailMap[position] || '';
   };
