@@ -589,6 +589,14 @@ function MemberModal({ member, onClose }: MemberModalProps) {
                     <span>{member.availabilityStatus}</span>
                   </span>
                 </Badge>
+                {member.accepts_job_offers && (
+                  <Badge variant="outline" className="border-green-500 text-green-400">
+                    <span className="flex items-center space-x-1">
+                      <span>💼</span>
+                      <span>Acepta ofertas laborales</span>
+                    </span>
+                  </Badge>
+                )}
               </div>
             </div>
           </div>
