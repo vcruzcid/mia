@@ -66,4 +66,4 @@ db-backups/
 .playwright-mcp/*
 
 #serena
-.serena/.serena/
+.serena/
