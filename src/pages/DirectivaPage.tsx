@@ -286,7 +286,7 @@ function DirectivaCard({ member, index, onClick, isCurrentPeriod = false }: Dire
       'Vocal Financiacion': 'financiacion@animacionesmia.com',
       'Vocal Socias': 'socias@animacionesmia.com',
       'Vocal Festivales': 'festivales@animacionesmia.com',
-      'Vocal': 'informemia@animacionesmia.com'
+      'Vocal': 'hola@animacionesmia.com'
     };
     return emailMap[position] || '';
   };
