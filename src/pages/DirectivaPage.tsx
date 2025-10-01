@@ -5,12 +5,45 @@ import type { BoardMemberWithHistory } from '../types/supabase';
 import { ProfileImage } from '../components/ProfileImage';
 import { SocialMediaIcons } from '../components/SocialMediaIcons';
 import { Badge } from '../components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Accordion } from '@/components/ui/accordion';
+
+// Shared utility functions
+const getPositionEmail = (position: string): string => {
+  const emailMap: { [key: string]: string } = {
+    'Presidenta': 'presidencia@animacionesmia.com',
+    'Vice-Presidenta': 'vicepresidencia@animacionesmia.com',
+    'Secretaria': 'secretaria@animacionesmia.com',
+    'Tesorera': 'tesoreria@animacionesmia.com',
+    'Vocal Formacion': 'formacion@animacionesmia.com',
+    'Vocal Comunicacion': 'comunicacion@animacionesmia.com',
+    'Vocal Informes MIA': 'informemia@animacionesmia.com',
+    'Vocal Financiacion': 'financiacion@animacionesmia.com',
+    'Vocal Socias': 'socias@animacionesmia.com',
+    'Vocal Festivales': 'festivales@animacionesmia.com',
+    'Vocal': 'hola@animacionesmia.com'
+  };
+  return emailMap[position] || '';
+};
+
+const getPositionStyle = (position: string): string => {
+  const positionStyles: Record<string, string> = {
+    'Presidenta': 'from-red-600 to-red-700',
+    'Vice-Presidenta': 'from-red-500 to-red-600',
+    'Secretaria': 'from-red-700 to-red-800',
+    'Tesorera': 'from-red-600 to-red-700',
+    'Vocal Formacion': 'from-red-500 to-red-600',
+    'Vocal Comunicacion': 'from-red-600 to-red-700',
+    'Vocal Mianima': 'from-red-500 to-red-600',
+    'Vocal Financiacion': 'from-red-600 to-red-700',
+    'Vocal Socias': 'from-red-500 to-red-600',
+    'Vocal Festivales': 'from-red-600 to-red-700',
+    'Vocal': 'from-red-500 to-red-600',
+  };
+  return positionStyles[position] || 'from-red-500 to-red-600';
+};
 
 // Helper function to transform database data to UI format
 function transformBoardMemberToDirectivaMember(member: BoardMemberWithHistory): DirectivaMember {
@@ -29,7 +62,6 @@ function transformBoardMemberToDirectivaMember(member: BoardMemberWithHistory): 
       country: member.country || 'España'
     },
     bio: member.biography || '',
-    biography: member.biography || '',
     yearServed: getYearsServed(member.board_term_start, member.board_term_end),
     joinDate: member.created_at || new Date().toISOString(),
     socialMedia: member.social_media || {},
@@ -90,22 +122,8 @@ export function DirectivaPage() {
   const allPeriods = getAvailablePeriods();
   // Only show current and recent periods to avoid clutter
   const availablePeriods = allPeriods.slice(0, 5);
-  const currentBoardMembers = getCurrentBoardMembers().map(transformBoardMemberToDirectivaMember);
-  const selectedPeriodMembers = getBoardMembersForPeriod(selectedPeriod).map(transformBoardMemberToDirectivaMember);
-  const isCurrentPeriod = selectedPeriod === '2025-2026';
-  
   // Check if we have any board members data at all
   const hasBoardData = getCurrentBoardMembers().length > 0;
-
-  // Debug logging
-  console.log('DirectivaPage Debug:', {
-    loading,
-    hasBoardData,
-    availablePeriods: availablePeriods.length,
-    currentBoardMembers: getCurrentBoardMembers().length,
-    selectedPeriod,
-    selectedPeriodMembers: getBoardMembersForPeriod(selectedPeriod).length
-  });
 
   const handlePeriodChange = (period: string) => {
     setSelectedPeriod(period);
@@ -148,7 +166,7 @@ export function DirectivaPage() {
                   key={period}
                   value={period}
                   className={`text-xs sm:text-sm font-medium transition-all duration-200 ${
-                    period === '2025-2026' ? 'bg-primary-600 text-white' : 'text-gray-300 hover:text-white'
+                    period === '2025-2026' ? 'bg-red-600 text-white' : 'text-gray-300 hover:text-white'
                   }`}
                 >
                   <span className="hidden sm:inline">
@@ -209,7 +227,6 @@ export function DirectivaPage() {
                     ))}
                   </div>
 
-                  {/* Contact Board Section */}
                 </div>
               )}
             </TabsContent>
@@ -238,63 +255,11 @@ interface DirectivaCardProps {
 }
 
 function DirectivaCard({ member, index, onClick, isCurrentPeriod = false }: DirectivaCardProps) {
-  const getPositionStyle = (position: string) => {
-    // Use red theme for all positions
-    const positionStyles: Record<string, string> = {
-      'Presidenta': 'from-red-600 to-red-700 text-white',
-      'Vice-Presidenta': 'from-red-500 to-red-600 text-white',
-      'Secretaria': 'from-red-700 to-red-800 text-white',
-      'Tesorera': 'from-red-600 to-red-700 text-white',
-      'Vocal Formacion': 'from-red-500 to-red-600 text-white',
-      'Vocal Comunicacion': 'from-red-600 to-red-700 text-white',
-      'Vocal Mianima': 'from-red-500 to-red-600 text-white',
-      'Vocal Financiacion': 'from-red-600 to-red-700 text-white',
-      'Vocal Socias': 'from-red-500 to-red-600 text-white',
-      'Vocal Festivales': 'from-red-600 to-red-700 text-white',
-      'Vocal': 'from-red-500 to-red-600 text-white',
-    };
-    return positionStyles[position] || 'from-red-500 to-red-600 text-white';
-  };
-
-  const getCardStyle = (position: string) => {
-    // Use red theme for all card borders
-    const cardStyles: Record<string, string> = {
-      'Presidenta': 'ring-2 ring-red-200 shadow-lg',
-      'Vice-Presidenta': 'ring-2 ring-red-200 shadow-lg',
-      'Secretaria': 'ring-2 ring-red-200 shadow-lg',
-      'Tesorera': 'ring-2 ring-red-200 shadow-lg',
-      'Vocal Formacion': 'ring-2 ring-red-200 shadow-lg',
-      'Vocal Comunicacion': 'ring-2 ring-red-200 shadow-lg',
-      'Vocal Mianima': 'ring-2 ring-red-200 shadow-lg',
-      'Vocal Financiacion': 'ring-2 ring-red-200 shadow-lg',
-      'Vocal Socias': 'ring-2 ring-red-200 shadow-lg',
-      'Vocal Festivales': 'ring-2 ring-red-200 shadow-lg',
-      'Vocal': 'ring-2 ring-red-200 shadow-lg',
-    };
-    return cardStyles[position] || 'ring-2 ring-red-200 shadow-lg';
-  };
-
-  const getPositionEmail = (position: string) => {
-    const emailMap: { [key: string]: string } = {
-      'Presidenta': 'presidencia@animacionesmia.com',
-      'Vice-Presidenta': 'vicepresidencia@animacionesmia.com',
-      'Secretaria': 'secretaria@animacionesmia.com',
-      'Tesorera': 'tesoreria@animacionesmia.com',
-      'Vocal Formacion': 'formacion@animacionesmia.com',
-      'Vocal Comunicacion': 'comunicacion@animacionesmia.com',
-      'Vocal Informes MIA': 'informemia@animacionesmia.com',
-      'Vocal Financiacion': 'financiacion@animacionesmia.com',
-      'Vocal Socias': 'socias@animacionesmia.com',
-      'Vocal Festivales': 'festivales@animacionesmia.com',
-      'Vocal': 'hola@animacionesmia.com'
-    };
-    return emailMap[position] || '';
-  };
 
   return (
     <Card 
       onClick={onClick}
-      className={`bg-white overflow-hidden transition-all duration-300 cursor-pointer transform hover:scale-105 ${getCardStyle(member.position)}`}
+      className="bg-white overflow-hidden transition-all duration-300 cursor-pointer transform hover:scale-105 ring-2 ring-red-200 shadow-lg"
       style={{
         animationDelay: `${index * 100}ms`,
         animation: 'fadeInUp 0.6s ease-out forwards'
@@ -302,7 +267,7 @@ function DirectivaCard({ member, index, onClick, isCurrentPeriod = false }: Dire
     >
       <div className="relative">
         {/* Header with gradient background */}
-        <div className={`bg-gradient-to-r ${getPositionStyle(member.position)} h-16`}>
+        <div className={`bg-gradient-to-r ${getPositionStyle(member.position)} text-white h-16`}>
         </div>
         
         {/* Profile Image */}
@@ -330,7 +295,7 @@ function DirectivaCard({ member, index, onClick, isCurrentPeriod = false }: Dire
           <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">
             {member.firstName} {member.lastName}
           </h3>
-          <div className={`inline-block px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold bg-gradient-to-r ${getPositionStyle(member.position)}`}>
+          <div className={`inline-block px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold bg-gradient-to-r ${getPositionStyle(member.position)} text-white`}>
             {member.position}
           </div>
           {member.company && (
@@ -396,40 +361,6 @@ interface DirectivaModalProps {
 }
 
 function DirectivaModal({ member, onClose }: DirectivaModalProps) {
-  const getPositionEmail = (position: string) => {
-    const emailMap: { [key: string]: string } = {
-      'Presidenta': 'presidencia@animacionesmia.com',
-      'Vice-Presidenta': 'vicepresidencia@animacionesmia.com',
-      'Secretaria': 'secretaria@animacionesmia.com',
-      'Tesorera': 'tesoreria@animacionesmia.com',
-      'Vocal Formacion': 'formacion@animacionesmia.com',
-      'Vocal Comunicacion': 'comunicacion@animacionesmia.com',
-      'Vocal Informes MIA': 'informemia@animacionesmia.com',
-      'Vocal Financiacion': 'financiacion@animacionesmia.com',
-      'Vocal Socias': 'socias@animacionesmia.com',
-      'Vocal Festivales': 'festivales@animacionesmia.com',
-      'Vocal': 'hola@animacionesmia.com'
-    };
-    return emailMap[position] || '';
-  };
-  
-  const getPositionStyle = (position: string) => {
-    // Use red theme for all positions to match the card styling
-    const positionStyles: Record<string, string> = {
-      'Presidenta': 'from-red-600 to-red-700',
-      'Vice-Presidenta': 'from-red-500 to-red-600',
-      'Secretaria': 'from-red-700 to-red-800',
-      'Tesorera': 'from-red-600 to-red-700',
-      'Vocal Formacion': 'from-red-500 to-red-600',
-      'Vocal Comunicacion': 'from-red-600 to-red-700',
-      'Vocal Mianima': 'from-red-500 to-red-600',
-      'Vocal Financiacion': 'from-red-600 to-red-700',
-      'Vocal Socias': 'from-red-500 to-red-600',
-      'Vocal Festivales': 'from-red-600 to-red-700',
-      'Vocal': 'from-red-500 to-red-600',
-    };
-    return positionStyles[position] || 'from-red-500 to-red-600';
-  };
   
   return (
     <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto mx-4 sm:mx-0">
@@ -476,7 +407,7 @@ function DirectivaModal({ member, onClose }: DirectivaModalProps) {
                 <div className="space-y-2">
                   {member.responsibilities.map((responsibility, idx) => (
                     <div key={idx} className="flex items-start">
-                      <svg className="h-4 w-4 text-primary-500 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="h-4 w-4 text-red-500 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                       <span className="text-sm text-gray-700">{responsibility}</span>
@@ -547,7 +478,7 @@ function DirectivaModal({ member, onClose }: DirectivaModalProps) {
                 {member.specializations.map((spec, idx) => (
                   <span
                     key={idx}
-                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-100 text-primary-700"
+                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-700"
                   >
                     {spec}
                   </span>
