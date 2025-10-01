@@ -61,3 +61,6 @@ mia-wordpress/
 
 # Database backups (should be in separate backup system)
 db-backups/
+
+# Playwright test files
+.playwright-mcp/*
