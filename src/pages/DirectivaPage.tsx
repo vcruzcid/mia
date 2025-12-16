@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
-import { useGalleryStore } from '../store/galleryStore';
+import { useEffect, useState, useMemo } from 'react';
+import { useBoardMembers, getBoardMembersByPeriod, getAvailablePeriods, getCurrentBoardMembers, getBoardMembersForPeriod } from '../hooks/useBoardMembers';
 import type { DirectivaMember } from '../types';
-import type { BoardMemberWithHistory } from '../types/supabase';
+import type { BoardMemberWithHistory, CurrentBoardMember } from '../types/supabase';
 import { ProfileImage } from '../components/ProfileImage';
 import { SocialMediaIcons } from '../components/SocialMediaIcons';
 import { Badge } from '../components/ui/badge';
@@ -46,7 +46,7 @@ const getPositionStyle = (position: string): string => {
 };
 
 // Helper function to transform database data to UI format
-function transformBoardMemberToDirectivaMember(member: BoardMemberWithHistory): DirectivaMember {
+function transformBoardMemberToDirectivaMember(member: CurrentBoardMember | BoardMemberWithHistory): DirectivaMember {
   return {
     id: member.id,
     firstName: member.first_name || '',
@@ -98,51 +98,48 @@ function getYearsServed(startDate?: string, endDate?: string): number[] {
 }
 
 export function DirectivaPage() {
-  const {
-    loading,
-    selectedPeriod,
-    selectedMember,
-    isModalOpen,
-    boardMembers,
-    boardPositionHistory,
-    getCurrentBoardMembers,
-    getBoardMembersForPeriod,
-    getAvailablePeriods,
-    setSelectedPeriod,
-    openMemberModal,
-    closeMemberModal,
-    fetchBoardData,
-  } = useGalleryStore();
+  const { data: boardMembers = [], isLoading } = useBoardMembers();
+  const [selectedPeriod, setSelectedPeriod] = useState<string>('');
+  const [selectedMember, setSelectedMember] = useState<DirectivaMember | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
-    fetchBoardData();
-  }, [fetchBoardData]);
-
+  // Derived data using helper functions
+  const allPeriods = useMemo(() => getAvailablePeriods(boardMembers), [boardMembers]);
+  const availablePeriods = useMemo(() => allPeriods.slice(0, 5), [allPeriods]);
+  const currentBoardMembers = useMemo(() => getCurrentBoardMembers(boardMembers), [boardMembers]);
+  
   // Ensure selected period is set to current period when data loads (only once)
   useEffect(() => {
-    const availablePeriods = getAvailablePeriods();
     if (availablePeriods.length > 0 && !selectedPeriod) {
-      // Set initial period only if no period is selected
       const currentPeriod = availablePeriods.find(period => period === '2025-2027') || availablePeriods[0];
       setSelectedPeriod(currentPeriod);
     }
-  }, [getAvailablePeriods, setSelectedPeriod, selectedPeriod]);
-
-  const allPeriods = getAvailablePeriods();
-  // Only show current and recent periods to avoid clutter
-  const availablePeriods = allPeriods.slice(0, 5);
+  }, [availablePeriods, selectedPeriod]);
   
   // Ensure we always have a selected period
   const currentSelectedPeriod = selectedPeriod || availablePeriods[0] || '2025-2027';
-  // Check if we have any board members data at all
-  const hasBoardData = getCurrentBoardMembers().length > 0;
+  const hasBoardData = currentBoardMembers.length > 0;
 
   const handlePeriodChange = (period: string) => {
     setSelectedPeriod(period);
   };
 
+  const openMemberModal = (member: DirectivaMember) => {
+    setSelectedMember(member);
+    setIsModalOpen(true);
+  };
+
+  const closeMemberModal = () => {
+    setIsModalOpen(false);
+    setSelectedMember(null);
+  };
+
+  const getBoardMembersForPeriodHelper = (period: string) => {
+    return getBoardMembersForPeriod(boardMembers, period);
+  };
+
   // Show loading state if we're loading OR if we have no data yet
-  if (loading || (!hasBoardData && availablePeriods.length === 0)) {
+  if (isLoading || (!hasBoardData && availablePeriods.length === 0)) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
         <div className="text-center">
@@ -202,7 +199,7 @@ export function DirectivaPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
         {availablePeriods.map((period) => (
           <div key={period} className={period === currentSelectedPeriod ? 'mt-8' : 'hidden'}>
-              {getBoardMembersForPeriod(period).length === 0 ? (
+              {getBoardMembersForPeriodHelper(period).length === 0 ? (
                 <div className="text-center py-12">
                   <div className="mx-auto h-24 w-24 bg-gray-700 rounded-full flex items-center justify-center mb-4">
                     <svg className="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -235,7 +232,7 @@ export function DirectivaPage() {
 
                   {/* Board Members Grid */}
                   <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                    {getBoardMembersForPeriod(period).map(transformBoardMemberToDirectivaMember).map((member, index) => {
+                    {getBoardMembersForPeriodHelper(period).map(transformBoardMemberToDirectivaMember).map((member, index) => {
                       const uniqueKey = `${member.id}-${member.position}-${member.board_term_start || period}-${index}`;
                       return (
                       <DirectivaCard
