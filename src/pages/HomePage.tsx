@@ -45,6 +45,14 @@ export function HomePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statsAnimation.isIntersecting, memberCounter.startAnimation, growthCounter.startAnimation, eventCounter.startAnimation]);
 
+  // Restart member counter when data loads (if section is already visible)
+  useEffect(() => {
+    if (activeMemberCount > 0 && statsAnimation.isIntersecting) {
+      memberCounter.startAnimation();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeMemberCount, statsAnimation.isIntersecting]);
+
 
   return (
     <div style={{ backgroundColor: 'var(--color-bg-secondary)' }}>

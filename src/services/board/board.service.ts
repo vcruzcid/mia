@@ -5,10 +5,8 @@ import type { CurrentBoardMember } from '../../types/supabase';
 export async function getBoardMembers(): Promise<CurrentBoardMember[]> {
   try {
     const { data, error } = await supabase
-      .from('members')
+      .from('board_members')
       .select('*')
-      .eq('is_board_member', true)
-      .not('email', 'like', '%admin%')
       .order('board_term_start', { ascending: false });
 
     if (error) throw error;
