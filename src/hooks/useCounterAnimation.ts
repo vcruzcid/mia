@@ -39,21 +39,46 @@ export function useCounterAnimation(
   const [current, setCurrent] = useState(start);
   const [isAnimating, setIsAnimating] = useState(false);
   const hasAnimatedRef = useRef(false);
+  const targetRef = useRef(target);
+  const previousTargetRef = useRef(target);
+
+  // Update target ref when target changes
+  useEffect(() => {
+    const prevTarget = previousTargetRef.current;
+    targetRef.current = target;
+    
+    // If target changed from 0 to a real value, allow re-animation
+    if (prevTarget === 0 && target > 0 && hasAnimatedRef.current) {
+      // Reset to allow animation with new target
+      hasAnimatedRef.current = false;
+      setCurrent(start);
+    } else if (prevTarget === 0 && target > 0 && !hasAnimatedRef.current) {
+      // Just update current if we haven't animated yet
+      setCurrent(start);
+    }
+    previousTargetRef.current = target;
+  }, [target, start]);
 
   const startAnimation = useCallback(() => {
-    if (isAnimating || hasAnimatedRef.current) return;
+    // Use current target value from ref
+    const currentTarget = targetRef.current;
+    
+    // Don't animate if target is 0 or we're already animating with same target
+    if (isAnimating || (hasAnimatedRef.current && currentTarget === previousTargetRef.current && currentTarget > 0)) {
+      return;
+    }
     
     hasAnimatedRef.current = true;
     setIsAnimating(true);
 
     // If user prefers reduced motion, skip animation
     if (prefersReducedMotion) {
-      setCurrent(target);
+      setCurrent(currentTarget);
       setIsAnimating(false);
       return;
     }
     const startTime = Date.now() + delay;
-    const difference = target - start;
+    const difference = currentTarget - start;
 
     const animate = () => {
       const now = Date.now();
@@ -70,7 +95,7 @@ export function useCounterAnimation(
         requestAnimationFrame(animate);
       } else {
         setIsAnimating(false);
-        setCurrent(target);
+        setCurrent(currentTarget);
       }
     };
 
@@ -81,7 +106,7 @@ export function useCounterAnimation(
     } else {
       requestAnimationFrame(animate);
     }
-  }, [delay, duration, isAnimating, start, target, prefersReducedMotion]);
+  }, [delay, duration, isAnimating, start, prefersReducedMotion]);
 
   const reset = useCallback(() => {
     setCurrent(start);

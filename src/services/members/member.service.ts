@@ -17,10 +17,8 @@ export const getMemberDisplayName = (member: Partial<Member>): string => {
 export async function getPublicMembers(): Promise<PublicMember[]> {
   try {
     const { data, error } = await supabase
-      .from('members')
+      .from('public_members')
       .select('*')
-      .eq('stripe_subscription_status', 'active')
-      .eq('privacy_level', 'public')
       .order('created_at', { ascending: false });
 
     if (error) throw error;
@@ -35,9 +33,8 @@ export async function getPublicMembers(): Promise<PublicMember[]> {
 export async function getActiveMembers(): Promise<ActiveMember[]> {
   try {
     const { data, error } = await supabase
-      .from('members')
+      .from('active_members')
       .select('*')
-      .eq('stripe_subscription_status', 'active')
       .order('created_at', { ascending: false });
 
     if (error) throw error;
