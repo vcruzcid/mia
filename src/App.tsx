@@ -18,7 +18,6 @@ import { MianimaPage } from './pages/MianimaPage';
 import { SimpleRegistrationPage } from './pages/SimpleRegistrationPage';
 import { WelcomePage } from './pages/WelcomePage';
 import { LoginPage } from './pages/LoginPage';
-import { PortalPage } from './pages/PortalPage';
 import { EnhancedPortalPage } from './pages/EnhancedPortalPage';
 import { PoliticaCookiesPage } from './pages/PoliticaCookiesPage';
 import { TerminosUsoPage } from './pages/TerminosUsoPage';
@@ -66,16 +65,6 @@ function App() {
                       element={
                         <ProtectedRoute>
                           <EnhancedPortalPage />
-                        </ProtectedRoute>
-                      } 
-                    />
-                    
-                    {/* Legacy portal route */}
-                    <Route 
-                      path="/portal-old" 
-                      element={
-                        <ProtectedRoute>
-                          <PortalPage />
                         </ProtectedRoute>
                       } 
                     />

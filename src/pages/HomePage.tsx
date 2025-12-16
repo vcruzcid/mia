@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { BackgroundImage } from '@/components/ui/background-image';
 import { VimeoVideo } from '@/components/VimeoVideo';
-import { useGalleryStore } from '../store/galleryStore';
+import { usePublicMembers, getMemberCounts } from '../hooks/useMembers';
 
 export function HomePage() {
   const heroAnimation = useScrollAnimation({ threshold: 0.2 });
@@ -15,8 +15,8 @@ export function HomePage() {
   const featuresAnimation = useScrollAnimation({ threshold: 0.2 });
 
   // Get member count from database
-  const { getMemberCounts, fetchMembers } = useGalleryStore();
-  const memberCounts = getMemberCounts();
+  const { data: members = [] } = usePublicMembers();
+  const memberCounts = getMemberCounts(members);
   const activeMemberCount = memberCounts.active;
 
   const memberCounter = useCounterAnimation(activeMemberCount, {
@@ -35,11 +35,6 @@ export function HomePage() {
     delay: 600,
     formatter: (value) => `${Math.floor(value)}+`,
   });
-
-  // Fetch members on component mount
-  useEffect(() => {
-    fetchMembers();
-  }, [fetchMembers]);
 
   useEffect(() => {
     if (statsAnimation.isIntersecting) {

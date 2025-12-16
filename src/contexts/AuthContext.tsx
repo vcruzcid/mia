@@ -1,8 +1,18 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import type { User, Session } from '@supabase/supabase-js';
-import { authService, memberService, isActiveMember, getMemberDisplayName } from '../services/supabaseService';
-import supabase from '../services/supabaseService';
-import type { Member, MembershipStatus } from '../types/supabase';
+import { supabase } from '../services';
+import * as authService from '../services/auth/auth.service';
+import * as memberService from '../services/members/member.service';
+import { verifyAndUpdateMemberSubscription } from '../services/stripe/stripe.sync';
+import { isActiveMember, getMemberDisplayName } from '../services/members/member.service';
+import type { Member } from '../types/supabase';
+
+export interface MembershipStatus {
+  isActive: boolean;
+  subscriptionStatus?: string;
+  subscriptionEnd?: string;
+  membershipType: string;
+}
 
 interface AuthContextType {
   user: User | null;
@@ -79,28 +89,47 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Load member profile and calculate membership status
+  // Load member profile with Stripe verification
   const loadMemberProfile = async (email: string) => {
     try {
-      // Loading member profile
-      
-      // Get member data (this also syncs with Stripe)
+      // 1. Get member data from database
       const memberProfile = await memberService.getMemberByEmail(email);
       
       if (memberProfile) {
-        setMember(memberProfile);
-        
-        // Calculate membership status
-        const status: MembershipStatus = {
-          isActive: isActiveMember(memberProfile),
-          subscriptionStatus: memberProfile.stripe_subscription_status,
-          subscriptionEnd: memberProfile.subscription_current_period_end,
-          membershipType: memberProfile.membership_type
-        };
-        
-        setMembershipStatus(status);
-        
-        // Member profile loaded successfully
+        // 2. CRITICAL: Verify subscription status with Stripe API
+        if (memberProfile.stripe_customer_id) {
+          console.log('Verifying subscription status with Stripe for:', email);
+          await verifyAndUpdateMemberSubscription(memberProfile.stripe_customer_id);
+          
+          // Reload member data after verification to get updated status
+          const updatedMember = await memberService.getMemberByEmail(email);
+          if (updatedMember) {
+            setMember(updatedMember);
+            
+            // Calculate membership status with verified data
+            const status: MembershipStatus = {
+              isActive: isActiveMember(updatedMember),
+              subscriptionStatus: updatedMember.stripe_subscription_status,
+              subscriptionEnd: updatedMember.subscription_current_period_end,
+              membershipType: updatedMember.membership_type
+            };
+            
+            setMembershipStatus(status);
+            console.log('Member profile loaded with verified subscription:', status);
+          }
+        } else {
+          // No Stripe customer ID, use DB data as-is
+          setMember(memberProfile);
+          
+          const status: MembershipStatus = {
+            isActive: false, // No Stripe ID means no active subscription
+            subscriptionStatus: memberProfile.stripe_subscription_status,
+            subscriptionEnd: memberProfile.subscription_current_period_end,
+            membershipType: memberProfile.membership_type
+          };
+          
+          setMembershipStatus(status);
+        }
       } else {
         console.warn('No member profile found for email:', email);
         setMember(null);
@@ -244,22 +273,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Sync member status with Stripe
   const syncStripeStatus = async (): Promise<boolean> => {
-    if (!user?.email) {
-      console.warn('Cannot sync Stripe status: no authenticated user');
+    if (!user?.email || !member?.stripe_customer_id) {
+      console.warn('Cannot sync Stripe status: no authenticated user or Stripe customer ID');
       return false;
     }
     
     try {
-      // Syncing Stripe status
-      const success = await memberService.syncMemberStripeStatus(user.email);
+      // Verify and update subscription status with Stripe
+      const hadDiscrepancy = await verifyAndUpdateMemberSubscription(member.stripe_customer_id);
       
-      if (success) {
-        // Refresh member data after sync
-        await refreshMemberData();
-        // Stripe sync completed successfully
+      // Refresh member data after sync
+      await refreshMemberData();
+      
+      if (hadDiscrepancy) {
+        console.log('Stripe sync completed - discrepancy was fixed');
       }
       
-      return success;
+      return true;
     } catch (error) {
       console.error('Error syncing Stripe status:', error);
       return false;
