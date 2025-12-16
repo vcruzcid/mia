@@ -53,9 +53,20 @@ export function getAvailableLocations(members: Member[]): string[] {
 }
 
 export function getMemberCounts(members: Member[]) {
+  // NOTE:
+  // `usePublicMembers()` reads from the `public_members` view. Depending on how the
+  // view is defined, it may not expose `stripe_subscription_status` (or it may come
+  // through as `undefined`). In that case, all returned rows are *already active*,
+  // so we treat the active count as the total length to avoid showing 0 everywhere.
+  const hasAnySubscriptionStatus = members.some(
+    (m) => typeof m.stripe_subscription_status === 'string' && m.stripe_subscription_status.length > 0
+  );
+
   const counts = {
     total: members.length,
-    active: members.filter(m => m.stripe_subscription_status === 'active').length,
+    active: hasAnySubscriptionStatus
+      ? members.filter((m) => m.stripe_subscription_status === 'active').length
+      : members.length,
     byType: {} as Record<string, number>,
     byAvailability: {} as Record<string, number>,
   };
