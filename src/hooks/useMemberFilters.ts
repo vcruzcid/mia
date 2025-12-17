@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
 
 export interface MemberFilters {
+  membershipTypes: string[];
   specializations: string[];
   locations: string[];
   availabilityStatus: string[];
@@ -8,6 +9,7 @@ export interface MemberFilters {
 }
 
 const initialFilters: MemberFilters = {
+  membershipTypes: [],
   specializations: [],
   locations: [],
   availabilityStatus: [],
@@ -21,6 +23,15 @@ const initialFilters: MemberFilters = {
 export function useMemberFilters() {
   const [filters, setFilters] = useState<MemberFilters>(initialFilters);
   const [searchTerm, setSearchTerm] = useState('');
+
+  const toggleMembershipType = useCallback((type: string) => {
+    setFilters(prev => ({
+      ...prev,
+      membershipTypes: prev.membershipTypes.includes(type)
+        ? prev.membershipTypes.filter(t => t !== type)
+        : [...prev.membershipTypes, type]
+    }));
+  }, []);
 
   const toggleSpecialization = useCallback((spec: string) => {
     setFilters(prev => ({
@@ -60,6 +71,7 @@ export function useMemberFilters() {
 
   const getActiveFiltersCount = useCallback(() => {
     return (
+      filters.membershipTypes.length +
       filters.specializations.length +
       filters.locations.length +
       filters.availabilityStatus.length +
@@ -76,6 +88,7 @@ export function useMemberFilters() {
     searchTerm,
     setSearchTerm,
     setFilters: updateFilters,
+    toggleMembershipType,
     toggleSpecialization,
     toggleLocation,
     toggleAvailabilityStatus,

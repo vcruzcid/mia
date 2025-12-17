@@ -14,6 +14,7 @@ import { MembershipPage } from './pages/MembershipPage';
 import { ContactPage } from './pages/ContactPage';
 import { SociasPage } from './pages/SociasPage';
 import { DirectivaPage } from './pages/DirectivaPage';
+import { FundadorasPage } from './pages/FundadorasPage';
 import { MianimaPage } from './pages/MianimaPage';
 import { SimpleRegistrationPage } from './pages/SimpleRegistrationPage';
 import { WelcomePage } from './pages/WelcomePage';
@@ -41,6 +42,7 @@ function App() {
                       <Route path="contacto" element={<ContactPage />} />
                       <Route path="socias" element={<SociasPage />} />
                       <Route path="directiva" element={<DirectivaPage />} />
+                      <Route path="fundadoras" element={<FundadorasPage />} />
                       <Route path="mianima" element={<MianimaPage />} />
                       <Route path="registro" element={<SimpleRegistrationPage />} />
                       <Route path="registro/bienvenida" element={<WelcomePage />} />

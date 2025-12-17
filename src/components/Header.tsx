@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useAuth } from '../hooks/useAuth';
 
 export function Header() {
@@ -16,12 +17,16 @@ export function Header() {
 
   const navigation = [
     { name: 'Inicio', href: '/' },
-    { name: 'Sobre Nosotras', href: '/sobre-mia' },
-    { name: 'Socias', href: '/socias' },
-    { name: 'Directiva', href: '/directiva' },
     { name: 'MIANIMA', href: '/mianima' },
     { name: 'Membresía', href: '/membresia' },
     { name: 'Contacto', href: '/contacto' },
+  ];
+
+  const aboutMenu = [
+    { name: 'Sobre MIA', href: '/sobre-mia' },
+    { name: 'Socias', href: '/socias' },
+    { name: 'Directiva', href: '/directiva' },
+    { name: 'Fundadoras', href: '/fundadoras' },
   ];
 
   const isActive = (href: string) => location.pathname === href;
@@ -77,6 +82,34 @@ export function Header() {
           <div className="hidden md:block">
             <div className="ml-10 flex items-center space-x-4">
               <div className="flex items-baseline space-x-4">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      className={
+                        aboutMenu.some((i) => isActive(i.href))
+                          ? 'text-white bg-gray-800 px-3 py-2 rounded-md text-sm font-medium border border-white transition-colors duration-200'
+                          : 'text-white hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200'
+                      }
+                      type="button"
+                    >
+                      Sobre Nosotras
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="bg-gray-900 border-gray-800 text-white">
+                    {aboutMenu.map((item) => (
+                      <DropdownMenuItem key={item.href} asChild className="focus:bg-gray-800">
+                        <Link
+                          to={item.href}
+                          className="w-full"
+                          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                        >
+                          {item.name}
+                        </Link>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
                 {navigation.map((item) => (
                   <Link
                     key={item.name}
@@ -145,6 +178,30 @@ export function Header() {
         {isMenuOpen && (
           <div id="mobile-menu" ref={mobileMenuRef} className="md:hidden border-t border-gray-800">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-black">
+              {/* Sobre Nosotras dropdown (mobile simple list) */}
+              <div className="px-3 py-2">
+                <p className="text-xs font-semibold text-gray-400 mb-2">SOBRE NOSOTRAS</p>
+                <div className="space-y-1">
+                  {aboutMenu.map((item) => (
+                    <Link
+                      key={item.href}
+                      to={item.href}
+                      className={`block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 ${
+                        isActive(item.href)
+                          ? 'text-white bg-gray-800 border border-white'
+                          : 'text-white hover:bg-gray-900 hover:text-red-400'
+                      }`}
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                    >
+                      {item.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
               {navigation.map((item) => (
                 <Link
                   key={item.name}

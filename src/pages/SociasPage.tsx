@@ -1,15 +1,16 @@
-import { useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
 import { BackgroundImage } from '@/components/ui/background-image';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { usePublicMembers, applyClientFilters, getAvailableLocations, getMemberCounts } from '../hooks/useMembers';
+import { getAvailableLocations, getMemberCounts, useDirectoryMembers } from '../hooks/useMembers';
 import { useMemberFilters } from '../hooks/useMemberFilters';
 import { MemberCard } from './socias/MemberCard';
 import { MemberModal } from './socias/MemberModal';
 import { MemberFilters } from './socias/MemberFilters';
 import type { Member } from '../types/supabase';
+import { useAuth } from '../hooks/useAuth';
 
 export function SociasPage() {
   // State
@@ -20,12 +21,13 @@ export function SociasPage() {
   const [itemsPerPage, setItemsPerPage] = useState(20);
 
   // Hooks
-  const { data: members = [], isLoading } = usePublicMembers();
+  const { isAuthenticated } = useAuth();
   const {
     filters,
     searchTerm,
     setSearchTerm,
     setFilters,
+    toggleMembershipType,
     toggleSpecialization,
     toggleLocation,
     toggleAvailabilityStatus,
@@ -33,18 +35,26 @@ export function SociasPage() {
     getActiveFiltersCount,
   } = useMemberFilters();
 
-  // Apply filters
-  const filteredMembers = useMemo(
-    () => applyClientFilters(members, filters, searchTerm),
-    [members, filters, searchTerm]
-  );
+  const offset = (currentPage - 1) * itemsPerPage;
+  const directoryQuery = useDirectoryMembers({
+    includePrivate: isAuthenticated,
+    searchTerm,
+    membershipTypes: filters.membershipTypes,
+    specializations: filters.specializations,
+    locations: filters.locations,
+    availabilityStatus: filters.availabilityStatus,
+    limit: itemsPerPage,
+    offset
+  });
+
+  const members = directoryQuery.data?.members ?? [];
 
   // Pagination
-  const totalMembers = filteredMembers.length;
+  const totalMembers = directoryQuery.data?.total ?? 0;
   const totalPages = Math.ceil(totalMembers / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentMembers = filteredMembers.slice(startIndex, endIndex);
+  const startIndex = offset;
+  const endIndex = offset + itemsPerPage;
+  const currentMembers = members;
 
   // Derived data
   const availableLocations = useMemo(() => getAvailableLocations(members), [members]);
@@ -73,14 +83,30 @@ export function SociasPage() {
   };
 
   // Reset pagination when filters change
-  useMemo(() => {
+  useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, filters]);
 
-  if (isLoading) {
+  if (directoryQuery.isLoading) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
         <Spinner className="h-12 w-12 text-primary-500" />
+      </div>
+    );
+  }
+
+  if (directoryQuery.isError) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center px-6">
+        <div className="text-center max-w-lg">
+          <h2 className="text-xl font-semibold text-white mb-2">No se pudo cargar la galería</h2>
+          <p className="text-gray-300 mb-4">
+            Hubo un error consultando la base de datos. Intenta de nuevo.
+          </p>
+          <Button onClick={() => directoryQuery.refetch()} className="bg-primary-600 hover:bg-primary-700 text-white">
+            Reintentar
+          </Button>
+        </div>
       </div>
     );
   }
@@ -165,6 +191,7 @@ export function SociasPage() {
           filters={filters}
           availableLocations={availableLocations}
           memberCounts={memberCounts}
+          toggleMembershipType={toggleMembershipType}
           toggleSpecialization={toggleSpecialization}
           toggleLocation={toggleLocation}
           toggleAvailabilityStatus={toggleAvailabilityStatus}
