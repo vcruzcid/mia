@@ -7,7 +7,7 @@
  * 2. Manual verification requests
  */
 
-import Stripe from 'stripe';
+import Stripe from 'https://esm.sh/stripe@14.21.0';
 
 interface Env {
   STRIPE_SECRET_KEY: string;
@@ -41,6 +41,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
     // Initialize Stripe
     const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
       apiVersion: '2024-11-20',
+      httpClient: Stripe.createFetchHttpClient()
     });
 
     // Get active subscriptions for this customer
