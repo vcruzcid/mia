@@ -98,10 +98,21 @@ export function getCurrentPeriodLabel(members: CurrentBoardMember[]): string | n
     }
     let best: string | null = null;
     let bestCount = -1;
+    let bestStartYear = -1;
     for (const [p, c] of counts) {
-      if (c > bestCount) {
+      const startYear = getPeriodStartYear(p);
+      // Deterministic tie-breakers:
+      // 1) higher count wins
+      // 2) if tied, most recent start year wins (e.g. 2025-2027 over 2023-2025)
+      // 3) if still tied (shouldn't happen), lexicographic order for stability
+      if (
+        c > bestCount ||
+        (c === bestCount && startYear > bestStartYear) ||
+        (c === bestCount && startYear === bestStartYear && best !== null && p > best)
+      ) {
         best = p;
         bestCount = c;
+        bestStartYear = startYear;
       }
     }
     if (best) return best;
