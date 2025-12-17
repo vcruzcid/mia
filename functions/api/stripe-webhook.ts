@@ -1,79 +1,67 @@
 // Stripe Webhook Handler for MIA Membership Management
-// Handles subscription lifecycle events
+// Handles subscription lifecycle events (Cloudflare Pages Functions runtime)
 
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import Stripe from 'https://esm.sh/stripe@14.21.0'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { createClient } from '@supabase/supabase-js';
+import { stripeGet, verifyStripeWebhookSignature } from '../_lib/stripe';
 
-const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
-  apiVersion: '2024-11-20',
-  httpClient: Stripe.createFetchHttpClient()
-});
-
-const supabase = createClient(
-  Deno.env.get('SUPABASE_URL') || '',
-  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '' // Service role key for admin operations
-);
-
-interface RequestBody {
-  type: string;
-  data: {
-    object: any;
-  };
+interface Env {
+  STRIPE_SECRET_KEY: string;
+  STRIPE_WEBHOOK_SECRET: string;
+  SUPABASE_URL: string;
+  SUPABASE_SERVICE_ROLE_KEY: string;
 }
 
 type CanonicalMembershipType = 'pleno_derecho' | 'estudiante' | 'colaborador';
 
-serve(async (request: Request) => {
-  if (request.method !== 'POST') {
-    return new Response('Method not allowed', { status: 405 });
-  }
+export async function onRequestPost(context: { request: Request; env: Env }) {
+  const { request, env } = context;
+
+  const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
 
   try {
     const body = await request.text();
-    const signature = request.headers.get('stripe-signature');
+    const signatureHeader = request.headers.get('stripe-signature');
 
-    if (!signature) {
-      console.error('Missing Stripe signature');
-      return new Response('Missing signature', { status: 400 });
-    }
+    const verified = await verifyStripeWebhookSignature({
+      payload: body,
+      signatureHeader,
+      webhookSecret: env.STRIPE_WEBHOOK_SECRET,
+    });
 
-    // Verify webhook signature
-    let event: Stripe.Event;
-    try {
-      event = stripe.webhooks.constructEvent(
-        body,
-        signature,
-        process.env.STRIPE_WEBHOOK_SECRET!
-      );
-    } catch (err) {
-      console.error('Webhook signature verification failed:', err);
+    if (!verified) {
+      console.error('Webhook signature verification failed');
       return new Response('Invalid signature', { status: 400 });
     }
 
+    const event = JSON.parse(body) as any;
     console.log('Received webhook event:', event.type);
 
-    // Handle different event types
+    const stripeOpts = { apiVersion: '2024-11-20', secretKey: env.STRIPE_SECRET_KEY };
+
     switch (event.type) {
       case 'checkout.session.completed':
-        await handleCheckoutSessionCompleted(event.data.object as Stripe.Checkout.Session);
+        await handleCheckoutSessionCompleted({
+          session: event.data.object,
+          stripeOpts,
+          supabase,
+        });
         break;
 
       case 'customer.subscription.created':
       case 'customer.subscription.updated':
-        await handleSubscriptionChange(event.data.object as Stripe.Subscription);
+        await handleSubscriptionChange({ subscription: event.data.object, supabase });
         break;
 
       case 'customer.subscription.deleted':
-        await handleSubscriptionCanceled(event.data.object as Stripe.Subscription);
+        await handleSubscriptionCanceled({ subscription: event.data.object, stripeOpts, supabase });
         break;
 
       case 'invoice.payment_failed':
-        await handlePaymentFailed(event.data.object as Stripe.Invoice);
+        await handlePaymentFailed({ invoice: event.data.object, stripeOpts, supabase });
         break;
 
       case 'invoice.payment_succeeded':
-        await handlePaymentSucceeded(event.data.object as Stripe.Invoice);
+        await handlePaymentSucceeded({ invoice: event.data.object, supabase });
         break;
 
       default:
@@ -81,19 +69,23 @@ serve(async (request: Request) => {
     }
 
     return new Response('Webhook handled successfully', { status: 200 });
-
   } catch (error) {
     console.error('Webhook handler error:', error);
     return new Response('Internal server error', { status: 500 });
   }
-})
+}
 
-async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
+async function handleCheckoutSessionCompleted(params: {
+  session: any;
+  stripeOpts: { apiVersion: string; secretKey: string };
+  supabase: ReturnType<typeof createClient>;
+}) {
+  const { session, stripeOpts, supabase } = params;
   console.log('Checkout session completed:', session.id);
 
   try {
     // Get customer details
-    const customer = await stripe.customers.retrieve(session.customer as string) as Stripe.Customer;
+    const customer = await stripeGet<any>(stripeOpts, `/v1/customers/${String(session.customer)}`);
     
     // Get session metadata (should contain member registration data)
     const metadata = session.metadata || {};
@@ -163,9 +155,11 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
     let cancelAtPeriodEnd: boolean | null = null;
 
     if (subscriptionId) {
-      const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-      subscriptionStatus = subscription.status;
-      currentPeriodEnd = subscription.current_period_end ? new Date(subscription.current_period_end * 1000) : null;
+      const subscription = await stripeGet<any>(stripeOpts, `/v1/subscriptions/${subscriptionId}`);
+      subscriptionStatus = subscription.status ?? null;
+      currentPeriodEnd = subscription.current_period_end
+        ? new Date(Number(subscription.current_period_end) * 1000)
+        : null;
       cancelAtPeriodEnd = subscription.cancel_at_period_end ?? null;
     }
 
@@ -209,7 +203,11 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
   }
 }
 
-async function handleSubscriptionChange(subscription: Stripe.Subscription) {
+async function handleSubscriptionChange(params: {
+  subscription: any;
+  supabase: ReturnType<typeof createClient>;
+}) {
+  const { subscription, supabase } = params;
   console.log('Subscription changed:', subscription.id, subscription.status);
 
   try {
@@ -249,7 +247,12 @@ async function handleSubscriptionChange(subscription: Stripe.Subscription) {
   }
 }
 
-async function handleSubscriptionCanceled(subscription: Stripe.Subscription) {
+async function handleSubscriptionCanceled(params: {
+  subscription: any;
+  stripeOpts: { apiVersion: string; secretKey: string };
+  supabase: ReturnType<typeof createClient>;
+}) {
+  const { subscription, stripeOpts, supabase } = params;
   console.log('Subscription canceled:', subscription.id);
 
   try {
@@ -276,8 +279,8 @@ async function handleSubscriptionCanceled(subscription: Stripe.Subscription) {
     if (error) throw error;
 
     // Send cancellation email
-    const customer = await stripe.customers.retrieve(subscription.customer as string) as Stripe.Customer;
-    await sendCancellationEmail(customer.email!);
+    const customer = await stripeGet<any>(stripeOpts, `/v1/customers/${String(subscription.customer)}`);
+    if (customer?.email) await sendCancellationEmail(String(customer.email));
 
   } catch (error) {
     console.error('Error handling subscription cancellation:', error);
@@ -285,14 +288,21 @@ async function handleSubscriptionCanceled(subscription: Stripe.Subscription) {
   }
 }
 
-async function handlePaymentFailed(invoice: Stripe.Invoice) {
+async function handlePaymentFailed(params: {
+  invoice: any;
+  stripeOpts: { apiVersion: string; secretKey: string };
+  supabase: ReturnType<typeof createClient>;
+}) {
+  const { invoice, stripeOpts, supabase } = params;
   console.log('Payment failed for invoice:', invoice.id);
 
   try {
-    const customer = await stripe.customers.retrieve(invoice.customer as string) as Stripe.Customer;
+    const customer = await stripeGet<any>(stripeOpts, `/v1/customers/${String(invoice.customer)}`);
     
     // Send payment failure notification
-    await sendPaymentFailedEmail(customer.email!, invoice.amount_due / 100);
+    if (customer?.email) {
+      await sendPaymentFailedEmail(String(customer.email), Number(invoice.amount_due || 0) / 100);
+    }
 
     // If this is the final attempt, deactivate member
     if (invoice.attempt_count >= 3) {
@@ -325,7 +335,8 @@ async function handlePaymentFailed(invoice: Stripe.Invoice) {
   }
 }
 
-async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
+async function handlePaymentSucceeded(params: { invoice: any; supabase: ReturnType<typeof createClient> }) {
+  const { invoice, supabase } = params;
   console.log('Payment succeeded for invoice:', invoice.id);
 
   try {

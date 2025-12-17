@@ -1,59 +1,53 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import Stripe from 'https://esm.sh/stripe@14.21.0'
+import { stripePostForm } from '../_lib/stripe';
 
-const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
-  apiVersion: '2024-06-20',
-  httpClient: Stripe.createFetchHttpClient()
-})
+interface Env {
+  STRIPE_SECRET_KEY: string;
+}
 
-serve(async (req) => {
+export async function onRequestPost(context: { request: Request; env: Env }) {
+  const { request, env } = context;
+
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  }
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Content-Type': 'application/json',
+  };
 
-  // Handle CORS
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+  if (request.method === 'OPTIONS') {
+    return new Response(null, { status: 200, headers: corsHeaders });
   }
 
   try {
-    const { customerId, returnUrl } = await req.json()
+    const { customerId, returnUrl } = await request.json();
 
     if (!customerId) {
-      throw new Error('Customer ID is required')
+      return new Response(JSON.stringify({ error: 'Customer ID is required' }), {
+        status: 400,
+        headers: corsHeaders,
+      });
     }
 
-    // Create portal session
-    const session = await stripe.billingPortal.sessions.create({
-      customer: customerId,
-      return_url: returnUrl || `${new URL(req.url).origin}/portal?tab=payment`,
-    })
+    const origin = new URL(request.url).origin;
 
-    return new Response(
-      JSON.stringify({ url: session.url }),
-      { 
-        headers: { 
-          ...corsHeaders, 
-          'Content-Type': 'application/json' 
-        } 
-      }
-    )
+    const form = new URLSearchParams();
+    form.set('customer', String(customerId));
+    form.set('return_url', String(returnUrl || `${origin}/portal?tab=payment`));
 
+    const session = await stripePostForm<{ url: string }>(
+      { apiVersion: '2024-06-20', secretKey: env.STRIPE_SECRET_KEY },
+      '/v1/billing_portal/sessions',
+      form
+    );
+
+    return new Response(JSON.stringify({ url: session.url }), { status: 200, headers: corsHeaders });
   } catch (error) {
-    console.error('Error creating Stripe portal session:', error)
-    
+    console.error('Error creating Stripe portal session:', error);
     return new Response(
-      JSON.stringify({ 
-        error: error.message || 'An error occurred creating portal session' 
+      JSON.stringify({
+        error: error instanceof Error ? error.message : 'An error occurred creating portal session',
       }),
-      { 
-        status: 400,
-        headers: { 
-          ...corsHeaders, 
-          'Content-Type': 'application/json' 
-        } 
-      }
-    )
+      { status: 400, headers: corsHeaders }
+    );
   }
-})
+}

@@ -1,81 +1,71 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import Stripe from 'https://esm.sh/stripe@14.21.0'
+import { stripePostForm } from '../_lib/stripe';
 
-const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
-  apiVersion: '2024-06-20',
-  httpClient: Stripe.createFetchHttpClient()
-})
+interface Env {
+  STRIPE_SECRET_KEY: string;
+}
 
-serve(async (req) => {
+export async function onRequestPost(context: { request: Request; env: Env }) {
+  const { request, env } = context;
+
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  }
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Content-Type': 'application/json',
+  };
 
-  // Handle CORS
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+  if (request.method === 'OPTIONS') {
+    return new Response(null, { status: 200, headers: corsHeaders });
   }
 
   try {
-    const { priceId, memberEmail, customerId } = await req.json()
+    const { priceId, memberEmail, customerId } = await request.json();
 
     if (!priceId || !memberEmail) {
-      throw new Error('Price ID and member email are required')
+      return new Response(
+        JSON.stringify({ error: 'Price ID and member email are required' }),
+        { status: 400, headers: corsHeaders }
+      );
     }
 
-    const baseUrl = new URL(req.url).origin
+    const baseUrl = new URL(request.url).origin;
 
-    // Create checkout session
-    const sessionParams: Stripe.Checkout.SessionCreateParams = {
-      payment_method_types: ['card'],
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
-      mode: 'subscription',
-      customer_email: customerId ? undefined : memberEmail,
-      customer: customerId,
-      success_url: `${baseUrl}/portal?session_id={CHECKOUT_SESSION_ID}&success=true`,
-      cancel_url: `${baseUrl}/portal?tab=payment&cancelled=true`,
-      metadata: {
-        member_email: memberEmail,
-      },
-      subscription_data: {
-        metadata: {
-          member_email: memberEmail,
-        },
-      },
+    const form = new URLSearchParams();
+    form.set('payment_method_types[0]', 'card');
+    form.set('line_items[0][price]', String(priceId));
+    form.set('line_items[0][quantity]', '1');
+    form.set('mode', 'subscription');
+    form.set('success_url', `${baseUrl}/portal?session_id={CHECKOUT_SESSION_ID}&success=true`);
+    form.set('cancel_url', `${baseUrl}/portal?tab=payment&cancelled=true`);
+    form.set('metadata[member_email]', String(memberEmail));
+    form.set('subscription_data[metadata][member_email]', String(memberEmail));
+
+    if (customerId) {
+      form.set('customer', String(customerId));
+    } else {
+      form.set('customer_email', String(memberEmail));
     }
 
-    const session = await stripe.checkout.sessions.create(sessionParams)
+    const session = await stripePostForm<{
+      id: string;
+      url: string | null;
+    }>(
+      { apiVersion: '2024-06-20', secretKey: env.STRIPE_SECRET_KEY },
+      '/v1/checkout/sessions',
+      form
+    );
 
-    return new Response(
-      JSON.stringify({ sessionId: session.id, url: session.url }),
-      { 
-        headers: { 
-          ...corsHeaders, 
-          'Content-Type': 'application/json' 
-        } 
-      }
-    )
-
+    return new Response(JSON.stringify({ sessionId: session.id, url: session.url }), {
+      status: 200,
+      headers: corsHeaders,
+    });
   } catch (error) {
-    console.error('Error creating Stripe checkout session:', error)
-    
+    console.error('Error creating Stripe checkout session:', error);
     return new Response(
-      JSON.stringify({ 
-        error: error.message || 'An error occurred creating checkout session' 
+      JSON.stringify({
+        error: error instanceof Error ? error.message : 'An error occurred creating checkout session',
       }),
-      { 
-        status: 400,
-        headers: { 
-          ...corsHeaders, 
-          'Content-Type': 'application/json' 
-        } 
-      }
-    )
+      { status: 400, headers: corsHeaders }
+    );
   }
-})
+}
