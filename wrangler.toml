@@ -15,11 +15,3 @@ VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhY
 # - SUPABASE_SERVICE_ROLE_KEY  
 # - STRIPE_WEBHOOK_SECRET
 # - APP_URL
-
-# Cron trigger for subscription reconciliation
-# Runs every 6 hours to sync subscription status with Stripe
-# NOTE: This is a Workers feature, not supported in Pages projects
-# For Pages, configure cron triggers via Cloudflare Dashboard:
-# Pages > Your Project > Settings > Functions > Scheduled Triggers
-[triggers]
-crons = ["0 */6 * * *"]
