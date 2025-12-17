@@ -1,8 +1,8 @@
 // Stripe Webhook Handler for MIA Membership Management
 // Handles subscription lifecycle events
 
-import Stripe from 'stripe';
-import { createClient } from '@supabase/supabase-js';
+import Stripe from 'https://esm.sh/stripe@14.21.0';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2024-11-20',
