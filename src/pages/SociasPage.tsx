@@ -200,7 +200,7 @@ export function SociasPage() {
       )}
 
       {/* Pagination Controls - Top */}
-      {!isLoading && totalMembers > 0 && (
+      {!directoryQuery.isLoading && totalMembers > 0 && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 py-4 border-t border-gray-700">
             <div className="flex items-center space-x-4">
@@ -253,7 +253,7 @@ export function SociasPage() {
         )}
 
         {/* Pagination Controls - Bottom */}
-        {!isLoading && totalPages > 1 && (
+        {!directoryQuery.isLoading && totalPages > 1 && (
           <div className="flex justify-center mt-8">
             <div className="flex items-center space-x-2">
               <Button
