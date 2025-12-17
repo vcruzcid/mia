@@ -1,5 +1,5 @@
 // Cloudflare Pages Function for member data
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createClient } from '@supabase/supabase-js';
 import type { MembersRequest, MembersResponse } from '../../src/types/api';
 import type { Member } from '../../src/types';
 

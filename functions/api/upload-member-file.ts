@@ -1,7 +1,7 @@
 // Member File Upload Handler
 // Handles profile images and resume uploads with optimization
 
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
   process.env.SUPABASE_URL!,

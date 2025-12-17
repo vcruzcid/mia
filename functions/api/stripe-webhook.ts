@@ -1,16 +1,18 @@
 // Stripe Webhook Handler for MIA Membership Management
 // Handles subscription lifecycle events
 
-import Stripe from 'https://esm.sh/stripe@14.21.0';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import Stripe from 'https://esm.sh/stripe@14.21.0'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
   apiVersion: '2024-11-20',
+  httpClient: Stripe.createFetchHttpClient()
 });
 
 const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY! // Service role key for admin operations
+  Deno.env.get('SUPABASE_URL') || '',
+  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '' // Service role key for admin operations
 );
 
 interface RequestBody {
@@ -22,7 +24,7 @@ interface RequestBody {
 
 type CanonicalMembershipType = 'pleno_derecho' | 'estudiante' | 'colaborador';
 
-export default async function handler(request: Request) {
+serve(async (request: Request) => {
   if (request.method !== 'POST') {
     return new Response('Method not allowed', { status: 405 });
   }
@@ -84,7 +86,7 @@ export default async function handler(request: Request) {
     console.error('Webhook handler error:', error);
     return new Response('Internal server error', { status: 500 });
   }
-}
+})
 
 async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
   console.log('Checkout session completed:', session.id);
