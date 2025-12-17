@@ -4,8 +4,7 @@
  * This function provides direct verification of subscription status by querying
  * the Stripe API. It's used by:
  * 1. Login flow (AuthContext)
- * 2. Cron job for batch reconciliation
- * 3. Manual verification requests
+ * 2. Manual verification requests
  */
 
 import Stripe from 'stripe';
