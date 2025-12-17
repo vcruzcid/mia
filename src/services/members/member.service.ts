@@ -2,6 +2,18 @@ import { supabase } from '../supabase.client';
 import type { Member, PublicMember, ActiveMember } from '../../types/supabase';
 import type { MemberFilters } from './member.types';
 
+export interface DirectoryQueryParams {
+  searchTerm?: string;
+  membershipTypes?: string[];
+  specializations?: string[];
+  locations?: string[];
+  availabilityStatus?: string[];
+  limit?: number;
+  offset?: number;
+  includePrivate?: boolean; // members_only vs public_members
+  isFounder?: boolean; // for fundadoras gallery
+}
+
 // Helper function to check if member is active
 export const isActiveMember = (member: Partial<Member>): boolean => {
   return member.stripe_subscription_status === 'active';
@@ -81,18 +93,122 @@ export async function getMemberById(id: string): Promise<Member | null> {
 // Get member by email
 export async function getMemberByEmail(email: string): Promise<Member | null> {
   try {
-    const { data, error } = await supabase
-      .from('members')
-      .select('*')
-      .eq('email', email)
-      .single();
+    const normalized = email.trim().toLowerCase();
 
-    if (error) throw error;
-    return data;
+    // 1) Find member_id by email in the private table
+    const { data: privateRow, error: privateError } = await supabase
+      .from('member_private')
+      .select('member_id')
+      .ilike('email', normalized)
+      .maybeSingle();
+
+    if (privateError) throw privateError;
+    if (!privateRow?.member_id) return null;
+
+    // 2) Prefer the members-only directory view (includes membership + profile + private)
+    const { data: directoryRow, error: directoryError } = await supabase
+      .from('members_only')
+      .select('*')
+      .eq('id', privateRow.member_id)
+      .maybeSingle();
+
+    // If the member isn't active yet, the view may filter them out; fall back to raw tables
+    if (!directoryError && directoryRow) return directoryRow as unknown as Member;
+
+    const [mRes, pRes, mmRes, privRes] = await Promise.all([
+      supabase.from('members').select('*').eq('id', privateRow.member_id).maybeSingle(),
+      supabase.from('member_profile').select('*').eq('member_id', privateRow.member_id).maybeSingle(),
+      supabase.from('member_membership').select('*').eq('member_id', privateRow.member_id).maybeSingle(),
+      supabase.from('member_private').select('*').eq('member_id', privateRow.member_id).maybeSingle(),
+    ]);
+
+    if (mRes.error) throw mRes.error;
+    if (pRes.error) throw pRes.error;
+    if (mmRes.error) throw mmRes.error;
+    if (privRes.error) throw privRes.error;
+
+    if (!mRes.data) return null;
+
+    // Merge into the legacy Member shape used across the app (best-effort)
+    return {
+      ...(mRes.data as any),
+      ...(pRes.data as any),
+      ...(mmRes.data as any),
+      ...(privRes.data as any),
+      id: (mRes.data as any).id,
+      email: (privRes.data as any)?.email ?? normalized,
+      stripe_customer_id: (mmRes.data as any)?.stripe_customer_id,
+      stripe_subscription_id: (mmRes.data as any)?.stripe_subscription_id,
+      stripe_subscription_status: (mmRes.data as any)?.stripe_subscription_status,
+      subscription_current_period_end: (mmRes.data as any)?.subscription_current_period_end,
+    } as Member;
   } catch (error) {
     console.error('Error fetching member by email:', error);
     return null;
   }
+}
+
+// Server-side directory query (public_members or members_only view)
+export async function getDirectoryMembers(params: DirectoryQueryParams): Promise<{ members: Member[]; total: number }> {
+  const {
+    searchTerm,
+    membershipTypes,
+    specializations,
+    locations,
+    availabilityStatus,
+    limit = 20,
+    offset = 0,
+    includePrivate = false,
+    isFounder,
+  } = params;
+
+  const source = includePrivate ? 'members_only' : 'public_members';
+
+  // NOTE: We don't use select('*') on base tables; we query via views.
+  let query = supabase
+    .from(source)
+    .select('*', { count: 'exact' });
+
+  if (searchTerm && searchTerm.trim().length > 0) {
+    const q = searchTerm.trim();
+    query = query.or(
+      `first_name.ilike.%${q}%,last_name.ilike.%${q}%,display_name.ilike.%${q}%,main_profession.ilike.%${q}%,company.ilike.%${q}%`
+    );
+  }
+
+  if (membershipTypes && membershipTypes.length > 0) {
+    query = query.in('membership_type', membershipTypes);
+  }
+
+  if (locations && locations.length > 0) {
+    query = query.in('autonomous_community', locations);
+  }
+
+  if (availabilityStatus && availabilityStatus.length > 0) {
+    query = query.in('availability_status', availabilityStatus);
+  }
+
+  if (typeof isFounder === 'boolean') {
+    query = query.eq('is_founder', isFounder);
+  }
+
+  // Arrays: match any specialization via overlap
+  if (specializations && specializations.length > 0) {
+    // @ts-expect-error supabase-js supports overlaps for PostgREST arrays
+    query = query.overlaps('other_professions', specializations);
+  }
+
+  // Default ordering: photo first, then completion, then newest
+  query = query
+    .order('profile_image_url', { ascending: true, nullsFirst: false })
+    .order('profile_completion', { ascending: false })
+    .order('created_at', { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  const { data, error, count } = await query;
+  if (error) throw error;
+
+  return { members: (data || []) as unknown as Member[], total: count || 0 };
 }
 
 // Get member by Stripe customer ID

@@ -20,6 +20,8 @@ interface RequestBody {
   };
 }
 
+type CanonicalMembershipType = 'pleno_derecho' | 'estudiante' | 'colaborador';
+
 export default async function handler(request: Request) {
   if (request.method !== 'POST') {
     return new Response('Method not allowed', { status: 405 });
@@ -94,40 +96,110 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
     // Get session metadata (should contain member registration data)
     const metadata = session.metadata || {};
     
-    // Prepare member data for registration
-    const memberData = {
-      email: customer.email,
-      stripe_customer_id: customer.id,
-      first_name: metadata.first_name || '',
-      last_name: metadata.last_name || '',
-      phone: metadata.phone || '',
-      city: metadata.city || '',
-      province: metadata.province || '',
-      autonomous_community: metadata.autonomous_community || '',
-      membership_type: metadata.membership_type || 'colaborador',
-      professions: metadata.professions || '',
-      professional_level: metadata.professional_level || '',
-      company: metadata.company || '',
-      years_experience: metadata.years_experience || '0',
-      accepts_newsletter: metadata.accepts_newsletter === 'true',
-      accepts_job_offers: metadata.accepts_job_offers === 'true',
-    };
-
-    // Complete member registration
-    const { data: memberId, error } = await supabase
-      .rpc('complete_member_registration', {
-        stripe_session_id: session.id,
-        member_data: memberData
-      });
-
-    if (error) {
-      throw error;
+    const email = (customer.email || metadata.email || '').toString().trim().toLowerCase();
+    if (!email) {
+      throw new Error('Stripe customer email is missing; cannot create member');
     }
+
+    const membershipType = normalizeMembershipType(
+      (metadata.membership_type || metadata.membershipType || metadata.membership || '').toString()
+    );
+
+    const firstName = (metadata.first_name || metadata.firstName || '').toString();
+    const lastName = (metadata.last_name || metadata.lastName || '').toString();
+    const phone = (metadata.phone || '').toString();
+
+    // Try to find existing member by stripe_customer_id or email
+    const existingByCustomer = await supabase
+      .from('member_membership')
+      .select('member_id')
+      .eq('stripe_customer_id', customer.id)
+      .maybeSingle();
+
+    const existingByEmail = existingByCustomer.data?.member_id
+      ? null
+      : await supabase
+          .from('member_private')
+          .select('member_id')
+          .ilike('email', email)
+          .maybeSingle();
+
+    let memberId = existingByCustomer.data?.member_id || existingByEmail?.data?.member_id;
+
+    if (!memberId) {
+      const created = await supabase
+        .from('members')
+        .insert({ is_active: false })
+        .select('id')
+        .single();
+
+      if (created.error) throw created.error;
+      memberId = created.data.id;
+
+      const profileInsert = await supabase.from('member_profile').insert({
+        member_id: memberId,
+        first_name: firstName,
+        last_name: lastName,
+        accepts_newsletter: metadata.accepts_newsletter === 'true',
+        accepts_job_offers: metadata.accepts_job_offers === 'true',
+        privacy_level: 'public'
+      });
+      if (profileInsert.error) throw profileInsert.error;
+
+      const privateInsert = await supabase.from('member_private').insert({
+        member_id: memberId,
+        email,
+        phone: phone || null
+      });
+      if (privateInsert.error) throw privateInsert.error;
+    }
+
+    // Determine subscription details if present
+    const subscriptionId = session.subscription ? String(session.subscription) : null;
+    let subscriptionStatus: string | null = null;
+    let currentPeriodEnd: Date | null = null;
+    let cancelAtPeriodEnd: boolean | null = null;
+
+    if (subscriptionId) {
+      const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+      subscriptionStatus = subscription.status;
+      currentPeriodEnd = subscription.current_period_end ? new Date(subscription.current_period_end * 1000) : null;
+      cancelAtPeriodEnd = subscription.cancel_at_period_end ?? null;
+    }
+
+    // Upsert membership record
+    const upsertMembership = await supabase
+      .from('member_membership')
+      .upsert({
+        member_id: memberId,
+        membership_type: membershipType,
+        stripe_customer_id: customer.id,
+        stripe_subscription_id: subscriptionId,
+        stripe_subscription_status: subscriptionStatus,
+        subscription_current_period_end: currentPeriodEnd ? currentPeriodEnd.toISOString() : null,
+        cancel_at_period_end: cancelAtPeriodEnd ?? false,
+        last_verified_at: new Date().toISOString()
+      }, { onConflict: 'member_id' });
+
+    if (upsertMembership.error) throw upsertMembership.error;
+
+    // Log completion activity
+    await supabase.from('member_activity').insert({
+      member_id: memberId,
+      activity_type: 'stripe_checkout_completed',
+      activity_data: {
+        stripe_session_id: session.id,
+        stripe_customer_id: customer.id,
+        stripe_subscription_id: subscriptionId,
+        stripe_subscription_status: subscriptionStatus,
+        membership_type: membershipType
+      }
+    });
 
     console.log('Member registration completed:', memberId);
 
     // Send welcome email
-    await sendWelcomeEmail(customer.email!, memberData.first_name);
+    await sendWelcomeEmail(email, firstName);
 
   } catch (error) {
     console.error('Error handling checkout session:', error);
@@ -139,10 +211,34 @@ async function handleSubscriptionChange(subscription: Stripe.Subscription) {
   console.log('Subscription changed:', subscription.id, subscription.status);
 
   try {
-    await supabase.rpc('update_member_subscription_status', {
-      stripe_customer_id_param: subscription.customer as string,
-      subscription_status: subscription.status
-    });
+    const customerId = String(subscription.customer);
+
+    // Find membership row by customer id and update
+    const { data: mm, error: mmError } = await supabase
+      .from('member_membership')
+      .select('member_id')
+      .eq('stripe_customer_id', customerId)
+      .maybeSingle();
+    if (mmError) throw mmError;
+    if (!mm?.member_id) {
+      console.warn('No member found for stripe_customer_id', customerId);
+      return;
+    }
+
+    const { error } = await supabase
+      .from('member_membership')
+      .update({
+        stripe_subscription_id: subscription.id,
+        stripe_subscription_status: subscription.status,
+        subscription_current_period_end: subscription.current_period_end
+          ? new Date(subscription.current_period_end * 1000).toISOString()
+          : null,
+        cancel_at_period_end: subscription.cancel_at_period_end ?? false,
+        last_verified_at: new Date().toISOString()
+      })
+      .eq('member_id', mm.member_id);
+
+    if (error) throw error;
 
     console.log('Member subscription status updated');
   } catch (error) {
@@ -155,11 +251,27 @@ async function handleSubscriptionCanceled(subscription: Stripe.Subscription) {
   console.log('Subscription canceled:', subscription.id);
 
   try {
-    // Deactivate member
-    await supabase.rpc('update_member_subscription_status', {
-      stripe_customer_id_param: subscription.customer as string,
-      subscription_status: 'canceled'
-    });
+    const customerId = String(subscription.customer);
+    const { data: mm, error: mmError } = await supabase
+      .from('member_membership')
+      .select('member_id')
+      .eq('stripe_customer_id', customerId)
+      .maybeSingle();
+    if (mmError) throw mmError;
+    if (!mm?.member_id) {
+      console.warn('No member found for stripe_customer_id', customerId);
+      return;
+    }
+
+    const { error } = await supabase
+      .from('member_membership')
+      .update({
+        stripe_subscription_status: 'canceled',
+        last_verified_at: new Date().toISOString()
+      })
+      .eq('member_id', mm.member_id);
+
+    if (error) throw error;
 
     // Send cancellation email
     const customer = await stripe.customers.retrieve(subscription.customer as string) as Stripe.Customer;
@@ -182,10 +294,27 @@ async function handlePaymentFailed(invoice: Stripe.Invoice) {
 
     // If this is the final attempt, deactivate member
     if (invoice.attempt_count >= 3) {
-      await supabase.rpc('update_member_subscription_status', {
-        stripe_customer_id_param: customer.id,
-        subscription_status: 'past_due'
-      });
+      const customerId = String(invoice.customer);
+      const { data: mm, error: mmError } = await supabase
+        .from('member_membership')
+        .select('member_id')
+        .eq('stripe_customer_id', customerId)
+        .maybeSingle();
+      if (mmError) throw mmError;
+      if (!mm?.member_id) {
+        console.warn('No member found for stripe_customer_id', customerId);
+        return;
+      }
+
+      const { error } = await supabase
+        .from('member_membership')
+        .update({
+          stripe_subscription_status: 'past_due',
+          last_verified_at: new Date().toISOString()
+        })
+        .eq('member_id', mm.member_id);
+
+      if (error) throw error;
     }
 
   } catch (error) {
@@ -198,16 +327,48 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
   console.log('Payment succeeded for invoice:', invoice.id);
 
   try {
-    // Reactivate member if they were deactivated
-    await supabase.rpc('update_member_subscription_status', {
-      stripe_customer_id_param: invoice.customer as string,
-      subscription_status: 'active'
-    });
+    const customerId = String(invoice.customer);
+    const { data: mm, error: mmError } = await supabase
+      .from('member_membership')
+      .select('member_id')
+      .eq('stripe_customer_id', customerId)
+      .maybeSingle();
+    if (mmError) throw mmError;
+    if (!mm?.member_id) {
+      console.warn('No member found for stripe_customer_id', customerId);
+      return;
+    }
+
+    const { error } = await supabase
+      .from('member_membership')
+      .update({
+        stripe_subscription_status: 'active',
+        last_verified_at: new Date().toISOString()
+      })
+      .eq('member_id', mm.member_id);
+
+    if (error) throw error;
 
   } catch (error) {
     console.error('Error handling payment success:', error);
     throw error;
   }
+}
+
+function normalizeMembershipType(input: string): CanonicalMembershipType {
+  const v = input.trim().toLowerCase();
+  if (
+    v === 'pleno-derecho' ||
+    v === 'pleno_derecho' ||
+    v === 'socia-pleno-derecho' ||
+    v === 'socia_pleno_derecho' ||
+    v === 'socia-de-pleno-derecho' ||
+    v === 'socia_de_pleno_derecho' ||
+    v === 'profesional'
+  ) return 'pleno_derecho';
+  if (v === 'estudiante' || v === 'socia-estudiante' || v === 'socia_estudiante') return 'estudiante';
+  if (v === 'colaborador' || v === 'colaboradora' || v === 'socio-colaborador' || v === 'socio_colaborador') return 'colaborador';
+  return 'colaborador';
 }
 
 // Email functions (to be implemented with your email service)
