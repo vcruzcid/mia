@@ -12,9 +12,7 @@ export function Footer() {
   const { toast } = useToastContext();
   
   // Check authentication status
-  const { member } = useAuth();
-  const isDemoAuth = localStorage.getItem('demo_auth') === 'true';
-  const isAuthenticated = !!(member || isDemoAuth);
+  const { isAuthenticated } = useAuth();
   const {
     register,
     handleSubmit,
