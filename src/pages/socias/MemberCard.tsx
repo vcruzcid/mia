@@ -13,6 +13,7 @@ export function MemberCard({ member, onClick }: MemberCardProps) {
   const displayProfession = member.main_profession || member.company || 'Profesional';
   const specializations = member.other_professions || [];
   const availabilityStatus = member.availability_status || 'Disponible';
+  const isFounder = (member as any).is_founder === true;
 
   return (
     <Card
@@ -37,7 +38,14 @@ export function MemberCard({ member, onClick }: MemberCardProps) {
         </div>
 
         <div className="space-y-3">
-          <div className="flex items-center justify-end">
+          <div className="flex items-center justify-between gap-2">
+            {isFounder ? (
+              <Badge variant="outline" className="border-yellow-400 text-yellow-300">
+                ⭐ Fundadora
+              </Badge>
+            ) : (
+              <span />
+            )}
             <Badge 
               variant={
                 availabilityStatus === 'Disponible' ? 'default' : 

@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { useBoardMembers, getBoardMembersByPeriod, getAvailablePeriods, getCurrentBoardMembers, getBoardMembersForPeriod } from '../hooks/useBoardMembers';
+import { useBoardMembers, getAvailablePeriods, getCurrentBoardMembers, getBoardMembersForPeriod, getCurrentPeriodLabel } from '../hooks/useBoardMembers';
 import type { DirectivaMember } from '../types';
 import type { BoardMemberWithHistory, CurrentBoardMember } from '../types/supabase';
 import { ProfileImage } from '../components/ProfileImage';
@@ -65,11 +65,11 @@ function transformBoardMemberToDirectivaMember(member: CurrentBoardMember | Boar
       country: member.country || 'España'
     },
     bio: member.biography || '',
-    yearServed: getYearsServed(member.board_term_start, member.board_term_end),
+    yearServed: getYearsServed(member.board_term_start),
     joinDate: member.created_at || new Date().toISOString(),
     socialMedia: member.social_media || {},
     specializations: member.other_professions || [],
-    isCurrentMember: Boolean(member.board_term_start?.startsWith('2025') && member.board_term_end?.includes('2027')),
+    isCurrentMember: isCurrentlyServing(member.board_term_start, member.board_term_end),
     isActive: member.stripe_subscription_status === 'active' || false,
     previousPositions: member.position_history?.map(history => ({
       position: history.position,
@@ -83,18 +83,26 @@ function transformBoardMemberToDirectivaMember(member: CurrentBoardMember | Boar
 }
 
 // Helper function to calculate years served
-function getYearsServed(startDate?: string, endDate?: string): number[] {
+function getYearsServed(startDate?: string): number[] {
   if (!startDate) return [new Date().getFullYear()];
-  
+
   const start = new Date(startDate).getFullYear();
-  const end = endDate ? new Date(endDate).getFullYear() : new Date().getFullYear();
-  
-  const years = [];
-  for (let year = start; year <= end; year++) {
-    years.push(year);
-  }
-  
-  return years.length > 0 ? years : [new Date().getFullYear()];
+
+  // Business rule: periods are 2 years except 2017 (single-year)
+  if (start === 2017) return [2017];
+
+  // Two-year mandate (elected in start year): service years are start and start+1.
+  // The next election is start+2, so the displayed "period" is start-(start+2).
+  return [start, start + 1];
+}
+
+function isCurrentlyServing(startDate?: string, endDate?: string): boolean {
+  if (!startDate) return false;
+
+  const now = new Date();
+  const start = new Date(startDate);
+  const end = endDate ? new Date(endDate) : new Date('2099-12-31');
+  return now >= start && now <= end;
 }
 
 export function DirectivaPage() {
@@ -107,17 +115,17 @@ export function DirectivaPage() {
   const allPeriods = useMemo(() => getAvailablePeriods(boardMembers), [boardMembers]);
   const availablePeriods = useMemo(() => allPeriods.slice(0, 5), [allPeriods]);
   const currentBoardMembers = useMemo(() => getCurrentBoardMembers(boardMembers), [boardMembers]);
+  const currentPeriod = useMemo(() => getCurrentPeriodLabel(boardMembers) || '', [boardMembers]);
   
   // Ensure selected period is set to current period when data loads (only once)
   useEffect(() => {
     if (availablePeriods.length > 0 && !selectedPeriod) {
-      const currentPeriod = availablePeriods.find(period => period === '2025-2027') || availablePeriods[0];
-      setSelectedPeriod(currentPeriod);
+      setSelectedPeriod(currentPeriod || availablePeriods[0]);
     }
-  }, [availablePeriods, selectedPeriod]);
+  }, [availablePeriods, selectedPeriod, currentPeriod]);
   
   // Ensure we always have a selected period
-  const currentSelectedPeriod = selectedPeriod || availablePeriods[0] || '2025-2027';
+  const currentSelectedPeriod = selectedPeriod || currentPeriod || availablePeriods[0] || '';
   const hasBoardData = currentBoardMembers.length > 0;
 
   const handlePeriodChange = (period: string) => {
@@ -180,12 +188,12 @@ export function DirectivaPage() {
                   key={period}
                   value={period}
                   className={`text-xs sm:text-sm font-medium transition-all duration-200 ${
-                    period === '2025-2027' ? 'bg-red-600 text-white' : 'text-gray-300 hover:text-white'
+                    period === currentPeriod ? 'bg-red-600 text-white' : 'text-gray-300 hover:text-white'
                   }`}
                 >
                   <span className="hidden sm:inline">
                     {period}
-                    {period === '2025-2027' && <span className="ml-1 text-xs opacity-75">(Actual)</span>}
+                    {period === currentPeriod && <span className="ml-1 text-xs opacity-75">(Actual)</span>}
                   </span>
                   <span className="sm:hidden">{period.split('-')[0]}</span>
                 </TabsTrigger>
@@ -207,10 +215,10 @@ export function DirectivaPage() {
                     </svg>
                   </div>
                   <h3 className="text-lg font-medium text-white mb-2">
-                    {period === '2025-2027' ? 'No hay información disponible' : 'Información histórica no disponible'}
+                    {period === currentPeriod ? 'No hay información disponible' : 'Información histórica no disponible'}
                   </h3>
                   <p className="text-gray-300">
-                    {period === '2025-2027' 
+                    {period === currentPeriod 
                       ? 'No se encontraron miembros de la directiva para el período actual.'
                       : 'Los datos de períodos anteriores no están disponibles en la base de datos.'
                     }
@@ -223,7 +231,7 @@ export function DirectivaPage() {
                     <h2 className="text-2xl font-bold text-white mb-2">
                       Período {period}
                     </h2>
-                    {period === '2025-2027' && (
+                    {period === currentPeriod && (
                       <Badge variant="default" className="bg-green-600 text-white">
                         Período Actual
                       </Badge>
@@ -240,7 +248,7 @@ export function DirectivaPage() {
                         member={member}
                         index={index}
                         onClick={() => openMemberModal(member as any)}
-                        isCurrentPeriod={period === '2025-2027'}
+                        isCurrentPeriod={period === currentPeriod}
                       />
                     );
                     })}
@@ -396,7 +404,7 @@ function DirectivaModal({ member, onClose }: DirectivaModalProps) {
                   {member.firstName} {member.lastName}
                 </h3>
                 <p className="text-lg text-white/90 mb-1">{member.position}</p>
-                {member.board_term_start?.startsWith('2025') && member.board_term_end?.includes('2027') && getPositionEmail(member.position) && (
+                {member.isCurrentMember && getPositionEmail(member.position) && (
                   <p className="text-sm text-white/80 mb-2">
                     <a 
                       href={`mailto:${getPositionEmail(member.position)}`}

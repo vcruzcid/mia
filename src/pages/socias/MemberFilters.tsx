@@ -8,8 +8,10 @@ interface MemberFiltersProps {
   filters: FilterType;
   availableLocations: string[];
   memberCounts: {
+    byType: Record<string, number>;
     byAvailability: Record<string, number>;
   };
+  toggleMembershipType: (type: string) => void;
   toggleSpecialization: (spec: string) => void;
   toggleLocation: (location: string) => void;
   toggleAvailabilityStatus: (status: string) => void;
@@ -20,6 +22,7 @@ export function MemberFilters({
   filters,
   availableLocations,
   memberCounts,
+  toggleMembershipType,
   toggleSpecialization,
   toggleLocation,
   toggleAvailabilityStatus,
@@ -132,6 +135,31 @@ export function MemberFilters({
 
             <TabsContent value="other">
               <div className="space-y-4">
+                <div>
+                  <h3 className="text-sm font-medium text-gray-200 mb-3">Tipo de membresía</h3>
+                  <div className="space-y-2">
+                    {([
+                      { value: 'pleno_derecho', label: 'Socia pleno derecho' },
+                      { value: 'estudiante', label: 'Socia estudiante' },
+                      { value: 'colaborador', label: 'Socio colaborador' }
+                    ] as const).map(({ value, label }) => (
+                      <label key={value} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-700 cursor-pointer">
+                        <Checkbox
+                          checked={filters.membershipTypes.includes(value)}
+                          onCheckedChange={() => toggleMembershipType(value)}
+                          className="text-primary-500 focus:ring-primary-500"
+                        />
+                        <span className="text-sm text-gray-300">
+                          {label}
+                          <span className="ml-2 text-gray-400">
+                            ({memberCounts.byType[value] || 0})
+                          </span>
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
                 <div>
                   <h3 className="text-sm font-medium text-gray-200 mb-3">Presencia en Redes Sociales</h3>
                   <div className="space-y-2">
