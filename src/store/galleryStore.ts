@@ -664,7 +664,8 @@ set({
       }
     });
 
-    const defaultPeriods = ['2025-2027', '2023-2025', '2021-2023', '2019-2020'];
+    // Fallback periods (election-year → next election-year). Keep in sync with board-term rules.
+    const defaultPeriods = ['2025-2027', '2023-2025', '2021-2023', '2019-2021', '2017'];
     defaultPeriods.forEach(period => periods.add(period));
 
     return Array.from(periods).sort((a, b) => {
