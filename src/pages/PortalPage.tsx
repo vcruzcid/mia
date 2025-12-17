@@ -22,29 +22,12 @@ const profileUpdateSchema = z.object({
 type ProfileUpdateData = z.infer<typeof profileUpdateSchema>;
 
 export function PortalPage() {
-  const { member, logout, updateProfile, isLoading } = useAuth();
+  const { member, signOut, updateProfile, isLoading } = useAuth();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'profile'>('dashboard');
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   
-  // Check for demo authentication
-  const isDemoAuth = localStorage.getItem('demo_auth') === 'true';
-  
-  // Create demo member data if using demo auth
-  const demoMember = {
-    id: 'demo-123',
-    email: 'dev@animacionesmia.com',
-    firstName: 'Dev',
-    lastName: 'User',
-    phoneNumber: '+34 600 123 456',
-    bio: 'Esta es una cuenta de demostración para probar el portal de MIA.',
-    interests: ['Animación 2D', 'Storyboard', 'Character Design'],
-    membershipType: 'pleno-derecho',
-    membershipStatus: 'active',
-    joinDate: '2024-01-15',
-  };
-  
   // Create normalized member object
-  const normalizedMember = member ? {
+  const currentMember = member ? {
     ...member,
     firstName: member.first_name,
     lastName: member.last_name,
@@ -52,11 +35,9 @@ export function PortalPage() {
     bio: member.biography,
     interests: member.other_professions || [],
     membershipType: member.membership_type,
-    membershipStatus: member.is_active ? 'active' : 'inactive',
+    membershipStatus: member.stripe_subscription_status === 'active' ? 'active' : 'inactive',
     joinDate: member.created_at
   } : null;
-
-  const currentMember = isDemoAuth ? demoMember : normalizedMember;
 
   const {
     register,
@@ -75,23 +56,11 @@ export function PortalPage() {
   });
 
   const handleLogout = async () => {
-    if (isDemoAuth) {
-      localStorage.removeItem('demo_auth');
-      window.location.href = '/';
-    } else {
-      await logout();
-    }
+    await signOut();
   };
 
   const onUpdateProfile = async (data: ProfileUpdateData) => {
     setMessage(null);
-    
-    if (isDemoAuth) {
-      // Simulate successful update for demo
-      setMessage({ type: 'success', text: 'Perfil actualizado correctamente (modo demo)' });
-      reset(data);
-      return;
-    }
     
     try {
       // Map form data to Supabase format
@@ -130,7 +99,7 @@ export function PortalPage() {
     }
   };
 
-  if (!currentMember && !isDemoAuth) {
+  if (!currentMember) {
     return (
       <div className="min-h-screen flex flex-col bg-gray-900 dark">
         <Header />
