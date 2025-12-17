@@ -58,6 +58,7 @@ export function Footer() {
               <FooterLink to="/sobre-mia">SOBRE NOSOTRAS</FooterLink>
               <FooterLink to="/socias">SOCIAS</FooterLink>
               <FooterLink to="/directiva">DIRECTIVA</FooterLink>
+              <FooterLink to="/fundadoras">FUNDADORAS</FooterLink>
               <FooterLink to="/mianima">MIANIMA</FooterLink>
               <FooterLink to="/membresia">MEMBRESÍA</FooterLink>
               <FooterLink to="/contacto">CONTACTO</FooterLink>

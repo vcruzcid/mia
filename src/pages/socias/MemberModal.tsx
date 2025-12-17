@@ -13,6 +13,16 @@ interface MemberModalProps {
 
 export function MemberModal({ member, isOpen, onClose }: MemberModalProps) {
   const availabilityStatus = member.availability_status || 'Disponible';
+  const isFounder = (member as any).is_founder === true;
+
+  const membershipLabel =
+    member.membership_type === 'pleno_derecho'
+      ? 'Socia de pleno derecho'
+      : member.membership_type === 'estudiante'
+        ? 'Socia estudiante'
+        : member.membership_type === 'colaborador'
+          ? 'Socio colaborador'
+          : 'Socia';
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -39,11 +49,16 @@ export function MemberModal({ member, isOpen, onClose }: MemberModalProps) {
                   <span className="block">{member.company}</span>
                 )}
                 <span className="block text-sm text-gray-400 mt-1">
-                  {member.membership_type === 'profesional' ? 'Socia Profesional' : 'Colaboradora'}
+                  {membershipLabel}
                   {member.created_at && ` • Socia desde ${new Date(member.created_at).getFullYear()}`}
                 </span>
               </DialogDescription>
               <div className="flex gap-2 mt-2">
+                {isFounder && (
+                  <Badge variant="outline" className="border-yellow-400 text-yellow-300">
+                    ⭐ Fundadora
+                  </Badge>
+                )}
                 <Badge 
                   variant={
                     availabilityStatus === 'Disponible' ? 'default' : 
