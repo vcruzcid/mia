@@ -4,9 +4,7 @@
  * Runs every 6 hours to reconcile all member subscriptions with Stripe.
  * This catches any webhook failures or discrepancies.
  * 
- * Configure in wrangler.toml:
- * [triggers]
- * crons = ["0 */6 * * *"]
+ * Note: Cron triggers are configured via Cloudflare Dashboard for Pages projects.
  */
 
 import { createClient } from '@supabase/supabase-js';
