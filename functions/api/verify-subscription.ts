@@ -7,7 +7,7 @@
  * 2. Manual verification requests
  */
 
-import Stripe from 'https://esm.sh/stripe@14.21.0';
+import { stripeGet } from '../_lib/stripe';
 
 interface Env {
   STRIPE_SECRET_KEY: string;
@@ -38,21 +38,19 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
       );
     }
 
-    // Initialize Stripe
-    const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
-      apiVersion: '2024-11-20',
-      httpClient: Stripe.createFetchHttpClient()
-    });
+    const subscriptions = await stripeGet<{ data: any[] }>(
+      { apiVersion: '2024-11-20', secretKey: env.STRIPE_SECRET_KEY },
+      '/v1/subscriptions',
+      {
+        customer: customerId,
+        status: 'all',
+        limit: 1,
+        // Stripe uses "expand[]" repeated query params
+        'expand[]': ['data.default_payment_method'],
+      }
+    );
 
-    // Get active subscriptions for this customer
-    const subscriptions = await stripe.subscriptions.list({
-      customer: customerId,
-      status: 'all',
-      limit: 1,
-      expand: ['data.default_payment_method']
-    });
-
-    const subscription = subscriptions.data[0];
+    const subscription = subscriptions.data?.[0];
 
     if (!subscription) {
       return new Response(
