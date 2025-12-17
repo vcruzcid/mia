@@ -4,10 +4,9 @@
  * This module provides critical functionality for maintaining accurate subscription
  * status between Stripe (source of truth) and our database.
  * 
- * Architecture: 3-Layer Hybrid System
+ * Architecture: 2-Layer Hybrid System
  * 1. Webhooks: Immediate updates from Stripe events
  * 2. Login Verification: Direct API check on user login
- * 3. Cron Job: Periodic reconciliation every 6 hours
  */
 
 import { supabase } from '../supabase.client';
@@ -30,7 +29,7 @@ export interface SubscriptionDiscrepancy {
 
 /**
  * Verify subscription status directly with Stripe API
- * This is called during login and by the reconciliation cron job
+ * This is called during login to verify subscription status
  */
 export async function verifySubscriptionStatus(customerId: string): Promise<SubscriptionStatus | null> {
   try {
@@ -164,7 +163,7 @@ export async function getAllMembersWithStripeId(): Promise<Array<{ id: string; s
 }
 
 /**
- * Batch verify subscriptions (used by cron job)
+ * Batch verify subscriptions
  * Processes in chunks to avoid overwhelming the API
  */
 export async function batchVerifySubscriptions(
