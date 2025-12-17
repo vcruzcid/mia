@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { getPublicMembers, searchMembers, filterMembers } from '../services/members/member.service';
+import { getPublicMembers, searchMembers, filterMembers, getDirectoryMembers } from '../services/members/member.service';
 import type { Member } from '../types/supabase';
 import type { MemberFilters } from '../services/members/member.types';
+import type { DirectoryQueryParams } from '../services/members/member.service';
 
 /**
  * Hook to fetch and manage public members
@@ -35,6 +36,18 @@ export function useFilteredMembers(filters: MemberFilters) {
     queryKey: ['members', 'filtered', filters],
     queryFn: () => filterMembers(filters),
     staleTime: 5 * 60 * 1000,
+  });
+}
+
+/**
+ * Server-side directory query with pagination and sorting.
+ * Uses `public_members` (anon) or `members_only` (authenticated) views.
+ */
+export function useDirectoryMembers(params: DirectoryQueryParams) {
+  return useQuery({
+    queryKey: ['members', 'directory', params],
+    queryFn: () => getDirectoryMembers(params),
+    staleTime: 2 * 60 * 1000,
   });
 }
 
