@@ -1,5 +1,5 @@
 // Cloudflare Pages Function for directiva data by year
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createClient } from '@supabase/supabase-js';
 import type { DirectivaResponse } from '../../../src/types/api';
 
 // CORS headers

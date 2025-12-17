@@ -1,5 +1,5 @@
 // Cloudflare Pages Function for completing member registration after Stripe checkout
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createClient } from '@supabase/supabase-js';
 
 interface Env {
   SUPABASE_URL: string;
