@@ -59,11 +59,10 @@ export const supabaseService = {
   getMemberDisplayName: memberService.getMemberDisplayName,
 
   // Auth functions
-  signInWithMagicLink: authService.signInWithMagicLink,
+  sendMagicLink: authService.sendMagicLink,
+  verifyMagicLink: authService.verifyMagicLink,
   signOut: authService.signOut,
   getCurrentSession: authService.getCurrentSession,
-  getCurrentUser: authService.getCurrentUser,
-  getCurrentMember: authService.getCurrentMember,
   updateLastLogin: authService.updateLastLogin,
 
   // Storage functions

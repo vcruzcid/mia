@@ -11,9 +11,7 @@ export function Header() {
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   
   // Check authentication status
-  const { member } = useAuth();
-  const isDemoAuth = localStorage.getItem('demo_auth') === 'true';
-  const isAuthenticated = !!(member || isDemoAuth);
+  const { isAuthenticated } = useAuth();
 
   const navigation = [
     { name: 'Inicio', href: '/' },

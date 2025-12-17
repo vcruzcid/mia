@@ -11,7 +11,13 @@ interface MemberCardProps {
 
 export function MemberCard({ member, onClick }: MemberCardProps) {
   const displayProfession = member.main_profession || member.company || 'Profesional';
-  const specializations = member.other_professions || [];
+  const rawSpecializations = member.other_professions || [];
+  const specializationChips =
+    rawSpecializations.length > 0
+      ? rawSpecializations
+      : member.main_profession
+        ? [member.main_profession]
+        : [];
   const availabilityStatus = member.availability_status || 'Disponible';
   const isFounder = (member as any).is_founder === true;
 
@@ -71,14 +77,26 @@ export function MemberCard({ member, onClick }: MemberCardProps) {
           <div>
             <p className="text-sm text-gray-300 font-medium mb-1">Especializaciones:</p>
             <div className="flex flex-wrap gap-1">
-              {specializations.slice(0, 3).map((spec: string, index: number) => (
-                <Badge key={index} variant="outline" className="text-xs border-gray-600 text-gray-300">
+              {specializationChips.length === 0 && (
+                <Badge
+                  variant="outline"
+                  className="text-xs border-gray-500/70 text-gray-200 bg-gray-900/40"
+                >
+                  Sin especificar
+                </Badge>
+              )}
+              {specializationChips.slice(0, 3).map((spec: string, index: number) => (
+                <Badge
+                  key={index}
+                  variant="outline"
+                  className="text-xs border-gray-500/70 text-gray-100 bg-gray-900/40"
+                >
                   {spec}
                 </Badge>
               ))}
-              {specializations.length > 3 && (
-                <Badge variant="secondary" className="text-xs bg-gray-700 text-gray-300">
-                  +{specializations.length - 3} más
+              {specializationChips.length > 3 && (
+                <Badge variant="secondary" className="text-xs bg-gray-700 text-gray-100">
+                  +{specializationChips.length - 3} más
                 </Badge>
               )}
             </div>

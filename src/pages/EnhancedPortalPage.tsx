@@ -97,47 +97,8 @@ export function EnhancedPortalPage() {
   const [subscriptionData, setSubscriptionData] = useState<any>(null);
   const [uploading, setUploading] = useState(false);
   
-  // Check for demo authentication
-  const isDemoAuth = localStorage.getItem('demo_auth') === 'true';
-  
-  // Create demo member data
-  const demoMember = {
-    id: 'demo-123',
-    email: 'demo@mia-animation.com',
-    firstName: 'Ana',
-    lastName: 'García',
-    phone: '+34 600 123 456',
-    address: 'Calle Example 123',
-    postalCode: '28001',
-    province: 'Madrid',
-    autonomousCommunity: 'Comunidad de Madrid',
-    country: 'España',
-    biography: 'Directora de animación con 10 años de experiencia en la industria. Especializada en animación 2D y storytelling.',
-    mainProfession: 'Directora de Animación',
-    otherProfessions: ['Animadora 2D', 'Storyboard Artist'],
-    company: 'Estudio Animación Madrid',
-    member_number: 'MIA-2024-001',
-    memberNumber: 'MIA-2024-001',
-    membershipType: 'socia-de-pleno-derecho',
-    membershipStatus: 'active',
-    joinDate: '2024-01-15',
-    subscriptionExpires: '2024-12-31',
-    profileImageUrl: null,
-    cvDocumentUrl: null,
-    socialMedia: {
-      linkedin: 'https://linkedin.com/in/ana-garcia-animation',
-      instagram: 'https://instagram.com/ana_animates',
-      vimeo: 'https://vimeo.com/anagarcia'
-    },
-    privacyLevel: 'public'
-  };
-  
   // Normalize member data with memoization
   const currentMember = useMemo(() => {
-    if (isDemoAuth) {
-      return demoMember;
-    }
-    
     if (member) {
       return {
         ...member,
@@ -164,7 +125,7 @@ export function EnhancedPortalPage() {
     }
     
     return null;
-  }, [isDemoAuth, member]);
+  }, [member]);
 
   // Form setups
   const personalInfoForm = useForm<PersonalInfoData>({
@@ -241,18 +202,10 @@ export function EnhancedPortalPage() {
 
   // Load subscription data
   useEffect(() => {
-    if (!isDemoAuth && member) {
+    if (member) {
       loadSubscriptionData();
-    } else if (isDemoAuth) {
-      setSubscriptionData({
-        status: 'active',
-        current_period_end: '2024-12-31T23:59:59Z',
-        amount: 50,
-        currency: 'EUR',
-        interval: 'year'
-      });
     }
-  }, [member, isDemoAuth]);
+  }, [member]);
 
   // Calculate completion status
   useEffect(() => {
@@ -277,21 +230,11 @@ export function EnhancedPortalPage() {
   };
 
   const handleLogout = async () => {
-    if (isDemoAuth) {
-      localStorage.removeItem('demo_auth');
-      window.location.href = '/';
-    } else {
-      await logout();
-    }
+    await logout();
   };
 
   const onUpdatePersonalInfo = async (data: PersonalInfoData) => {
     setMessage(null);
-    
-    if (isDemoAuth) {
-      setMessage({ type: 'success', text: 'Información personal actualizada (modo demo)' });
-      return;
-    }
     
     try {
       const updateData = {
@@ -318,11 +261,6 @@ export function EnhancedPortalPage() {
   const onUpdateProfessionalInfo = async (data: ProfessionalInfoData) => {
     setMessage(null);
     
-    if (isDemoAuth) {
-      setMessage({ type: 'success', text: 'Información profesional actualizada (modo demo)' });
-      return;
-    }
-    
     try {
       const updateData = {
         main_profession: data.mainProfession,
@@ -346,11 +284,6 @@ export function EnhancedPortalPage() {
 
   const onUpdateResearchData = async (data: ResearchData) => {
     setMessage(null);
-    
-    if (isDemoAuth) {
-      setMessage({ type: 'success', text: 'Datos de investigación guardados (modo demo)' });
-      return;
-    }
     
     try {
       const updateData = {
@@ -377,11 +310,6 @@ export function EnhancedPortalPage() {
   };
 
   const handleFileUpload = async (file: File, type: 'profile' | 'cv') => {
-    if (isDemoAuth) {
-      setMessage({ type: 'info', text: 'Carga de archivos no disponible en modo demo' });
-      return;
-    }
-    
     setUploading(true);
     try {
       const url = await supabaseService.uploadMemberFile(file, type);
@@ -399,11 +327,6 @@ export function EnhancedPortalPage() {
   };
 
   const openStripePortal = async () => {
-    if (isDemoAuth) {
-      setMessage({ type: 'info', text: 'Portal de Stripe no disponible en modo demo' });
-      return;
-    }
-    
     try {
       const { url } = await supabaseService.createStripePortalSession();
       window.open(url, '_blank');
@@ -436,7 +359,7 @@ export function EnhancedPortalPage() {
     }
   };
 
-  if (!currentMember && !isDemoAuth) {
+  if (!currentMember) {
     return (
       <div className="min-h-screen flex flex-col bg-gray-900 dark">
         <Header />
