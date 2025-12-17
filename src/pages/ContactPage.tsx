@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { contactFormSchema, type ContactFormData } from '../utils/validation';
@@ -10,18 +10,29 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SocialMediaIcons } from '../components/SocialMediaIcons';
 import { Accordion } from '@/components/ui/accordion';
+import { useEffect } from 'react';
 
 export function ContactPage() {
   const { toast } = useToastContext();
   const { withLoading } = useAsyncLoading();
+  const location = useLocation();
+  const subjectFromState = (location.state as { subject?: string })?.subject;
+  
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
+    setValue,
   } = useForm<ContactFormData>({
     resolver: zodResolver(contactFormSchema),
   });
+
+  useEffect(() => {
+    if (subjectFromState) {
+      setValue('subject', subjectFromState);
+    }
+  }, [subjectFromState, setValue]);
 
   const onSubmit = async (data: ContactFormData) => {
     await withLoading(async () => {

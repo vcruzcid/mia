@@ -54,7 +54,17 @@ export function SociasPage() {
   const totalPages = Math.ceil(totalMembers / itemsPerPage);
   const startIndex = offset;
   const endIndex = offset + itemsPerPage;
-  const currentMembers = members;
+  const currentMembers = useMemo(() => {
+    // The gallery doesn't need a strict ordering (e.g. fundadoras first).
+    // Shuffle per fetch so the first page feels more "alive" and fair.
+    const list = [...members];
+    for (let i = list.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [list[i], list[j]] = [list[j], list[i]];
+    }
+    return list;
+    // Shuffle again when a new page of data arrives
+  }, [members, directoryQuery.dataUpdatedAt]);
 
   // Derived data
   const availableLocations = useMemo(() => getAvailableLocations(members), [members]);

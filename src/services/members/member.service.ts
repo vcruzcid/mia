@@ -198,9 +198,8 @@ export async function getDirectoryMembers(params: DirectoryQueryParams): Promise
     query = query.overlaps('other_professions', specializations);
   }
 
-  // Default ordering: photo first, then completion, then newest
+  // Default ordering: completion first, then newest (no photo bias)
   query = query
-    .order('profile_image_url', { ascending: true, nullsFirst: false })
     .order('profile_completion', { ascending: false })
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1);
