@@ -453,49 +453,12 @@ function DirectivaModal({ member, onClose }: DirectivaModalProps) {
             {/* Social Media */}
             {Object.values(member.socialMedia).some(Boolean) && (
               <div>
-                <h4 className="text-sm font-semibold text-gray-900 mb-3">Enlaces</h4>
-                <div className="flex flex-wrap gap-3">
-                  {member.socialMedia.linkedin && (
-                    <a
-                      href={member.socialMedia.linkedin}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                    >
-                      💼 LinkedIn
-                    </a>
-                  )}
-                  {member.socialMedia.twitter && (
-                    <a
-                      href={`https://twitter.com/${member.socialMedia.twitter.replace('@', '')}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                    >
-                      🐦 Twitter
-                    </a>
-                  )}
-                  {member.socialMedia.instagram && (
-                    <a
-                      href={member.socialMedia.instagram}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                    >
-                      📸 Instagram
-                    </a>
-                  )}
-                  {member.socialMedia.website && (
-                    <a
-                      href={member.socialMedia.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                    >
-                      🌐 Sitio Web
-                    </a>
-                  )}
-                </div>
+                <h4 className="text-sm font-semibold text-gray-900 mb-3">Redes Sociales</h4>
+                <SocialMediaIcons
+                  socialMedia={member.socialMedia}
+                  size="sm"
+                  variant="compact"
+                />
               </div>
             )}
           </div>
