@@ -35,13 +35,13 @@ export function FundadorasPage() {
     return FUNDADORAS.map(f => ({
       ...f,
       is_active: true,
-      created_at: f.joinDate || new Date().toISOString(),
+      created_at: new Date('2019-01-01').toISOString(), // MIA founded in 2019
       updated_at: new Date().toISOString(),
       auth_user_id: null,
       stripe_subscription_status: 'active',
       subscription_current_period_end: null,
       cancel_at_period_end: false,
-      is_lifetime: false,
+      is_lifetime: true, // Founders are lifetime members
       last_verified_at: null,
       accepts_newsletter: true,
       accepts_job_offers: false,
