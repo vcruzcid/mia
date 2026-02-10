@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
+import { Header } from '../components/Header';
+import { Footer } from '../components/Footer';
 import { Card, CardContent } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
 import { Badge } from '@/components/ui/badge';
@@ -122,24 +124,30 @@ export function WelcomePage() {
 
   if (state.loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <Spinner className="h-32 w-32 mx-auto" />
-          <h2 className="mt-6 text-2xl font-semibold text-gray-900">
-            Verificando tu registro...
-          </h2>
-          <p className="mt-2 text-gray-600">
-            Estamos obteniendo tu información de pago y activando tu membresía.
-          </p>
-        </div>
+      <div className="min-h-screen flex flex-col bg-gray-50">
+        <Header />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <Spinner className="h-32 w-32 mx-auto" />
+            <h2 className="mt-6 text-2xl font-semibold text-gray-900">
+              Verificando tu registro...
+            </h2>
+            <p className="mt-2 text-gray-600">
+              Estamos obteniendo tu información de pago y activando tu membresía.
+            </p>
+          </div>
+        </main>
+        <Footer />
       </div>
     );
   }
 
   if (state.error || !state.userInfo) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="max-w-md mx-auto text-center">
+      <div className="min-h-screen flex flex-col bg-gray-50">
+        <Header />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="max-w-md mx-auto text-center">
           <div className="bg-red-50 border border-red-200 rounded-lg p-6">
             <svg className="mx-auto h-12 w-12 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
@@ -168,6 +176,8 @@ export function WelcomePage() {
             </div>
           </div>
         </div>
+        </main>
+        <Footer />
       </div>
     );
   }
@@ -175,8 +185,10 @@ export function WelcomePage() {
   const { userInfo } = state;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-blue-50">
-      <div className="max-w-4xl mx-auto px-4 py-12">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-primary-50 to-blue-50">
+      <Header />
+      <main className="flex-1 py-12">
+        <div className="max-w-4xl mx-auto px-4">
         {/* Success Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-green-500 text-white rounded-full mb-4">
@@ -415,6 +427,8 @@ export function WelcomePage() {
           </div>
         )}
       </div>
+      </main>
+      <Footer />
     </div>
   );
 }
