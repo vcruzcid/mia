@@ -1,14 +1,12 @@
-import { useEffect, useState, useMemo } from 'react';
-import { useBoardMembers, getAvailablePeriods, getCurrentBoardMembers, getBoardMembersForPeriod, getCurrentPeriodLabel } from '../hooks/useBoardMembers';
+import { useState, useMemo } from 'react';
 import type { DirectivaMember } from '../types';
-import type { BoardMemberWithHistory, CurrentBoardMember } from '../types/supabase';
 import { ProfileImage } from '../components/ProfileImage';
 import { SocialMediaIcons } from '../components/SocialMediaIcons';
 import { Badge } from '../components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Spinner } from '@/components/ui/spinner';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { BOARD_MEMBERS_2025_2027, type BoardMember } from '../data/directiva';
 
 // Shared utility functions
 const getPositionEmail = (position: string): string => {
@@ -45,40 +43,37 @@ const getPositionStyle = (position: string): string => {
   return positionStyles[position] || 'from-red-500 to-red-600';
 };
 
-// Helper function to transform database data to UI format
-function transformBoardMemberToDirectivaMember(member: CurrentBoardMember | BoardMemberWithHistory): DirectivaMember {
+// Helper function to transform static board data to UI format
+function transformBoardMemberToDirectivaMember(member: BoardMember): DirectivaMember {
   return {
     id: member.id,
-    firstName: member.first_name || '',
-    lastName: member.last_name || '',
-    displayName: member.display_name || `${member.first_name || ''} ${member.last_name || ''}`.trim(),
-    email: member.email || '',
-    position: member.board_position || 'Vocal',
-    responsibilities: member.position_responsibilities || [],
-    profileImage: member.profile_image_url || '',
-    company: member.company || '',
-    memberType: member.membership_type as 'socia-pleno-derecho' | 'colaborador' || 'colaborador',
+    firstName: member.first_name,
+    lastName: member.last_name,
+    displayName: member.display_name,
+    email: member.email,
+    position: member.position,
+    responsibilities: member.position_responsibilities,
+    profileImage: member.profile_image_url,
+    company: member.company,
+    memberType: member.membership_type === 'pleno_derecho' ? 'socia-pleno-derecho' : 'colaborador',
     availabilityStatus: 'Disponible' as 'Disponible' | 'Empleada' | 'Freelance',
     location: {
-      city: member.city || '',
+      city: member.city,
       region: member.autonomous_community || member.province || '',
-      country: member.country || 'España'
+      country: member.country
     },
-    bio: member.biography || '',
+    bio: member.biography,
     yearServed: getYearsServed(member.board_term_start),
-    joinDate: member.created_at || new Date().toISOString(),
-    socialMedia: member.social_media || {},
-    specializations: member.other_professions || [],
+    joinDate: member.board_term_start,
+    socialMedia: member.social_media,
+    specializations: member.other_professions,
     isCurrentMember: isCurrentlyServing(member.board_term_start, member.board_term_end),
-    isActive: member.stripe_subscription_status === 'active' || false,
-    previousPositions: member.position_history?.map(history => ({
-      position: history.position,
-      year: new Date(history.term_start).getFullYear()
-    })) || [],
+    isActive: true,
+    previousPositions: [],
     board_term_start: member.board_term_start,
     board_term_end: member.board_term_end,
-    board_personal_commitment: member.board_personal_commitment,
-    position_history: member.position_history || []
+    board_personal_commitment: undefined,
+    position_history: []
   };
 }
 
@@ -106,31 +101,15 @@ function isCurrentlyServing(startDate?: string, endDate?: string): boolean {
 }
 
 export function DirectivaPage() {
-  const { data: boardMembers = [], isLoading } = useBoardMembers();
-  const [selectedPeriod, setSelectedPeriod] = useState<string>('');
   const [selectedMember, setSelectedMember] = useState<DirectivaMember | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Derived data using helper functions
-  const allPeriods = useMemo(() => getAvailablePeriods(boardMembers), [boardMembers]);
-  const availablePeriods = useMemo(() => allPeriods.slice(0, 5), [allPeriods]);
-  const currentBoardMembers = useMemo(() => getCurrentBoardMembers(boardMembers), [boardMembers]);
-  const currentPeriod = useMemo(() => getCurrentPeriodLabel(boardMembers) || '', [boardMembers]);
-  
-  // Ensure selected period is set to current period when data loads (only once)
-  useEffect(() => {
-    if (availablePeriods.length > 0 && !selectedPeriod) {
-      setSelectedPeriod(currentPeriod || availablePeriods[0]);
-    }
-  }, [availablePeriods, selectedPeriod, currentPeriod]);
-  
-  // Ensure we always have a selected period
-  const currentSelectedPeriod = selectedPeriod || currentPeriod || availablePeriods[0] || '';
-  const hasBoardData = currentBoardMembers.length > 0;
-
-  const handlePeriodChange = (period: string) => {
-    setSelectedPeriod(period);
-  };
+  // Use static board member data
+  const boardMembers = useMemo(() => BOARD_MEMBERS_2025_2027, []);
+  const availablePeriods = ['2025-2027'];
+  const currentPeriod = '2025-2027';
+  const currentSelectedPeriod = currentPeriod;
+  const hasBoardData = boardMembers.length > 0;
 
   const openMemberModal = (member: DirectivaMember) => {
     setSelectedMember(member);
@@ -142,21 +121,10 @@ export function DirectivaPage() {
     setSelectedMember(null);
   };
 
-  const getBoardMembersForPeriodHelper = (period: string) => {
-    return getBoardMembersForPeriod(boardMembers, period);
-  };
-
-  // Show loading state if we're loading OR if we have no data yet
-  if (isLoading || (!hasBoardData && availablePeriods.length === 0)) {
-    return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <Spinner className="h-12 w-12 text-white mx-auto mb-4" />
-          <p className="text-gray-300">Cargando información de la Junta Directiva...</p>
-        </div>
-      </div>
-    );
-  }
+  const transformedBoardMembers = useMemo(
+    () => boardMembers.map(transformBoardMemberToDirectivaMember),
+    [boardMembers]
+  );
 
   return (
     <div className="bg-gray-900">
@@ -171,93 +139,63 @@ export function DirectivaPage() {
           </p>
         </div>
 
-        {/* Period Selector */}
+        {/* Period Display */}
         <div className="mt-10 max-w-2xl mx-auto px-4">
-          <label className="block text-sm font-medium text-gray-300 mb-3 text-center">
-            Seleccionar período de la directiva
-          </label>
-          <Tabs value={currentSelectedPeriod} onValueChange={handlePeriodChange} className="w-full">
-            <TabsList className={`grid w-full bg-gray-800 border border-gray-700 ${
-              availablePeriods.length === 2 ? 'grid-cols-2' :
-              availablePeriods.length === 3 ? 'grid-cols-3' :
-              availablePeriods.length === 4 ? 'grid-cols-2 sm:grid-cols-4' :
-              'grid-cols-2 sm:grid-cols-4 lg:grid-cols-5'
-            }`}>
-              {availablePeriods.map((period) => (
-                <TabsTrigger
-                  key={period}
-                  value={period}
-                  className={`text-xs sm:text-sm font-medium transition-all duration-200 ${
-                    period === currentPeriod ? 'bg-red-600 text-white' : 'text-gray-300 hover:text-white'
-                  }`}
-                >
-                  <span className="hidden sm:inline">
-                    {period}
-                    {period === currentPeriod && <span className="ml-1 text-xs opacity-75">(Actual)</span>}
-                  </span>
-                  <span className="sm:hidden">{period.split('-')[0]}</span>
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
+          <div className="text-center">
+            <Badge variant="default" className="bg-red-600 text-white text-lg px-6 py-2">
+              Período Actual: 2025-2027
+            </Badge>
+          </div>
         </div>
       </div>
 
       {/* Directiva Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-        {availablePeriods.map((period) => (
-          <div key={period} className={period === currentSelectedPeriod ? 'mt-8' : 'hidden'}>
-              {getBoardMembersForPeriodHelper(period).length === 0 ? (
-                <div className="text-center py-12">
-                  <div className="mx-auto h-24 w-24 bg-gray-700 rounded-full flex items-center justify-center mb-4">
-                    <svg className="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
-                  </div>
-                  <h3 className="text-lg font-medium text-white mb-2">
-                    {period === currentPeriod ? 'No hay información disponible' : 'Información histórica no disponible'}
-                  </h3>
-                  <p className="text-gray-300">
-                    {period === currentPeriod 
-                      ? 'No se encontraron miembros de la directiva para el período actual.'
-                      : 'Los datos de períodos anteriores no están disponibles en la base de datos.'
-                    }
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-8">
-                  {/* Period Header */}
-                  <div className="text-center">
-                    <h2 className="text-2xl font-bold text-white mb-2">
-                      Período {period}
-                    </h2>
-                    {period === currentPeriod && (
-                      <Badge variant="default" className="bg-green-600 text-white">
-                        Período Actual
-                      </Badge>
-                    )}
-                  </div>
-
-                  {/* Board Members Grid */}
-                  <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                    {getBoardMembersForPeriodHelper(period).map(transformBoardMemberToDirectivaMember).map((member, index) => {
-                      const uniqueKey = `${member.id}-${member.position}-${member.board_term_start || period}-${index}`;
-                      return (
-                      <DirectivaCard
-                        key={uniqueKey}
-                        member={member}
-                        index={index}
-                        onClick={() => openMemberModal(member as any)}
-                        isCurrentPeriod={period === currentPeriod}
-                      />
-                    );
-                    })}
-                  </div>
-
-                </div>
-              )}
+        <div className="mt-8">
+          {!hasBoardData ? (
+            <div className="text-center py-12">
+              <div className="mx-auto h-24 w-24 bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                <svg className="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-white mb-2">
+                No hay información disponible
+              </h3>
+              <p className="text-gray-300">
+                No se encontraron miembros de la directiva para el período actual.
+              </p>
             </div>
-        ))}
+          ) : (
+            <div className="space-y-8">
+              {/* Period Header */}
+              <div className="text-center">
+                <h2 className="text-2xl font-bold text-white mb-2">
+                  Período 2025-2027
+                </h2>
+                <Badge variant="default" className="bg-green-600 text-white">
+                  Período Actual
+                </Badge>
+              </div>
+
+              {/* Board Members Grid */}
+              <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                {transformedBoardMembers.map((member, index) => {
+                  const uniqueKey = `${member.id}-${member.position}-${index}`;
+                  return (
+                    <DirectivaCard
+                      key={uniqueKey}
+                      member={member}
+                      index={index}
+                      onClick={() => openMemberModal(member)}
+                      isCurrentPeriod={true}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Member Modal */}

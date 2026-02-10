@@ -1,15 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Spinner } from '@/components/ui/spinner';
 import { BackgroundImage } from '@/components/ui/background-image';
-import { getAvailableLocations, getMemberCounts, useDirectoryMembers } from '../hooks/useMembers';
+import { getAvailableLocations, getMemberCounts } from '../hooks/useMembers';
 import { useMemberFilters } from '../hooks/useMemberFilters';
 import { MemberCard } from './socias/MemberCard';
 import { MemberModal } from './socias/MemberModal';
 import { MemberFilters } from './socias/MemberFilters';
 import type { Member } from '../types/supabase';
-import { useAuth } from '../hooks/useAuth';
+import { FUNDADORAS } from '../data/fundadoras';
 
 export function FundadorasPage() {
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
@@ -18,7 +17,6 @@ export function FundadorasPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
 
-  const { isAuthenticated } = useAuth();
   const {
     filters,
     searchTerm,
@@ -32,28 +30,91 @@ export function FundadorasPage() {
     getActiveFiltersCount,
   } = useMemberFilters();
 
-  const offset = (currentPage - 1) * itemsPerPage;
-  const directoryQuery = useDirectoryMembers({
-    includePrivate: isAuthenticated,
-    isFounder: true,
-    searchTerm,
-    membershipTypes: filters.membershipTypes,
-    specializations: filters.specializations,
-    locations: filters.locations,
-    availabilityStatus: filters.availabilityStatus,
-    limit: itemsPerPage,
-    offset
-  });
+  // Convert fundadoras data to Member type
+  const allMembers: Member[] = useMemo(() => {
+    return FUNDADORAS.map(f => ({
+      ...f,
+      is_active: true,
+      created_at: f.joinDate || new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      auth_user_id: null,
+      stripe_subscription_status: 'active',
+      subscription_current_period_end: null,
+      cancel_at_period_end: false,
+      is_lifetime: false,
+      last_verified_at: null,
+      accepts_newsletter: true,
+      accepts_job_offers: false,
+      profile_completion: 100,
+      cv_document_url: null,
+      phone: null,
+      postal_code: null,
+      professional_role: null,
+      years_experience: null,
+      employment_status: null,
+    }));
+  }, []);
 
-  const members = directoryQuery.data?.members ?? [];
-  const totalMembers = directoryQuery.data?.total ?? 0;
+  // Client-side filtering
+  const filteredMembers = useMemo(() => {
+    let filtered = allMembers;
+
+    // Search filter
+    if (searchTerm) {
+      const search = searchTerm.toLowerCase();
+      filtered = filtered.filter(m =>
+        m.display_name?.toLowerCase().includes(search) ||
+        m.first_name?.toLowerCase().includes(search) ||
+        m.last_name?.toLowerCase().includes(search) ||
+        m.company?.toLowerCase().includes(search) ||
+        m.main_profession?.toLowerCase().includes(search) ||
+        m.other_professions?.some(p => p.toLowerCase().includes(search))
+      );
+    }
+
+    // Membership type filter
+    if (filters.membershipTypes.length > 0) {
+      filtered = filtered.filter(m =>
+        m.membership_type && filters.membershipTypes.includes(m.membership_type)
+      );
+    }
+
+    // Specialization filter
+    if (filters.specializations.length > 0) {
+      filtered = filtered.filter(m =>
+        (m.main_profession && filters.specializations.includes(m.main_profession)) ||
+        m.other_professions?.some(p => filters.specializations.includes(p))
+      );
+    }
+
+    // Location filter
+    if (filters.locations.length > 0) {
+      filtered = filtered.filter(m =>
+        (m.city && filters.locations.includes(m.city)) ||
+        (m.province && filters.locations.includes(m.province)) ||
+        (m.autonomous_community && filters.locations.includes(m.autonomous_community))
+      );
+    }
+
+    // Availability filter
+    if (filters.availabilityStatus.length > 0) {
+      filtered = filtered.filter(m =>
+        m.availability_status && filters.availabilityStatus.includes(m.availability_status)
+      );
+    }
+
+    return filtered;
+  }, [allMembers, searchTerm, filters]);
+
+  const totalMembers = filteredMembers.length;
   const totalPages = Math.ceil(totalMembers / itemsPerPage);
+  const offset = (currentPage - 1) * itemsPerPage;
   const startIndex = offset;
   const endIndex = offset + itemsPerPage;
-  const currentMembers = members;
+  const currentMembers = filteredMembers.slice(offset, offset + itemsPerPage);
 
-  const availableLocations = useMemo(() => getAvailableLocations(members), [members]);
-  const memberCounts = useMemo(() => getMemberCounts(members), [members]);
+  const availableLocations = useMemo(() => getAvailableLocations(allMembers), [allMembers]);
+  const memberCounts = useMemo(() => getMemberCounts(allMembers), [allMembers]);
   const activeFiltersCount = getActiveFiltersCount();
 
   const openModal = (member: Member) => {
@@ -69,30 +130,6 @@ export function FundadorasPage() {
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, filters]);
-
-  if (directoryQuery.isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <Spinner className="h-12 w-12 text-primary-500" />
-      </div>
-    );
-  }
-
-  if (directoryQuery.isError) {
-    return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center px-6">
-        <div className="text-center max-w-lg">
-          <h2 className="text-xl font-semibold text-white mb-2">No se pudo cargar Fundadoras</h2>
-          <p className="text-gray-300 mb-4">
-            Hubo un error consultando la base de datos. Intenta de nuevo.
-          </p>
-          <Button onClick={() => directoryQuery.refetch()} className="bg-primary-600 hover:bg-primary-700 text-white">
-            Reintentar
-          </Button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gray-900">
