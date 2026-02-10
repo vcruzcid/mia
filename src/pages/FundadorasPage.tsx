@@ -1,121 +1,39 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { useMemo, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { BackgroundImage } from '@/components/ui/background-image';
-import { getAvailableLocations, getMemberCounts } from '../hooks/useMembers';
-import { useMemberFilters } from '../hooks/useMemberFilters';
 import { MemberCard } from './socias/MemberCard';
 import { MemberModal } from './socias/MemberModal';
-import { MemberFilters } from './socias/MemberFilters';
-import type { Member } from '../types/supabase';
+import type { Member } from '../types/member';
 import { FUNDADORAS } from '../data/fundadoras';
 
 export function FundadorasPage() {
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(20);
-
-  const {
-    filters,
-    searchTerm,
-    setSearchTerm,
-    setFilters,
-    toggleMembershipType,
-    toggleSpecialization,
-    toggleLocation,
-    toggleAvailabilityStatus,
-    resetFilters,
-    getActiveFiltersCount,
-  } = useMemberFilters();
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Convert fundadoras data to Member type
   const allMembers: Member[] = useMemo(() => {
     return FUNDADORAS.map(f => ({
       ...f,
-      is_active: true,
       created_at: new Date('2019-01-01').toISOString(), // MIA founded in 2019
       updated_at: new Date().toISOString(),
-      auth_user_id: null,
-      stripe_subscription_status: 'active',
-      subscription_current_period_end: null,
-      cancel_at_period_end: false,
-      is_lifetime: true, // Founders are lifetime members
-      last_verified_at: null,
-      accepts_newsletter: true,
-      accepts_job_offers: false,
-      profile_completion: 100,
-      cv_document_url: null,
-      phone: null,
-      postal_code: null,
-      professional_role: null,
-      years_experience: null,
-      employment_status: null,
     }));
   }, []);
 
-  // Client-side filtering
+  // Simple search filter
   const filteredMembers = useMemo(() => {
-    let filtered = allMembers;
+    if (!searchTerm) return allMembers;
 
-    // Search filter
-    if (searchTerm) {
-      const search = searchTerm.toLowerCase();
-      filtered = filtered.filter(m =>
-        m.display_name?.toLowerCase().includes(search) ||
-        m.first_name?.toLowerCase().includes(search) ||
-        m.last_name?.toLowerCase().includes(search) ||
-        m.company?.toLowerCase().includes(search) ||
-        m.main_profession?.toLowerCase().includes(search) ||
-        m.other_professions?.some(p => p.toLowerCase().includes(search))
-      );
-    }
-
-    // Membership type filter
-    if (filters.membershipTypes.length > 0) {
-      filtered = filtered.filter(m =>
-        m.membership_type && filters.membershipTypes.includes(m.membership_type)
-      );
-    }
-
-    // Specialization filter
-    if (filters.specializations.length > 0) {
-      filtered = filtered.filter(m =>
-        (m.main_profession && filters.specializations.includes(m.main_profession)) ||
-        m.other_professions?.some(p => filters.specializations.includes(p))
-      );
-    }
-
-    // Location filter
-    if (filters.locations.length > 0) {
-      filtered = filtered.filter(m =>
-        (m.city && filters.locations.includes(m.city)) ||
-        (m.province && filters.locations.includes(m.province)) ||
-        (m.autonomous_community && filters.locations.includes(m.autonomous_community))
-      );
-    }
-
-    // Availability filter
-    if (filters.availabilityStatus.length > 0) {
-      filtered = filtered.filter(m =>
-        m.availability_status && filters.availabilityStatus.includes(m.availability_status)
-      );
-    }
-
-    return filtered;
-  }, [allMembers, searchTerm, filters]);
-
-  const totalMembers = filteredMembers.length;
-  const totalPages = Math.ceil(totalMembers / itemsPerPage);
-  const offset = (currentPage - 1) * itemsPerPage;
-  const startIndex = offset;
-  const endIndex = offset + itemsPerPage;
-  const currentMembers = filteredMembers.slice(offset, offset + itemsPerPage);
-
-  const availableLocations = useMemo(() => getAvailableLocations(allMembers), [allMembers]);
-  const memberCounts = useMemo(() => getMemberCounts(allMembers), [allMembers]);
-  const activeFiltersCount = getActiveFiltersCount();
+    const search = searchTerm.toLowerCase();
+    return allMembers.filter(m =>
+      m.display_name?.toLowerCase().includes(search) ||
+      m.first_name?.toLowerCase().includes(search) ||
+      m.last_name?.toLowerCase().includes(search) ||
+      m.company?.toLowerCase().includes(search) ||
+      m.main_profession?.toLowerCase().includes(search) ||
+      m.other_professions?.some(p => p.toLowerCase().includes(search))
+    );
+  }, [allMembers, searchTerm]);
 
   const openModal = (member: Member) => {
     setSelectedMember(member);
@@ -126,10 +44,6 @@ export function FundadorasPage() {
     setIsModalOpen(false);
     setSelectedMember(null);
   };
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm, filters]);
 
   return (
     <div className="min-h-screen bg-gray-900">
@@ -148,125 +62,67 @@ export function FundadorasPage() {
       </BackgroundImage>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Search + Controls */}
-        <div className="bg-gray-800 rounded-lg p-4 md:p-6 border border-gray-700 mb-6">
-          <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
-            <div className="flex-1">
+        {/* Simple Search Bar */}
+        <div className="mb-8">
+          <div className="max-w-lg mx-auto">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
               <Input
+                type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Buscar por nombre, profesión o empresa..."
-                className="bg-gray-900 border-gray-700 text-white placeholder:text-gray-500"
+                className="pl-10 h-12 text-base bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500"
+                placeholder="Buscar por nombre o especialización..."
               />
-            </div>
-
-            <div className="flex items-center gap-3">
-              <Button
-                variant="outline"
-                onClick={() => setIsFiltersExpanded(!isFiltersExpanded)}
-                className="border-gray-600 text-gray-200 hover:bg-gray-700"
-              >
-                Filtros{activeFiltersCount > 0 ? ` (${activeFiltersCount})` : ''}
-              </Button>
-
-              <Button
-                variant="ghost"
-                onClick={resetFilters}
-                className="text-gray-200 hover:text-white hover:bg-gray-700"
-              >
-                Reset
-              </Button>
             </div>
           </div>
 
-          {isFiltersExpanded && (
-            <div className="mt-6">
-              <MemberFilters
-                filters={filters}
-                availableLocations={availableLocations}
-                memberCounts={memberCounts}
-                toggleMembershipType={toggleMembershipType}
-                toggleSpecialization={toggleSpecialization}
-                toggleLocation={toggleLocation}
-                toggleAvailabilityStatus={toggleAvailabilityStatus}
-                setFilters={setFilters}
-              />
-            </div>
-          )}
-        </div>
-
-        {/* Results header */}
-        <div className="flex items-center justify-between mb-6">
-          <span className="text-sm text-gray-300">
-            {totalMembers} fundadoras encontradas
-            {totalMembers > 0 && (
-              <span className="ml-2 text-gray-400">
-                (mostrando {startIndex + 1}-{Math.min(endIndex, totalMembers)} de {totalMembers})
-              </span>
-            )}
-          </span>
-
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-300">Por página:</span>
-            <select
-              value={itemsPerPage}
-              onChange={(e) => setItemsPerPage(Number(e.target.value))}
-              className="bg-gray-900 border border-gray-700 text-white rounded-md px-2 py-1"
-            >
-              <option value={12}>12</option>
-              <option value={20}>20</option>
-              <option value={32}>32</option>
-            </select>
+          {/* Results count */}
+          <div className="text-center mt-4">
+            <span className="text-sm text-gray-300">
+              {filteredMembers.length === allMembers.length
+                ? `${allMembers.length} fundadoras`
+                : `${filteredMembers.length} de ${allMembers.length} fundadoras`}
+            </span>
           </div>
         </div>
 
-        {/* Grid */}
-        {currentMembers.length === 0 ? (
-          <div className="text-center py-16">
-            <p className="text-gray-300 mb-4">No hay resultados con estos filtros.</p>
-            <Button onClick={resetFilters} className="bg-primary-600 hover:bg-primary-700 text-white">
-              Limpiar filtros
-            </Button>
+        {/* Members Grid */}
+        {filteredMembers.length === 0 ? (
+          <div className="text-center py-12">
+            <svg className="mx-auto h-12 w-12 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <h3 className="mt-2 text-sm font-medium text-gray-200">No se encontraron fundadoras</h3>
+            <p className="mt-1 text-sm text-gray-400">
+              Prueba a ajustar tu búsqueda.
+            </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {currentMembers.map((m) => (
-              <MemberCard key={m.id} member={m} onClick={() => openModal(m)} />
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {filteredMembers.map((member) => (
+              <MemberCard
+                key={member.id}
+                member={member}
+                onClick={() => openModal(member)}
+              />
             ))}
-          </div>
-        )}
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-2 mt-10">
-            <Button
-              variant="outline"
-              className="border-gray-700 text-gray-200 hover:bg-gray-800"
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-            >
-              Anterior
-            </Button>
-            <span className="text-sm text-gray-300 px-3">
-              Página {currentPage} de {totalPages}
-            </span>
-            <Button
-              variant="outline"
-              className="border-gray-700 text-gray-200 hover:bg-gray-800"
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-            >
-              Siguiente
-            </Button>
           </div>
         )}
       </div>
 
+      {/* Member Modal */}
       {selectedMember && (
-        <MemberModal member={selectedMember} isOpen={isModalOpen} onClose={closeModal} />
+        <MemberModal
+          member={selectedMember}
+          isOpen={isModalOpen}
+          onClose={closeModal}
+        />
       )}
     </div>
   );
 }
-
-

@@ -98,7 +98,6 @@ export default defineConfig({
         manualChunks: {
           vendor: ['react', 'react-dom'],
           router: ['react-router-dom'],
-          query: ['@tanstack/react-query'],
           forms: ['react-hook-form', '@hookform/resolvers', 'zod']
         }
       }

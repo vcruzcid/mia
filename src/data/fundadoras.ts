@@ -1,6 +1,4 @@
-import type { Member } from '../types/supabase';
-
-export type Fundadora = Member & { is_founder: boolean };
+import type { Fundadora } from '../types/member';
 
 export const FUNDADORAS: Fundadora[] = [
   {
