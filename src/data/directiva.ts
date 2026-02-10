@@ -1,33 +1,4 @@
-import type { BoardPosition } from '../types/supabase';
-
-export interface BoardMember {
-  id: string;
-  first_name: string;
-  last_name: string;
-  display_name: string;
-  email: string;
-  position: BoardPosition;
-  position_responsibilities: string[];
-  profile_image_url: string;
-  company: string;
-  membership_type: 'pleno_derecho' | 'estudiante' | 'colaborador';
-  city: string;
-  province?: string;
-  autonomous_community?: string;
-  country: string;
-  biography: string;
-  board_term_start: string;
-  board_term_end: string;
-  social_media: {
-    linkedin?: string;
-    twitter?: string;
-    instagram?: string;
-    website?: string;
-    vimeo?: string;
-  };
-  main_profession: string;
-  other_professions: string[];
-}
+import type { BoardMember } from '../types/member';
 
 export const BOARD_MEMBERS_2025_2027: BoardMember[] = [
   {
