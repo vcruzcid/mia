@@ -24,12 +24,9 @@ function FundadorasCard({ member, index, onClick }: FundadorasCardProps) {
     >
       <div className="relative">
         {/* Header with gradient background */}
-        <div className="bg-gradient-to-r from-red-600 to-red-700 text-white h-16">
-        </div>
-
-        {/* Profile Image */}
-        <div className="absolute -bottom-6 left-4">
-          <div className="relative">
+        <div className="bg-gradient-to-r from-red-600 to-red-700 text-white h-20 flex items-center px-4">
+          {/* Profile Image */}
+          <div className="relative flex-shrink-0">
             <ProfileImage
               src={member.profile_image_url}
               alt={member.display_name}
@@ -43,16 +40,19 @@ function FundadorasCard({ member, index, onClick }: FundadorasCardProps) {
               </svg>
             </div>
           </div>
+          {/* Name */}
+          <h3 className="text-lg sm:text-xl font-bold text-white drop-shadow-md ml-4">
+            {member.display_name}
+          </h3>
         </div>
       </div>
 
-      <CardContent className="pt-8 p-3 sm:p-4">
+      <CardContent className="pt-4 p-3 sm:p-4">
         <div className="mb-4">
-          <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">
-            {member.display_name}
-          </h3>
           {member.main_profession && (
-            <p className="text-sm font-medium text-gray-900 mt-1">{member.main_profession}</p>
+            <div className="inline-block px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold bg-gradient-to-r from-red-600 to-red-700 text-white">
+              {member.main_profession}
+            </div>
           )}
           {member.company && (
             <p className="text-xs sm:text-sm text-gray-700 mt-2">
@@ -60,6 +60,15 @@ function FundadorasCard({ member, index, onClick }: FundadorasCardProps) {
             </p>
           )}
         </div>
+
+        {/* Biography preview */}
+        {member.biography && (
+          <div className="mb-4">
+            <p className="text-sm text-gray-600 line-clamp-2">
+              {member.biography}
+            </p>
+          </div>
+        )}
 
         {/* Location and Social Media */}
         <div className="border-t border-gray-200 pt-4">
@@ -69,7 +78,9 @@ function FundadorasCard({ member, index, onClick }: FundadorasCardProps) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              <span>{member.country}</span>
+              <span>
+                {member.city && `${member.city}, `}{member.country}
+              </span>
             </div>
 
             <SocialMediaIcons
