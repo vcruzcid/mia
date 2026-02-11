@@ -139,12 +139,15 @@ export function DirectivaPage() {
           </p>
         </div>
 
-        {/* Period Display */}
+        {/* Period Selector */}
         <div className="mt-10 max-w-2xl mx-auto px-4">
           <div className="text-center">
-            <Badge variant="default" className="bg-red-600 text-white text-lg px-6 py-2">
-              Período Actual: 2025-2027
-            </Badge>
+            <div className="inline-flex items-center gap-3">
+              <span className="text-white font-semibold">Período:</span>
+              <button className="bg-red-600 hover:bg-red-700 text-white font-medium px-6 py-2 rounded-md transition-colors">
+                2025-2027
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -168,15 +171,6 @@ export function DirectivaPage() {
             </div>
           ) : (
             <div className="space-y-8">
-              {/* Period Header */}
-              <div className="text-center">
-                <h2 className="text-2xl font-bold text-white mb-2">
-                  Período 2025-2027
-                </h2>
-                <Badge variant="default" className="bg-green-600 text-white">
-                  Período Actual
-                </Badge>
-              </div>
 
               {/* Board Members Grid */}
               <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
@@ -231,12 +225,9 @@ function DirectivaCard({ member, index, onClick, isCurrentPeriod = false }: Dire
     >
       <div className="relative">
         {/* Header with gradient background */}
-        <div className={`bg-gradient-to-r ${getPositionStyle(member.position)} text-white h-16`}>
-        </div>
-        
-        {/* Profile Image */}
-        <div className="absolute -bottom-6 left-4">
-          <div className="relative">
+        <div className="bg-gradient-to-r from-red-600 to-red-700 text-white h-20 flex items-center px-4">
+          {/* Profile Image */}
+          <div className="relative flex-shrink-0">
             <ProfileImage
               src={member.profileImage}
               alt={`${member.firstName} ${member.lastName}`}
@@ -251,14 +242,15 @@ function DirectivaCard({ member, index, onClick, isCurrentPeriod = false }: Dire
               </div>
             )}
           </div>
+          {/* Name */}
+          <h3 className="text-lg sm:text-xl font-bold text-white drop-shadow-md ml-4">
+            {member.firstName} {member.lastName}
+          </h3>
         </div>
       </div>
 
-      <CardContent className="pt-8 p-3 sm:p-4">
+      <CardContent className="pt-4 p-3 sm:p-4">
         <div className="mb-4">
-          <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">
-            {member.firstName} {member.lastName}
-          </h3>
           <div className={`inline-block px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold bg-gradient-to-r ${getPositionStyle(member.position)} text-white`}>
             {member.position}
           </div>
@@ -269,16 +261,23 @@ function DirectivaCard({ member, index, onClick, isCurrentPeriod = false }: Dire
           )}
         </div>
 
-
+        {/* Biography preview */}
+        {member.bio && (
+          <div className="mb-4">
+            <p className="text-sm text-gray-600 line-clamp-2">
+              {member.bio}
+            </p>
+          </div>
+        )}
 
         {/* Email - only show for current period */}
         {isCurrentPeriod && getPositionEmail(member.position) && (
-          <div className="border-t border-gray-200 pt-4 pb-3">
+          <div className="mb-4">
             <div className="flex items-center text-sm text-gray-600">
               <svg className="h-4 w-4 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
-              <a 
+              <a
                 href={`mailto:${getPositionEmail(member.position)}`}
                 className="text-red-600 hover:text-red-700 transition-colors"
                 onClick={(e) => e.stopPropagation()}
@@ -301,8 +300,8 @@ function DirectivaCard({ member, index, onClick, isCurrentPeriod = false }: Dire
                 {member.location.city && `${member.location.city}, `}{member.location.country}
               </span>
             </div>
-            
-            <SocialMediaIcons 
+
+            <SocialMediaIcons
               socialMedia={member.socialMedia}
               size="sm"
               variant="compact"
@@ -341,10 +340,14 @@ function DirectivaModal({ member, onClose }: DirectivaModalProps) {
                 <h3 className="text-2xl font-bold text-white mb-1">
                   {member.firstName} {member.lastName}
                 </h3>
-                <p className="text-lg text-white/90 mb-1">{member.position}</p>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold bg-gradient-to-r ${getPositionStyle(member.position)} text-white border border-white/30`}>
+                    {member.position}
+                  </span>
+                </div>
                 {member.isCurrentMember && getPositionEmail(member.position) && (
-                  <p className="text-sm text-white/80 mb-2">
-                    <a 
+                  <p className="text-sm text-white/90">
+                    <a
                       href={`mailto:${getPositionEmail(member.position)}`}
                       className="hover:text-white transition-colors"
                     >
