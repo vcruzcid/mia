@@ -88,3 +88,4 @@ db-backups/
 #serena
 .serena/
 members_data/
+.claude
