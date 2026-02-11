@@ -7,17 +7,21 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { BackgroundImage } from '@/components/ui/background-image';
 import { VimeoVideo } from '@/components/VimeoVideo';
-import { usePublicMembers, getMemberCounts } from '../hooks/useMembers';
+
+// Static member statistics
+// TODO: Update these numbers manually when membership changes
+const MEMBER_STATS = {
+  totalMembers: 339,
+  activeMembers: 250,
+};
 
 export function HomePage() {
   const heroAnimation = useScrollAnimation({ threshold: 0.2 });
   const statsAnimation = useScrollAnimation({ threshold: 0.3 });
   const featuresAnimation = useScrollAnimation({ threshold: 0.2 });
 
-  // Get member count from database
-  const { data: members = [] } = usePublicMembers();
-  const memberCounts = getMemberCounts(members);
-  const activeMemberCount = memberCounts.active;
+  // Use static member count
+  const activeMemberCount = MEMBER_STATS.activeMembers;
 
   const memberCounter = useCounterAnimation(activeMemberCount, {
     duration: 2500,
@@ -44,14 +48,6 @@ export function HomePage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statsAnimation.isIntersecting, memberCounter.startAnimation, growthCounter.startAnimation, eventCounter.startAnimation]);
-
-  // Restart member counter when data loads (if section is already visible)
-  useEffect(() => {
-    if (activeMemberCount > 0 && statsAnimation.isIntersecting) {
-      memberCounter.startAnimation();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeMemberCount, statsAnimation.isIntersecting]);
 
 
   return (

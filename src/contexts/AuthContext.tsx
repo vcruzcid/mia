@@ -1,10 +1,7 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import type { User, Session } from '@supabase/supabase-js';
-import { supabase } from '../services';
-import * as authService from '../services/auth/auth.service';
-import * as memberService from '../services/members/member.service';
-import { isActiveMember, getMemberDisplayName } from '../services/members/member.service';
-import type { Member } from '../types/supabase';
+import React, { createContext, useContext } from 'react';
+
+// Stubbed authentication context - all authentication is non-functional
+// This file is kept to prevent import errors throughout the codebase
 
 export interface MembershipStatus {
   isActive: boolean;
@@ -14,9 +11,9 @@ export interface MembershipStatus {
 }
 
 interface AuthContextType {
-  user: User | null;
-  member: Member | null;
-  session: Session | null;
+  user: null;
+  member: null;
+  session: null;
   isLoading: boolean;
   isAuthenticated: boolean;
   isAdmin: boolean;
@@ -24,182 +21,27 @@ interface AuthContextType {
   sendMagicLink: (email: string) => Promise<{ success: boolean; message: string }>;
   verifyMagicLink: (tokenHash: string) => Promise<{ success: boolean; message: string }>;
   signOut: () => Promise<void>;
-  updateProfile: (updates: Partial<Member>) => Promise<void>;
+  updateProfile: (updates: any) => Promise<void>;
   refreshMemberData: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Stubbed provider - returns mock authentication state (always not authenticated)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [member, setMember] = useState<Member | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [membershipStatus, setMembershipStatus] = useState<MembershipStatus | null>(null);
-
-  useEffect(() => {
-    initializeAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session: Session | null) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user?.email) {
-          await loadMemberProfile(session.user.email);
-          
-          if (event === 'SIGNED_IN') {
-            await authService.updateLastLogin(session.user.email);
-          }
-        } else {
-          setMember(null);
-          setMembershipStatus(null);
-        }
-        
-        setIsLoading(false);
-      }
-    );
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const initializeAuth = async () => {
-    try {
-      const session = await authService.getCurrentSession();
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user?.email) {
-        await loadMemberProfile(session.user.email);
-      }
-    } catch (error) {
-      console.error('Error initializing auth:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const loadMemberProfile = async (email: string) => {
-    try {
-      const memberProfile = await memberService.getMemberByEmail(email);
-      
-      if (memberProfile) {
-        setMember(memberProfile);
-        
-        const status: MembershipStatus = {
-          isActive: isActiveMember(memberProfile),
-          subscriptionStatus: memberProfile.stripe_subscription_status,
-          subscriptionEnd: memberProfile.subscription_current_period_end,
-          membershipType: memberProfile.membership_type
-        };
-        
-        setMembershipStatus(status);
-      } else {
-        setMember(null);
-        setMembershipStatus(null);
-      }
-    } catch (error) {
-      console.error('Error loading member profile:', error);
-      setMember(null);
-      setMembershipStatus(null);
-    }
-  };
-
-  const sendMagicLink = async (email: string) => {
-    try {
-      await authService.sendMagicLink(email);
-      return { 
-        success: true, 
-        message: '¡Enlace mágico enviado! Revisa tu correo electrónico y haz clic en el enlace para acceder.' 
-      };
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Error al enviar enlace mágico';
-      return { 
-        success: false, 
-        message: errorMessage
-      };
-    }
-  };
-
-  const verifyMagicLink = async (tokenHash: string) => {
-    try {
-      await authService.verifyMagicLink(tokenHash);
-      return { 
-        success: true, 
-        message: 'Enlace verificado correctamente' 
-      };
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Error al verificar enlace mágico';
-      return { 
-        success: false, 
-        message: errorMessage
-      };
-    }
-  };
-
-  const signOut = async () => {
-    try {
-      await authService.signOut();
-      setMember(null);
-      setMembershipStatus(null);
-      setUser(null);
-      setSession(null);
-    } catch (error) {
-      console.error('Error during sign out:', error);
-      throw error;
-    }
-  };
-
-  const updateProfile = async (updates: Partial<Member>) => {
-    if (!member) {
-      throw new Error('No hay perfil de socia disponible para actualizar');
-    }
-    
-    try {
-      const updatedMember = await memberService.updateMemberProfile(member.id, updates);
-      
-      if (updatedMember) {
-        setMember(updatedMember);
-        
-        if ('stripe_subscription_status' in updates || 'subscription_current_period_end' in updates) {
-          const status: MembershipStatus = {
-            isActive: isActiveMember(updatedMember),
-            subscriptionStatus: updatedMember.stripe_subscription_status,
-            subscriptionEnd: updatedMember.subscription_current_period_end,
-            membershipType: updatedMember.membership_type
-          };
-          setMembershipStatus(status);
-        }
-      } else {
-        throw new Error('Error al actualizar perfil');
-      }
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      throw error;
-    }
-  };
-
-  const refreshMemberData = async () => {
-    if (!user?.email) return;
-    await loadMemberProfile(user.email);
-  };
-
-  const isAuthenticated = !!user && !!member && isActiveMember(member);
-  const isAdmin = member?.is_board_member || false; // For now, board members are considered admins
-
-  const value = {
-    user,
-    member,
-    session,
-    isLoading,
-    isAuthenticated,
-    isAdmin,
-    membershipStatus,
-    sendMagicLink,
-    verifyMagicLink,
-    signOut,
-    updateProfile,
-    refreshMemberData,
+  const value: AuthContextType = {
+    user: null,
+    member: null,
+    session: null,
+    isLoading: false,
+    isAuthenticated: false,
+    isAdmin: false,
+    membershipStatus: null,
+    sendMagicLink: async () => ({ success: false, message: 'Authentication is not available' }),
+    verifyMagicLink: async () => ({ success: false, message: 'Authentication is not available' }),
+    signOut: async () => {},
+    updateProfile: async () => {},
+    refreshMemberData: async () => {},
   };
 
   return (
@@ -217,35 +59,26 @@ export function useAuth() {
   return context;
 }
 
-// Helper hook for member data
+// Helper hook for member data (stubbed)
 export function useMember() {
-  const { member, membershipStatus, isAuthenticated } = useAuth();
-  
   return {
-    member,
-    membershipStatus,
-    isAuthenticated,
-    isActive: membershipStatus?.isActive || false,
-    displayName: member ? getMemberDisplayName(member) : null,
-    isBoardMember: member?.is_board_member || false,
-    membershipType: member?.membership_type || null,
-    subscriptionStatus: membershipStatus?.subscriptionStatus || null
+    member: null,
+    membershipStatus: null,
+    isAuthenticated: false,
+    isActive: false,
+    displayName: null,
+    isBoardMember: false,
+    membershipType: null,
+    subscriptionStatus: null
   };
 }
 
-// Helper hook for authentication actions
+// Helper hook for authentication actions (stubbed)
 export function useAuthActions() {
-  const { 
-    sendMagicLink, 
-    signOut, 
-    updateProfile, 
-    refreshMemberData
-  } = useAuth();
-  
   return {
-    sendMagicLink,
-    signOut,
-    updateProfile,
-    refreshMemberData
+    sendMagicLink: async () => ({ success: false, message: 'Authentication is not available' }),
+    signOut: async () => {},
+    updateProfile: async () => {},
+    refreshMemberData: async () => {}
   };
 }

@@ -2,7 +2,7 @@ import { ProfileImage } from '../../components/ProfileImage';
 import { SocialMediaIcons } from '../../components/SocialMediaIcons';
 import { Badge } from '../../components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import type { Member } from '../../types/supabase';
+import type { Member } from '../../types/member';
 
 interface MemberCardProps {
   member: Member;
