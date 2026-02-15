@@ -10,10 +10,11 @@ MIA (Mujeres en la Industria de Animación) is a professional association web ap
 - React 19 + TypeScript + Vite
 - Tailwind CSS 4 + Radix UI (shadcn/ui pattern)
 - React Router 7 for routing
-- Supabase for backend (MCP server configured)
+- Stripe for payments (Checkout + Sessions)
 - Cloudflare Pages + Functions for hosting and serverless APIs
-- Cloudflare Turnstile for CAPTCHA
+- Cloudflare Turnstile for CAPTCHA protection
 - Form validation: react-hook-form + Zod
+- Static data for directiva and fundadoras (no backend integration)
 
 ## Development Commands
 
@@ -167,7 +168,8 @@ When implementing auth features, coordinate with the team on the authentication 
 
 The project has a Supabase MCP server configured in `.mcp.json`:
 - Project ref: `sggnohsrpdhbsavzccfw`
-- Use Supabase tools to interact with the database
+- **Note**: Currently kept for reference only. Not actively used since Supabase integration was removed.
+- To use: Uncomment in `.mcp.json` and run Claude Code with MCP support
 
 ### Animation Specializations
 
@@ -213,19 +215,19 @@ Member specializations are defined in `src/types/index.ts` as a const array `ANI
 
 Required secrets in Cloudflare:
 - `STRIPE_SECRET_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY`
 - `STRIPE_WEBHOOK_SECRET`
 - `TURNSTILE_SECRET_KEY`
-- `ZAPIER_WEBHOOK_URL`
+- `ZAPIER_WEBHOOK_URL` (optional, for contact form notifications)
 
 ### Environment Variables
 
 Development `.env` file should contain:
 ```env
-VITE_SUPABASE_URL=https://sggnohsrpdhbsavzccfw.supabase.co
-VITE_SUPABASE_ANON_KEY=<anon-key>
 VITE_STRIPE_PUBLIC_KEY=pk_test_...
+VITE_TURNSTILE_SITE_KEY=0x4AAA...
+TURNSTILE_SECRET_KEY=0x4AAA...
 STRIPE_WEBHOOK_SECRET=whsec_...
+ZAPIER_WEBHOOK_URL=https://hooks.zapier.com/... (optional)
 ```
 
 ## Common Patterns
