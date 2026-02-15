@@ -40,10 +40,6 @@ export function HomePage() {
     formatter: (value) => `${Math.floor(value)}+`,
   });
 
-  // Fetch members on component mount
-  useEffect(() => {
-    fetchMembers();
-  }, [fetchMembers]);
 
   useEffect(() => {
     if (statsAnimation.isIntersecting) {
