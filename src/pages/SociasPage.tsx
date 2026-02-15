@@ -1,16 +1,14 @@
 import { BackgroundImage } from '@/components/ui/background-image';
 
-// TODO: Future implementation - integrate static member data
-// Steps to complete this page:
-// 1. Import SOCIAS array from '../data/socias.ts'
-// 2. Implement client-side filtering similar to FundadorasPage
-// 3. Add pagination with static data
-// 4. Restore search functionality
-// 5. Restore filter functionality (membership type, profession, location, availability)
-// 6. Restore member cards and modal
-//
-// Reference: See FundadorasPage.tsx for static data implementation pattern
-
+/**
+ * SociasPage - Member Directory
+ *
+ * Displays a "Coming Soon" placeholder for the full member directory.
+ * Users can browse Founders and Board Members in the meantime.
+ *
+ * Future enhancement: Implement member search and filtering
+ * See FundadorasPage.tsx for similar member display pattern
+ */
 export function SociasPage() {
   return (
     <div className="min-h-screen bg-gray-900">
