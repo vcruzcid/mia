@@ -37,11 +37,24 @@ export function ContactPage() {
   const onSubmit = async (data: ContactFormData) => {
     await withLoading(async () => {
       try {
-        // Here you would typically send the data to your backend
-        
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
+        const response = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: data.name,
+            email: data.email,
+            subject: data.subject,
+            message: data.message,
+            turnstileToken: data.turnstileToken || '',
+          }),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          throw new Error(result.error || 'Error al enviar el mensaje');
+        }
+
         toast({
           title: 'Mensaje enviado',
           description: 'Te contactaremos pronto.',
@@ -52,7 +65,7 @@ export function ContactPage() {
         console.error('Error sending message:', error);
         toast({
           title: 'Error al enviar',
-          description: 'Hubo un problema. Inténtalo de nuevo.',
+          description: error instanceof Error ? error.message : 'Hubo un problema. Inténtalo de nuevo.',
           variant: 'destructive'
         });
       }

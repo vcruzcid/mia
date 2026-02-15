@@ -15,7 +15,10 @@ export const membershipFormSchema = z.object({
     .min(5, 'El email debe tener al menos 5 caracteres'),
   phone: z
     .string()
-    .regex(/^(\+34|0034|34)?[6789]\d{8}$/, 'Introduce un número de teléfono español válido')
+    .transform(val => val.replace(/[\s\-().]/g, ''))
+    .pipe(
+      z.string().regex(/^(\+34|0034|34)?[6789]\d{8}$/, 'Introduce un número de teléfono español válido')
+    )
     .optional()
     .or(z.literal('')),
   membershipType: z

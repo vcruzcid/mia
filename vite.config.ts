@@ -23,12 +23,12 @@ export default defineConfig({
         icons: [
           {
             src: 'icon-192.png',
-            sizes: '177x77',
+            sizes: '192x192',
             type: 'image/png'
           },
           {
             src: 'icon-512.png',
-            sizes: '177x77',
+            sizes: '512x512',
             type: 'image/png'
           }
         ]
@@ -79,7 +79,7 @@ export default defineConfig({
       '@components': '/src/components',
       '@pages': '/src/pages',
       '@services': '/src/services',
-      '@types': '/src/types',
+      '@/types': '/src/types',
       '@hooks': '/src/hooks',
       '@contexts': '/src/contexts',
       '@utils': '/src/utils',
