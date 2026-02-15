@@ -87,9 +87,7 @@ export function WelcomePage() {
         // Clear any saved registration draft since payment is complete
         localStorage.removeItem('mia-registration-draft');
 
-      } catch (error) {
-        console.error('Error fetching user info:', error);
-        setState(prev => ({
+      } catch (error) {        setState(prev => ({
           ...prev,
           loading: false,
           error: 'No se pudo recuperar la información del usuario',

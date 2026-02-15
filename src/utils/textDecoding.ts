@@ -77,9 +77,7 @@ export function decodeUrlEncoded(text: string | null | undefined): string {
   try {
     return decodeURIComponent(text);
   } catch (error) {
-    // If decoding fails, return the original text
-    console.warn('Failed to decode URL-encoded text:', text, error);
-    return text;
+    // If decoding fails, return the original text    return text;
   }
 }
 
