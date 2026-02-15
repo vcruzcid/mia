@@ -58,14 +58,20 @@ export const personalInfoSchema = z.object({
   
   phone: z
     .string()
-    .regex(spanishPhoneRegex, 'Por favor, introduce un teléfono español válido (ej: +34 666 123 456)')
     .transform(phone => {
-      // Normalize phone format
-      const cleaned = phone.replace(/\s+/g, '');
-      if (cleaned.startsWith('+34')) return cleaned;
-      if (cleaned.startsWith('0034')) return '+34' + cleaned.slice(4);
-      if (cleaned.startsWith('34')) return '+34' + cleaned.slice(2);
-      return '+34' + cleaned;
+      // Strip spaces, dashes, dots, and parentheses before validation
+      return phone.replace(/[\s\-().]/g, '');
+    })
+    .pipe(
+      z.string()
+        .regex(spanishPhoneRegex, 'Por favor, introduce un teléfono español válido (ej: +34 666 123 456)')
+    )
+    .transform(phone => {
+      // Normalize phone format to +34 prefix
+      if (phone.startsWith('+34')) return phone;
+      if (phone.startsWith('0034')) return '+34' + phone.slice(4);
+      if (phone.startsWith('34')) return '+34' + phone.slice(2);
+      return '+34' + phone;
     }),
   
   address: z.object({

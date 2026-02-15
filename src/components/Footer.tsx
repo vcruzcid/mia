@@ -12,9 +12,7 @@ export function Footer() {
   const { toast } = useToastContext();
   
   // Check authentication status
-  const { member } = useAuth();
-  const isDemoAuth = localStorage.getItem('demo_auth') === 'true';
-  const isAuthenticated = !!(member || isDemoAuth);
+  const { isAuthenticated } = useAuth();
   const {
     register,
     handleSubmit,
@@ -58,6 +56,7 @@ export function Footer() {
               <FooterLink to="/sobre-mia">SOBRE NOSOTRAS</FooterLink>
               <FooterLink to="/socias">SOCIAS</FooterLink>
               <FooterLink to="/directiva">DIRECTIVA</FooterLink>
+              <FooterLink to="/fundadoras">FUNDADORAS</FooterLink>
               <FooterLink to="/mianima">MIANIMA</FooterLink>
               <FooterLink to="/membresia">MEMBRESÍA</FooterLink>
               <FooterLink to="/contacto">CONTACTO</FooterLink>

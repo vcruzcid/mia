@@ -7,6 +7,13 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Environment variables / secrets (DO NOT COMMIT)
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+
 node_modules
 dist
 dist-ssr
@@ -23,6 +30,11 @@ dist-ssr
 *.sln
 *.sw?
 
+# Local AI/IDE configuration (often contains tokens)
+.claude/
+.claude
+.clauderc
+
 # Migration files (completed - archived in scripts/migrationcompleted/)
 extracted-files/
 optimized-files/
@@ -37,6 +49,12 @@ optimized-files/
 dev-dist/
 test-results/
 playwright-report/
+.vite/
+coverage/
+.eslintcache
+*.tsbuildinfo
+.wrangler/
+.dev.vars
 
 # Test files (keep config but ignore results)
 tests/results/
@@ -45,19 +63,28 @@ tests/videos/
 
 # Documentation and reports
 *-report.json
-CLAUDE.md
 DEPLOYMENT.md
 
 # Temporary files
 *.tmp
 *.temp
 .temp/
+tmp/
 
-# MCP configuration (now uses environment variables)
-# .mcp.json
+# MCP configuration (may contain tokens/sensitive info)
+.mcp.json
 
 # Legacy WordPress site (not needed for React app)
 mia-wordpress/
 
 # Database backups (should be in separate backup system)
 db-backups/
+
+# Playwright test files
+.playwright-mcp/
+.playwright-mcp
+
+#serena
+.serena/
+members_data/
+.claude

@@ -12,6 +12,6 @@ VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhY
 
 # Note: Sensitive variables are managed through Cloudflare secrets:
 # - STRIPE_SECRET_KEY
-# - SUPABASE_SERVICE_ROLE_KEY  
+# - SUPABASE_SERVICE_ROLE_KEY
 # - STRIPE_WEBHOOK_SECRET
 # - APP_URL

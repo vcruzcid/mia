@@ -1,6 +1,9 @@
 import React from 'react'
 import { Button } from '@/components/ui/button'
 
+const isDev = import.meta.env.DEV
+const isProd = import.meta.env.PROD
+
 interface ErrorBoundaryState {
   hasError: boolean
   error?: Error
@@ -51,7 +54,7 @@ const DefaultErrorFallback: React.FC<ErrorFallbackProps> = ({ error, resetError 
         </Button>
       </div>
       
-      {process.env.NODE_ENV === 'development' && (
+      {isDev && (
         <details className="mt-6 text-left">
           <summary className="text-sm text-gray-400 cursor-pointer hover:text-gray-300">
             Detalles del error (desarrollo)
@@ -83,7 +86,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     console.error('Error caught by boundary:', error, errorInfo)
     
     // Log error to monitoring service in production
-    if (process.env.NODE_ENV === 'production') {
+    if (isProd) {
       // Here you would typically send to an error monitoring service
       // like Sentry, LogRocket, or Bugsnag
       console.error('Production error:', {

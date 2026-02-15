@@ -7,6 +7,7 @@ import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 export function MianimaPage() {
   const heroAnimation = useScrollAnimation({ threshold: 0.2 });
   const contentAnimation = useScrollAnimation({ threshold: 0.3 });
+  const secondContentAnimation = useScrollAnimation({ threshold: 0.3 });
   const successAnimation = useScrollAnimation({ threshold: 0.2 });
 
   return (
@@ -43,9 +44,9 @@ export function MianimaPage() {
             }`}>
               <p className="text-lg text-gray-700 leading-relaxed mb-8">
                 MIANIMA es nuestro programa de formación y pitching, diseñado para impulsar proyectos de
-                animación liderados por mujeres iberoamericanas. MIANIMA se ha consolidado como un
-                programa de referencia para el impulso y la proyección del talento femenino en la industria de la
-                animación. Actualmente está abierta la convocatoria de la cuarta edición, lanzada en mayo de
+                animación liderados por mujeres iberoamericanas. MIANIMA se ha consolidado como un 
+                programa de referencia para el impulso y la proyección del talento femenino en la industria de la 
+                animación. Actualmente está abierta la convocatoria de la cuarta edición, lanzada en mayo de 
                 2025.
               </p>
 
@@ -61,28 +62,13 @@ export function MianimaPage() {
                 realizan un pitch frente a un jurado internacional y se elige el proyecto ganador por cada
                 categoría.
               </p>
-
-              <p className="text-lg text-gray-700 leading-relaxed mb-8">
-                En el marco del programa MIANIMA, celebramos el MIANIMA MARKET, el primer mercado de
-                coproducción iberoamericano enfocado exclusivamente en proyectos de animación liderados por
-                mujeres.
-              </p>
-
-              <p className="text-lg text-gray-700 leading-relaxed mb-8">
-                Productoras, distribuidoras y agentes del sector interesados en descubrir nuevos talentos y
-                proyectos en desarrollo pueden participar en las One-to-One Meetings, que tienen lugar durante
-                el Evento Final de la tercera edición de MIANIMA.
-              </p>
-
-              <p className="text-lg text-gray-700 leading-relaxed mb-8">
-                Estas reuniones están abiertas a las profesionales con proyectos seleccionados en el programa
-                MIANIMA, así como a las socias de MIA que cuenten con un proyecto.
-              </p>
-
-              <p className="text-lg text-gray-700 leading-relaxed mb-12">
-                El evento también cuenta con espacios específicos dedicados al recruitment y a la revisión de
-                porfolios, facilitando el encuentro entre talento emergente y empresas del sector.
-              </p>
+              <div className="mt-8 text-center">
+                <Button asChild className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 text-lg">
+                  <a href="https://www.mianima.es/mianima/ediciones/mianima-4a-edicion/" target="_blank" rel="noopener noreferrer">
+                    Consulta el programa de MIANIMA
+                  </a>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -98,13 +84,8 @@ export function MianimaPage() {
             <h2 className={`text-3xl font-extrabold text-white sm:text-4xl transition-all duration-1000 ${
               successAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}>
-              Casos de éxito
+              Entre los casos de éxito se destacan:
             </h2>
-            <p className={`mt-4 text-xl text-gray-300 transition-all duration-1000 delay-200 ${
-              successAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-            }`}>
-              Proyectos que han destacado en festivales internacionales
-            </p>
           </div>
 
           <div className="grid gap-8 lg:grid-cols-2">
@@ -203,6 +184,49 @@ export function MianimaPage() {
               internacionales, han recibido apoyo económico y han avanzado significativamente en su desarrollo
               gracias a la participación en MIANIMA.
             </p>
+          </div>
+        </div>
+      </div>
+      {/* Second Content Section */}
+      <div 
+        ref={secondContentAnimation.ref}
+        className="py-16 bg-white"
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto">
+            <div className={`transition-all duration-1000 ${
+              secondContentAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+            }`}>
+
+              <p className="text-lg text-gray-700 leading-relaxed mb-8">
+                En el marco del programa MIANIMA, celebramos el MIANIMA MARKET, el primer mercado de
+                coproducción iberoamericano enfocado exclusivamente en proyectos de animación liderados por
+                mujeres.
+              </p>
+
+              <p className="text-lg text-gray-700 leading-relaxed mb-8">
+                Productoras, distribuidoras y agentes del sector interesados en descubrir nuevos talentos y
+                proyectos en desarrollo pueden participar en las One-to-One Meetings, que tienen lugar durante
+                el Evento Final de la tercera edición de MIANIMA.
+              </p>
+
+              <p className="text-lg text-gray-700 leading-relaxed mb-8">
+                Estas reuniones están abiertas a las profesionales con proyectos seleccionados en el programa
+                MIANIMA, así como a las socias de MIA que cuenten con un proyecto.
+              </p>
+
+              <p className="text-lg text-gray-700 leading-relaxed mb-12">
+                El evento también cuenta con espacios específicos dedicados al recruitment y a la revisión de
+                porfolios, facilitando el encuentro entre talento emergente y empresas del sector.
+              </p>
+              <div className="mt-8 text-center">
+                <Button asChild className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 text-lg">
+                  <a href="https://www.mianima.es/mianima-market/ediciones/mianima-market-2025/" target="_blank" rel="noopener noreferrer">
+                  Descúbre MIANIMA MARKET
+                  </a>
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </div>

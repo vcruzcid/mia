@@ -10,9 +10,7 @@ export function Header() {
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   
   // Check authentication status
-  const { member } = useAuth();
-  const isDemoAuth = localStorage.getItem('demo_auth') === 'true';
-  const isAuthenticated = !!(member || isDemoAuth);
+  const { isAuthenticated } = useAuth();
 
   const navigation = [
     { name: 'Inicio', href: '/' },
@@ -23,6 +21,8 @@ export function Header() {
     { name: 'Membresía', href: '/membresia' },
     { name: 'Contacto', href: '/contacto' },
   ];
+
+  const aboutMenu = [{ name: 'Fundadoras', href: '/fundadoras' }];
 
   const isActive = (href: string) => location.pathname === href;
 
@@ -78,17 +78,45 @@ export function Header() {
             <div className="ml-10 flex items-center space-x-4">
               <div className="flex items-baseline space-x-4">
                 {navigation.map((item) => (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    className={isActive(item.href) 
-                      ? 'text-white bg-gray-800 px-3 py-2 rounded-md text-sm font-medium border border-white transition-colors duration-200' 
-                      : 'text-white hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200'
-                    }
-                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                  >
-                    {item.name}
-                  </Link>
+                  item.name === 'Sobre Nosotras' ? (
+                    <div key={item.name} className="relative group">
+                      <Link
+                        to={item.href}
+                        className={isActive(item.href) || aboutMenu.some((i) => isActive(i.href))
+                          ? 'text-white bg-gray-800 px-3 py-2 rounded-md text-sm font-medium border border-white transition-colors duration-200'
+                          : 'text-white hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200'
+                        }
+                        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                      >
+                        {item.name}
+                      </Link>
+                      {/* Hover submenu */}
+                      <div className="absolute left-0 top-full mt-1 hidden group-hover:block bg-black border border-gray-800 rounded-md shadow-lg min-w-[180px] z-50">
+                        {aboutMenu.map((sub) => (
+                          <Link
+                            key={sub.href}
+                            to={sub.href}
+                            className="block px-3 py-2 text-sm text-white hover:bg-gray-900 hover:text-red-400 transition-colors duration-200 first:rounded-t-md last:rounded-b-md"
+                            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                          >
+                            {sub.name}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <Link
+                      key={item.name}
+                      to={item.href}
+                      className={isActive(item.href)
+                        ? 'text-white bg-gray-800 px-3 py-2 rounded-md text-sm font-medium border border-white transition-colors duration-200'
+                        : 'text-white hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200'
+                      }
+                      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                    >
+                      {item.name}
+                    </Link>
+                  )
                 ))}
               </div>
               
@@ -162,6 +190,27 @@ export function Header() {
                   {item.name}
                 </Link>
               ))}
+
+              <div className="px-3 pt-3">
+                <p className="text-xs font-semibold text-gray-400 mb-2">SOBRE NOSOTRAS</p>
+                {aboutMenu.map((item) => (
+                  <Link
+                    key={item.href}
+                    to={item.href}
+                    className={`block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 ${
+                      isActive(item.href)
+                        ? 'text-white bg-gray-800 border border-white'
+                        : 'text-white hover:bg-gray-900 hover:text-red-400'
+                    }`}
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                  >
+                    {item.name}
+                  </Link>
+                ))}
+              </div>
               
               {/* Mobile Login & Registration / Dashboard */}
               <div className="pt-4 pb-2 space-y-2">
