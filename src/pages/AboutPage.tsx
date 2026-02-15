@@ -45,17 +45,17 @@ export function AboutPage() {
 
   const milestones = [
     {
-      year: '2017',
+      year: '2019',
       title: 'Fundación de MIA',
       description: 'Un grupo de profesionales visionarias se une para crear la primera asociación de mujeres en animación de España.',
     },
     {
-      year: '2018',
+      year: '2020',
       title: 'Primeros eventos',
       description: 'Organizamos nuestros primeros encuentros de networking y talleres formativos.',
     },
     {
-      year: '2020',
+      year: '2021',
       title: 'Crecimiento digital',
       description: 'Adaptamos nuestros servicios al formato digital y expandimos nuestra presencia online.',
     },
@@ -298,7 +298,7 @@ export function AboutPage() {
               <div>
                 <h3 className="text-2xl font-bold text-red-600 mb-4">El Comienzo de MIA</h3>
                 <p className="text-lg text-white mb-4">
-                  En 2017, un grupo de mujeres profesionales de la animación se reunió con una visión clara: 
+                  En 2019, un grupo de mujeres profesionales de la animación se reunió con una visión clara: 
                   crear un espacio donde las mujeres pudieran prosperar en una industria tradicionalmente dominada por hombres.
                 </p>
                 <p className="text-lg text-white">

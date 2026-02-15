@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams, useLocation } from 'react-router-dom';
+import { useSearchParams, useLocation, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import type { LocationState } from '../types';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import { Button } from '@/components/ui/button';
@@ -22,6 +21,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 export function LoginPage() {
   const [searchParams] = useSearchParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const { sendMagicLink, verifyMagicLink, isLoading } = useAuth();
   const [step, setStep] = useState<'email' | 'sent' | 'verifying'>('email');
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -35,41 +35,28 @@ export function LoginPage() {
     resolver: zodResolver(loginSchema),
   });
 
-  // Check if we have URL query parameters (from Supabase magic link)
   const tokenHash = searchParams.get('token_hash');
   const type = searchParams.get('type');
   
-  // Handle magic link verification on page load
   useEffect(() => {
     if (tokenHash && type === 'email') {
       setStep('verifying');
-      // Use the verifyMagicLink function to handle the token
       verifyMagicLink(tokenHash).then((result) => {
         if (result.success) {
-          const from = (location.state as LocationState)?.from?.pathname || '/portal';
-          window.location.href = from;
+          // Get redirect path from location state or default to /portal
+          const from = (location.state as { from?: { pathname?: string } })?.from?.pathname || '/portal';
+          navigate(from, { replace: true });
         } else {
           setMessage({ type: 'error', text: result.message });
           setStep('email');
         }
       });
     }
-  }, [tokenHash, type, verifyMagicLink, location.state]);
+  }, [tokenHash, type, verifyMagicLink, location.state, navigate]);
 
   const onSubmit = async (data: LoginFormData) => {
     setMessage(null);
     setUserEmail(data.email);
-    
-    // Demo mode: if email is "dev@animacionesmia.com", simulate successful login
-    if (data.email === 'dev@animacionesmia.com') {
-      // Simulate authentication success
-      localStorage.setItem('demo_auth', 'true');
-      setMessage({ type: 'success', text: 'Demo login successful! Redirecting...' });
-      setTimeout(() => {
-        window.location.href = '/portal';
-      }, 1500);
-      return;
-    }
     
     const result = await sendMagicLink(data.email);
     
@@ -195,6 +182,16 @@ export function LoginPage() {
                     'Enviar Enlace Mágico'
                   )}
                 </Button>
+
+                <div className="text-center pt-2">
+                  <Link
+                    to="/contacto"
+                    state={{ subject: 'Recuperación de acceso - Cambio de email' }}
+                    className="text-sm text-gray-400 hover:text-red-400 transition-colors"
+                  >
+                    ¿Perdiste acceso a tu email?
+                  </Link>
+                </div>
               </form>
             )}
 
@@ -211,7 +208,7 @@ export function LoginPage() {
                     Revisa tu correo electrónico y haz clic en el enlace para acceder al portal.
                   </p>
                   <p className="mt-2 text-xs text-gray-400">
-                    El enlace será válido por 15 minutos.
+                    El enlace será válido por 1 hora.
                   </p>
                 </div>
 
