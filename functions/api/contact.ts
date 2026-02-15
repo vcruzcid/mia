@@ -37,14 +37,13 @@ const corsHeaders = {
   'Content-Type': 'application/json',
 };
 
+export async function onRequestOptions() {
+  return new Response(null, { status: 204, headers: corsHeaders });
+}
+
 // Main handler
 export async function onRequestPost(context: { request: Request; env: Env }): Promise<Response> {
   const { request, env } = context;
-
-  // Handle preflight requests
-  if (request.method === 'OPTIONS') {
-    return new Response(null, { status: 200, headers: corsHeaders });
-  }
 
   try {
     // Parse request body
