@@ -61,7 +61,8 @@ export function ContactPage() {
           variant: 'success'
         });
         reset();
-      } catch (error) {        toast({
+      } catch (error) {
+        toast({
           title: 'Error al enviar',
           description: error instanceof Error ? error.message : 'Hubo un problema. Inténtalo de nuevo.',
           variant: 'destructive'
