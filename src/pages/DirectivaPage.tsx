@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, memo } from 'react';
 import type { DirectivaMember } from '../types';
 import { ProfileImage } from '../components/ProfileImage';
 import { SocialMediaIcons } from '../components/SocialMediaIcons';
@@ -212,8 +212,7 @@ interface DirectivaCardProps {
   isCurrentPeriod?: boolean;
 }
 
-function DirectivaCard({ member, index, onClick, isCurrentPeriod = false }: DirectivaCardProps) {
-
+function DirectivaCardComponent({ member, index, onClick, isCurrentPeriod = false }: DirectivaCardProps) {
   return (
     <Card 
       onClick={onClick}
@@ -317,6 +316,17 @@ function DirectivaCard({ member, index, onClick, isCurrentPeriod = false }: Dire
     </Card>
   );
 }
+
+// Memoized DirectivaCard to prevent unnecessary re-renders in grids
+const DirectivaCard = memo(DirectivaCardComponent, (prevProps, nextProps) => {
+  // Only re-render if member data or handlers change
+  return (
+    prevProps.member.id === nextProps.member.id &&
+    prevProps.index === nextProps.index &&
+    prevProps.isCurrentPeriod === nextProps.isCurrentPeriod &&
+    prevProps.onClick === nextProps.onClick
+  );
+});
 
 interface DirectivaModalProps {
   member: DirectivaMember;
