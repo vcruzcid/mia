@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { contactFormSchema, type ContactFormData } from '../utils/validation';
@@ -10,27 +10,51 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SocialMediaIcons } from '../components/SocialMediaIcons';
 import { Accordion } from '@/components/ui/accordion';
+import { useEffect } from 'react';
 
 export function ContactPage() {
   const { toast } = useToastContext();
   const { withLoading } = useAsyncLoading();
+  const location = useLocation();
+  const subjectFromState = (location.state as { subject?: string })?.subject;
+  
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
+    setValue,
   } = useForm<ContactFormData>({
     resolver: zodResolver(contactFormSchema),
   });
 
+  useEffect(() => {
+    if (subjectFromState) {
+      setValue('subject', subjectFromState);
+    }
+  }, [subjectFromState, setValue]);
+
   const onSubmit = async (data: ContactFormData) => {
     await withLoading(async () => {
       try {
-        // Here you would typically send the data to your backend
-        
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
+        const response = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: data.name,
+            email: data.email,
+            subject: data.subject,
+            message: data.message,
+            turnstileToken: data.turnstileToken || '',
+          }),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          throw new Error(result.error || 'Error al enviar el mensaje');
+        }
+
         toast({
           title: 'Mensaje enviado',
           description: 'Te contactaremos pronto.',
@@ -41,7 +65,7 @@ export function ContactPage() {
         console.error('Error sending message:', error);
         toast({
           title: 'Error al enviar',
-          description: 'Hubo un problema. Inténtalo de nuevo.',
+          description: error instanceof Error ? error.message : 'Hubo un problema. Inténtalo de nuevo.',
           variant: 'destructive'
         });
       }

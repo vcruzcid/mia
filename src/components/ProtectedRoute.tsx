@@ -9,11 +9,8 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children, requireAuth = true }: ProtectedRouteProps) {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, session } = useAuth();
   const location = useLocation();
-
-  // Check for demo authentication
-  const isDemoAuth = localStorage.getItem('demo_auth') === 'true';
 
   if (isLoading) {
     return (
@@ -23,11 +20,15 @@ export function ProtectedRoute({ children, requireAuth = true }: ProtectedRouteP
     );
   }
 
-  if (requireAuth && !isAuthenticated && !isDemoAuth) {
+  // Check if session exists and is valid
+  const hasValidSession = !!session;
+
+  if (requireAuth && !isAuthenticated) {
+    // Save current location to redirect back after login
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (!requireAuth && (isAuthenticated || isDemoAuth)) {
+  if (!requireAuth && isAuthenticated) {
     return <Navigate to="/portal" replace />;
   }
 

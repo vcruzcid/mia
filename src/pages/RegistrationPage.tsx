@@ -3,6 +3,8 @@ import { useLocation } from 'react-router-dom';
 import { membershipTypes } from '../utils/memberships';
 import { VALID_DISCOUNT_CODES, calculateDiscountedPrice } from '../schemas/registrationSchema';
 import { siteConfig } from '../config/site.config';
+import { Header } from '../components/Header';
+import { Footer } from '../components/Footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -17,7 +19,7 @@ interface RegistrationState {
   successMessage: string | null;
 }
 
-export function SimpleRegistrationPage() {
+export function RegistrationPage() {
   const location = useLocation();
   const [state, setState] = useState<RegistrationState>({
     selectedMembership: null,
@@ -148,10 +150,12 @@ export function SimpleRegistrationPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white py-12">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center mb-12">
+    <div className="min-h-screen flex flex-col bg-white">
+      <Header />
+      <main className="flex-1 py-12">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Header */}
+          <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
             Únete a MIA
           </h1>
@@ -489,6 +493,8 @@ export function SimpleRegistrationPage() {
           </CardContent>
         </Card>
       </div>
+      </main>
+      <Footer />
     </div>
   );
 }

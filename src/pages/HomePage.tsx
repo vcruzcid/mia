@@ -7,17 +7,21 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { BackgroundImage } from '@/components/ui/background-image';
 import { VimeoVideo } from '@/components/VimeoVideo';
-import { useGalleryStore } from '../store/galleryStore';
+
+// Static member statistics
+// TODO: Update these numbers manually when membership changes
+const MEMBER_STATS = {
+  totalMembers: 339,
+  activeMembers: 250,
+};
 
 export function HomePage() {
   const heroAnimation = useScrollAnimation({ threshold: 0.2 });
   const statsAnimation = useScrollAnimation({ threshold: 0.3 });
   const featuresAnimation = useScrollAnimation({ threshold: 0.2 });
 
-  // Get member count from database
-  const { getMemberCounts, fetchMembers } = useGalleryStore();
-  const memberCounts = getMemberCounts();
-  const activeMemberCount = memberCounts.active;
+  // Use static member count
+  const activeMemberCount = MEMBER_STATS.activeMembers;
 
   const memberCounter = useCounterAnimation(activeMemberCount, {
     duration: 2500,
@@ -68,7 +72,7 @@ export function HomePage() {
         {/* Vimeo Video Background */}
         <div className="absolute inset-0 w-full h-full">
           <VimeoVideo
-            videoId="928049669"
+            videoId="1138562131"
             className="w-full h-full object-cover"
             autoplay={true}
             muted={true}
