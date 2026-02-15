@@ -10,17 +10,17 @@ interface VimeoVideoProps {
   title?: string;
 }
 
-export function VimeoVideo({ 
-  videoId, 
-  className = '', 
-  autoplay = true, 
-  muted = true, 
-  loop = true, 
+export function VimeoVideo({
+  videoId,
+  className = '',
+  autoplay = true,
+  muted = true,
+  loop = true,
   controls = false,
-  title = 'Vimeo video'
+  // title is used for accessibility purposes
 }: VimeoVideoProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const playerRef = useRef<any>(null);
+  const playerRef = useRef<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
 
   useEffect(() => {
     // Load Vimeo Player API script if not already loaded
@@ -63,9 +63,13 @@ export function VimeoVideo({
             // Vimeo player ready
           });
 
-          playerRef.current.on('error', (error: any) => {          });
+          playerRef.current.on('error', (error: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+            console.error('Vimeo player error:', error);
+          });
         }
-      } catch (error) {      }
+      } catch (error) {
+        console.error('Failed to initialize Vimeo player:', error);
+      }
     };
 
     initializePlayer();
