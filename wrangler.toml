@@ -10,10 +10,6 @@ pages_build_output_dir = "dist"
 VITE_SUPABASE_URL = "https://sggnohsrpdhbsavzccfw.supabase.co"
 VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNnZ25vaHNycGRoYnNhdnpjY2Z3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzNDEzMTMsImV4cCI6MjA2OTkxNzMxM30.nW2ttYoRH5RrMiYH8cUUsNvn8CaVV1VxcHGtLZf57aI"
 
-# Functions configuration
-[build]
-command = "npm run build"
-
 # Note: Sensitive variables are managed through Cloudflare secrets:
 # - STRIPE_SECRET_KEY
 # - SUPABASE_SERVICE_ROLE_KEY
