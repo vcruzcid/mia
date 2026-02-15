@@ -63,13 +63,9 @@ export function VimeoVideo({
             // Vimeo player ready
           });
 
-          playerRef.current.on('error', (error: any) => {
-            console.error('Vimeo player error:', error);
-          });
+          playerRef.current.on('error', (error: any) => {          });
         }
-      } catch (error) {
-        console.error('Error initializing Vimeo player:', error);
-      }
+      } catch (error) {      }
     };
 
     initializePlayer();

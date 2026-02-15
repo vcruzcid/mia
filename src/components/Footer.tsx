@@ -35,9 +35,7 @@ export function Footer() {
         variant: 'success'
       });
       reset();
-    } catch (error) {
-      console.error('Error sending message:', error);
-      toast({
+    } catch (error) {      toast({
         title: 'Error al enviar',
         description: 'Hubo un problema. Inténtalo de nuevo.',
         variant: 'destructive'
