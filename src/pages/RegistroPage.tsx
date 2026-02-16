@@ -133,11 +133,19 @@ export function RegistroPage() {
                 {/* Verification Error */}
                 {verificationError && (
                   <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-md">
-                    <div className="flex items-start">
-                      <AlertCircle className="h-5 w-5 text-red-600 mr-2 flex-shrink-0 mt-0.5" />
-                      <p className="text-sm text-red-800">
-                        Error al cargar la verificación. Por favor, recarga la página e inténtalo de nuevo.
-                      </p>
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start">
+                        <AlertCircle className="h-5 w-5 text-red-600 mr-2 flex-shrink-0 mt-0.5" />
+                        <p className="text-sm text-red-800">
+                          Error al cargar la verificación. Por favor, recarga la página e inténtalo de nuevo.
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => window.location.reload()}
+                        className="ml-4 px-3 py-1 text-sm font-medium text-red-600 hover:text-red-700 underline whitespace-nowrap"
+                      >
+                        Recargar
+                      </button>
                     </div>
                   </div>
                 )}
@@ -166,17 +174,18 @@ export function RegistroPage() {
                 )}
 
                 {/* Wildapricot Widget Iframe */}
-                <div className={`${iframeLoading ? 'h-0 overflow-hidden' : ''}`}>
+                <div className={`${iframeLoading ? 'h-0 overflow-hidden' : ''} relative`}>
                   <iframe
                     width="100%"
                     height="1200"
                     frameBorder="0"
                     src="https://mia.wildapricot.com/widget/join"
                     onLoad={handleIframeLoad}
-                    className="w-full min-h-[1200px] border-0"
+                    className="w-full min-h-[1200px] border-0 rounded-md"
                     title="Formulario de registro de MIA"
                     // iOS scrollability
                     scrolling="yes"
+                    allow="payment"
                     style={{
                       WebkitOverflowScrolling: 'touch',
                     }}
