@@ -13,7 +13,8 @@ Una aplicación web moderna y robusta para la gestión de membresías, eventos y
 
 ## ✨ Características Principales
 
-- 💳 **Sistema de Membresías** - Integración con Stripe para pagos
+- 💳 **Sistema de Membresías** - Integración con Wildapricot + Stripe para registro y pagos
+- 🛡️ **Protección Anti-Bots** - Doble capa: Cloudflare Turnstile + reCAPTCHA de Wildapricot
 - 🎭 **Directorio de Socias** - Información de socias fundadoras y junta directiva
 - 📱 **Diseño Responsive** - Optimizado para móvil y desktop
 - ⚡ **PWA Ready** - Instalable como aplicación nativa
@@ -29,9 +30,10 @@ Una aplicación web moderna y robusta para la gestión de membresías, eventos y
 | **Frontend** | React 19, TypeScript, Vite |
 | **UI/UX** | Tailwind CSS 4, Radix UI, shadcn/ui |
 | **Estado** | React Context, React Hook Form |
-| **Pagos** | Stripe (Checkout + Session) |
+| **Membresías** | Wildapricot (Backend + Pagos + Portal) |
+| **Pagos** | Wildapricot + Stripe (integración nativa) |
 | **Hosting** | Cloudflare Pages + Functions |
-| **Seguridad** | Cloudflare Turnstile (CAPTCHA) |
+| **Seguridad** | Turnstile (wrapper) + reCAPTCHA (Wildapricot) |
 | **Testing** | Vitest |
 
 ### Estructura del Proyecto
@@ -53,9 +55,10 @@ Una aplicación web moderna y robusta para la gestión de membresías, eventos y
 │   │   ├── MianimaPage.tsx    # Programa Miánima
 │   │   ├── ContactPage.tsx    # Formulario de contacto
 │   │   ├── MembershipPage.tsx # Página de membresías
-│   │   ├── RegistrationPage.tsx # Registro de socias
+│   │   ├── RegistroPage.tsx   # Registro con widget Wildapricot
+│   │   ├── ConfirmacionPage.tsx # Confirmación post-pago
 │   │   ├── LoginPage.tsx      # Página de login (stub)
-│   │   └── WelcomePage.tsx    # Bienvenida post-pago
+│   │   └── WelcomePage.tsx    # Bienvenida (legacy)
 │   ├── 🎣 hooks/              # Hooks personalizados
 │   │   ├── useAuth.ts         # Autenticación (stub)
 │   │   ├── useCounterAnimation.ts # Animación de contadores
@@ -73,9 +76,7 @@ Una aplicación web moderna y robusta para la gestión de membresías, eventos y
 │   └── 🛠️ utils/              # Utilidades
 ├── ⚙️ functions/               # Cloudflare Functions
 │   └── api/                   # APIs serverless
-│       ├── contact.ts         # Formulario de contacto
-│       ├── create-stripe-checkout.ts # Crear sesión de pago
-│       └── stripe-session.ts  # Verificar sesión de pago
+│       └── contact.ts         # Formulario de contacto + Turnstile
 └── 📦 dist/                   # Build de producción
 ```
 
@@ -84,7 +85,7 @@ Una aplicación web moderna y robusta para la gestión de membresías, eventos y
 ### 📋 Prerrequisitos
 
 - **Node.js** 18+ y npm
-- **Cuenta Stripe** con modo de pruebas
+- **Cuenta Wildapricot** configurada (mia.wildapricot.com)
 - **Cuenta Cloudflare** (para deployment)
 - **Cloudflare Turnstile** site key (para CAPTCHA)
 
@@ -106,17 +107,15 @@ Una aplicación web moderna y robusta para la gestión de membresías, eventos y
    Crea un archivo `.env` en la raíz del proyecto:
 
    ```env
-   # 💳 Stripe Configuration (Modo Desarrollo)
-   VITE_STRIPE_PUBLIC_KEY=pk_test_...
-   STRIPE_WEBHOOK_SECRET=whsec_...
-
    # 🔒 Cloudflare Turnstile (CAPTCHA)
    VITE_TURNSTILE_SITE_KEY=0x4AAA...
    TURNSTILE_SECRET_KEY=0x4AAA...
 
-   # 🔗 Zapier Webhook (opcional, para notificaciones)
+   # 🔗 Zapier Webhook (opcional, para notificaciones del formulario de contacto)
    ZAPIER_WEBHOOK_URL=https://hooks.zapier.com/...
    ```
+
+   **Nota:** No se requieren variables de Stripe. Wildapricot maneja el backend de membresías y pagos.
 
 ### 🏃‍♀️ Desarrollo Local
 
@@ -151,30 +150,53 @@ npx wrangler dev
 # La app estará disponible en http://localhost:8788
 ```
 
-## 💳 Sistema de Pagos Stripe
+## 💳 Sistema de Registro Wildapricot
 
 ### Flujo de Registro y Pago
 
 ```
-Usuario → Registro → Stripe Checkout → Confirmación → Bienvenida
+Usuario → Turnstile CAPTCHA → Widget Wildapricot → Stripe (vía Wildapricot) → Confirmación → Portal de Socias
 ```
 
-### 🎯 Funcionalidades
+### 🎯 Arquitectura
 
-- ⚡ **Checkout Directo** - Integración con Stripe Checkout
-- ✅ **Verificación de Sesión** - Confirmación de pago completado
-- 📧 **Notificaciones** - Email de bienvenida vía Zapier (opcional)
-- 🔒 **Protección CAPTCHA** - Cloudflare Turnstile en formularios
+- 🛡️ **Protección Anti-Bots** - Cloudflare Turnstile antes del widget
+- 📝 **Widget Wildapricot** - Formulario nativo embebido (`mia.wildapricot.com/widget/join`)
+- 💳 **Pago Integrado** - Wildapricot maneja Stripe internamente
+- ✅ **Creación Automática** - Contacto + Membresía + Email de bienvenida
+- 🔑 **Portal de Socias** - Acceso al portal Wildapricot con credenciales
+
+### 🔐 Seguridad (Doble Capa)
+
+1. **Capa 1 (Nuestra App)**: Turnstile CAPTCHA antes de cargar el widget
+   - Previene bots casuales de nuestra interfaz
+   - Reduce carga en Wildapricot
+   - Experiencia moderna y rápida
+
+2. **Capa 2 (Wildapricot)**: reCAPTCHA en el widget
+   - Defensa final contra bots sofisticados
+   - Configurada en el admin de Wildapricot
 
 ### 📋 Planes de Membresía
 
 | Plan | Precio | Características |
 |------|--------|-----------------|
-| **Pleno Derecho** | €30/año | Membresía completa para profesionales |
-| **Estudiante** | €15/año | Tarifa reducida para estudiantes |
+| **Pleno Derecho** | €60/año | Membresía completa para profesionales |
+| **Estudiante** | €30/año | Tarifa reducida para estudiantes |
 | **Colaborador** | €60/año | Membresía de apoyo empresarial |
 
-> **Nota:** Los códigos de descuento se pueden aplicar durante el checkout
+> **Nota:** Los niveles de membresía se configuran en el admin de Wildapricot
+
+### ⚙️ Configuración Wildapricot (Admin)
+
+Para que el sistema funcione correctamente, configurar en Wildapricot:
+
+1. **Membership Levels** - Crear 3 niveles con precios (€60, €30, €60)
+2. **Stripe Integration** - Conectar cuenta de Stripe
+3. **Success URL** - `https://animacionesmia.com/registro/confirmacion`
+4. **Cancel URL** - `https://animacionesmia.com/registro?cancelado=true`
+5. **Form Fields** - Nombre, Apellidos, Email, Teléfono (opcional)
+6. **reCAPTCHA** - Activar en Settings > Security > Anti-spam
 
 ## 🎨 Funcionalidades
 
@@ -194,9 +216,11 @@ Usuario → Registro → Stripe Checkout → Confirmación → Bienvenida
 - **Integración Zapier** - Notificaciones automáticas (opcional)
 
 ### 💳 Sistema de Registro
-- **Proceso Simplificado** - Selección de plan y checkout
-- **Códigos de Descuento** - Soporte para promociones
-- **Confirmación de Pago** - Verificación de sesión Stripe
+- **Protección Anti-Bots** - Turnstile CAPTCHA antes del formulario
+- **Widget Wildapricot** - Formulario nativo embebido con pago integrado
+- **Proceso Automatizado** - Contacto + Membresía + Email automático
+- **Portal de Socias** - Acceso directo tras registro exitoso
+- **Confirmación Visual** - Página de éxito con próximos pasos
 - **Página de Bienvenida** - Confirmación post-registro
 
 ### 🎯 Programa Miánima
