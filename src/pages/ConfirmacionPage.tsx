@@ -108,15 +108,14 @@ export function ConfirmacionPage() {
                     Accede al portal de socias de MIA:
                   </p>
                   <a
-                    href="https://mia.wildapricot.com"
+                    href="https://web.animacionesmia.com"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-red-600 hover:bg-red-700 transition-colors duration-200"
                   >
                     <LogIn className="w-5 h-5 mr-2" />
                     Portal de Socias
-                  </a>
-                </div>
+                  </a>                </div>
               </div>
 
               {/* What's Next Info */}
