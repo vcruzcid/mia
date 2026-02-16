@@ -13,7 +13,7 @@ import { DirectivaPage } from './pages/DirectivaPage';
 import { FundadorasPage } from './pages/FundadorasPage';
 import { MianimaPage } from './pages/MianimaPage';
 import { LoginPage } from './pages/LoginPage';
-import { RegistrationPage } from './pages/RegistrationPage';
+import { RegistroPage } from './pages/RegistroPage';
 import { WelcomePage } from './pages/WelcomePage';
 import { PoliticaCookiesPage } from './pages/PoliticaCookiesPage';
 import { TerminosUsoPage } from './pages/TerminosUsoPage';
@@ -43,9 +43,9 @@ function App() {
                     <Route path="politica-privacidad" element={<PoliticaPrivacidadPage />} />
                   </Route>
 
-                  {/* Authentication routes (have their own header/footer) */}
+                  {/* Authentication routes (no layout wrapper) */}
                   <Route path="login" element={<LoginPage />} />
-                  <Route path="registro" element={<RegistrationPage />} />
+                  <Route path="registro" element={<RegistroPage />} />
                   <Route path="registro/bienvenida" element={<WelcomePage />} />
                 </Routes>
               </div>
