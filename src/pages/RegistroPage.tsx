@@ -1,48 +1,28 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { TurnstileWidget } from '../components/TurnstileWidget';
 import { Card, CardContent } from '@/components/ui/card';
 import { BackgroundImage } from '@/components/ui/background-image';
-import { AlertCircle, CheckCircle2 } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 
 /**
  * RegistroPage - Member Registration with Wildapricot Widget
  *
- * Two-step process:
- * 1. User completes Turnstile CAPTCHA verification (bot protection)
- * 2. Wildapricot registration widget loads (handles form + payment + membership)
+ * Simple direct embedding of Wildapricot registration widget.
+ * Wildapricot handles: form, payment (via Stripe), bot protection (reCAPTCHA),
+ * contact creation, membership creation, and welcome emails.
  *
  * Handles:
- * - Turnstile verification before widget loads
+ * - Direct widget iframe embedding
  * - Payment cancellation messages via ?cancelado=true query param
  * - Responsive iframe embedding
  * - Spanish UI text
  */
 export function RegistroPage() {
-  const [verified, setVerified] = useState(false);
-  const [verificationError, setVerificationError] = useState(false);
   const [iframeLoading, setIframeLoading] = useState(true);
   const location = useLocation();
 
   // Check if user canceled payment
   const isCanceled = new URLSearchParams(location.search).get('cancelado') === 'true';
-
-  // Handle Turnstile verification
-  const handleVerify = (token: string) => {
-    console.log('Turnstile verified:', token);
-    setVerified(true);
-    setVerificationError(false);
-  };
-
-  const handleError = () => {
-    console.error('Turnstile verification error');
-    setVerificationError(true);
-  };
-
-  const handleExpire = () => {
-    console.warn('Turnstile verification expired');
-    setVerified(false);
-  };
 
   // Handle iframe load event
   const handleIframeLoad = () => {
@@ -94,112 +74,41 @@ export function RegistroPage() {
 
         <Card className="shadow-xl">
           <CardContent className="p-8">
-            {!verified ? (
-              /* Step 1: Turnstile Verification */
-              <div className="space-y-6">
-                <div className="text-center">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
-                    <svg
-                      className="w-8 h-8 text-red-600"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                      />
-                    </svg>
-                  </div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                    Verificación de seguridad
-                  </h2>
-                  <p className="text-gray-600 mb-8">
-                    Por favor, completa la verificación para continuar con tu registro
-                  </p>
+            <div className="space-y-6">
+              {/* Loading State */}
+              {iframeLoading && (
+                <div className="text-center py-12">
+                  <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
+                  <p className="mt-4 text-gray-600">Cargando formulario de registro...</p>
                 </div>
+              )}
 
-                {/* Turnstile Widget */}
-                <div className="flex justify-center">
-                  <TurnstileWidget
-                    onVerify={handleVerify}
-                    onError={handleError}
-                    onExpire={handleExpire}
-                  />
-                </div>
-
-                {/* Verification Error */}
-                {verificationError && (
-                  <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-md">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start">
-                        <AlertCircle className="h-5 w-5 text-red-600 mr-2 flex-shrink-0 mt-0.5" />
-                        <p className="text-sm text-red-800">
-                          Error al cargar la verificación. Por favor, recarga la página e inténtalo de nuevo.
-                        </p>
-                      </div>
-                      <button
-                        onClick={() => window.location.reload()}
-                        className="ml-4 px-3 py-1 text-sm font-medium text-red-600 hover:text-red-700 underline whitespace-nowrap"
-                      >
-                        Recargar
-                      </button>
-                    </div>
-                  </div>
-                )}
+              {/* Wildapricot Widget Iframe */}
+              <div className={`${iframeLoading ? 'h-0 overflow-hidden' : ''} relative`}>
+                <iframe
+                  width="100%"
+                  height="1200"
+                  frameBorder="0"
+                  src="https://web.animacionesmia.com/widget/join"
+                  onLoad={handleIframeLoad}
+                  className="w-full min-h-[1200px] border-0 rounded-md"
+                  title="Formulario de registro de MIA"
+                  // iOS scrollability
+                  scrolling="yes"
+                  allow="payment"
+                  style={{
+                    WebkitOverflowScrolling: 'touch',
+                  }}
+                />
               </div>
-            ) : (
-              /* Step 2: Wildapricot Widget */
-              <div className="space-y-6">
-                <div className="text-center">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-                    <CheckCircle2 className="w-8 h-8 text-green-600" />
-                  </div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                    Verificación completada
-                  </h2>
-                  <p className="text-gray-600 mb-8">
-                    Completa el formulario a continuación para unirte a MIA
-                  </p>
-                </div>
 
-                {/* Loading State */}
-                {iframeLoading && (
-                  <div className="text-center py-12">
-                    <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
-                    <p className="mt-4 text-gray-600">Cargando formulario...</p>
-                  </div>
-                )}
-
-                {/* Wildapricot Widget Iframe */}
-                <div className={`${iframeLoading ? 'h-0 overflow-hidden' : ''} relative`}>
-                  <iframe
-                    width="100%"
-                    height="1200"
-                    frameBorder="0"
-                    src="https://mia.wildapricot.com/widget/join"
-                    onLoad={handleIframeLoad}
-                    className="w-full min-h-[1200px] border-0 rounded-md"
-                    title="Formulario de registro de MIA"
-                    // iOS scrollability
-                    scrolling="yes"
-                    allow="payment"
-                    style={{
-                      WebkitOverflowScrolling: 'touch',
-                    }}
-                  />
-                </div>
-
-                {/* Info Box */}
-                <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-md">
-                  <p className="text-sm text-blue-800">
-                    <strong>Nota:</strong> Después de completar el pago, recibirás un correo electrónico con tus credenciales de acceso al portal de socias.
-                  </p>
-                </div>
+              {/* Info Box */}
+              <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-md">
+                <p className="text-sm text-blue-800">
+                  <strong>Nota:</strong> Después de completar el pago, recibirás un correo electrónico con tus credenciales de acceso al portal de socias.
+                </p>
               </div>
-            )}
+            </div>
           </CardContent>
         </Card>
 
