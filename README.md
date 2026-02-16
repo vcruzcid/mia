@@ -85,7 +85,7 @@ Una aplicación web moderna y robusta para la gestión de membresías, eventos y
 ### 📋 Prerrequisitos
 
 - **Node.js** 18+ y npm
-- **Cuenta Wildapricot** configurada (mia.wildapricot.com)
+- **Cuenta Wildapricot** configurada (web.animacionesmia.com)
 - **Cuenta Cloudflare** (para deployment)
 - **Cloudflare Turnstile** site key (para CAPTCHA)
 
@@ -161,7 +161,7 @@ Usuario → Turnstile CAPTCHA → Widget Wildapricot → Stripe (vía Wildaprico
 ### 🎯 Arquitectura
 
 - 🛡️ **Protección Anti-Bots** - Cloudflare Turnstile antes del widget
-- 📝 **Widget Wildapricot** - Formulario nativo embebido (`mia.wildapricot.com/widget/join`)
+- 📝 **Widget Wildapricot** - Formulario nativo embebido (`web.animacionesmia.com/widget/join`)
 - 💳 **Pago Integrado** - Wildapricot maneja Stripe internamente
 - ✅ **Creación Automática** - Contacto + Membresía + Email de bienvenida
 - 🔑 **Portal de Socias** - Acceso al portal Wildapricot con credenciales
