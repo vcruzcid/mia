@@ -14,7 +14,6 @@ import { FundadorasPage } from './pages/FundadorasPage';
 import { MianimaPage } from './pages/MianimaPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegistrationPage } from './pages/RegistrationPage';
-import { WelcomePage } from './pages/WelcomePage';
 import { PoliticaCookiesPage } from './pages/PoliticaCookiesPage';
 import { TerminosUsoPage } from './pages/TerminosUsoPage';
 import { PoliticaPrivacidadPage } from './pages/PoliticaPrivacidadPage';
@@ -46,7 +45,6 @@ function App() {
                   {/* Authentication routes (no layout wrapper) */}
                   <Route path="login" element={<LoginPage />} />
                   <Route path="registro" element={<RegistrationPage />} />
-                  <Route path="registro/bienvenida" element={<WelcomePage />} />
                 </Routes>
               </div>
             </Router>

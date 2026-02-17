@@ -18,7 +18,6 @@ export interface RegistrationRequest extends FormData {
 export interface RegistrationResponse {
   success: boolean;
   message: string;
-  redirectUrl?: string; // Stripe payment URL if applicable
 }
 
 // Member API interfaces
