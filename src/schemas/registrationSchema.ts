@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ANIMATION_SPECIALIZATIONS } from '../types';
+import { ANIMATION_SPECIALIZATIONS } from '@/types';
 
 // Phone validation for Spanish numbers
 const spanishPhoneRegex = /^(\+34|0034|34)?[6789]\d{8}$/;

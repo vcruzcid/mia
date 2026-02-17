@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
-import { useScrollAnimation } from '../hooks/useScrollAnimation';
-import { useCounterAnimation } from '../hooks/useCounterAnimation';
+import { useScrollAnimation } from '@/hooks/useScrollAnimation';
+import { useCounterAnimation } from '@/hooks/useCounterAnimation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { BackgroundImage } from '@/components/ui/background-image';

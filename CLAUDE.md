@@ -10,11 +10,12 @@ MIA (Mujeres en la Industria de Animación) is a professional association web ap
 - React 19 + TypeScript + Vite
 - Tailwind CSS 4 + Radix UI (shadcn/ui pattern)
 - React Router 7 for routing
-- Stripe for payments (Checkout + Sessions)
+- Stripe for payments (direct payment links - no server-side sessions)
 - Cloudflare Pages + Functions for hosting and serverless APIs
 - Cloudflare Turnstile for CAPTCHA protection
 - Form validation: react-hook-form + Zod
 - Static data for directiva and fundadoras (no backend integration)
+- **No authentication** - fully static site with public pages only
 
 ## Development Commands
 
@@ -87,11 +88,10 @@ src/
 │   ├── ui/          # Radix UI primitives (shadcn/ui pattern)
 │   ├── Header.tsx   # Main navigation
 │   ├── Footer.tsx
-│   ├── Layout.tsx   # Page layout wrapper
-│   └── ProtectedRoute.tsx
+│   └── Layout.tsx   # Page layout wrapper
 ├── pages/           # Route components
 │   └── socias/     # Subdirectory for Socias page components
-├── contexts/        # React Context providers (Auth, Toast, Loading)
+├── contexts/        # React Context providers (Toast, Loading)
 ├── hooks/           # Custom React hooks
 ├── types/           # TypeScript type definitions
 ├── config/          # App configuration (site.config.ts)
@@ -108,11 +108,10 @@ functions/           # Cloudflare Functions (serverless APIs)
 
 The app uses React Context API for global state:
 
-- **AuthContext** (`src/contexts/AuthContext.tsx`): Authentication state (currently stubbed/non-functional)
 - **ToastContext** (`src/contexts/ToastContext.tsx`): Global notifications
 - **LoadingContext** (`src/contexts/LoadingContext.tsx`): Loading states
 
-Access these via their respective hooks: `useAuth()`, `useToast()`, `useLoading()`
+Access these via their respective hooks: `useToast()`, `useLoading()`
 
 ### Forms and Validation
 
@@ -144,9 +143,9 @@ Environment variables are split:
 ### Routing
 
 Routes defined in `src/App.tsx` using React Router 7:
-- Public routes wrapped in `<Layout>` component
-- Auth routes (login, registro) have their own layout
-- Route structure matches the sitemap
+- All routes are public and wrapped in `<Layout>` component
+- Registration page (`/registro`) redirects directly to Stripe payment links
+- No authentication or protected routes
 
 ### Configuration
 
@@ -155,14 +154,16 @@ Routes defined in `src/App.tsx` using React Router 7:
 - Contains Stripe payment links, Turnstile keys, analytics IDs
 - Exported as const for type safety
 
-### Authentication (Currently Stubbed)
+### Payment Flow
 
-**Important:** Authentication is currently non-functional. The AuthContext returns stub data:
-- All users are treated as not authenticated
-- Magic link functions return error messages
-- Member portal and protected routes are not enforced
-
-When implementing auth features, coordinate with the team on the authentication strategy.
+**Registration and Payment:**
+1. User selects membership on `/registro`
+2. Applies optional discount code
+3. Accepts terms and GDPR policy
+4. Clicks "Proceder al Pago"
+5. Redirects to Stripe hosted payment link
+6. Stripe handles checkout and confirmation
+7. No custom welcome page or server-side session tracking
 
 ### MCP Server
 
@@ -214,19 +215,16 @@ Member specializations are defined in `src/types/index.ts` as a const array `ANI
 - Set secrets via: `npx wrangler secret put SECRET_NAME`
 
 Required secrets in Cloudflare:
-- `STRIPE_SECRET_KEY`
-- `STRIPE_WEBHOOK_SECRET`
-- `TURNSTILE_SECRET_KEY`
+- `TURNSTILE_SECRET_KEY` (for contact form CAPTCHA)
 - `ZAPIER_WEBHOOK_URL` (optional, for contact form notifications)
 
 ### Environment Variables
 
 Development `.env` file should contain:
 ```env
-VITE_STRIPE_PUBLIC_KEY=pk_test_...
+VITE_STRIPE_PUBLIC_KEY=pk_test_...  # For Stripe payment links (stored in site.config.ts)
 VITE_TURNSTILE_SITE_KEY=0x4AAA...
 TURNSTILE_SECRET_KEY=0x4AAA...
-STRIPE_WEBHOOK_SECRET=whsec_...
 ZAPIER_WEBHOOK_URL=https://hooks.zapier.com/... (optional)
 ```
 
@@ -235,11 +233,11 @@ ZAPIER_WEBHOOK_URL=https://hooks.zapier.com/... (optional)
 ### Using Context
 
 ```typescript
-import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/useToast';
+import { useLoading } from '@/hooks/useLoading';
 
 const { showToast } = useToast();
-const { isAuthenticated } = useAuth();
+const { setLoading } = useLoading();
 ```
 
 ### Form Handling
@@ -268,10 +266,9 @@ import { cn } from '@/lib/utils';
 
 ## Known Issues and TODOs
 
-- Authentication is currently stubbed (see `src/contexts/AuthContext.tsx`)
 - SociasPage is incomplete (shows "Coming Soon" placeholder)
-- No database migrations in repo (referenced in README but directory doesn't exist)
-- Supabase integration is configured via MCP but auth flows are not implemented
+- Directiva data needs updates (see TODOs in `src/data/directiva.ts`)
+- Membership stats in HomePage are manually updated (see TODO comment)
 
 ## Git Workflow
 

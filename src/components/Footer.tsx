@@ -3,16 +3,12 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { contactFormSchema, type ContactFormData } from '../utils/validation';
-import { useToastContext } from '../contexts/ToastContext';
-import { useAuth } from '../hooks/useAuth';
+import { contactFormSchema, type ContactFormData } from '@/utils/validation';
+import { useToastContext } from '@/contexts/ToastContext';
 import { FooterLink } from './FooterLink';
 
 export function Footer() {
   const { toast } = useToastContext();
-  
-  // Check authentication status
-  const { isAuthenticated } = useAuth();
   const {
     register,
     handleSubmit,
@@ -58,14 +54,7 @@ export function Footer() {
               <FooterLink to="/mianima">MIANIMA</FooterLink>
               <FooterLink to="/membresia">MEMBRESÍA</FooterLink>
               <FooterLink to="/contacto">CONTACTO</FooterLink>
-              {isAuthenticated ? (
-                <FooterLink to="/portal">MI DASHBOARD</FooterLink>
-              ) : (
-                <>
-                  <FooterLink to="/login">INICIAR SESIÓN</FooterLink>
-                  <FooterLink to="/registro">ÚNETE A MIA</FooterLink>
-                </>
-              )}
+              <FooterLink to="/registro">ÚNETE A MIA</FooterLink>
             </nav>
           </div>
 
