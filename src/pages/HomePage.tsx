@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
 import { useEffect } from 'react';
-import { siteConfig } from '../config/site.config';
-import { useScrollAnimation } from '../hooks/useScrollAnimation';
-import { useCounterAnimation } from '../hooks/useCounterAnimation';
+import { siteConfig } from '@/config/site.config';
+import { useScrollAnimation } from '@/hooks/useScrollAnimation';
+import { useCounterAnimation } from '@/hooks/useCounterAnimation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { BackgroundImage } from '@/components/ui/background-image';

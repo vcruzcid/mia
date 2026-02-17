@@ -1,9 +1,9 @@
-import { ProfileImage } from '../../components/ProfileImage';
-import { SocialMediaIcons } from '../../components/SocialMediaIcons';
-import { Badge } from '../../components/ui/badge';
+import { ProfileImage } from '@/components/ProfileImage';
+import { SocialMediaIcons } from '@/components/SocialMediaIcons';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../../components/ui/dialog';
-import type { Member } from '../../types/member';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import type { Member } from '@/types/member';
 
 interface MemberModalProps {
   member: Member;

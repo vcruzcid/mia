@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { membershipTypes } from '../utils/memberships';
-import { VALID_DISCOUNT_CODES, calculateDiscountedPrice } from '../schemas/registrationSchema';
-import { siteConfig } from '../config/site.config';
-import { Header } from '../components/Header';
-import { Footer } from '../components/Footer';
+import { membershipTypes } from '@/utils/memberships';
+import { VALID_DISCOUNT_CODES, calculateDiscountedPrice } from '@/schemas/registrationSchema';
+import { siteConfig } from '@/config/site.config';
+import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -327,8 +327,8 @@ export function RegistrationPage() {
                 />
                 <span className="text-sm text-gray-700">
                   Acepto los{' '}
-                  <a 
-                    href="/terminos-condiciones" 
+                  <a
+                    href="/terminos-uso"
                     target="_blank"
                     className="text-primary-600 hover:text-primary-700 font-medium underline"
                   >

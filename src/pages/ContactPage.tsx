@@ -1,14 +1,14 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { contactFormSchema, type ContactFormData } from '../utils/validation';
-import { useToastContext } from '../contexts/ToastContext';
-import { useAsyncLoading } from '../contexts/LoadingContext';
+import { contactFormSchema, type ContactFormData } from '@/utils/validation';
+import { useToastContext } from '@/contexts/ToastContext';
+import { useAsyncLoading } from '@/contexts/LoadingContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { SocialMediaIcons } from '../components/SocialMediaIcons';
+import { SocialMediaIcons } from '@/components/SocialMediaIcons';
 import { Accordion } from '@/components/ui/accordion';
 import { useEffect } from 'react';
 
