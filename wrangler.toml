@@ -4,11 +4,11 @@ compatibility_date = "2024-12-15"
 # Pages configuration
 pages_build_output_dir = "dist"
 
-# Environment variables for production
+# Environment variables for development
 [vars]
 # Public environment variables (safe to expose)
-VITE_STRIPE_PUBLIC_KEY = "pk_live_..."
-VITE_TURNSTILE_SITE_KEY = "0x4AAA..."
+VITE_STRIPE_PUBLIC_KEY = "pk_test_51JUuCEBWIyEInzCB9yxYOnEOxa6aRgFZVVt9n0Q064U2hb2Z43RJjxB3MLzRuJs0IMx2vOf1C7mGuDBSSwFQRQ7100ytJ8COQI"
+VITE_TURNSTILE_SITE_KEY = "0x4AAAAAABddjw-SDSpgjBDI"
 
 # Note: Sensitive variables are managed through Cloudflare secrets:
 # - TURNSTILE_SECRET_KEY

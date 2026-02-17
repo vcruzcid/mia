@@ -10,9 +10,16 @@ export const siteConfig = {
     sitekey: '0x4AAAAAABddjw-SDSpgjBDI'
   },
   stripe: {
-    plenoDerecho: 'https://pagos.animacionesmia.com/b/9B69ASapSeBh13e81x7g401',
-    estudiante: 'https://pagos.animacionesmia.com/b/00w28qcy0gJp27i3Lh7g402',
-    colaborador: 'https://pagos.animacionesmia.com/b/9B65kC41ubp5eU495B7g403Og2Sz5ju2Hd7g400'
+    // Use test mode links in development, production links in production
+    plenoDerecho: isDev
+      ? 'https://pagos.animacionesmia.com/b/test_7sYcN4gOg2Sz5ju2Hd7g400'
+      : 'https://pagos.animacionesmia.com/b/9B69ASapSeBh13e81x7g401',
+    estudiante: isDev
+      ? 'https://pagos.animacionesmia.com/b/test_00w28qcy0gJp27i3Lh7g402'
+      : 'https://pagos.animacionesmia.com/b/00w28qcy0gJp27i3Lh7g402',
+    colaborador: isDev
+      ? 'https://pagos.animacionesmia.com/b/test_9B69ASapSeBh13e81x7g401'
+      : 'https://pagos.animacionesmia.com/b/9B65kC41ubp5eU495B7g403Og2Sz5ju2Hd7g400'
   },
   analytics: {
     gtag: 'G-YLBF3GWPRV'
