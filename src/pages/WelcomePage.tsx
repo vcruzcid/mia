@@ -5,7 +5,6 @@ import { Footer } from '../components/Footer';
 import { Card, CardContent } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
 import { Badge } from '@/components/ui/badge';
-import { getStripe } from '@/utils/stripe';
 
 interface UserInfo {
   name: string;
@@ -70,70 +69,15 @@ export function WelcomePage() {
       }
 
       try {
-        // Load Stripe.js
-        const stripe = await getStripe();
-        if (!stripe) {
-          throw new Error('Failed to load Stripe');
+        // Call the new Stripe session API endpoint
+        const response = await fetch(`/api/stripe-session/${sessionId}`);
+        
+        if (!response.ok) {
+          throw new Error('Error retrieving customer information');
         }
 
-        // Retrieve the checkout session
-        const { error, checkout_session } = await stripe.retrieveCheckoutSession(sessionId);
-
-        if (error) {
-          console.error('Stripe error:', error);
-          throw new Error(error.message);
-        }
-
-        if (!checkout_session) {
-          throw new Error('Session not found');
-        }
-
-        console.log('Checkout session:', checkout_session);
-
-        // Extract membership type from amount (since we don't have line items expanded in client-side retrieval)
-        let membershipType = membershipType || 'colaborador';
-        const amount = checkout_session.amount_total || 0;
-
-        // Infer membership type from amount
-        if (amount === 3000) membershipType = 'estudiante'; // €30
-        else if (amount === 5000) membershipType = 'colaborador'; // €50
-        else if (amount === 8000) membershipType = 'pleno-derecho'; // €80
-
-        // Format user info to match existing interface
-        const userInfo: UserInfo = {
-          name: checkout_session.customer_details?.name || '',
-          email: checkout_session.customer_details?.email || '',
-          phone: checkout_session.customer_details?.phone || '',
-          address: {
-            line1: checkout_session.customer_details?.address?.line1,
-            line2: checkout_session.customer_details?.address?.line2,
-            city: checkout_session.customer_details?.address?.city,
-            postal_code: checkout_session.customer_details?.address?.postal_code,
-            state: checkout_session.customer_details?.address?.state,
-            country: checkout_session.customer_details?.address?.country,
-          },
-          customFields: {
-            professional_categories: '',
-            experience_level: '',
-            company_or_institution: '',
-          },
-          membershipInfo: {
-            type: membershipType,
-            originalAmount: amount / 100,
-            finalAmount: amount / 100,
-            discountCode: null,
-            discountPercentage: 0,
-            registrationDate: new Date().toISOString(),
-          },
-          paymentInfo: {
-            status: checkout_session.payment_status,
-            amount: amount / 100,
-            currency: checkout_session.currency || 'eur',
-          },
-          stripeCustomerId: typeof checkout_session.customer === 'string' ? checkout_session.customer : '',
-          stripeSessionId: checkout_session.id,
-        };
-
+        const { userInfo } = await response.json();
+        
         setState({
           userInfo,
           loading: false,
@@ -143,9 +87,7 @@ export function WelcomePage() {
         // Clear any saved registration draft since payment is complete
         localStorage.removeItem('mia-registration-draft');
 
-      } catch (error) {
-        console.error('Error retrieving session:', error);
-        setState(prev => ({
+      } catch (error) {        setState(prev => ({
           ...prev,
           loading: false,
           error: 'No se pudo recuperar la información del usuario',
