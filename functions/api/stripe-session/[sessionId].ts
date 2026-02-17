@@ -43,9 +43,9 @@ export async function onRequestGet(context: { request: Request; env: Env; params
       apiVersion: '2024-11-20',
     });
 
-    // Retrieve the checkout session with expanded customer data
+    // Retrieve the checkout session with expanded line items (needed for membership type)
     const session = await stripeClient.checkout.sessions.retrieve(sessionId, {
-      expand: ['customer', 'subscription', 'line_items']
+      expand: ['line_items']
     });
 
     if (!session) {
@@ -58,9 +58,6 @@ export async function onRequestGet(context: { request: Request; env: Env; params
       );
     }
 
-    // Get customer info
-    const customer = session.customer as any;
-
     // Extract membership type from line items or metadata
     let membershipType = '';
     if (session.line_items?.data?.[0]?.description) {
@@ -71,8 +68,8 @@ export async function onRequestGet(context: { request: Request; env: Env; params
     }
 
     const userInfo: CustomerDetails = {
-      email: session.customer_email || customer?.email || '',
-      name: customer?.name || '',
+      email: session.customer_details?.email || session.customer_email || '',
+      name: session.customer_details?.name || '',
       membershipType: membershipType,
       paymentInfo: {
         status: session.payment_status,
