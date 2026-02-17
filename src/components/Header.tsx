@@ -1,16 +1,12 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '../hooks/useAuth';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
-  
-  // Check authentication status
-  const { isAuthenticated } = useAuth();
 
   const navigation = [
     { name: 'Inicio', href: '/' },
@@ -120,27 +116,11 @@ export function Header() {
                 ))}
               </div>
               
-              {/* Login & Registration / Dashboard */}
-              {isAuthenticated ? (
-                <Button asChild className="bg-red-600 hover:bg-red-700 text-white">
-                  <Link to="/portal">
-                    Mi Dashboard
-                  </Link>
-                </Button>
-              ) : (
-                <>
-                  <Button variant="ghost" asChild className="mr-2 text-white hover:text-red-400 hover:bg-transparent">
-                    <Link to="/login">
-                      Iniciar Sesión
-                    </Link>
-                  </Button>
-                  <Button asChild className="bg-red-600 hover:bg-red-700 text-white">
-                    <Link to="/registro">
-                      Únete a MIA
-                    </Link>
-                  </Button>
-                </>
-              )}
+              <Button asChild className="bg-red-600 hover:bg-red-700 text-white">
+                <Link to="/registro">
+                  Únete a MIA
+                </Link>
+              </Button>
             </div>
           </div>
 
@@ -212,37 +192,15 @@ export function Header() {
                 ))}
               </div>
               
-              {/* Mobile Login & Registration / Dashboard */}
-              <div className="pt-4 pb-2 space-y-2">
-                {isAuthenticated ? (
-                  <Button asChild className="w-full bg-red-600 hover:bg-red-700 text-white">
-                    <Link
-                      to="/portal"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      Mi Dashboard
-                    </Link>
-                  </Button>
-                ) : (
-                  <>
-                    <Button variant="ghost" asChild className="w-full text-white hover:text-red-400 hover:bg-transparent">
-                      <Link
-                        to="/login"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        Iniciar Sesión
-                      </Link>
-                    </Button>
-                    <Button asChild className="w-full bg-red-600 hover:bg-red-700 text-white">
-                      <Link
-                        to="/registro"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        Únete a MIA
-                      </Link>
-                    </Button>
-                  </>
-                )}
+              <div className="pt-4 pb-2">
+                <Button asChild className="w-full bg-red-600 hover:bg-red-700 text-white">
+                  <Link
+                    to="/registro"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Únete a MIA
+                  </Link>
+                </Button>
               </div>
             </div>
           </div>

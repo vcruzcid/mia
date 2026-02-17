@@ -1,4 +1,4 @@
-import type { MembershipType } from '../types';
+import type { MembershipType } from '@/types';
 
 export const membershipTypes: MembershipType[] = [
   {

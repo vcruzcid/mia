@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Accordion } from '@/components/ui/accordion';
 import { BackgroundImage } from '@/components/ui/background-image';
-import { membershipTypes } from '../utils/memberships';
+import { membershipTypes } from '@/utils/memberships';
 
 export function MembershipPage() {
   const [selectedMembership, setSelectedMembership] = useState<string | null>(null);
