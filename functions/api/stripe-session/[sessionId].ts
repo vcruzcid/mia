@@ -76,7 +76,7 @@ export async function onRequestGet(context: { request: Request; env: Env; params
         amount: session.amount_total || 0,
         currency: session.currency || 'eur',
       },
-      stripeCustomerId: typeof session.customer === 'string' ? session.customer : customer?.id || '',
+      stripeCustomerId: typeof session.customer === 'string' ? session.customer : '',
       stripeSessionId: session.id,
     };
 
