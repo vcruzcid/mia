@@ -1,0 +1,25 @@
+{
+    "hooks": {
+        "PreToolUse": [
+            {
+                "matcher": "Bash",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "if [[ \"$1\" == *\"git push --force\"* ]] || [[ \"$1\" == *\"git push -f\"* ]]; then echo 'ERROR: Force push is not allowed.'; exit 1; fi"
+                    }
+                ]
+            }
+        ],
+        "UserPromptSubmit": [
+            {
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "bash .claude/hooks/session-start.sh"
+                    }
+                ]
+            }
+        ]
+    }
+}

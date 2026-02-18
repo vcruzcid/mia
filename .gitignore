@@ -13,57 +13,62 @@ lerna-debug.log*
 !.env.example
 !.env.sample
 !.env.template
+.dev.vars
 
-node_modules
-dist
-dist-ssr
-*.local
+# Dependencies
+node_modules/
 
-# Editor directories and files
+# Build and deployment artifacts
+dist/
+dist-ssr/
+dev-dist/
+.vite/
+.wrangler/
+*.tsbuildinfo
+.eslintcache
+
+# Editor and OS files
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
+Thumbs.db
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
 
-# Local AI/IDE configuration (often contains tokens)
-.claude/
-.claude
-.clauderc
+# Local configuration overrides
+*.local
+*.local.*
+.claude/settings.local.json
 
-# Migration files (completed - archived in scripts/migrationcompleted/)
+# Migration files (legacy/archived)
 extracted-files/
 optimized-files/
-*-report.json
 *migration*.js
 *wordpress*.js
 *extract*.js
 *upload*.js
 *optimize*.js
+mia-wordpress/
 
-# Build artifacts
-dev-dist/
+# Reports and Test results
+*-report.json
 test-results/
 playwright-report/
-.vite/
 coverage/
-.eslintcache
-*.tsbuildinfo
-.wrangler/
-.dev.vars
-
-# Test files (keep config but ignore results)
 tests/results/
 tests/screenshots/
 tests/videos/
-
-# Documentation and reports
-*-report.json
+.playwright-mcp/
+.playwright-mcp
 DEPLOYMENT.md
+
+# Application Data & Backups
+members_data/
+db-backups/
 
 # Temporary files
 *.tmp
@@ -71,20 +76,5 @@ DEPLOYMENT.md
 .temp/
 tmp/
 
-# MCP configuration (may contain tokens/sensitive info)
+# Tools and MCP
 .mcp.json
-
-# Legacy WordPress site (not needed for React app)
-mia-wordpress/
-
-# Database backups (should be in separate backup system)
-db-backups/
-
-# Playwright test files
-.playwright-mcp/
-.playwright-mcp
-
-#serena
-.serena/
-members_data/
-.claude
