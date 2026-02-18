@@ -18,6 +18,7 @@ a public member gallery, and a member portal.
 - **Styling:** Tailwind CSS 4 + Radix UI (shadcn/ui pattern)
 - **Routing:** React Router 7
 - **Forms:** react-hook-form + Zod (schemas in `src/schemas/`)
+- **Data fetching:** TanStack React Query v5 — all API calls, never raw useEffect+fetch
 - **State:** Zustand (`src/store/`) + React Context for toasts/loading
 - **Hosting:** Cloudflare Pages
 - **Functions:** Cloudflare Workers via Pages Functions (`functions/`)
@@ -217,7 +218,8 @@ See `.claude/agents/git-workflow.md` for full branching, commit, PR, and merge r
 | `wildapricot-api` | WA API calls, token management, D1 sync, webhooks |
 | `member-gallery` | SociasPage, /api/members, D1 queries, gallery UI |
 | `cloudflare-infra` | wrangler.toml, D1 migrations, R2, KV, deployments |
-| `registration-flow` | RegistrationPage, Zod schemas, discount codes, payment redirect |
+| `registration-flow` | RegistrationPage, Zod schemas, payment redirect |
+| `frontend` | React components, Tailwind styling, React Query, animations, PWA |
 | `git-workflow` | Branching strategy, commits, PRs, merges |
 
 ---
