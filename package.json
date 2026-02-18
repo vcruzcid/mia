@@ -6,15 +6,14 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
-    "build:dev": "tsc --noEmit && vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage",
-    "deploy:dev": "./scripts/deploy-dev.sh",
-    "deploy:dev:manual": "npm run build:dev && npx wrangler pages deploy dist --project-name=miawapp",
-    "cleanup": "./scripts/cleanup-dev-files.sh"
+    "test:coverage": "vitest --coverage"
+  },
+  "engines": {
+    "node": ">=22.12.0"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
