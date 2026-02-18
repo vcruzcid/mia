@@ -1,0 +1,53 @@
+name: Security
+
+on:
+  pull_request:
+    branches: [main, dev]
+  push:
+    branches: [main, dev]
+
+permissions:
+  contents: read
+  pull-requests: write        # dependency-review needs this to post PR comments
+  security-events: write      # needed to upload SARIF if ever added
+
+jobs:
+  # ── Runs on PRs only ─────────────────────────────────────────────────────────
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          # Block merge if any new dep introduces a high or critical CVE
+          fail-on-severity: high
+          # Allow known dev-only moderate CVEs (ajv via eslint, esbuild via vitest)
+          allow-ghsas: >-
+            GHSA-2g4f-4pwh-qvx6,
+            GHSA-67mh-4wv8-2f99
+
+  # ── Runs on PRs + pushes to main/dev ─────────────────────────────────────────
+  audit:
+    name: npm Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Audit (high + critical only)
+        # --audit-level=high fails only on high/critical; ignores moderate dev CVEs
+        run: npm audit --audit-level=high
