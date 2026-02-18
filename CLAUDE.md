@@ -1,71 +1,44 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code when working with the MIA repository.
 
 ## Project Overview
 
-MIA (Mujeres en la Industria de Animación) is a professional association web application for women in the animation industry in Spain. Built with React 19, TypeScript, Vite, and deployed on Cloudflare Pages with serverless Functions.
+**MIA (Mujeres en Industrias de Animación)** is a professional association web app for women
+in the animation industry in Spain. It handles member registration, membership management,
+a public member gallery, and a member portal.
 
-**Tech Stack:**
-- React 19 + TypeScript + Vite
-- Tailwind CSS 4 + Radix UI (shadcn/ui pattern)
-- React Router 7 for routing
-- Stripe for payments (direct payment links - no server-side sessions)
-- Cloudflare Pages + Functions for hosting and serverless APIs
-- Cloudflare Turnstile for CAPTCHA protection
-- Form validation: react-hook-form + Zod
-- Static data for directiva and fundadoras (no backend integration)
-- **No authentication** - fully static site with public pages only
+**All user-facing text MUST be in Spanish.** Code, comments, variable names, and commits stay in English.
 
-## Development Commands
+---
 
-```bash
-# Start development server (opens on port 3000)
-npm run dev
+## Tech Stack
 
-# Run linter
-npm run lint
+- **Frontend:** React 19 + TypeScript + Vite
+- **Styling:** Tailwind CSS 4 + Radix UI (shadcn/ui pattern)
+- **Routing:** React Router 7
+- **Forms:** react-hook-form + Zod (schemas in `src/schemas/`)
+- **State:** Zustand (`src/store/`) + React Context for toasts/loading
+- **Hosting:** Cloudflare Pages
+- **Functions:** Cloudflare Workers via Pages Functions (`functions/`)
+- **Database:** Cloudflare D1 (SQLite) — member gallery cache
+- **Storage:** Cloudflare R2 — member profile photos
+- **Token cache:** Cloudflare KV — WildApricot OAuth token
+- **Bot protection:** Cloudflare Turnstile — all public forms
+- **Membership CRM:** WildApricot REST API v2.2
+- **Payments:** Stripe Payment Links (current) → WildApricot native gateway (planned)
+- **Membership emails:** WildApricot native (welcome, renewal, expiry)
+- **Marketing email:** Mailchimp via Make.com — zero app code
 
-# Run tests
-npm test
+## What We Are NOT Using
+- ~~Supabase~~ — replaced by Cloudflare D1 (MCP entry in settings.local.json is legacy, ignore)
+- ~~Express/Node server~~ — Cloudflare Workers only
+- ~~Mailchimp SDK~~ — Make.com handles sync
+- ~~reCAPTCHA~~ — Cloudflare Turnstile only
 
-# Run tests with UI
-npm run test:ui
+---
 
-# Run tests with coverage
-npm run test:coverage
-
-# Build for production
-npm run build
-
-# Build for development environment
-npm run build:dev
-
-# Preview production build locally
-npm run preview
-
-# Deploy to development environment
-npm run deploy:dev
-
-# Manual deploy to development
-npm run deploy:dev:manual
-```
-
-### Testing Cloudflare Functions Locally
-
-```bash
-# Start Cloudflare Functions dev server
-npx wrangler dev
-
-# Test with Stripe CLI for webhooks
-stripe listen --forward-to http://localhost:8788/api/stripe-webhook
-```
-
-## Architecture
-
-### Path Aliases
-
-The project uses TypeScript path aliases (configured in tsconfig.json and vite.config.ts):
+## Path Aliases
 
 ```typescript
 @/*           → /src/*
@@ -80,206 +53,180 @@ The project uses TypeScript path aliases (configured in tsconfig.json and vite.c
 
 Always use these aliases when importing from these directories.
 
-### Directory Structure
+---
+
+## Directory Structure
 
 ```
 src/
-├── components/       # Reusable components
-│   ├── ui/          # Radix UI primitives (shadcn/ui pattern)
-│   ├── Header.tsx   # Main navigation
+├── components/
+│   ├── ui/              # Radix UI primitives (shadcn/ui pattern)
+│   ├── cards/           # Card components
+│   ├── Header.tsx
 │   ├── Footer.tsx
-│   └── Layout.tsx   # Page layout wrapper
-├── pages/           # Route components
-│   └── socias/     # Subdirectory for Socias page components
-├── contexts/        # React Context providers (Toast, Loading)
-├── hooks/           # Custom React hooks
-├── types/           # TypeScript type definitions
-├── config/          # App configuration (site.config.ts)
-├── schemas/         # Zod validation schemas
-├── utils/           # Utility functions
-└── App.tsx          # Root component with routes
+│   └── Layout.tsx
+├── pages/
+│   ├── socias/          # SociasPage sub-components (gallery — primary missing feature)
+│   └── *.tsx
+├── contexts/            # ToastContext, LoadingContext
+├── hooks/               # useToast, useLoading, custom hooks
+├── types/               # TypeScript interfaces — extend, don't duplicate
+│   ├── index.ts         # Member, FilterState, ANIMATION_SPECIALIZATIONS
+│   ├── member.ts        # BoardMember, Fundadora, MemberStats
+│   └── api.ts           # API request/response types
+├── config/
+│   └── site.config.ts   # Env-aware config: Stripe links, Turnstile key, analytics
+├── schemas/
+│   └── registrationSchema.ts  # All Zod schemas + discount codes
+├── store/               # Zustand stores
+├── data/                # Static data: directiva.ts, fundadoras.ts
+└── utils/
 
-functions/           # Cloudflare Functions (serverless APIs)
+functions/               # Cloudflare Pages Functions
+├── _lib/                # Shared utilities (token helper, turnstile helper)
 └── api/
-    └── contact.ts   # Contact form API with Turnstile verification
+    ├── contact.ts       # POST — Turnstile verify → Zapier webhook (working)
+    ├── members.ts       # GET  — gallery data from D1 (to build)
+    ├── member-sync.ts   # POST — WA webhook → D1 upsert (to build)
+    └── upload-photo.ts  # POST — image → R2 (to build)
+
+migrations/              # D1 SQL migrations
+.claude/
+└── agents/              # Sub-agent definitions
 ```
 
-### State Management
+---
 
-The app uses React Context API for global state:
+## Cloudflare Bindings (wrangler.toml)
 
-- **ToastContext** (`src/contexts/ToastContext.tsx`): Global notifications
-- **LoadingContext** (`src/contexts/LoadingContext.tsx`): Loading states
+Current state has only Turnstile and Stripe keys. Missing bindings to add:
 
-Access these via their respective hooks: `useToast()`, `useLoading()`
+```toml
+[[d1_databases]]
+binding = "DB"
+database_name = "mia-members"
+database_id = "FILL_AFTER_wrangler_d1_create"
 
-### Forms and Validation
+[[r2_buckets]]
+binding = "PHOTOS"
+bucket_name = "mia-photos"
 
-Forms use react-hook-form with Zod schemas:
-- Schemas defined in `src/schemas/` (e.g., `registrationSchema.ts`)
-- Form components use `useForm` hook with `zodResolver`
-- Validation errors are displayed inline
+[[kv_namespaces]]
+binding = "KV"
+id = "FILL_AFTER_wrangler_kv_create"
+```
 
-### UI Components
+Secrets managed via `wrangler secret put` (never in wrangler.toml):
+```
+WILDAPRICOT_API_KEY
+TURNSTILE_SECRET_KEY
+ZAPIER_WEBHOOK_URL
+```
 
-UI components follow the shadcn/ui pattern:
-- Located in `src/components/ui/`
-- Built with Radix UI primitives + Tailwind CSS
-- Use `cn()` utility from `@/lib/utils` for className merging
-- Component variants defined using class-variance-authority (cva)
+---
 
-### Cloudflare Functions
+## D1 Schema
 
-Serverless API endpoints in `functions/api/`:
-- Each file exports `onRequestPost`, `onRequestGet`, etc.
-- Access environment variables via `env` parameter
-- Use Cloudflare Turnstile for form protection
-- CORS headers configured for cross-origin requests
+```sql
+-- migrations/0001_members.sql
+CREATE TABLE IF NOT EXISTS members (
+  id              TEXT PRIMARY KEY,    -- WildApricot Contact.Id
+  nombre          TEXT NOT NULL,
+  email           TEXT,
+  foto_url        TEXT,
+  bio             TEXT,
+  categorias      TEXT,                -- JSON array
+  pais            TEXT,
+  ciudad          TEXT,
+  redes           TEXT,                -- JSON object
+  nivel           TEXT,                -- WA membership level
+  status          TEXT DEFAULT 'Active',
+  mostrar_galeria INTEGER DEFAULT 1,
+  updated_at      TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_status  ON members(status);
+CREATE INDEX IF NOT EXISTS idx_mostrar ON members(mostrar_galeria);
+```
 
-Environment variables are split:
-- Public: `VITE_*` (safe to expose, in wrangler.toml)
-- Secrets: Managed via `wrangler secret put` (Stripe keys, Supabase service role)
+---
 
-### Routing
+## WildApricot API
 
-Routes defined in `src/App.tsx` using React Router 7:
-- All routes are public and wrapped in `<Layout>` component
-- Registration page (`/registro`) redirects directly to Stripe payment links
-- No authentication or protected routes
+- Base URL: `https://api.wildapricot.org/v2.2`
+- Auth: `POST https://oauth.wildapricot.org/auth/token` (client_credentials)
+- Token TTL: 1800s — cache in KV `wa_token` with `expirationTtl: 1740`
+- **CORS:** All WA calls MUST be in `functions/` — never in `src/`
+- Rate limit: ~30 req/min — max 1 req/sec, backoff on timeout (5s/10s/20s, 3 retries)
+- Custom field codes: `custom-XXXXXXX` — discover via `GET /accounts/{id}/contactfields`
 
-### Configuration
+---
 
-`src/config/site.config.ts` contains environment-aware configuration:
-- Detects dev/production via hostname
-- Contains Stripe payment links, Turnstile keys, analytics IDs
-- Exported as const for type safety
+## Registration Flow (Current — Working, Do Not Break)
 
-### Payment Flow
-
-**Registration and Payment:**
 1. User selects membership on `/registro`
-2. Applies optional discount code
-3. Accepts terms and GDPR policy
-4. Clicks "Proceder al Pago"
-5. Redirects to Stripe hosted payment link
-6. Stripe handles checkout and confirmation
-7. No custom welcome page or server-side session tracking
+2. Applies optional discount code (codes in `registrationSchema.ts`)
+3. Accepts TOS + GDPR
+4. Redirects to Stripe Payment Link from `siteConfig.stripe`
+5. Stripe handles checkout
+6. **No post-payment WA sync yet** — to be added
 
-### MCP Server
+---
 
-The project has a Supabase MCP server configured in `.mcp.json`:
-- Project ref: `sggnohsrpdhbsavzccfw`
-- **Note**: Currently kept for reference only. Not actively used since Supabase integration was removed.
-- To use: Uncomment in `.mcp.json` and run Claude Code with MCP support
+## Development Commands
 
-### Animation Specializations
-
-Member specializations are defined in `src/types/index.ts` as a const array `ANIMATION_SPECIALIZATIONS`. This is the source of truth for all animation profession categories (40+ specializations like "Guión", "Dirección", "Animación 2D", etc.). Use this when building member filters or forms.
-
-## Development Guidelines
-
-### Code Style
-
-- TypeScript strict mode enabled
-- Use functional components with hooks
-- Prefer const arrow functions for component definitions
-- Use explicit return types for complex functions
-- Keep components under 200 lines; extract sub-components if needed
-
-### Adding New Pages
-
-1. Create component in `src/pages/`
-2. Add route in `src/App.tsx`
-3. Update Header navigation if needed
-4. Use `<Layout>` wrapper for consistent header/footer
-
-### Adding New API Endpoints
-
-1. Create handler in `functions/api/[name].ts`
-2. Export `onRequestPost`, `onRequestGet`, etc.
-3. Add CORS headers if needed
-4. Define TypeScript types in `src/types/api.ts`
-5. Test locally with `npx wrangler dev`
-
-### Working with Forms
-
-1. Create Zod schema in `src/schemas/`
-2. Use `useForm` with `zodResolver`
-3. Add Turnstile verification for public forms
-4. Handle submission in Cloudflare Function
-
-### Deployment
-
-- **Development**: `npm run deploy:dev` (deploys to dev.animacionesmia.com)
-- **Production**: Automatic from `main` branch via Cloudflare Pages
-- Set secrets via: `npx wrangler secret put SECRET_NAME`
-
-Required secrets in Cloudflare:
-- `TURNSTILE_SECRET_KEY` (for contact form CAPTCHA)
-- `ZAPIER_WEBHOOK_URL` (optional, for contact form notifications)
-
-### Environment Variables
-
-Development `.env` file should contain:
-```env
-VITE_STRIPE_PUBLIC_KEY=pk_test_...  # For Stripe payment links (stored in site.config.ts)
-VITE_TURNSTILE_SITE_KEY=0x4AAA...
-TURNSTILE_SECRET_KEY=0x4AAA...
-ZAPIER_WEBHOOK_URL=https://hooks.zapier.com/... (optional)
+```bash
+npm run dev          # Vite dev server (port 3000)
+npm run build        # tsc --noEmit && vite build
+npm run lint         # ESLint
+npm test             # Vitest
+npm run deploy:dev   # Deploy to dev.animacionesmia.com
+npx wrangler dev     # Test Cloudflare Functions locally
 ```
 
-## Common Patterns
+---
 
-### Using Context
+## Coding Conventions
 
-```typescript
-import { useToast } from '@/hooks/useToast';
-import { useLoading } from '@/hooks/useLoading';
+- TypeScript strict mode — all new code must pass `npm run build`
+- Functional components with hooks only
+- Keep components under 200 lines — extract sub-components if needed
+- `cn()` from `@/lib/utils` for className merging
+- No inline styles
+- Error boundaries on all async views
+- Never log secrets or expose API keys in client-side code
+- Use existing types from `src/types/` — extend, never duplicate
 
-const { showToast } = useToast();
-const { setLoading } = useLoading();
-```
-
-### Form Handling
-
-```typescript
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { mySchema } from '@/schemas/mySchema';
-
-const form = useForm({
-  resolver: zodResolver(mySchema),
-  defaultValues: { ... }
-});
-```
-
-### Conditional Styling
-
-```typescript
-import { cn } from '@/lib/utils';
-
-<div className={cn(
-  "base-classes",
-  condition && "conditional-classes"
-)} />
-```
-
-## Known Issues and TODOs
-
-- SociasPage is incomplete (shows "Coming Soon" placeholder)
-- Directiva data needs updates (see TODOs in `src/data/directiva.ts`)
-- Membership stats in HomePage are manually updated (see TODO comment)
+---
 
 ## Git Workflow
 
-Follow conventional commits:
-- `feat:` - New features
-- `fix:` - Bug fixes
-- `docs:` - Documentation changes
-- `style:` - Code style changes
-- `refactor:` - Code refactoring
-- `test:` - Test additions/changes
-- `chore:` - Maintenance tasks
+See `.claude/agents/git-workflow.md` for full branching, commit, PR, and merge rules.
 
-Main branch: `main`
-Development branch: `dev`
+**Quick reference:**
+- Branch from `dev`, not `main`
+- Commits: conventional format `type(scope): description`
+- PRs always target `dev`
+- `main` only receives merges from `dev` via PR — never direct commits
+
+---
+
+## Sub-Agents
+
+| Agent | Use for |
+|-------|---------|
+| `wildapricot-api` | WA API calls, token management, D1 sync, webhooks |
+| `member-gallery` | SociasPage, /api/members, D1 queries, gallery UI |
+| `cloudflare-infra` | wrangler.toml, D1 migrations, R2, KV, deployments |
+| `registration-flow` | RegistrationPage, Zod schemas, discount codes, payment redirect |
+| `git-workflow` | Branching strategy, commits, PRs, merges |
+
+---
+
+## Known Issues / TODOs
+
+- `SociasPage.tsx` — "Próximamente" placeholder, needs full gallery implementation
+- `directiva.ts` — data needs updates (see TODO comments)
+- Member stats in `HomePage` — manually updated (see TODO comment)
+- D1, R2, KV bindings not yet in `wrangler.toml`
+- No WildApricot integration yet — not started
+- Supabase MCP in `settings.local.json` — legacy, remove
