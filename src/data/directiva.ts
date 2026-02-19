@@ -120,7 +120,8 @@ export const BOARD_MEMBERS_2025_2027: BoardMember[] = [
     first_name: 'Julia',
     last_name: 'Horrillo',
     display_name: 'Julia Horrillo',
-    position: 'Vocal Mianima',
+    position: 'Vocal',
+    position_email: 'hola@animacionesmia.com',
     position_responsibilities: [
       'Coordinar el programa Mianima de mentoría',
       'Apoyar el desarrollo profesional de socias',
