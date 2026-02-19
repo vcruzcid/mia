@@ -1,0 +1,19 @@
+name: Branch Policy
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  check-source-branch:
+    name: Check source branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify PR comes from dev
+        run: |
+          if [ "${{ github.head_ref }}" != "dev" ]; then
+            echo "::error::PRs to main must come from the dev branch."
+            echo "::error::This PR comes from: ${{ github.head_ref }}"
+            exit 1
+          fi
+          echo "Source branch is dev — OK"
