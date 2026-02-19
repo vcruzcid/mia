@@ -75,8 +75,8 @@ export interface BoardMember {
   first_name: string;
   last_name: string;
   display_name: string;
-  email: string;
   position: BoardPosition;
+  position_email?: string;
   position_responsibilities: string[];
   profile_image_url: string;
   company: string;
@@ -106,8 +106,25 @@ export interface BoardTerm {
   isCurrent: boolean;
 }
 
-// Fundadora type (extends Member)
-export type Fundadora = Member & { is_founder: boolean };
+// Fundadora — minimal type for fields rendered in FundadorasPage
+export interface Fundadora {
+  id: string;
+  display_name: string;
+  main_profession?: string;
+  company?: string;
+  biography?: string;
+  profile_image_url?: string;
+  city?: string;
+  country: string;
+  social_media: {
+    linkedin?: string;
+    instagram?: string;
+    twitter?: string;
+    website?: string;
+  };
+  other_professions?: string[];
+  is_founder: boolean;
+}
 
 // Member statistics
 export interface MemberStats {
