@@ -1,12 +1,14 @@
 import { Link } from 'react-router-dom';
 import { useEffect } from 'react';
-import { siteConfig } from '../config/site.config';
-import { useScrollAnimation } from '../hooks/useScrollAnimation';
-import { useCounterAnimation } from '../hooks/useCounterAnimation';
+import { siteConfig } from '@/config/site.config';
+import { useScrollAnimation } from '@/hooks/useScrollAnimation';
+import { useCounterAnimation } from '@/hooks/useCounterAnimation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { BackgroundImage } from '@/components/ui/background-image';
 import { VimeoVideo } from '@/components/VimeoVideo';
+import { StatisticCard } from '@/components/cards/StatisticCard';
+import { FeatureCard } from '@/components/cards/FeatureCard';
 
 // Static member statistics
 // TODO: Update these numbers manually when membership changes
@@ -40,10 +42,6 @@ export function HomePage() {
     formatter: (value) => `${Math.floor(value)}+`,
   });
 
-  // Fetch members on component mount
-  useEffect(() => {
-    fetchMembers();
-  }, [fetchMembers]);
 
   useEffect(() => {
     if (statsAnimation.isIntersecting) {
@@ -140,30 +138,24 @@ export function HomePage() {
           </div>
           
           <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-3">
-            <div className={`text-center transition-all duration-1000 delay-300 ${
-              statsAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}>
-              <div className="text-4xl font-bold" style={{ color: 'var(--color-primary)' }}>
-                {memberCounter.formattedValue}
-              </div>
-              <div className="text-sm mt-2" style={{ color: 'var(--color-text-secondary)' }}>Socias activas</div>
-            </div>
-            <div className={`text-center transition-all duration-1000 delay-500 ${
-              statsAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}>
-              <div className="text-4xl font-bold" style={{ color: 'var(--color-primary)' }}>
-                {growthCounter.formattedValue}
-              </div>
-              <div className="text-sm mt-2" style={{ color: 'var(--color-text-secondary)' }}>Crecimiento anual</div>
-            </div>
-            <div className={`text-center transition-all duration-1000 delay-700 ${
-              statsAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}>
-              <div className="text-4xl font-bold" style={{ color: 'var(--color-primary)' }}>
-                {eventCounter.formattedValue}
-              </div>
-              <div className="text-sm mt-2" style={{ color: 'var(--color-text-secondary)' }}>Eventos anuales</div>
-            </div>
+            <StatisticCard
+              value={memberCounter.formattedValue}
+              label="Socias activas"
+              delay="300ms"
+              isIntersecting={statsAnimation.isIntersecting}
+            />
+            <StatisticCard
+              value={growthCounter.formattedValue}
+              label="Crecimiento anual"
+              delay="500ms"
+              isIntersecting={statsAnimation.isIntersecting}
+            />
+            <StatisticCard
+              value={eventCounter.formattedValue}
+              label="Eventos anuales"
+              delay="700ms"
+              isIntersecting={statsAnimation.isIntersecting}
+            />
           </div>
         </div>
       </div>
@@ -196,69 +188,53 @@ export function HomePage() {
 
           <div className="mt-12">
             <dl className="space-y-10 md:space-y-0 md:grid md:grid-cols-2 md:gap-x-8 md:gap-y-10">
-              <div className={`relative group hover:scale-105 transition-all duration-300 ${
-                featuresAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-              }`} style={{ transitionDelay: '400ms' }}>
-                <dt>
-                  <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-red-600 text-white group-hover:bg-red-700 transition-colors duration-300">
-                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                  <p className="ml-16 text-lg leading-6 font-medium text-gray-900">Networking Profesional</p>
-                </dt>
-                <dd className="mt-2 ml-16 text-base text-gray-500">
-                  Conecta con profesionales, encuentra mentoras y crea colaboraciones que impulsen tu carrera en la animación.
-                </dd>
-              </div>
+              <FeatureCard
+                icon={
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                }
+                title="Networking Profesional"
+                description="Conecta con profesionales, encuentra mentoras y crea colaboraciones que impulsen tu carrera en la animación."
+                delay="400ms"
+                isIntersecting={featuresAnimation.isIntersecting}
+              />
 
-              <div className={`relative group hover:scale-105 transition-all duration-300 ${
-                featuresAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-              }`} style={{ transitionDelay: '500ms' }}>
-                <dt>
-                  <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-red-600 text-white group-hover:bg-red-700 transition-colors duration-300">
-                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                    </svg>
-                  </div>
-                  <p className="ml-16 text-lg leading-6 font-medium text-gray-900">Formación Continua</p>
-                </dt>
-                <dd className="mt-2 ml-16 text-base text-gray-500">
-                  Accede a cursos, talleres y recursos educativos diseñados específicamente para profesionales de la animación.
-                </dd>
-              </div>
+              <FeatureCard
+                icon={
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
+                }
+                title="Formación Continua"
+                description="Accede a cursos, talleres y recursos educativos diseñados específicamente para profesionales de la animación."
+                delay="500ms"
+                isIntersecting={featuresAnimation.isIntersecting}
+              />
 
-              <div className={`relative group hover:scale-105 transition-all duration-300 ${
-                featuresAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-              }`} style={{ transitionDelay: '600ms' }}>
-                <dt>
-                  <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-red-600 text-white group-hover:bg-red-700 transition-colors duration-300">
-                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a1 1 0 01-1-1V9a1 1 0 011-1h1a2 2 0 100-4H4a1 1 0 01-1-1V4a1 1 0 011-1h3a1 1 0 001-1z" />
-                    </svg>
-                  </div>
-                  <p className="ml-16 text-lg leading-6 font-medium text-gray-900">Visibilidad</p>
-                </dt>
-                <dd className="mt-2 ml-16 text-base text-gray-500">
-                  Promovemos el trabajo de las mujeres en animación y creamos oportunidades para aumentar su visibilidad en el sector.
-                </dd>
-              </div>
+              <FeatureCard
+                icon={
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a1 1 0 01-1-1V9a1 1 0 011-1h1a2 2 0 100-4H4a1 1 0 01-1-1V4a1 1 0 011-1h3a1 1 0 001-1z" />
+                  </svg>
+                }
+                title="Visibilidad"
+                description="Promovemos el trabajo de las mujeres en animación y creamos oportunidades para aumentar su visibilidad en el sector."
+                delay="600ms"
+                isIntersecting={featuresAnimation.isIntersecting}
+              />
 
-              <div className={`relative group hover:scale-105 transition-all duration-300 ${
-                featuresAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-              }`} style={{ transitionDelay: '700ms' }}>
-                <dt>
-                  <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-red-600 text-white group-hover:bg-red-700 transition-colors duration-300">
-                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                  </div>
-                  <p className="ml-16 text-lg leading-6 font-medium text-gray-900">Comunidad</p>
-                </dt>
-                <dd className="mt-2 ml-16 text-base text-gray-500">
-                  Forma parte de una comunidad activa y comprometida con el desarrollo del talento femenino en la animación.
-                </dd>
-              </div>
+              <FeatureCard
+                icon={
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                }
+                title="Comunidad"
+                description="Forma parte de una comunidad activa y comprometida con el desarrollo del talento femenino en la animación."
+                delay="700ms"
+                isIntersecting={featuresAnimation.isIntersecting}
+              />
             </dl>
           </div>
         </div>

@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { membershipTypes } from '../utils/memberships';
-import { VALID_DISCOUNT_CODES, calculateDiscountedPrice } from '../schemas/registrationSchema';
-import { siteConfig } from '../config/site.config';
-import { Header } from '../components/Header';
-import { Footer } from '../components/Footer';
+import { membershipTypes } from '@/utils/memberships';
+import { VALID_DISCOUNT_CODES, calculateDiscountedPrice } from '@/schemas/registrationSchema';
+import { siteConfig } from '@/config/site.config';
+import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -16,7 +16,6 @@ interface RegistrationState {
   discountCode: string;
   isProcessing: boolean;
   error: string | null;
-  successMessage: string | null;
 }
 
 export function RegistrationPage() {
@@ -26,7 +25,6 @@ export function RegistrationPage() {
     discountCode: '',
     isProcessing: false,
     error: null,
-    successMessage: null,
   });
 
   const [discountInput, setDiscountInput] = useState('');
@@ -44,13 +42,6 @@ export function RegistrationPage() {
       }));
     }
   }, [location.state, state.selectedMembership]);
-
-  // Clear success message when membership selection changes
-  useEffect(() => {
-    if (state.successMessage && state.selectedMembership) {
-      setState(prev => ({ ...prev, successMessage: null }));
-    }
-  }, [state.selectedMembership, state.successMessage]);
 
   const selectedMembership = membershipTypes.find(m => m.id === state.selectedMembership);
   const isPaidMembership = selectedMembership && selectedMembership.price > 0;
@@ -83,63 +74,25 @@ export function RegistrationPage() {
     setDiscountError('');
   };
 
-  const handlePayment = async () => {
+  const handlePayment = () => {
     if (!selectedMembership) return;
-    
+
     setState(prev => ({ ...prev, isProcessing: true, error: null }));
 
     try {
-      // For paid memberships, redirect to Stripe Checkout
-      await handlePaidMembershipCheckout();
+      // Direct redirect to Stripe payment link
+      const stripeUrl = siteConfig.stripe[selectedMembership.stripeLinkKey as keyof typeof siteConfig.stripe];
+      if (stripeUrl) {
+        window.location.href = stripeUrl;
+      } else {
+        throw new Error('URL de pago no encontrada');
+      }
     } catch (error) {
       setState(prev => ({
         ...prev,
         isProcessing: false,
-        error: error instanceof Error ? error.message : 'Error procesando el pago',
+        error: error instanceof Error ? error.message : 'Error al procesar el pago',
       }));
-    }
-  };
-
-  const handlePaidMembershipCheckout = async () => {
-    if (!selectedMembership || !pricingInfo) return;
-
-    const checkoutData = {
-      membershipType: selectedMembership.id,
-      amount: pricingInfo.finalPrice,
-      originalAmount: pricingInfo.originalPrice,
-      discountCode: state.discountCode,
-      discountPercentage: pricingInfo.discountPercentage,
-      collectShipping: true, // Collect full address for paid memberships
-      mode: 'payment',
-    };
-
-    await redirectToStripeCheckout(checkoutData);
-  };
-
-  const redirectToStripeCheckout = async (checkoutData: Record<string, unknown>) => {
-    // In production, this would call your backend API:
-    /*
-    const response = await fetch('/api/create-simple-checkout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(checkoutData),
-    });
-    
-    const { url } = await response.json();
-    window.location.href = url;
-    */
-
-    // For now, simulate the API call and redirect to existing payment links
-    
-    // Simulate processing delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    if (selectedMembership) {
-      // Redirect to existing payment links (fallback)
-      const stripeUrl = siteConfig.stripe[selectedMembership.stripeLinkKey as keyof typeof siteConfig.stripe] || '#';
-      window.location.href = stripeUrl;
-    } else {
-      setState(prev => ({ ...prev, isProcessing: false }));
     }
   };
 
@@ -374,8 +327,8 @@ export function RegistrationPage() {
                 />
                 <span className="text-sm text-gray-700">
                   Acepto los{' '}
-                  <a 
-                    href="/terminos-condiciones" 
+                  <a
+                    href="/terminos-uso"
                     target="_blank"
                     className="text-primary-600 hover:text-primary-700 font-medium underline"
                   >
@@ -423,27 +376,6 @@ export function RegistrationPage() {
                 </div>
               )}
             </div>
-
-            {/* Success Message */}
-            {state.successMessage && (
-              <div className="mb-6 bg-green-50 border border-green-200 rounded-md p-4">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div className="ml-3">
-                    <h3 className="text-sm font-medium text-green-800">
-                      ¡Éxito!
-                    </h3>
-                    <div className="mt-1 text-sm text-green-700">
-                      <p>{state.successMessage}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* Error Display */}
             {state.error && (

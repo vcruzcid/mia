@@ -1,4 +1,4 @@
-import type { BoardMember } from '../types/member';
+import type { BoardMember } from '@/types/member';
 
 export const BOARD_MEMBERS_2025_2027: BoardMember[] = [
   {

@@ -83,20 +83,18 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Error caught by boundary:', error, errorInfo)
-    
     // Log error to monitoring service in production
     if (isProd) {
       // Here you would typically send to an error monitoring service
       // like Sentry, LogRocket, or Bugsnag
-      console.error('Production error:', {
-        error: error.toString(),
-        stack: error.stack,
-        componentStack: errorInfo.componentStack,
-        timestamp: new Date().toISOString(),
-        userAgent: navigator.userAgent,
-        url: window.location.href
-      })
+      // Example: errorMonitoring.logError({
+      //   message: error.message,
+      //   stack: error.stack,
+      //   componentStack: errorInfo.componentStack,
+      //   timestamp: new Date().toISOString(),
+      //   userAgent: navigator.userAgent,
+      //   url: window.location.href
+      // })
     }
 
     this.setState({
@@ -121,8 +119,6 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
 // Hook for functional components to trigger error boundary
 export const useErrorHandler = () => {
-  return (error: Error, errorInfo?: string) => {
-    console.error('Manual error report:', error, errorInfo)
-    throw error
+  return (error: Error, _errorInfo?: string) => {    throw error
   }
 }

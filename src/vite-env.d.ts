@@ -14,7 +14,7 @@ declare global {
         background?: boolean;
         quality?: string;
       }) => {
-        on: (event: string, callback: (data?: any) => void) => void;
+        on: (event: string, callback: (data?: unknown) => void) => void;
         destroy: () => void;
         ready: () => Promise<void>;
         play: () => Promise<void>;
