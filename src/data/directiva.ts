@@ -1,4 +1,4 @@
-import type { BoardMember } from '@/types/member';
+import type { BoardMember, BoardTerm } from '@/types/member';
 
 // ─── 2025 – 2027 (current) ───────────────────────────────────────────────────
 
@@ -827,12 +827,6 @@ export const BOARD_MEMBERS_2019_2020: BoardMember[] = [
 ];
 
 // ─── Period metadata (used by DirectivaPage period selector) ─────────────────
-
-export interface BoardTerm {
-  label: string;
-  members: BoardMember[];
-  isCurrent: boolean;
-}
 
 export const BOARD_TERMS: BoardTerm[] = [
   { label: '2025–2027', members: BOARD_MEMBERS_2025_2027, isCurrent: true },
