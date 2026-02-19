@@ -4,7 +4,7 @@ import { ProfileImage } from '@/components/ProfileImage';
 import { SocialMediaIcons } from '@/components/SocialMediaIcons';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { BOARD_MEMBERS_2025_2027, type BoardMember } from '@/data/directiva';
+import { BOARD_TERMS, type BoardMember } from '@/data/directiva';
 
 // Shared utility functions
 const getPositionEmail = (position: string): string => {
@@ -101,9 +101,10 @@ function isCurrentlyServing(startDate?: string, endDate?: string): boolean {
 export function DirectivaPage() {
   const [selectedMember, setSelectedMember] = useState<DirectivaMember | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedTermIndex, setSelectedTermIndex] = useState(0);
 
-  // Use static board member data
-  const boardMembers = useMemo(() => BOARD_MEMBERS_2025_2027, []);
+  const currentTerm = BOARD_TERMS[selectedTermIndex];
+  const boardMembers = useMemo(() => currentTerm.members, [currentTerm]);
   const hasBoardData = boardMembers.length > 0;
 
   const openMemberModal = (member: DirectivaMember) => {
@@ -121,6 +122,8 @@ export function DirectivaPage() {
     [boardMembers]
   );
 
+  const isCurrentPeriod = currentTerm.isCurrent;
+
   return (
     <div className="bg-gray-900">
       {/* Hero Section */}
@@ -136,13 +139,23 @@ export function DirectivaPage() {
 
         {/* Period Selector */}
         <div className="mt-10 max-w-2xl mx-auto px-4">
-          <div className="text-center">
-            <div className="inline-flex items-center gap-3">
-              <span className="text-white font-semibold">Período:</span>
-              <button className="bg-red-600 hover:bg-red-700 text-white font-medium px-6 py-2 rounded-md transition-colors">
-                2025-2027
+          <div className="flex flex-wrap justify-center gap-2">
+            {BOARD_TERMS.map((term, idx) => (
+              <button
+                key={term.label}
+                onClick={() => setSelectedTermIndex(idx)}
+                className={`px-5 py-2 rounded-md font-medium text-sm transition-colors ${
+                  idx === selectedTermIndex
+                    ? 'bg-red-600 text-white'
+                    : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
+                }`}
+              >
+                {term.label}
+                {term.isCurrent && (
+                  <span className="ml-2 inline-block w-2 h-2 rounded-full bg-green-400 align-middle" />
+                )}
               </button>
-            </div>
+            ))}
           </div>
         </div>
       </div>
@@ -177,7 +190,7 @@ export function DirectivaPage() {
                       member={member}
                       index={index}
                       onClick={() => openMemberModal(member)}
-                      isCurrentPeriod={true}
+                      isCurrentPeriod={isCurrentPeriod}
                     />
                   );
                 })}
