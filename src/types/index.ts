@@ -71,7 +71,7 @@ export interface DirectivaMember extends Member {
   board_term_start?: string;
   board_term_end?: string;
   board_personal_commitment?: string;
-  position_history?: any[];
+  position_history?: unknown[];
 }
 
 export interface FilterState {
