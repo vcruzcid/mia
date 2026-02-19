@@ -1,21 +1,3 @@
-export const getPositionEmail = (position: string): string => {
-  const emailMap: { [key: string]: string } = {
-    'Presidenta': 'presidencia@animacionesmia.com',
-    'Vice-Presidenta': 'vicepresidencia@animacionesmia.com',
-    'Secretaria': 'secretaria@animacionesmia.com',
-    'Tesorera': 'tesoreria@animacionesmia.com',
-    'Vocal Formacion': 'formacion@animacionesmia.com',
-    'Vocal Comunicacion': 'comunicacion@animacionesmia.com',
-    'Vocal Informes MIA': 'informemia@animacionesmia.com',
-    'Vocal Financiacion': 'financiacion@animacionesmia.com',
-    'Vocal Socias': 'socias@animacionesmia.com',
-    'Vocal Asociaciones': 'asociaciones@animacionesmia.com',
-    'Vocal Festivales': 'festivales@animacionesmia.com',
-    'Vocal': 'hola@animacionesmia.com',
-  };
-  return emailMap[position] || '';
-};
-
 export const getPositionStyle = (position: string): string => {
   const positionStyles: Record<string, string> = {
     'Presidenta': 'from-red-600 to-red-700',

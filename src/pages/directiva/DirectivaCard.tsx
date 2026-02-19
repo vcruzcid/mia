@@ -3,7 +3,7 @@ import type { BoardMember } from '@/types/member';
 import { ProfileImage } from '@/components/ProfileImage';
 import { SocialMediaIcons } from '@/components/SocialMediaIcons';
 import { Card, CardContent } from '@/components/ui/card';
-import { getPositionEmail, getPositionStyle } from './directivaUtils';
+import { getPositionStyle } from './directivaUtils';
 
 interface DirectivaCardProps {
   member: BoardMember;
@@ -70,18 +70,18 @@ function DirectivaCardComponent({ member, index, onClick, isCurrentPeriod = fals
         )}
 
         {/* Email - only show for current period */}
-        {isCurrentPeriod && getPositionEmail(member.position) && (
+        {isCurrentPeriod && member.position_email && (
           <div className="mb-4">
             <div className="flex items-center text-sm text-gray-600">
               <svg className="h-4 w-4 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
               <a
-                href={`mailto:${getPositionEmail(member.position)}`}
+                href={`mailto:${member.position_email}`}
                 className="text-red-600 hover:text-red-700 transition-colors"
                 onClick={(e) => e.stopPropagation()}
               >
-                {getPositionEmail(member.position)}
+                {member.position_email}
               </a>
             </div>
           </div>
