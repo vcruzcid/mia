@@ -29,13 +29,13 @@ export function HomePage() {
     duration: 2500,
     formatter: (value) => `${Math.floor(value)}`,
   });
-  
+
   const growthCounter = useCounterAnimation(85, {
     duration: 2200,
     delay: 300,
     formatter: (value) => `${Math.floor(value)}%`,
   });
-  
+
   const eventCounter = useCounterAnimation(50, {
     duration: 2000,
     delay: 600,
@@ -56,12 +56,11 @@ export function HomePage() {
   return (
     <div style={{ backgroundColor: 'var(--color-bg-secondary)' }}>
       {/* Hero Section */}
-      <div 
+      <div
         ref={heroAnimation.ref}
-        className={`hero relative overflow-hidden transition-all duration-1000 ${
-          heroAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-        }`}
-        style={{ 
+        className={`hero relative overflow-hidden transition-all duration-1000 ${heroAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          }`}
+        style={{
           background: `linear-gradient(to bottom right, var(--color-primary), var(--color-primary-hover))`,
           aspectRatio: '16/9',
           height: 'auto'
@@ -79,27 +78,24 @@ export function HomePage() {
             title="EVENTO FINAL 3ªEDICIÓN DE MIANIMA"
           />
         </div>
-        
+
         {/* Dark overlay to ensure text readability */}
         <div className="absolute inset-0 bg-black/40"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 h-full">
           <div className="relative z-10 flex items-center justify-center h-full">
             <main className="w-full max-w-4xl">
               <div className="text-center">
-                <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 transition-all duration-1000 delay-300 ${
-                  heroAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-                }`}>
+                <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 transition-all duration-1000 delay-300 ${heroAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                  }`}>
                   <span className="block xl:inline">{siteConfig.name}</span>
                 </h1>
-                <p className={`text-lg md:text-xl text-gray-100 mb-8 transition-all duration-1000 delay-500 ${
-                  heroAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-                }`}>
-                  Promovemos la igualdad y visibilidad de las mujeres en la industria de la animación española, 
+                <p className={`text-lg md:text-xl text-gray-100 mb-8 transition-all duration-1000 delay-500 ${heroAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                  }`}>
+                  Promovemos la igualdad y visibilidad de las mujeres en la industria de la animación española,
                   creando oportunidades de networking, formación y desarrollo profesional.
                 </p>
-                <div className={`mt-8 flex flex-col sm:flex-row gap-4 justify-center items-center transition-all duration-1000 delay-700 ${
-                  heroAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-                }`}>
+                <div className={`mt-8 flex flex-col sm:flex-row gap-4 justify-center items-center transition-all duration-1000 delay-700 ${heroAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                  }`}>
                   <Button asChild className="w-full sm:w-auto flex items-center justify-center py-3 md:py-4 md:text-lg md:px-10 hover:scale-105 transform rounded-md shadow-lg">
                     <Link to="/membresia">
                       Únete a MIA
@@ -118,25 +114,23 @@ export function HomePage() {
       </div>
 
       {/* Key Statistics */}
-      <div 
+      <div
         ref={statsAnimation.ref}
         className="py-12 md:py-20"
         style={{ backgroundColor: 'var(--color-bg-primary)' }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="lg:text-center mb-12">
-            <h2 className={`text-base font-semibold tracking-wide uppercase transition-all duration-1000 ${
-              statsAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-            }`} style={{ color: 'var(--color-primary)' }}>
+            <h2 className={`text-base font-semibold tracking-wide uppercase transition-all duration-1000 ${statsAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+              }`} style={{ color: 'var(--color-primary)' }}>
               Nuestra Comunidad
             </h2>
-            <p className={`text-3xl md:text-4xl font-bold mb-4 text-center transition-all duration-1000 delay-200 ${
-              statsAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-            }`} style={{ color: 'var(--color-text-primary)' }}>
+            <p className={`text-3xl md:text-4xl font-bold mb-4 text-center transition-all duration-1000 delay-200 ${statsAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+              }`} style={{ color: 'var(--color-text-primary)' }}>
               Creciendo juntas
             </p>
           </div>
-          
+
           <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-3">
             <StatisticCard
               value={memberCounter.formattedValue}
@@ -161,27 +155,24 @@ export function HomePage() {
       </div>
 
       {/* Features Section */}
-      <div 
+      <div
         ref={featuresAnimation.ref}
         className="py-12 md:py-20"
         style={{ backgroundColor: 'var(--color-bg-secondary)' }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="lg:text-center">
-            <h2 className={`text-base font-semibold tracking-wide uppercase transition-all duration-1000 ${
-              featuresAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-            }`} style={{ color: 'var(--color-primary)' }}>
+            <h2 className={`text-base font-semibold tracking-wide uppercase transition-all duration-1000 ${featuresAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+              }`} style={{ color: 'var(--color-primary)' }}>
               Nuestra Misión
             </h2>
-            <p className={`text-3xl md:text-4xl font-bold mb-4 text-center transition-all duration-1000 delay-200 ${
-              featuresAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-            }`} style={{ color: 'var(--color-text-primary)' }}>
+            <p className={`text-3xl md:text-4xl font-bold mb-4 text-center transition-all duration-1000 delay-200 ${featuresAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+              }`} style={{ color: 'var(--color-text-primary)' }}>
               Empoderando a las mujeres en animación
             </p>
-            <p className={`mt-4 max-w-2xl text-xl lg:mx-auto transition-all duration-1000 delay-300 ${
-              featuresAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-            }`} style={{ color: 'var(--color-text-secondary)' }}>
-              Trabajamos para crear un sector más diverso, inclusivo y equitativo donde el talento femenino 
+            <p className={`mt-4 max-w-2xl text-xl lg:mx-auto transition-all duration-1000 delay-300 ${featuresAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+              }`} style={{ color: 'var(--color-text-secondary)' }}>
+              Trabajamos para crear un sector más diverso, inclusivo y equitativo donde el talento femenino
               tenga las mismas oportunidades de crecimiento y reconocimiento.
             </p>
           </div>
@@ -264,8 +255,8 @@ export function HomePage() {
                 <div className="ml-4">
                   <h3 className="text-lg font-medium text-gray-900">Red de socias</h3>
                   <p className="mt-2 text-gray-600">
-                    Más de 250 profesionales iberoamericanas forman parte de MIA, creando
-                    una comunidad sólida y colaborativa.
+                    Profesionales iberoamericanas de más de 10 países diferentes forman parte de MIA,
+                    creando una comunidad sólida y colaborativa.
                   </p>
                 </div>
               </CardContent>
@@ -329,7 +320,7 @@ export function HomePage() {
       </div>
 
       {/* CTA Section */}
-      <BackgroundImage 
+      <BackgroundImage
         imageUrl="/images/home-cta.webp"
         className="py-12 lg:py-16"
       >
