@@ -1,4 +1,4 @@
-import type { Fundadora } from '../types/member';
+import type { Fundadora } from '@/types/member';
 
 export const FUNDADORAS: Fundadora[] = [
   {

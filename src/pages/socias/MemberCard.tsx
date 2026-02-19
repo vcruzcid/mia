@@ -1,15 +1,16 @@
-import { ProfileImage } from '../../components/ProfileImage';
-import { SocialMediaIcons } from '../../components/SocialMediaIcons';
-import { Badge } from '../../components/ui/badge';
+import { ProfileImage } from '@/components/ProfileImage';
+import { SocialMediaIcons } from '@/components/SocialMediaIcons';
+import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import type { Member } from '../../types/member';
+import type { Member } from '@/types/member';
+import { memo } from 'react';
 
 interface MemberCardProps {
-  member: Member;
+  member: Member & { is_founder?: boolean };
   onClick: () => void;
 }
 
-export function MemberCard({ member, onClick }: MemberCardProps) {
+const MemberCardComponent = ({ member, onClick }: MemberCardProps) => {
   const displayProfession = member.main_profession || member.company || 'Profesional';
   const rawSpecializations = member.other_professions || [];
   const specializationChips =
@@ -19,7 +20,7 @@ export function MemberCard({ member, onClick }: MemberCardProps) {
         ? [member.main_profession]
         : [];
   const availabilityStatus = member.availability_status || 'Disponible';
-  const isFounder = (member as any).is_founder === true;
+  const isFounder = member.is_founder === true;
 
   return (
     <Card
@@ -111,5 +112,16 @@ export function MemberCard({ member, onClick }: MemberCardProps) {
       </CardContent>
     </Card>
   );
-}
+};
+
+export const MemberCard = memo(MemberCardComponent, (prevProps, nextProps) => {
+  // Only re-render if member data or onClick handler changes
+  return (
+    prevProps.member.id === nextProps.member.id &&
+    prevProps.member.first_name === nextProps.member.first_name &&
+    prevProps.member.last_name === nextProps.member.last_name &&
+    prevProps.member.availability_status === nextProps.member.availability_status &&
+    prevProps.onClick === nextProps.onClick
+  );
+});
 

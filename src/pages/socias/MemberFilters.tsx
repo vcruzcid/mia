@@ -1,8 +1,7 @@
-import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ANIMATION_SPECIALIZATIONS } from '../../types';
-import type { MemberFilters as FilterType } from '../../hooks/useMemberFilters';
+import { ANIMATION_SPECIALIZATIONS } from '@/types';
+import type { MemberFilters as FilterType } from '@/hooks/useMemberFilters';
 
 interface MemberFiltersProps {
   filters: FilterType;

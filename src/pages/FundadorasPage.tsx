@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { ProfileImage } from '../components/ProfileImage';
-import { SocialMediaIcons } from '../components/SocialMediaIcons';
+import { ProfileImage } from '@/components/ProfileImage';
+import { SocialMediaIcons } from '@/components/SocialMediaIcons';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { FUNDADORAS } from '../data/fundadoras';
-import type { Fundadora } from '../types/member';
+import { FUNDADORAS } from '@/data/fundadoras';
+import type { Fundadora } from '@/types/member';
 
 interface FundadorasCardProps {
   member: Fundadora;
@@ -102,10 +102,9 @@ function FundadorasCard({ member, index, onClick }: FundadorasCardProps) {
 
 interface FundadorasModalProps {
   member: Fundadora;
-  onClose: () => void;
 }
 
-function FundadorasModal({ member, onClose }: FundadorasModalProps) {
+function FundadorasModal({ member }: FundadorasModalProps) {
   return (
     <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto mx-4 sm:mx-0">
       {/* Header */}
@@ -243,10 +242,7 @@ export function FundadorasPage() {
       {/* Member Modal */}
       <Dialog open={isModalOpen} onOpenChange={closeMemberModal}>
         {selectedMember && (
-          <FundadorasModal
-            member={selectedMember}
-            onClose={closeMemberModal}
-          />
+          <FundadorasModal member={selectedMember} />
         )}
       </Dialog>
     </div>
