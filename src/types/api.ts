@@ -1,4 +1,5 @@
-import type { Member, DirectivaMember, FormData, ContactFormData } from './index';
+import type { Member, FormData, ContactFormData } from './index';
+import type { BoardMember } from './member';
 
 // API Response interfaces
 export interface ApiResponse<T = unknown> {
@@ -52,10 +53,10 @@ export interface DirectivaRequest {
 
 export interface DirectivaResponse {
   year: number;
-  members: DirectivaMember[];
+  members: BoardMember[];
   positions: {
     position: string;
-    member: DirectivaMember;
+    member: BoardMember;
   }[];
   availableYears: number[];
 }

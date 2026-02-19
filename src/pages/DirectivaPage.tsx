@@ -1,40 +1,21 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
+import type { BoardMember } from '@/types/member';
 import { Dialog } from '@/components/ui/dialog';
 import { BOARD_TERMS } from '@/data/directiva';
 import { DirectivaCard } from './directiva/DirectivaCard';
 import { DirectivaModal } from './directiva/DirectivaModal';
-import { transformBoardMemberToDirectivaMember } from './directiva/directivaUtils';
-import type { DirectivaMember } from '@/types';
-
-// Inject card entrance animation once
-if (typeof document !== 'undefined' && !document.getElementById('directiva-styles')) {
-  const style = document.createElement('style');
-  style.id = 'directiva-styles';
-  style.textContent = `
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(30px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-  `;
-  document.head.appendChild(style);
-}
 
 export function DirectivaPage() {
-  const [selectedMember, setSelectedMember] = useState<DirectivaMember | null>(null);
+  const [selectedMember, setSelectedMember] = useState<BoardMember | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTermIndex, setSelectedTermIndex] = useState(0);
 
   const currentTerm = BOARD_TERMS[selectedTermIndex];
-  const boardMembers = useMemo(() => currentTerm.members, [currentTerm]);
+  const boardMembers = currentTerm.members;
   const hasBoardData = boardMembers.length > 0;
   const isCurrentPeriod = currentTerm.isCurrent;
 
-  const transformedBoardMembers = useMemo(
-    () => boardMembers.map(transformBoardMemberToDirectivaMember),
-    [boardMembers]
-  );
-
-  const openMemberModal = (member: DirectivaMember) => {
+  const openMemberModal = (member: BoardMember) => {
     setSelectedMember(member);
     setIsModalOpen(true);
   };
@@ -99,7 +80,7 @@ export function DirectivaPage() {
             </div>
           ) : (
             <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-              {transformedBoardMembers.map((member, index) => (
+              {boardMembers.map((member, index) => (
                 <DirectivaCard
                   key={`${member.id}-${member.position}-${index}`}
                   member={member}

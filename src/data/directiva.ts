@@ -8,8 +8,8 @@ export const BOARD_MEMBERS_2025_2027: BoardMember[] = [
     first_name: 'Daysi',
     last_name: 'Cruz',
     display_name: 'Daysi Cruz',
-    email: 'daysi@morganastudios.com',
     position: 'Presidenta',
+    position_email: 'presidencia@animacionesmia.com',
     position_responsibilities: [
       'Representar legalmente a la asociación',
       'Dirigir y coordinar las actividades de la Junta Directiva',
@@ -42,8 +42,8 @@ export const BOARD_MEMBERS_2025_2027: BoardMember[] = [
     first_name: 'Jone',
     last_name: 'Landaluze',
     display_name: 'Jone Landaluze',
-    email: 'jonelandaluze@dibulitoon.com',
     position: 'Vice-Presidenta',
+    position_email: 'vicepresidencia@animacionesmia.com',
     position_responsibilities: [
       'Sustituir a la Presidenta en caso de ausencia',
       'Apoyar en la coordinación de actividades',
@@ -68,8 +68,8 @@ export const BOARD_MEMBERS_2025_2027: BoardMember[] = [
     first_name: 'Liliana',
     last_name: 'Rincon',
     display_name: 'Liliana Rincon',
-    email: 'lilianarincon@3dadosmedia.com',
     position: 'Secretaria',
+    position_email: 'secretaria@animacionesmia.com',
     position_responsibilities: [
       'Levantar actas de reuniones',
       'Gestionar la documentación oficial',
@@ -94,8 +94,8 @@ export const BOARD_MEMBERS_2025_2027: BoardMember[] = [
     first_name: 'Irene',
     last_name: 'Hernández Montoro',
     display_name: 'Irene Hernández Montoro',
-    email: 'hernandezmoirene@gmail.com',
     position: 'Tesorera',
+    position_email: 'tesoreria@animacionesmia.com',
     position_responsibilities: [
       'Gestionar las finanzas de la asociación',
       'Elaborar presupuestos y cuentas anuales',
@@ -120,7 +120,6 @@ export const BOARD_MEMBERS_2025_2027: BoardMember[] = [
     first_name: 'Julia',
     last_name: 'Horrillo',
     display_name: 'Julia Horrillo',
-    email: 'juliahorrillopla@gmail.com',
     position: 'Vocal Mianima',
     position_responsibilities: [
       'Coordinar el programa Mianima de mentoría',
@@ -146,8 +145,8 @@ export const BOARD_MEMBERS_2025_2027: BoardMember[] = [
     first_name: 'Rocio',
     last_name: 'Benavent',
     display_name: 'Rocio Benavent',
-    email: 'salta@saltarinas.com',
     position: 'Vocal Informes MIA',
+    position_email: 'informemia@animacionesmia.com',
     position_responsibilities: [
       'Coordinar la elaboración de informes sobre la industria',
       'Recopilar y analizar datos del sector',
@@ -172,8 +171,8 @@ export const BOARD_MEMBERS_2025_2027: BoardMember[] = [
     first_name: 'Eva',
     last_name: 'Pérez Misa',
     display_name: 'Eva Pérez Misa',
-    email: 'evaperezmisa@gmail.com',
     position: 'Vocal Formacion',
+    position_email: 'formacion@animacionesmia.com',
     position_responsibilities: [
       'Organizar talleres y actividades formativas',
       'Detectar necesidades formativas de las socias',
@@ -198,8 +197,8 @@ export const BOARD_MEMBERS_2025_2027: BoardMember[] = [
     first_name: 'Belinda',
     last_name: 'Bonan De Vries',
     display_name: 'Belinda Bonan',
-    email: 'beli@mostwantedstudio.com',
     position: 'Vocal Comunicacion',
+    position_email: 'comunicacion@animacionesmia.com',
     position_responsibilities: [
       'Gestionar la comunicación externa de la asociación',
       'Coordinar redes sociales y newsletter',
@@ -231,8 +230,8 @@ export const BOARD_MEMBERS_2025_2027: BoardMember[] = [
     first_name: 'Micaela',
     last_name: 'Rossi',
     display_name: 'Micaela Rossi',
-    email: 'rossimicaelaayelen@gmail.com',
     position: 'Vocal Comunicacion',
+    position_email: 'comunicacion@animacionesmia.com',
     position_responsibilities: [
       'Apoyar la comunicación externa de la asociación',
       'Colaborar en redes sociales y contenidos digitales',
@@ -257,8 +256,8 @@ export const BOARD_MEMBERS_2025_2027: BoardMember[] = [
     first_name: 'Montse',
     last_name: 'Capón',
     display_name: 'Montse Capón',
-    email: 'montsecapon@gmail.com',
     position: 'Vocal Financiacion',
+    position_email: 'financiacion@animacionesmia.com',
     position_responsibilities: [
       'Buscar oportunidades de financiación',
       'Gestionar subvenciones y patrocinios',
@@ -283,8 +282,8 @@ export const BOARD_MEMBERS_2025_2027: BoardMember[] = [
     first_name: 'Patricia',
     last_name: 'Diaz',
     display_name: 'Patricia Diaz',
-    email: 'infopatriconi@gmail.com',
     position: 'Vocal Socias',
+    position_email: 'socias@animacionesmia.com',
     position_responsibilities: [
       'Gestionar la base de datos de socias',
       'Coordinar el proceso de altas y bajas',
@@ -309,8 +308,8 @@ export const BOARD_MEMBERS_2025_2027: BoardMember[] = [
     first_name: 'Sonia',
     last_name: 'Estévez',
     display_name: 'Sonia Estévez',
-    email: 'soniesasi@gmail.com',
     position: 'Vocal Festivales',
+    position_email: 'festivales@animacionesmia.com',
     position_responsibilities: [
       'Representar a MIA en festivales de animación',
       'Coordinar la participación en eventos del sector',
@@ -335,8 +334,8 @@ export const BOARD_MEMBERS_2025_2027: BoardMember[] = [
     first_name: 'Alicia',
     last_name: 'Núñez Puerto',
     display_name: 'Alicia Núñez Puerto',
-    email: 'alynunez@gmail.com',
     position: 'Vocal',
+    position_email: 'hola@animacionesmia.com',
     position_responsibilities: [
       'Colaborar con otras asociaciones del sector',
       'Representar a MIA en eventos interasociativos',
@@ -367,7 +366,6 @@ export const BOARD_MEMBERS_2023_2025: BoardMember[] = [
     first_name: 'Verónica',
     last_name: 'Buide Somoza',
     display_name: 'Verónica Buide Somoza',
-    email: 'vbuide@gmail.com',
     position: 'Presidenta',
     position_responsibilities: [
       'Representar legalmente a la asociación',
@@ -394,7 +392,6 @@ export const BOARD_MEMBERS_2023_2025: BoardMember[] = [
     first_name: 'Marta',
     last_name: 'Del Valle',
     display_name: 'Marta Del Valle',
-    email: 'martavallec@gmail.com',
     position: 'Vice-Presidenta',
     position_responsibilities: [
       'Sustituir a la Presidenta en caso de ausencia',
@@ -419,7 +416,6 @@ export const BOARD_MEMBERS_2023_2025: BoardMember[] = [
     first_name: 'Ylka',
     last_name: 'Tapia',
     display_name: 'Ylka Tapia',
-    email: 'ylka.tapia@gmail.com',
     position: 'Tesorera',
     position_responsibilities: [
       'Gestionar las finanzas de la asociación',
@@ -444,7 +440,6 @@ export const BOARD_MEMBERS_2023_2025: BoardMember[] = [
     first_name: 'Mariana',
     last_name: 'Loterszpil',
     display_name: 'Mariana Loterszpil',
-    email: 'marianaloterszpil@gmail.com',
     position: 'Secretaria',
     position_responsibilities: [
       'Levantar actas de reuniones',
@@ -474,7 +469,6 @@ export const BOARD_MEMBERS_2023_2025: BoardMember[] = [
     first_name: 'Pilar',
     last_name: 'Díaz Pardo',
     display_name: 'Pilar Díaz Pardo',
-    email: 'pilar@theglowanimation.com',
     position: 'Vocal',
     position_responsibilities: ['Colaborar en las actividades de la Junta Directiva'],
     profile_image_url: '/images/directiva/pilar-diaz-pardo.webp',
@@ -499,7 +493,6 @@ export const BOARD_MEMBERS_2023_2025: BoardMember[] = [
     first_name: 'Dácil',
     last_name: 'Roca Vera',
     display_name: 'Dácil Roca Vera',
-    email: 'dacil.rv@gmail.com',
     position: 'Vocal',
     position_responsibilities: ['Colaborar en las actividades de la Junta Directiva'],
     profile_image_url: '/images/directiva/dacil-roca.webp',
@@ -526,7 +519,6 @@ export const BOARD_MEMBERS_2021_2023: BoardMember[] = [
     first_name: 'Myriam',
     last_name: 'Ballesteros',
     display_name: 'Myriam Ballesteros',
-    email: 'myriam@mbproducciones.com',
     position: 'Presidenta',
     position_responsibilities: [
       'Representar legalmente a la asociación',
@@ -552,7 +544,6 @@ export const BOARD_MEMBERS_2021_2023: BoardMember[] = [
     first_name: 'Paloma',
     last_name: 'Mora',
     display_name: 'Paloma Mora',
-    email: 'palomamora@gmail.com',
     position: 'Vice-Presidenta',
     position_responsibilities: [
       'Sustituir a la Presidenta en caso de ausencia',
@@ -580,7 +571,6 @@ export const BOARD_MEMBERS_2021_2023: BoardMember[] = [
     first_name: 'Marta',
     last_name: 'Del Valle',
     display_name: 'Marta Del Valle',
-    email: 'martavallec@gmail.com',
     position: 'Tesorera',
     position_responsibilities: [
       'Gestionar las finanzas de la asociación',
@@ -605,7 +595,6 @@ export const BOARD_MEMBERS_2021_2023: BoardMember[] = [
     first_name: 'Tania',
     last_name: 'Palma',
     display_name: 'Tania Palma',
-    email: 'taniapalmadesign@gmail.com',
     position: 'Secretaria',
     position_responsibilities: [
       'Levantar actas de reuniones',
@@ -631,7 +620,6 @@ export const BOARD_MEMBERS_2021_2023: BoardMember[] = [
     first_name: 'Dune',
     last_name: 'Blanco',
     display_name: 'Dune Blanco',
-    email: 'dune@mrklausstudio.com',
     position: 'Vocal',
     position_responsibilities: ['Colaborar en las actividades de la Junta Directiva'],
     profile_image_url: '/images/directiva/dune-blanco.webp',
@@ -654,7 +642,6 @@ export const BOARD_MEMBERS_2021_2023: BoardMember[] = [
     first_name: 'Marta',
     last_name: 'Gil',
     display_name: 'Marta Gil',
-    email: 'martagilsoriano@gmail.com',
     position: 'Vocal',
     position_responsibilities: ['Colaborar en las actividades de la Junta Directiva'],
     profile_image_url: '/images/directiva/marta-gil.webp',
@@ -681,7 +668,6 @@ export const BOARD_MEMBERS_2019_2020: BoardMember[] = [
     first_name: 'Alicia',
     last_name: 'Núñez Puerto',
     display_name: 'Alicia Núñez Puerto',
-    email: 'alynunez@gmail.com',
     position: 'Presidenta',
     position_responsibilities: [
       'Representar legalmente a la asociación',
@@ -707,7 +693,6 @@ export const BOARD_MEMBERS_2019_2020: BoardMember[] = [
     first_name: 'Deneb',
     last_name: 'Sabater Ventura',
     display_name: 'Deneb Sabater Ventura',
-    email: 'sabaterdeneb@gmail.com',
     position: 'Vice-Presidenta',
     position_responsibilities: [
       'Sustituir a la Presidenta en caso de ausencia',
@@ -733,7 +718,6 @@ export const BOARD_MEMBERS_2019_2020: BoardMember[] = [
     first_name: 'Reyes',
     last_name: 'Arnal Risueño',
     display_name: 'Reyes Arnal Risueño',
-    email: 'reyesarnal@gmail.com',
     position: 'Secretaria',
     position_responsibilities: [
       'Levantar actas de reuniones',
@@ -761,7 +745,6 @@ export const BOARD_MEMBERS_2019_2020: BoardMember[] = [
     first_name: 'Myriam',
     last_name: 'Ballesteros',
     display_name: 'Myriam Ballesteros',
-    email: 'myriam@mbproducciones.com',
     position: 'Vocal',
     position_responsibilities: ['Colaborar en las actividades de la Junta Directiva'],
     profile_image_url: '/images/directiva/myriam-ballesteros.webp',
@@ -784,7 +767,6 @@ export const BOARD_MEMBERS_2019_2020: BoardMember[] = [
     first_name: 'Dune',
     last_name: 'Blanco',
     display_name: 'Dune Blanco',
-    email: 'dune@mrklausstudio.com',
     position: 'Vocal',
     position_responsibilities: ['Colaborar en las actividades de la Junta Directiva'],
     profile_image_url: '/images/directiva/dune-blanco.webp',
@@ -807,7 +789,6 @@ export const BOARD_MEMBERS_2019_2020: BoardMember[] = [
     first_name: 'Patricia',
     last_name: 'Cano Rodríguez',
     display_name: 'Patricia Cano Rodríguez',
-    email: 'patricia.cano.rodriguez@gmail.com',
     position: 'Vocal',
     position_responsibilities: ['Colaborar en las actividades de la Junta Directiva'],
     profile_image_url: '/images/directiva/patricia-cano.webp',

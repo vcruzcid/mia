@@ -1,12 +1,12 @@
 import { memo } from 'react';
-import type { DirectivaMember } from '@/types';
+import type { BoardMember } from '@/types/member';
 import { ProfileImage } from '@/components/ProfileImage';
 import { SocialMediaIcons } from '@/components/SocialMediaIcons';
 import { Card, CardContent } from '@/components/ui/card';
 import { getPositionEmail, getPositionStyle } from './directivaUtils';
 
 interface DirectivaCardProps {
-  member: DirectivaMember;
+  member: BoardMember;
   index: number;
   onClick: () => void;
   isCurrentPeriod?: boolean;
@@ -28,8 +28,8 @@ function DirectivaCardComponent({ member, index, onClick, isCurrentPeriod = fals
           {/* Profile Image */}
           <div className="relative flex-shrink-0">
             <ProfileImage
-              src={member.profileImage}
-              alt={`${member.firstName} ${member.lastName}`}
+              src={member.profile_image_url}
+              alt={`${member.first_name} ${member.last_name}`}
               size="lg"
               className="border-3 border-white shadow-lg"
             />
@@ -43,7 +43,7 @@ function DirectivaCardComponent({ member, index, onClick, isCurrentPeriod = fals
           </div>
           {/* Name */}
           <h3 className="text-lg sm:text-xl font-bold text-white drop-shadow-md ml-4">
-            {member.firstName} {member.lastName}
+            {member.first_name} {member.last_name}
           </h3>
         </div>
       </div>
@@ -61,10 +61,10 @@ function DirectivaCardComponent({ member, index, onClick, isCurrentPeriod = fals
         </div>
 
         {/* Biography preview */}
-        {member.bio && (
+        {member.biography && (
           <div className="mb-4">
             <p className="text-sm text-gray-600 line-clamp-2">
-              {member.bio}
+              {member.biography}
             </p>
           </div>
         )}
@@ -96,12 +96,12 @@ function DirectivaCardComponent({ member, index, onClick, isCurrentPeriod = fals
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
               <span>
-                {member.location.city && `${member.location.city}, `}{member.location.country}
+                {member.city && `${member.city}, `}{member.country}
               </span>
             </div>
 
             <SocialMediaIcons
-              socialMedia={member.socialMedia}
+              socialMedia={member.social_media}
               size="sm"
               variant="compact"
             />
