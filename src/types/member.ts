@@ -66,7 +66,9 @@ export type BoardPosition =
   | 'Vocal Mianima'
   | 'Vocal Financiacion'
   | 'Vocal Socias'
+  | 'Vocal Asociaciones'
   | 'Vocal Festivales'
+  | 'Vocal Informes MIA'
   | 'Vocal';
 
 // Board member type
