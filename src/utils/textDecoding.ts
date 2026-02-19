@@ -76,7 +76,7 @@ export function decodeUrlEncoded(text: string | null | undefined): string {
   
   try {
     return decodeURIComponent(text);
-  } catch (error) {
+  } catch (_error) {
     // If decoding fails, return the original text    return text;
   }
 }
@@ -101,13 +101,13 @@ export function decodeText(text: string | null | undefined): string {
  * @param member - Member object that may contain encoded text
  * @returns Member object with decoded text fields
  */
-export function cleanMemberData<T extends Record<string, any>>(member: T): T {
-  const cleanedMember = { ...member } as any;
-  
+export function cleanMemberData<T extends Record<string, unknown>>(member: T): T {
+  const cleanedMember = { ...member } as Record<string, unknown>;
+
   // Fields that commonly contain encoded text
   const textFields = [
     'firstName', 'first_name',
-    'lastName', 'last_name', 
+    'lastName', 'last_name',
     'displayName', 'display_name',
     'company',
     'bio', 'biography',
@@ -121,45 +121,45 @@ export function cleanMemberData<T extends Record<string, any>>(member: T): T {
     'province',
     'autonomous_community'
   ];
-  
+
   // Clean text fields
   textFields.forEach(field => {
     if (cleanedMember[field] && typeof cleanedMember[field] === 'string') {
-      (cleanedMember as any)[field] = decodeText(cleanedMember[field]);
+      cleanedMember[field] = decodeText(cleanedMember[field] as string);
     }
   });
-  
+
   // Clean arrays of strings (like specializations, responsibilities)
   const arrayFields = [
     'specializations',
-    'responsibilities', 
-    'otherProfessions', 
+    'responsibilities',
+    'otherProfessions',
     'other_professions',
     'previousPositions'
   ];
-  
+
   arrayFields.forEach(field => {
     if (Array.isArray(cleanedMember[field])) {
-      (cleanedMember as any)[field] = cleanedMember[field].map((item: any) => {
+      cleanedMember[field] = (cleanedMember[field] as unknown[]).map((item: unknown) => {
         if (typeof item === 'string') {
           return decodeText(item);
         }
         if (typeof item === 'object' && item !== null) {
-          return cleanMemberData(item);
+          return cleanMemberData(item as Record<string, unknown>);
         }
         return item;
       });
     }
   });
-  
+
   // Clean nested objects (like location, socialMedia)
   const objectFields = ['location', 'socialMedia', 'social_media'];
-  
+
   objectFields.forEach(field => {
     if (cleanedMember[field] && typeof cleanedMember[field] === 'object') {
-      (cleanedMember as any)[field] = cleanMemberData(cleanedMember[field]);
+      cleanedMember[field] = cleanMemberData(cleanedMember[field] as Record<string, unknown>);
     }
   });
-  
-  return cleanedMember;
+
+  return cleanedMember as unknown as T;
 }

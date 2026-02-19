@@ -18,7 +18,7 @@ export function Footer() {
     resolver: zodResolver(contactFormSchema),
   });
 
-  const onSubmit = async (_data: ContactFormData) => {
+  const onSubmit = async (_: ContactFormData) => {
     try {
       // Here you would typically send the data to your backend
       
@@ -31,7 +31,7 @@ export function Footer() {
         variant: 'success'
       });
       reset();
-    } catch (error) {      toast({
+    } catch (_error) {      toast({
         title: 'Error al enviar',
         description: 'Hubo un problema. Inténtalo de nuevo.',
         variant: 'destructive'
