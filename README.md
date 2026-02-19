@@ -4,7 +4,6 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite)](https://vitejs.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
-[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=flat-square&logo=supabase)](https://supabase.com/)
 [![Stripe](https://img.shields.io/badge/Stripe-626CD9?style=flat-square&logo=Stripe)](https://stripe.com/)
 [![Cloudflare](https://img.shields.io/badge/Cloudflare-F38020?style=flat-square&logo=Cloudflare)](https://cloudflare.com/)
 
@@ -14,13 +13,13 @@ Una aplicación web moderna y robusta para la gestión de membresías, eventos y
 
 ## ✨ Características Principales
 
-- 🔐 **Autenticación Segura** - Login con magic links via Supabase
-- 💳 **Sistema de Membresías** - Integración completa con Stripe
-- 👥 **Portal de Miembros** - Gestión de perfil y recursos exclusivos
-- 🎭 **Directorio de Socias** - Buscador y filtros avanzados
+- 💳 **Sistema de Membresías** - Integración con Wildapricot + Stripe para registro y pagos
+- 🛡️ **Protección Anti-Bots** - Doble capa: Cloudflare Turnstile + reCAPTCHA de Wildapricot
+- 🎭 **Directorio de Socias** - Información de socias fundadoras y junta directiva
 - 📱 **Diseño Responsive** - Optimizado para móvil y desktop
 - ⚡ **PWA Ready** - Instalable como aplicación nativa
-- 🔄 **Sincronización Robusta** - Sistema híbrido de 3 capas para suscripciones
+- 📧 **Formulario de Contacto** - Con protección Cloudflare Turnstile
+- 🎯 **Programa Miánima** - Información sobre el programa de mentoría
 
 ## 🏗️ Arquitectura Técnica
 
@@ -30,11 +29,12 @@ Una aplicación web moderna y robusta para la gestión de membresías, eventos y
 |-----------|-------------|
 | **Frontend** | React 19, TypeScript, Vite |
 | **UI/UX** | Tailwind CSS 4, Radix UI, shadcn/ui |
-| **Estado** | TanStack Query, Zustand, React Context |
-| **Backend** | Supabase (PostgreSQL + Auth) |
-| **Pagos** | Stripe (Suscripciones + Webhooks) |
+| **Estado** | React Context, React Hook Form |
+| **Membresías** | Wildapricot (Backend + Pagos + Portal) |
+| **Pagos** | Wildapricot + Stripe (integración nativa) |
 | **Hosting** | Cloudflare Pages + Functions |
-| **Testing** | Vitest, Testing Library, Playwright |
+| **Seguridad** | Turnstile (wrapper) + reCAPTCHA (Wildapricot) |
+| **Testing** | Vitest |
 
 ### Estructura del Proyecto
 
@@ -45,31 +45,38 @@ Una aplicación web moderna y robusta para la gestión de membresías, eventos y
 │   │   ├── ui/                # Primitivos shadcn/ui
 │   │   ├── Header.tsx         # Navegación principal
 │   │   ├── Footer.tsx         # Pie de página
-│   │   └── ProtectedRoute.tsx # Rutas protegidas
+│   │   ├── ErrorBoundary.tsx  # Manejo de errores
+│   │   └── VimeoVideo.tsx     # Reproductor de video
 │   ├── 📄 pages/              # Páginas de la aplicación
 │   │   ├── HomePage.tsx       # Página de inicio
-│   │   ├── SociasPage.tsx     # Directorio de socias
-│   │   ├── PortalPage.tsx     # Portal de miembros
-│   │   └── MembershipPage.tsx # Página de membresías
-│   ├── 🔧 services/           # Servicios backend
-│   │   ├── auth/              # Autenticación Supabase
-│   │   ├── stripe/            # Integración Stripe
-│   │   ├── members/           # Gestión de socias
-│   │   └── board/             # Junta directiva
+│   │   ├── AboutPage.tsx      # Sobre MIA
+│   │   ├── DirectivaPage.tsx  # Junta directiva
+│   │   ├── FundadorasPage.tsx # Socias fundadoras
+│   │   ├── MianimaPage.tsx    # Programa Miánima
+│   │   ├── ContactPage.tsx    # Formulario de contacto
+│   │   ├── MembershipPage.tsx # Página de membresías
+│   │   ├── RegistroPage.tsx   # Registro con widget Wildapricot
+│   │   ├── ConfirmacionPage.tsx # Confirmación post-pago
+│   │   ├── LoginPage.tsx      # Página de login (stub)
+│   │   └── WelcomePage.tsx    # Bienvenida (legacy)
 │   ├── 🎣 hooks/              # Hooks personalizados
-│   │   ├── useAuth.ts         # Autenticación
-│   │   ├── useMembers.ts      # Datos de socias
-│   │   └── useMemberFilters.ts # Filtros de búsqueda
+│   │   ├── useAuth.ts         # Autenticación (stub)
+│   │   ├── useCounterAnimation.ts # Animación de contadores
+│   │   └── useScrollAnimation.ts  # Efectos de scroll
+│   ├── 🎭 contexts/           # React Contexts
+│   │   ├── AuthContext.tsx    # Contexto de autenticación (stub)
+│   │   ├── ToastContext.tsx   # Notificaciones toast
+│   │   └── LoadingContext.tsx # Estados de carga
+│   ├── 📊 data/               # Datos estáticos
+│   │   ├── directiva.ts       # Datos de junta directiva
+│   │   └── fundadoras.ts      # Datos de fundadoras
 │   ├── 📋 types/              # Definiciones TypeScript
 │   ├── 🎨 config/             # Configuración del sitio
+│   ├── 📝 schemas/            # Validación Zod
 │   └── 🛠️ utils/              # Utilidades
 ├── ⚙️ functions/               # Cloudflare Functions
 │   └── api/                   # APIs serverless
-│       ├── stripe-webhook.ts  # Webhooks de Stripe
-│       ├── verify-subscription.ts
-│       └── create-stripe-checkout.ts
-├── 🗄️ supabase/               # Base de datos
-│   └── migrations/           # Migraciones SQL
+│       └── contact.ts         # Formulario de contacto + Turnstile
 └── 📦 dist/                   # Build de producción
 ```
 
@@ -78,9 +85,9 @@ Una aplicación web moderna y robusta para la gestión de membresías, eventos y
 ### 📋 Prerrequisitos
 
 - **Node.js** 18+ y npm
-- **Cuenta Supabase** con proyecto activo
-- **Cuenta Stripe** con modo de pruebas
-- **Cuenta Cloudflare** (opcional para deployment)
+- **Cuenta Wildapricot** configurada (web.animacionesmia.com)
+- **Cuenta Cloudflare** (para deployment)
+- **Cloudflare Turnstile** site key (para CAPTCHA)
 
 ### ⚙️ Configuración Inicial
 
@@ -100,24 +107,15 @@ Una aplicación web moderna y robusta para la gestión de membresías, eventos y
    Crea un archivo `.env` en la raíz del proyecto:
 
    ```env
-   # 🗄️ Supabase Configuration
-   VITE_SUPABASE_URL=https://tu-proyecto.supabase.co
-   VITE_SUPABASE_ANON_KEY=tu-anon-key
+   # 🔒 Cloudflare Turnstile (CAPTCHA)
+   VITE_TURNSTILE_SITE_KEY=0x4AAA...
+   TURNSTILE_SECRET_KEY=0x4AAA...
 
-   # 💳 Stripe Configuration (Modo Desarrollo)
-   VITE_STRIPE_PUBLIC_KEY=pk_test_...
-
-   # 🔒 Stripe Webhook Secret (para desarrollo local)
-   STRIPE_WEBHOOK_SECRET=whsec_...
+   # 🔗 Zapier Webhook (opcional, para notificaciones del formulario de contacto)
+   ZAPIER_WEBHOOK_URL=https://hooks.zapier.com/...
    ```
 
-4. **Configura Supabase**
-   ```bash
-   # Ejecuta las migraciones
-   psql "$DATABASE_URL" < supabase/migrations/001_refactor_database.sql
-   psql "$DATABASE_URL" < supabase/migrations/002_directiva_board_model.sql
-   psql "$DATABASE_URL" < supabase/migrations/003_founders_seed.sql
-   ```
+   **Nota:** No se requieren variables de Stripe. Wildapricot maneja el backend de membresías y pagos.
 
 ### 🏃‍♀️ Desarrollo Local
 
@@ -125,7 +123,7 @@ Una aplicación web moderna y robusta para la gestión de membresías, eventos y
 # Inicia servidor de desarrollo
 npm run dev
 
-# Abre http://localhost:5173
+# Abre http://localhost:3000
 ```
 
 ### 🧪 Comandos Disponibles
@@ -141,120 +139,98 @@ npm run dev
 | `npm run test:ui` | Tests con interfaz visual |
 | `npm run deploy:dev` | Deploy a entorno de desarrollo |
 
-### 🔧 Configuración de Stripe Webhooks (Desarrollo)
+### 🔧 Testing de Funciones Localmente
 
-Para probar webhooks localmente:
+Para probar las Cloudflare Functions localmente:
 
 ```bash
-# Instala Stripe CLI
-brew install stripe/stripe-cli/stripe
-
-# Inicia el listener
-stripe listen --forward-to http://localhost:8788/api/stripe-webhook
-
-# En otra terminal, inicia las funciones de Cloudflare
+# Inicia el servidor de funciones
 npx wrangler dev
+
+# La app estará disponible en http://localhost:8788
 ```
 
-## 💳 Sistema de Suscripciones Stripe
+## 💳 Sistema de Registro Wildapricot
 
-### 🏛️ Arquitectura de 3 Capas para Máxima Fiabilidad
-
-El sistema híbrido garantiza **99.9% de precisión** en el estado de suscripciones mediante tres capas complementarias:
+### Flujo de Registro y Pago
 
 ```
-🔴 Capa 1: Webhooks (Actualización Inmediata)
-Stripe Event → Cloudflare Function → Actualización BD
-     ↓
-🟡 Capa 2: Verificación en Login (Precisión Garantizada)
-Usuario Login → Verificar con Stripe API → Actualizar BD
-     ↓
-🟢 Capa 3: Cron Job (Reconciliación Periódica)
-Cada 6 horas → Sincronizar Todo → Corregir Discrepancias
+Usuario → Turnstile CAPTCHA → Widget Wildapricot → Stripe (vía Wildapricot) → Confirmación → Portal de Socias
 ```
 
-### 🎯 Características Clave
+### 🎯 Arquitectura
 
-- ⚡ **Actualizaciones Inmediatas** - Webhooks procesan eventos en tiempo real
-- 🔒 **Verificación en Login** - Cada inicio de sesión valida con Stripe
-- 🔄 **Reconciliación Automática** - Job cada 6 horas sincroniza todo
-- 📊 **Auditoría Completa** - Todos los eventos registrados
-- 🔍 **Detección de Discrepancias** - Identifica y corrige inconsistencias
-- 🚀 **Cache Inteligente** - TanStack Query con 5 min de cache
+- 🛡️ **Protección Anti-Bots** - Cloudflare Turnstile antes del widget
+- 📝 **Widget Wildapricot** - Formulario nativo embebido (`web.animacionesmia.com/widget/join`)
+- 💳 **Pago Integrado** - Wildapricot maneja Stripe internamente
+- ✅ **Creación Automática** - Contacto + Membresía + Email de bienvenida
+- 🔑 **Portal de Socias** - Acceso al portal Wildapricot con credenciales
+
+### 🔐 Seguridad (Doble Capa)
+
+1. **Capa 1 (Nuestra App)**: Turnstile CAPTCHA antes de cargar el widget
+   - Previene bots casuales de nuestra interfaz
+   - Reduce carga en Wildapricot
+   - Experiencia moderna y rápida
+
+2. **Capa 2 (Wildapricot)**: reCAPTCHA en el widget
+   - Defensa final contra bots sofisticados
+   - Configurada en el admin de Wildapricot
 
 ### 📋 Planes de Membresía
 
-| Plan | Precio | Beneficios |
-|------|--------|------------|
-| **Pleno Derecho** | €30/año | Acceso completo al portal y eventos |
-| **Estudiante** | €15/año | Acceso completo con descuento |
-| **Colaborador** | €60/año | Membresía premium con beneficios extra |
+| Plan | Precio | Características |
+|------|--------|-----------------|
+| **Pleno Derecho** | €60/año | Membresía completa para profesionales |
+| **Estudiante** | €30/año | Tarifa reducida para estudiantes |
+| **Colaborador** | €60/año | Membresía de apoyo empresarial |
 
-### 🗃️ Tablas de Auditoría
+> **Nota:** Los niveles de membresía se configuran en el admin de Wildapricot
 
-- `webhook_events` - Registro completo de eventos Stripe
-- `subscription_discrepancies` - Detección de inconsistencias DB/Stripe
-- `sync_reports` - Reportes de sincronización periódica
+### ⚙️ Configuración Wildapricot (Admin)
+
+Para que el sistema funcione correctamente, configurar en Wildapricot:
+
+1. **Membership Levels** - Crear 3 niveles con precios (€60, €30, €60)
+2. **Stripe Integration** - Conectar cuenta de Stripe
+3. **Success URL** - `https://animacionesmia.com/registro/confirmacion`
+4. **Cancel URL** - `https://animacionesmia.com/registro?cancelado=true`
+5. **Form Fields** - Nombre, Apellidos, Email, Teléfono (opcional)
+6. **reCAPTCHA** - Activar en Settings > Security > Anti-spam
 
 ## 🎨 Funcionalidades
 
-### 👥 Portal de Miembros
-- **Perfil Personal** - Gestión de datos y preferencias
-- **Recursos Exclusivos** - Documentos y materiales para socias
-- **Enlaces a Stripe** - Gestión directa de suscripciones
-- **Comunidad** - Conexión con otras profesionales
+### 🏠 Página de Inicio
+- **Hero Section** - Video de fondo con Vimeo
+- **Estadísticas Animadas** - Contadores con efectos de scroll
+- **CTA's Destacados** - Llamadas a la acción para registro
 
-### 🎭 Directorio de Socias
-- **Búsqueda Avanzada** - Filtros por especialidad y ubicación
-- **Perfiles Detallados** - Información profesional y contacto
-- **Modal Interactivo** - Vista ampliada de perfiles
-- **Exportación** - Datos para networking
+### 🎭 Junta Directiva y Fundadoras
+- **Galerías Visuales** - Perfiles con imágenes y biografías
+- **Información Detallada** - Roles, responsabilidades y trayectoria
+- **Links a Redes Sociales** - Conecta con las integrantes
 
-### 📅 Junta Directiva
-- **Histórico Completo** - Directivas por años
-- **API Dinámica** - Carga de datos por período
-- **Presentación Visual** - Galería de miembros actuales
+### 📧 Formulario de Contacto
+- **Protección CAPTCHA** - Cloudflare Turnstile
+- **Validación Robusta** - React Hook Form + Zod
+- **Integración Zapier** - Notificaciones automáticas (opcional)
+
+### 💳 Sistema de Registro
+- **Protección Anti-Bots** - Turnstile CAPTCHA antes del formulario
+- **Widget Wildapricot** - Formulario nativo embebido con pago integrado
+- **Proceso Automatizado** - Contacto + Membresía + Email automático
+- **Portal de Socias** - Acceso directo tras registro exitoso
+- **Confirmación Visual** - Página de éxito con próximos pasos
+- **Página de Bienvenida** - Confirmación post-registro
 
 ### 🎯 Programa Miánima
-- **Información Detallada** - Descripción del programa
-- **Galería Multimedia** - Imágenes y videos del proyecto
-- **Preguntas Frecuentes** - Sección de soporte
-
-## 🗄️ Base de Datos
-
-### 📊 Tablas Principales
-
-| Tabla | Propósito | Campos Clave |
-|-------|-----------|--------------|
-| `members` | Perfiles y datos de suscripción | email, subscription_status, plan_type |
-| `board_members` | Junta directiva actual | name, role, year, photo |
-| `webhook_events` | Auditoría de webhooks Stripe | event_type, status, processed_at |
-| `subscription_discrepancies` | Problemas de sincronización | member_id, issue_type, resolved_at |
-| `sync_reports` | Reportes de reconciliación | total_checked, discrepancies_found |
-
-### 🛠️ Migraciones
-
-Consulta `supabase/MIGRATION_GUIDE.md` para instrucciones detalladas.
-
-```bash
-# Ejecutar migraciones en orden
-psql "$DATABASE_URL" < supabase/migrations/001_refactor_database.sql
-psql "$DATABASE_URL" < supabase/migrations/002_directiva_board_model.sql
-psql "$DATABASE_URL" < supabase/migrations/003_founders_seed.sql
-```
+- **Información del Programa** - Descripción detallada
+- **Video Integrado** - Presentación en Vimeo
+- **FAQ** - Preguntas frecuentes
 
 ## 🚀 Despliegue
 
 ### ☁️ Cloudflare Pages + Functions
-
-#### Configuración Automática
-```bash
-# Deploy a desarrollo
-npm run deploy:dev
-
-# Deploy manual a desarrollo
-npm run deploy:dev:manual
-```
 
 #### Configuración en Cloudflare Dashboard
 
@@ -269,35 +245,17 @@ npm run deploy:dev:manual
    Root directory: (leave empty)
    ```
 
-3. **Variables de Entorno**
+3. **Variables de Entorno en Cloudflare**
    ```
-   VITE_SUPABASE_URL=https://tu-proyecto.supabase.co
-   VITE_SUPABASE_ANON_KEY=tu-anon-key
    VITE_STRIPE_PUBLIC_KEY=pk_live_...
+   VITE_TURNSTILE_SITE_KEY=0x4AAA...
    ```
 
-4. **Secrets Requeridos**
+4. **Secrets Requeridos (via Wrangler)**
    ```bash
-   npx wrangler secret put STRIPE_SECRET_KEY
-   npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY
-   npx wrangler secret put STRIPE_WEBHOOK_SECRET
+   npx wrangler secret put TURNSTILE_SECRET_KEY
+   npx wrangler secret put ZAPIER_WEBHOOK_URL
    ```
-
-### ⏰ Cron Jobs Automáticos
-
-La aplicación incluye tareas programadas cada 6 horas:
-
-```toml
-# wrangler.toml
-[triggers]
-crons = ["0 */6 * * *"]  # Cada 6 horas a las XX:00
-```
-
-**Funciones del Cron:**
-- 🔄 Sincronización de suscripciones
-- 🔍 Detección de discrepancias
-- 📊 Generación de reportes de salud
-- 🧹 Limpieza de datos obsoletos
 
 ### 🌍 Entornos
 
@@ -324,85 +282,6 @@ npm run test:coverage
 npm run lint
 ```
 
-### 🔗 Testing de Webhooks (Desarrollo Local)
-
-```bash
-# Instalar Stripe CLI
-brew install stripe/stripe-cli/stripe
-
-# Iniciar listener para webhooks
-stripe listen --forward-to http://localhost:8788/api/stripe-webhook
-
-# Trigger eventos de prueba
-stripe trigger customer.subscription.created
-stripe trigger customer.subscription.updated
-stripe trigger invoice.payment_succeeded
-stripe trigger customer.subscription.deleted
-```
-
-### 🔄 Sincronización Manual
-
-```bash
-# Trigger sincronización manual
-curl -X GET https://tu-app.pages.dev/api/cron/sync-subscriptions
-
-# Verificar estado de salud
-curl -X GET https://tu-app.pages.dev/api/health
-```
-
-## 📊 Monitoreo & Métricas
-
-### 🏥 Salud del Sistema
-
-#### Dashboard de Métricas Clave
-
-| Métrica | Valor Objetivo | Comando SQL |
-|---------|----------------|-------------|
-| **Precisión Suscripciones** | 99.9% | Consulta `subscription_discrepancies` |
-| **Tasa Éxito Webhooks** | 100% | `SELECT COUNT(*) FROM webhook_events WHERE status = 'success'` |
-| **Tasa Discrepancias** | < 0.1% | `SELECT COUNT(*) FROM subscription_discrepancies WHERE resolved_at IS NULL` |
-| **Éxito Jobs Sincro** | 100% | `SELECT success FROM sync_reports ORDER BY created_at DESC LIMIT 1` |
-
-#### Queries de Monitoreo
-
-```sql
--- Discrepancias recientes no resueltas
-SELECT
-  member_id,
-  issue_type,
-  detected_at,
-  db_status,
-  stripe_status
-FROM subscription_discrepancies
-WHERE resolved_at IS NULL
-ORDER BY detected_at DESC;
-
--- Último reporte de sincronización
-SELECT
-  created_at,
-  total_checked,
-  discrepancies_found,
-  success
-FROM sync_reports
-ORDER BY created_at DESC
-LIMIT 1;
-
--- Eventos de webhook recientes (últimas 24h)
-SELECT
-  event_type,
-  status,
-  processed_at,
-  error_message
-FROM webhook_events
-WHERE processed_at >= NOW() - INTERVAL '24 hours'
-ORDER BY processed_at DESC;
-```
-
-#### Alertas Automáticas
-
-- 🔴 **Críticas**: Fallos en webhooks > 5%
-- 🟡 **Advertencias**: Discrepancias no resueltas > 10
-- 🟢 **Éxito**: Sincronización completada correctamente
 
 ## 📚 Documentación
 
@@ -411,15 +290,12 @@ ORDER BY processed_at DESC;
 | Documento | Descripción | Ubicación |
 |-----------|-------------|-----------|
 | **Blueprint** | Arquitectura general del proyecto | `docs/blueprint.md` |
-| **Migraciones DB** | Guía completa de migraciones | `supabase/MIGRATION_GUIDE.md` |
-| **Resumen Refactor** | Detalles técnicos del refactor | `tmp/REFACTOR_SUMMARY.md` |
-| **Implementación** | Notas de implementación | `tmp/IMPLEMENTATION_NOTES.md` |
+| **CLAUDE.md** | Guía para Claude Code | `CLAUDE.md` |
 
 ### 🔧 APIs y Servicios
 
-- **Cloudflare Functions**: Comentarios JSDoc en `functions/api/`
-- **Servicios Frontend**: Documentación en `src/services/`
-- **Hooks Personalizados**: JSDoc en `src/hooks/`
+- **Cloudflare Functions**: Documentación inline en `functions/api/`
+- **Hooks Personalizados**: Comentarios en `src/hooks/`
 - **Tipos TypeScript**: Definiciones en `src/types/`
 
 ## 🤝 Contribución
@@ -454,7 +330,6 @@ git push origin feature/nueva-funcionalidad
 - [ ] **Build exitoso** - `npm run build`
 - [ ] **Documentación actualizada**
 - [ ] **Variables de entorno revisadas**
-- [ ] **Migraciones de BD incluidas si aplica**
 
 ### 🏷️ Tipos de Commit
 
@@ -467,34 +342,6 @@ git push origin feature/nueva-funcionalidad
 - `chore:` Tareas de mantenimiento
 
 ## 🐛 Solución de Problemas
-
-### 💳 Problemas con Suscripciones
-
-#### Estado de Suscripción No Se Actualiza
-
-```bash
-# 1. Verificar eventos de webhook recientes
-psql "$DATABASE_URL" -c "
-SELECT event_type, status, processed_at, error_message
-FROM webhook_events
-ORDER BY processed_at DESC
-LIMIT 5;"
-
-# 2. Buscar discrepancias activas
-psql "$DATABASE_URL" -c "
-SELECT * FROM subscription_discrepancies
-WHERE resolved_at IS NULL;"
-
-# 3. Trigger sincronización manual
-curl -X GET https://tu-app.pages.dev/api/cron/sync-subscriptions
-```
-
-#### Webhooks No Llegan
-
-- ✅ Verificar webhook secret en Cloudflare
-- ✅ Confirmar URL del endpoint: `/api/stripe-webhook`
-- ✅ Revisar logs de Cloudflare Functions
-- ✅ Probar con Stripe CLI en desarrollo local
 
 ### 🔨 Problemas de Build
 
@@ -514,33 +361,11 @@ npm run build
 - ❌ **Variables faltantes** - Revisar `.env`
 - ❌ **Dependencias corruptas** - `rm -rf node_modules && npm ci`
 
-### 🗄️ Problemas de Base de Datos
-
-#### Conexión Fallida
-- ✅ Verificar `DATABASE_URL` correcta
-- ✅ Confirmar permisos de service role key
-- ✅ Revisar políticas RLS activas
-
-#### Migraciones Pendientes
-```bash
-# Verificar estado de migraciones
-psql "$DATABASE_URL" -c "
-SELECT * FROM supabase_migrations.schema_migrations
-ORDER BY version DESC;"
-
-# Ejecutar migraciones faltantes
-psql "$DATABASE_URL" < supabase/migrations/XXX_pending_migration.sql
-```
-
-#### Logs de Supabase
-- 🔍 Dashboard de Supabase → Database → Logs
-- 🔍 Cloudflare Functions logs para API calls
-
 ### 🌐 Problemas de Despliegue
 
 #### Build Falla en Producción
 - ✅ Variables de entorno configuradas en Cloudflare
-- ✅ Secrets de Stripe/Supabase correctos
+- ✅ Secrets de Turnstile/Zapier correctos
 - ✅ Node.js version compatible (18+)
 
 #### Funciones No Responden
@@ -548,8 +373,8 @@ psql "$DATABASE_URL" < supabase/migrations/XXX_pending_migration.sql
 # Verificar estado de funciones
 npx wrangler tail
 
-# Test endpoint específico
-curl -X GET https://tu-app.pages.dev/api/health
+# Test endpoint de contacto
+curl -X POST https://tu-app.pages.dev/api/contact
 ```
 
 ### 📱 Problemas de PWA/Service Worker
@@ -579,8 +404,8 @@ Construido con ❤️ por y para la comunidad de mujeres en animación.
 | **Vite** | Build tool ultrarrápido | [vitejs.dev](https://vitejs.dev) |
 | **Tailwind CSS 4** | Framework CSS utility-first | [tailwindcss.com](https://tailwindcss.com) |
 | **Radix UI** | Componentes accesibles | [radix-ui.com](https://radix-ui.com) |
-| **TanStack Query** | Gestión de estado servidor | [tanstack.com/query](https://tanstack.com/query) |
-| **Supabase** | Backend-as-a-Service | [supabase.com](https://supabase.com) |
+| **React Hook Form** | Gestión de formularios | [react-hook-form.com](https://react-hook-form.com) |
+| **Zod** | Validación de esquemas | [zod.dev](https://zod.dev) |
 | **Stripe** | Procesamiento de pagos | [stripe.com](https://stripe.com) |
 | **Cloudflare** | Hosting y edge computing | [cloudflare.com](https://cloudflare.com) |
 
@@ -602,9 +427,9 @@ Construido con ❤️ por y para la comunidad de mujeres en animación.
 | **Linting** | ✅ Sin errores | $(date '+%B %d, %Y') |
 | **Deploy** | ✅ Automático | $(date '+%B %d, %Y') |
 
-**Versión:** 2.0.0  
-**Última Actualización:** Diciembre 16, 2025  
-**Estado:** 🟢 Producción Lista
+**Versión:** 2.1.0
+**Última Actualización:** Febrero 15, 2025
+**Estado:** 🟢 Producción - Optimizado y Limpio
 
 ---
 

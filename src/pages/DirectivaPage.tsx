@@ -1,12 +1,10 @@
-import { useState, useMemo } from 'react';
-import type { DirectivaMember } from '../types';
-import { ProfileImage } from '../components/ProfileImage';
-import { SocialMediaIcons } from '../components/SocialMediaIcons';
-import { Badge } from '../components/ui/badge';
+import { useState, useMemo, memo } from 'react';
+import type { DirectivaMember } from '@/types';
+import { ProfileImage } from '@/components/ProfileImage';
+import { SocialMediaIcons } from '@/components/SocialMediaIcons';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BOARD_MEMBERS_2025_2027, type BoardMember } from '../data/directiva';
+import { BOARD_MEMBERS_2025_2027, type BoardMember } from '@/data/directiva';
 
 // Shared utility functions
 const getPositionEmail = (position: string): string => {
@@ -106,9 +104,6 @@ export function DirectivaPage() {
 
   // Use static board member data
   const boardMembers = useMemo(() => BOARD_MEMBERS_2025_2027, []);
-  const availablePeriods = ['2025-2027'];
-  const currentPeriod = '2025-2027';
-  const currentSelectedPeriod = currentPeriod;
   const hasBoardData = boardMembers.length > 0;
 
   const openMemberModal = (member: DirectivaMember) => {
@@ -195,10 +190,7 @@ export function DirectivaPage() {
       {/* Member Modal */}
       <Dialog open={isModalOpen} onOpenChange={closeMemberModal}>
         {selectedMember && (
-          <DirectivaModal
-            member={selectedMember as any}
-            onClose={closeMemberModal}
-          />
+          <DirectivaModal member={selectedMember} />
         )}
       </Dialog>
     </div>
@@ -212,8 +204,7 @@ interface DirectivaCardProps {
   isCurrentPeriod?: boolean;
 }
 
-function DirectivaCard({ member, index, onClick, isCurrentPeriod = false }: DirectivaCardProps) {
-
+function DirectivaCardComponent({ member, index, onClick, isCurrentPeriod = false }: DirectivaCardProps) {
   return (
     <Card 
       onClick={onClick}
@@ -318,12 +309,22 @@ function DirectivaCard({ member, index, onClick, isCurrentPeriod = false }: Dire
   );
 }
 
+// Memoized DirectivaCard to prevent unnecessary re-renders in grids
+const DirectivaCard = memo(DirectivaCardComponent, (prevProps, nextProps) => {
+  // Only re-render if member data or handlers change
+  return (
+    prevProps.member.id === nextProps.member.id &&
+    prevProps.index === nextProps.index &&
+    prevProps.isCurrentPeriod === nextProps.isCurrentPeriod &&
+    prevProps.onClick === nextProps.onClick
+  );
+});
+
 interface DirectivaModalProps {
   member: DirectivaMember;
-  onClose: () => void;
 }
 
-function DirectivaModal({ member, onClose }: DirectivaModalProps) {
+function DirectivaModal({ member }: DirectivaModalProps) {
   
   return (
     <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto mx-4 sm:mx-0">

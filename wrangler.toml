@@ -4,14 +4,13 @@ compatibility_date = "2024-12-15"
 # Pages configuration
 pages_build_output_dir = "dist"
 
-# Environment variables for production
+# Environment variables for development
 [vars]
 # Public environment variables (safe to expose)
-VITE_SUPABASE_URL = "https://sggnohsrpdhbsavzccfw.supabase.co"
-VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNnZ25vaHNycGRoYnNhdnpjY2Z3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzNDEzMTMsImV4cCI6MjA2OTkxNzMxM30.nW2ttYoRH5RrMiYH8cUUsNvn8CaVV1VxcHGtLZf57aI"
+VITE_STRIPE_PUBLIC_KEY = "pk_test_51JUuCEBWIyEInzCB9yxYOnEOxa6aRgFZVVt9n0Q064U2hb2Z43RJjxB3MLzRuJs0IMx2vOf1C7mGuDBSSwFQRQ7100ytJ8COQI"
+VITE_TURNSTILE_SITE_KEY = "0x4AAAAAABddjw-SDSpgjBDI"
 
 # Note: Sensitive variables are managed through Cloudflare secrets:
+# - TURNSTILE_SECRET_KEY
 # - STRIPE_SECRET_KEY
-# - SUPABASE_SERVICE_ROLE_KEY
 # - STRIPE_WEBHOOK_SECRET
-# - APP_URL

@@ -1,9 +1,9 @@
-import { ProfileImage } from '../../components/ProfileImage';
-import { SocialMediaIcons } from '../../components/SocialMediaIcons';
-import { Badge } from '../../components/ui/badge';
+import { ProfileImage } from '@/components/ProfileImage';
+import { SocialMediaIcons } from '@/components/SocialMediaIcons';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../../components/ui/dialog';
-import type { Member } from '../../types/member';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import type { Member } from '@/types/member';
 
 interface MemberModalProps {
   member: Member;
@@ -13,7 +13,7 @@ interface MemberModalProps {
 
 export function MemberModal({ member, isOpen, onClose }: MemberModalProps) {
   const availabilityStatus = member.availability_status || 'Disponible';
-  const isFounder = (member as any).is_founder === true;
+  const isFounder = (member as Member & { is_founder?: boolean }).is_founder === true;
 
   const membershipLabel =
     member.membership_type === 'pleno_derecho'
