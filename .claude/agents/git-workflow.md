@@ -179,17 +179,24 @@ Before / After
 
 Follow **Semantic Versioning**: `MAJOR.MINOR.PATCH`
 
-| Version bump | When |
-|-------------|------|
-| PATCH (0.0.X) | Bug fixes, no new features |
-| MINOR (0.X.0) | New features, backward compatible |
-| MAJOR (X.0.0) | Breaking changes |
+| Version bump | When | Commit type |
+|-------------|------|-------------|
+| PATCH (0.0.X) | Bug fixes, no new features | `fix` |
+| MINOR (0.X.0) | New features, backward compatible | `feat` |
+| MAJOR (X.0.0) | Breaking changes | `feat` + `BREAKING CHANGE` footer |
 
-Tag releases on `main`:
-```bash
-git tag -a v1.2.0 -m "release: member gallery implementation"
-git push origin v1.2.0
-```
+**Releases are automated via Release Please — never tag manually.**
+
+How it works:
+1. Conventional commits land on `main` or `dev` via merged PRs
+2. Release Please opens a release PR automatically (bumps version + updates CHANGELOG.md)
+3. Merge the release PR to cut the release
+4. `main` → stable release (e.g. `1.2.0`), `dev` → prerelease (e.g. `1.2.0-dev.0`)
+
+`chore`, `docs`, `style`, `test`, `refactor` commits do NOT trigger a version bump.
+`fix` triggers a PATCH bump. `feat` triggers a MINOR bump.
+
+**This means commit types directly affect production versioning. Use them correctly.**
 
 ---
 
