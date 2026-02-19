@@ -14,7 +14,7 @@ a public member gallery, and a member portal.
 
 ## Tech Stack
 
-- **Frontend:** React 19 + TypeScript + Vite
+- **Frontend:** React 19 + TypeScript + Vite 7
 - **Styling:** Tailwind CSS 4 + Radix UI (shadcn/ui pattern)
 - **Routing:** React Router 7
 - **Forms:** react-hook-form + Zod (schemas in `src/schemas/`)
@@ -30,19 +30,19 @@ a public member gallery, and a member portal.
 - **Payments:** Stripe Payment Links (current) → WildApricot native gateway (planned)
 - **Membership emails:** WildApricot native (welcome, renewal, expiry)
 - **Marketing email:** Mailchimp via Make.com — zero app code
+- **Node.js:** 24.x (Active LTS) — required, see `.nvmrc`
 
 ## What We Are NOT Using
-- ~~Supabase~~ — fully removed (was replaced by Cloudflare D1)
+- ~~Supabase~~ — replaced by Cloudflare D1. Supabase MCP is kept as **read-only** for migrating existing photo URLs to R2. Do not write to Supabase or add new Supabase dependencies.
 - ~~Express/Node server~~ — Cloudflare Workers only
 - ~~Mailchimp SDK~~ — Make.com handles sync
 - ~~reCAPTCHA~~ — Cloudflare Turnstile only
 - ~~Zapier~~ — removed, contact form uses direct email notification
-- ~~Discount codes in app code~~ — managed in WildApricot admin
+- ~~Discount codes in app code~~ — managed in WildApricot admin dashboard
 
 ---
 
 ## Path Aliases
-
 ```typescript
 @/*           → /src/*
 @/components  → /src/components
@@ -59,7 +59,6 @@ Always use these aliases when importing from these directories.
 ---
 
 ## Directory Structure
-
 ```
 src/
 ├── components/
@@ -80,7 +79,7 @@ src/
 ├── config/
 │   └── site.config.ts   # Env-aware config: Stripe links, Turnstile key, analytics
 ├── schemas/
-│   └── registrationSchema.ts  # All Zod schemas + discount codes
+│   └── registrationSchema.ts  # Zod schemas (remove VALID_DISCOUNT_CODES — see TODOs)
 ├── store/               # Zustand stores
 ├── data/                # Static data: directiva.ts, fundadoras.ts
 └── utils/
@@ -103,7 +102,6 @@ migrations/              # D1 SQL migrations
 ## Cloudflare Bindings (wrangler.toml)
 
 Current state has only Turnstile and Stripe keys. Missing bindings to add:
-
 ```toml
 [[d1_databases]]
 binding = "DB"
@@ -128,7 +126,6 @@ TURNSTILE_SECRET_KEY
 ---
 
 ## D1 Schema
-
 ```sql
 -- migrations/0001_members.sql
 CREATE TABLE IF NOT EXISTS members (
@@ -171,13 +168,11 @@ CREATE INDEX IF NOT EXISTS idx_mostrar ON members(mostrar_galeria);
 4. Stripe handles checkout
 5. **No post-payment WA sync yet** — to be added
 
-**Discount codes:** Managed in WildApricot admin dashboard — NOT in app code.
-Do not add discount code UI or logic to RegistrationPage.
+**Discount codes:** Managed in WildApricot admin dashboard — NOT in app code. Do not add discount code UI or logic to RegistrationPage.
 
 ---
 
 ## Development Commands
-
 ```bash
 npm run dev          # Vite dev server (port 3000)
 npm run build        # tsc --noEmit && vite build
@@ -186,10 +181,12 @@ npm test             # Vitest
 npx wrangler dev     # Test Cloudflare Functions locally
 ```
 
+---
+
 ## CI / CD
 
 - **CI:** GitHub Actions — runs on all PRs to `main`/`dev` and pushes to `dev`
-  - Steps: audit → lint → build → test (all must pass)
+  - Steps: audit → lint → build → test (all must pass before merge)
   - Security: dependency-review blocks PRs introducing high/critical CVEs
   - See `.github/workflows/ci.yml` and `.github/workflows/security.yml`
 - **CD:** Cloudflare Pages Git integration (not GitHub Actions)
@@ -226,7 +223,7 @@ See `.claude/agents/git-workflow.md` for full branching, commit, PR, and merge r
 - Commits: conventional format `type(scope): description` — **lowercase, never capitalize the description, never omit the scope**
 - PRs always target `dev`
 - `main` only receives merges from `dev` via PR — never direct commits
-- Release Please reads commit messages to bump versions — wrong format = wrong version bump
+- Release Please reads commit messages to bump versions — wrong type = wrong version bump (`feat` = minor, `fix` = patch, `chore` = no bump)
 
 ---
 
@@ -247,7 +244,7 @@ See `.claude/agents/git-workflow.md` for full branching, commit, PR, and merge r
 
 - `SociasPage.tsx` — "Próximamente" placeholder, needs full gallery implementation
 - `directiva.ts` — photo URLs point to Supabase Storage, migrate to R2 before go-live
+- `registrationSchema.ts` — remove `VALID_DISCOUNT_CODES` and `calculateDiscountedPrice`
 - Member stats in `HomePage` — manually updated (see TODO comment)
 - D1, R2, KV bindings not yet in `wrangler.toml`
 - No WildApricot integration yet — not started
-- `registrationSchema.ts` — remove `VALID_DISCOUNT_CODES` and `calculateDiscountedPrice`
