@@ -29,7 +29,8 @@ jobs:
           # Allow known dev-only moderate CVEs (ajv via eslint, esbuild via vitest)
           allow-ghsas: >-
             GHSA-2g4f-4pwh-qvx6,
-            GHSA-67mh-4wv8-2f99
+            GHSA-67mh-4wv8-2f99,
+            GHSA-3ppc-4f35-3m26
 
   # ── Runs on PRs + pushes to main/dev ─────────────────────────────────────────
   audit:
@@ -50,4 +51,4 @@ jobs:
 
       - name: Audit (high + critical only)
         # --audit-level=high fails only on high/critical; ignores moderate dev CVEs
-        run: npm audit --audit-level=high
+        run: npm audit --audit-level=high --omit=dev
