@@ -201,6 +201,16 @@ npx wrangler dev     # Test Cloudflare Functions locally
 
 ---
 
+## Research & Documentation Rules
+
+Before using any library, SDK, API, or tool:
+
+1. **Always use Context7 MCP** to pull current documentation for any library in use. Never rely on training knowledge for API signatures, config options, or version-specific behavior.
+2. **Always use web search** to verify the current stable version of any software before installing or referencing it. Check the official source (npm, GitHub releases, official docs).
+3. This applies to: npm packages, Cloudflare APIs, WildApricot API, Stripe, Vite plugins, Tailwind config, shadcn/ui, React Router, TanStack Query, Wrangler CLI, and any new integration.
+
+---
+
 ## Coding Conventions
 
 - TypeScript strict mode — all new code must pass `npm run build`

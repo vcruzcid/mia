@@ -99,6 +99,13 @@ export interface BoardMember {
   other_professions: string[];
 }
 
+// Board term (a period of service with its members)
+export interface BoardTerm {
+  label: string;
+  members: BoardMember[];
+  isCurrent: boolean;
+}
+
 // Fundadora type (extends Member)
 export type Fundadora = Member & { is_founder: boolean };
 
