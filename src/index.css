@@ -151,3 +151,9 @@ select:focus-visible,
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.8), 0 0 0 5px #fbbf24;
 }
 
+/* Directiva card entrance animation */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
