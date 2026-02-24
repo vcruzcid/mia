@@ -44,7 +44,7 @@ async function findContactByEmail(
 ): Promise<number | null> {
   const filter = encodeURIComponent(`Email eq '${email}'`);
   const res = await fetch(
-    `${baseUrl}/contacts?$filter=${filter}&$select=Id`,
+    `${baseUrl}/contacts?$filter=${filter}&$select=Id&$async=false`,
     { headers },
   );
   if (!res.ok) throw new Error(`WA contact search failed: ${res.status}`);
