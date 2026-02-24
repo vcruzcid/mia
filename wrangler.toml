@@ -17,11 +17,10 @@ STRIPE_PRICE_ESTUDIANTE    = "price_1RPHgyBWIyEInzCBYiwcSrRL"
 STRIPE_PRICE_COLABORADOR   = "price_1RdwWUBWIyEInzCBRGtAzIeZ"
 
 # WildApricot — account ID and membership level IDs
-# Fill after checking: WA admin > Settings > Membership levels
-WILDAPRICOT_ACCOUNT_ID       = ""
-WA_LEVEL_ID_PLENO_DERECHO    = ""
-WA_LEVEL_ID_ESTUDIANTE       = ""
-WA_LEVEL_ID_COLABORADOR      = ""
+WILDAPRICOT_ACCOUNT_ID       = "511043"
+WA_LEVEL_ID_PLENO_DERECHO    = "1765871"
+WA_LEVEL_ID_ESTUDIANTE       = "1765872"
+WA_LEVEL_ID_COLABORADOR      = "1765873"
 
 # KV namespace for WA OAuth token cache
 # Fill after: wrangler kv namespace create mia-kv
