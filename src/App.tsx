@@ -12,6 +12,7 @@ import { DirectivaPage } from './pages/DirectivaPage';
 import { FundadorasPage } from './pages/FundadorasPage';
 import { MianimaPage } from './pages/MianimaPage';
 import { RegistrationPage } from './pages/RegistrationPage';
+import { RegistroExitoPage } from './pages/RegistroExitoPage';
 import { PoliticaCookiesPage } from './pages/PoliticaCookiesPage';
 import { TerminosUsoPage } from './pages/TerminosUsoPage';
 import { PoliticaPrivacidadPage } from './pages/PoliticaPrivacidadPage';
@@ -39,6 +40,7 @@ function App() {
                 </Route>
 
                 <Route path="registro" element={<RegistrationPage />} />
+                <Route path="registro/exito" element={<RegistroExitoPage />} />
               </Routes>
             </div>
           </Router>
