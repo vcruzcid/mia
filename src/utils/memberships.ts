@@ -6,7 +6,6 @@ export const membershipTypes: MembershipType[] = [
     name: 'Socia Pleno Derecho',
     description: 'Acceso completo a todos los beneficios como profesional de la animación.',
     price: 60,
-    stripeLinkKey: 'plenoDerecho',
     benefits: [
       'Acceso completo a todos los recursos',
       'Participación en eventos exclusivos',
@@ -23,7 +22,6 @@ export const membershipTypes: MembershipType[] = [
     name: 'Socia Estudiante',
     description: 'Para estudiantes en formación en el ámbito de la animación.',
     price: 30,
-    stripeLinkKey: 'estudiante',
     benefits: [
       'Acceso a recursos educativos',
       'Eventos de networking para estudiantes',
@@ -38,7 +36,6 @@ export const membershipTypes: MembershipType[] = [
     name: 'Colaborador',
     description: 'Compañeros que apoyan la asociación.',
     price: 60,
-    stripeLinkKey: 'colaborador',
     benefits: [
       'Reconocimiento como colaborador',
       'Invitaciones a eventos especiales',

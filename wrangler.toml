@@ -4,13 +4,55 @@ compatibility_date = "2024-12-15"
 # Pages configuration
 pages_build_output_dir = "dist"
 
-# Environment variables for development
+# ─── Production (animacionesmia.com) ───────────────────────────────────────────
+
 [vars]
 # Public environment variables (safe to expose)
-VITE_STRIPE_PUBLIC_KEY = "pk_test_51JUuCEBWIyEInzCB9yxYOnEOxa6aRgFZVVt9n0Q064U2hb2Z43RJjxB3MLzRuJs0IMx2vOf1C7mGuDBSSwFQRQ7100ytJ8COQI"
+VITE_STRIPE_PUBLIC_KEY  = "pk_test_51JUuCEBWIyEInzCB9yxYOnEOxa6aRgFZVVt9n0Q064U2hb2Z43RJjxB3MLzRuJs0IMx2vOf1C7mGuDBSSwFQRQ7100ytJ8COQI"
 VITE_TURNSTILE_SITE_KEY = "0x4AAAAAABddjw-SDSpgjBDI"
 
-# Note: Sensitive variables are managed through Cloudflare secrets:
+# Stripe — annual recurring Price IDs (live mode)
+STRIPE_PRICE_PLENO_DERECHO = "price_1RPHg7BWIyEInzCBpAvUsG4Y"
+STRIPE_PRICE_ESTUDIANTE    = "price_1RPHgyBWIyEInzCBYiwcSrRL"
+STRIPE_PRICE_COLABORADOR   = "price_1RdwWUBWIyEInzCBRGtAzIeZ"
+
+# WildApricot — account ID and membership level IDs
+WILDAPRICOT_ACCOUNT_ID    = "511043"
+WA_LEVEL_ID_PLENO_DERECHO = "1765871"
+WA_LEVEL_ID_ESTUDIANTE    = "1765872"
+WA_LEVEL_ID_COLABORADOR   = "1765873"
+
+# KV — WA OAuth token cache (production namespace)
+[[kv_namespaces]]
+binding    = "KV"
+id         = "c4b76d296121474ba8b5f2703aca76f6"
+preview_id = "734e7db19f2b4aa9b938d9740c365cd9"
+
+# ─── Preview (dev.animacionesmia.com + PR previews) ────────────────────────────
+# Uses Stripe test-mode keys and price IDs
+
+[env.preview.vars]
+VITE_STRIPE_PUBLIC_KEY  = "pk_test_51JUuCEBWIyEInzCB9yxYOnEOxa6aRgFZVVt9n0Q064U2hb2Z43RJjxB3MLzRuJs0IMx2vOf1C7mGuDBSSwFQRQ7100ytJ8COQI"
+VITE_TURNSTILE_SITE_KEY = "0x4AAAAAABddjw-SDSpgjBDI"
+
+# Stripe — test-mode Price IDs
+STRIPE_PRICE_PLENO_DERECHO = "price_1T1d1eBWIyEInzCBDfDTNKc9"
+STRIPE_PRICE_ESTUDIANTE    = "price_1T1e0yBWIyEInzCBFPYPLSpN"
+STRIPE_PRICE_COLABORADOR   = "price_1T1dyYBWIyEInzCBUsVhonqA"
+
+# WildApricot — same account, same levels
+WILDAPRICOT_ACCOUNT_ID    = "511043"
+WA_LEVEL_ID_PLENO_DERECHO = "1765871"
+WA_LEVEL_ID_ESTUDIANTE    = "1765872"
+WA_LEVEL_ID_COLABORADOR   = "1765873"
+
+# KV — preview namespace
+[[env.preview.kv_namespaces]]
+binding = "KV"
+id      = "734e7db19f2b4aa9b938d9740c365cd9"
+
+# ─── Secrets (managed via `wrangler secret put`, never in this file) ───────────
 # - TURNSTILE_SECRET_KEY
 # - STRIPE_SECRET_KEY
 # - STRIPE_WEBHOOK_SECRET
+# - WILDAPRICOT_API_KEY

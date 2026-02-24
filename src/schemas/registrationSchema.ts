@@ -28,14 +28,6 @@ export const SPANISH_UNIVERSITIES = [
   'Otra universidad',
 ] as const;
 
-// Discount codes for special offers
-export const VALID_DISCOUNT_CODES = {
-  'DIRECTIVA2024': { percentage: 50, description: 'Descuento para miembros de directiva' },
-  'ESTUDIANTE25': { percentage: 25, description: 'Descuento estudiantes' },
-  'EARLYBIRD': { percentage: 15, description: 'Descuento madrugador' },
-  'AMIGA10': { percentage: 10, description: 'Descuento por recomendación' },
-} as const;
-
 // Step 1: Personal Information Schema
 export const personalInfoSchema = z.object({
   firstName: z
@@ -103,15 +95,7 @@ export const membershipPaymentSchema = z.object({
     (val) => val !== undefined,
     { message: 'Selecciona un tipo de membresía' }
   ),
-  
-  discountCode: z
-    .string()
-    .optional()
-    .refine(
-      (code) => !code || Object.keys(VALID_DISCOUNT_CODES).includes(code),
-      'Código de descuento no válido'
-    ),
-  
+
   termsAccepted: z
     .boolean()
     .refine(val => val === true, 'Debes aceptar los términos y condiciones'),
@@ -254,37 +238,6 @@ export const stepSchemas = {
   2: membershipPaymentSchema,
   3: profileDetailsSchema,
 } as const;
-
-// Helper function to calculate discounted price
-export function calculateDiscountedPrice(originalPrice: number, discountCode?: string): {
-  originalPrice: number;
-  discountPercentage: number;
-  discountAmount: number;
-  finalPrice: number;
-  isValid: boolean;
-} {
-  if (!discountCode || !VALID_DISCOUNT_CODES[discountCode as keyof typeof VALID_DISCOUNT_CODES]) {
-    return {
-      originalPrice,
-      discountPercentage: 0,
-      discountAmount: 0,
-      finalPrice: originalPrice,
-      isValid: false,
-    };
-  }
-
-  const discount = VALID_DISCOUNT_CODES[discountCode as keyof typeof VALID_DISCOUNT_CODES];
-  const discountAmount = Math.round((originalPrice * discount.percentage) / 100);
-  const finalPrice = originalPrice - discountAmount;
-
-  return {
-    originalPrice,
-    discountPercentage: discount.percentage,
-    discountAmount,
-    finalPrice: Math.max(0, finalPrice), // Ensure price doesn't go negative
-    isValid: true,
-  };
-}
 
 // Helper function to validate step
 export function validateStep(step: 1 | 2 | 3, data: unknown): { success: boolean; errors?: unknown } {
