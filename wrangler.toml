@@ -10,7 +10,27 @@ pages_build_output_dir = "dist"
 VITE_STRIPE_PUBLIC_KEY = "pk_test_51JUuCEBWIyEInzCB9yxYOnEOxa6aRgFZVVt9n0Q064U2hb2Z43RJjxB3MLzRuJs0IMx2vOf1C7mGuDBSSwFQRQ7100ytJ8COQI"
 VITE_TURNSTILE_SITE_KEY = "0x4AAAAAABddjw-SDSpgjBDI"
 
+# Stripe — annual recurring Price IDs (production)
+# TODO: add test-mode Price IDs for dev environment
+STRIPE_PRICE_PLENO_DERECHO = "price_1RPHg7BWIyEInzCBpAvUsG4Y"
+STRIPE_PRICE_ESTUDIANTE    = "price_1RPHgyBWIyEInzCBYiwcSrRL"
+STRIPE_PRICE_COLABORADOR   = "price_1RdwWUBWIyEInzCBRGtAzIeZ"
+
+# WildApricot — account ID and membership level IDs
+# Fill after checking: WA admin > Settings > Membership levels
+WILDAPRICOT_ACCOUNT_ID       = ""
+WA_LEVEL_ID_PLENO_DERECHO    = ""
+WA_LEVEL_ID_ESTUDIANTE       = ""
+WA_LEVEL_ID_COLABORADOR      = ""
+
+# KV namespace for WA OAuth token cache
+# Fill after: wrangler kv namespace create mia-kv
+[[kv_namespaces]]
+binding = "KV"
+id      = ""
+
 # Note: Sensitive variables are managed through Cloudflare secrets:
 # - TURNSTILE_SECRET_KEY
 # - STRIPE_SECRET_KEY
 # - STRIPE_WEBHOOK_SECRET
+# - WILDAPRICOT_API_KEY
