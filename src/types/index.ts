@@ -3,7 +3,6 @@ export interface MembershipType {
   name: string;
   description: string;
   price: number;
-  stripeLinkKey: keyof typeof import('../config/site.config').siteConfig.stripe;
   benefits: string[];
 }
 
