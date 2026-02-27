@@ -23,7 +23,7 @@ export const profileEditSchema = z.object({
   city: z.string().max(100, 'La ciudad no puede superar 100 caracteres').or(z.literal('')),
   country: z.string().max(100, 'El país no puede superar 100 caracteres').or(z.literal('')),
   specializations: z
-    .array(z.enum(ANIMATION_SPECIALIZATIONS as unknown as [string, ...string[]]))
+    .array(z.enum([...ANIMATION_SPECIALIZATIONS] as [string, ...string[]]))
     .max(10, 'No puedes seleccionar más de 10 especialidades'),
   socialLinks: z.object({
     linkedin: urlOrEmpty.optional().default(''),

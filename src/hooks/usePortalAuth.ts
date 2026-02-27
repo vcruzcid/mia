@@ -1,17 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-
-interface SessionMember {
-  email: string;
-  contactId: string;
-  nombre: string;
-}
-
-interface AuthMeResponse {
-  success: boolean;
-  member?: SessionMember;
-  error?: string;
-}
+import type { AuthMeResponse } from '@/types/api';
 
 async function fetchMe(): Promise<AuthMeResponse> {
   const res = await fetch('/api/auth/me', { credentials: 'include' });

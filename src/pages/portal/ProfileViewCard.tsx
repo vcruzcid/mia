@@ -2,6 +2,20 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import type { PortalProfile } from '@/types/api';
 
+const STATUS_LABELS: Record<string, string> = {
+  Active: 'Activa',
+  Lapsed: 'Caducada',
+  PendingNew: 'Pendiente de alta',
+  PendingRenewal: 'Renovación pendiente',
+  Suspended: 'Suspendida',
+};
+
+const LEVEL_LABELS: Record<string, string> = {
+  'Active Member': 'Socia de pleno derecho',
+  'Student Member': 'Socia estudiante',
+  'Collaborator': 'Colaboradora',
+};
+
 interface ProfileViewCardProps {
   profile: PortalProfile;
   onEdit: () => void;
@@ -79,12 +93,12 @@ export function ProfileViewCard({ profile, onEdit }: ProfileViewCardProps) {
       <div className="flex flex-wrap gap-2">
         {membershipLevel && (
           <Badge className="bg-red-600/20 border-red-400/30 text-red-400 border text-xs">
-            {membershipLevel}
+            {LEVEL_LABELS[membershipLevel] ?? membershipLevel}
           </Badge>
         )}
         {membershipStatus && (
           <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium ${statusColor}`}>
-            {membershipStatus === 'Active' ? 'Activa' : membershipStatus}
+            {STATUS_LABELS[membershipStatus] ?? 'Inactiva'}
           </span>
         )}
       </div>

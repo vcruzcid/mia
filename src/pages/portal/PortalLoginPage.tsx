@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,7 +10,18 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { loginSchema, type LoginFormData } from '@/schemas/portalSchema';
+import { siteConfig } from '@/config/site.config';
+import { MagicLinkSentStep } from './MagicLinkSentStep';
 import type { MagicLinkResponse } from '@/types/api';
+
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (el: HTMLElement, opts: { sitekey: string; callback: (t: string) => void; 'expired-callback': () => void }) => string;
+      remove: (id: string) => void;
+    };
+  }
+}
 
 type PageStep = 'email' | 'sent';
 
@@ -26,40 +37,47 @@ export function PortalLoginPage() {
   const [magicLink, setMagicLink] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
-  const [userEmail, setUserEmail] = useState('');
+  const [turnstileToken, setTurnstileToken] = useState('');
+  const turnstileRef = useRef<HTMLDivElement>(null);
+  const widgetIdRef = useRef<string | null>(null);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
-  });
-
-  // Handle error params from verify redirect
   const errorParam = searchParams.get('error');
   const urlError = errorParam ? (ERROR_MESSAGES[errorParam] ?? 'Error de autenticación. Inténtalo de nuevo.') : null;
 
+  const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+  });
+
   useEffect(() => {
-    if (urlError) {
-      setStep('email');
-    }
+    if (urlError) setStep('email');
   }, [urlError]);
+
+  // Mount Turnstile widget when on the email step
+  useEffect(() => {
+    if (step !== 'email' || !turnstileRef.current || !window.turnstile) return;
+    widgetIdRef.current = window.turnstile.render(turnstileRef.current, {
+      sitekey: siteConfig.turnstile.sitekey,
+      callback: (token) => setTurnstileToken(token),
+      'expired-callback': () => setTurnstileToken(''),
+    });
+    return () => {
+      if (widgetIdRef.current) {
+        window.turnstile?.remove(widgetIdRef.current);
+        widgetIdRef.current = null;
+      }
+    };
+  }, [step]);
 
   const onSubmit = async (data: LoginFormData) => {
     setSubmitError(null);
     setIsSubmitting(true);
-    setUserEmail(data.email);
-
     try {
       const res = await fetch('/api/auth/request-link', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: data.email }),
+        body: JSON.stringify({ email: data.email, turnstileToken }),
       });
       const result = await res.json() as MagicLinkResponse;
-
       if (result.success && result.magicLink) {
         setMagicLink(result.magicLink);
         setStep('sent');
@@ -73,49 +91,11 @@ export function PortalLoginPage() {
     }
   };
 
-  const handleCopyLink = async () => {
-    if (!magicLink) return;
-    try {
-      await navigator.clipboard.writeText(magicLink);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // Fallback: select and copy
-    }
-  };
-
-  const handleResend = async () => {
-    if (!userEmail) return;
-    setSubmitError(null);
-    setIsSubmitting(true);
-    try {
-      const res = await fetch('/api/auth/request-link', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: userEmail }),
-      });
-      const result = await res.json() as MagicLinkResponse;
-      if (result.success && result.magicLink) {
-        setMagicLink(result.magicLink);
-        setCopied(false);
-      } else {
-        setSubmitError(result.error ?? 'No se pudo generar un nuevo enlace.');
-      }
-    } catch {
-      setSubmitError('Error de conexión. Inténtalo de nuevo.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   return (
     <div className="min-h-screen flex flex-col bg-gray-900">
       <Header />
       <main className="flex-1 flex items-center justify-center py-12 relative">
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: 'url(/images/about-hero.webp)' }}
-        >
+        <div className="absolute inset-0 bg-[url('/images/about-hero.webp')] bg-cover bg-center bg-no-repeat">
           <div className="absolute inset-0 bg-black/50" />
         </div>
 
@@ -135,14 +115,11 @@ export function PortalLoginPage() {
           </CardHeader>
 
           <CardContent className="space-y-6">
-            {/* URL error param */}
             {urlError && step === 'email' && (
               <div className="p-4 rounded-lg border bg-red-900/10 border-red-400/30 text-red-400">
                 <p className="text-sm">{urlError}</p>
               </div>
             )}
-
-            {/* Submit error */}
             {submitError && (
               <div className="p-4 rounded-lg border bg-red-900/10 border-red-400/30 text-red-400">
                 <p className="text-sm">{submitError}</p>
@@ -152,9 +129,7 @@ export function PortalLoginPage() {
             {step === 'email' && (
               <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-gray-300">
-                    Correo electrónico
-                  </Label>
+                  <Label htmlFor="email" className="text-gray-300">Correo electrónico</Label>
                   <Input
                     {...register('email')}
                     id="email"
@@ -168,9 +143,11 @@ export function PortalLoginPage() {
                   )}
                 </div>
 
+                <div ref={turnstileRef} />
+
                 <Button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !turnstileToken}
                   className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50"
                 >
                   {isSubmitting ? (
@@ -196,63 +173,11 @@ export function PortalLoginPage() {
             )}
 
             {step === 'sent' && magicLink && (
-              <div className="space-y-5">
-                <div className="text-center">
-                  <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-900/20 border border-green-400/30">
-                    <svg className="h-6 w-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <h3 className="mt-2 text-lg font-medium text-white">Enlace generado</h3>
-                  <p className="mt-1 text-sm text-gray-300">
-                    Tu enlace de acceso es válido durante 15 minutos.
-                  </p>
-                </div>
-
-                {/* Magic link button */}
-                <a
-                  href={magicLink}
-                  className="block w-full text-center py-3 px-4 rounded-md bg-red-600 hover:bg-red-700 text-white font-medium transition-colors break-all text-sm"
-                >
-                  Acceder al portal
-                </a>
-
-                {/* Copy link button */}
-                <Button
-                  variant="ghost"
-                  onClick={() => void handleCopyLink()}
-                  className="w-full border border-gray-600 text-gray-300 hover:text-white hover:bg-gray-700"
-                >
-                  {copied ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <svg className="h-4 w-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      Enlace copiado
-                    </span>
-                  ) : (
-                    'Copiar enlace'
-                  )}
-                </Button>
-
-                <div className="flex flex-col gap-2 text-center">
-                  <button
-                    type="button"
-                    onClick={() => void handleResend()}
-                    disabled={isSubmitting}
-                    className="text-sm text-red-400 hover:text-red-300 transition-colors disabled:opacity-50"
-                  >
-                    {isSubmitting ? 'Generando...' : 'Generar nuevo enlace'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setStep('email'); setSubmitError(null); setMagicLink(null); }}
-                    className="text-sm text-gray-400 hover:text-gray-300 transition-colors"
-                  >
-                    Usar otro correo electrónico
-                  </button>
-                </div>
-              </div>
+              <MagicLinkSentStep
+                magicLink={magicLink}
+                isSubmitting={isSubmitting}
+                onBack={() => { setStep('email'); setMagicLink(null); setSubmitError(null); setTurnstileToken(''); }}
+              />
             )}
           </CardContent>
         </Card>

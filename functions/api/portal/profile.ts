@@ -5,6 +5,13 @@
 
 import { getContact, updateContact, type WAContactsEnv, type WAContact } from '../../_lib/wa-contacts';
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, PUT, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+  'Content-Type': 'application/json',
+};
+
 // Discovered via GET /accounts/511043/contactfields on 2026-02-27
 const FIELD_CODES = {
   bio: 'custom-17708434',               // Biografía (text)
@@ -61,6 +68,20 @@ interface Env extends WAContactsEnv {
   KV: KVNamespace;
 }
 
+interface PortalProfile {
+  contactId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  bio: string;
+  city: string;
+  country: string;
+  specializations: string[];
+  socialLinks: { linkedin: string; instagram: string; twitter: string; website: string };
+  membershipLevel: string;
+  membershipStatus: string;
+}
+
 interface SessionData {
   email: string;
   contactId: string;
@@ -94,7 +115,7 @@ function getMultiLabels(fv: FieldValue[], code: string): string[] {
   }).filter(Boolean);
 }
 
-function mapContactToProfile(contact: WAContact) {
+function mapContactToProfile(contact: WAContact): PortalProfile {
   const fv = (contact.FieldValues ?? []) as FieldValue[];
   // Collect specializations: primary (single) + additional (multi), deduplicated
   const primary = getDropdownLabel(fv, FIELD_CODES.profesionPrincipal);
@@ -130,7 +151,7 @@ export async function onRequestGet(
   if (!session) {
     return new Response(
       JSON.stringify({ success: false, error: 'No autenticada' }),
-      { status: 401, headers: { 'Content-Type': 'application/json' } },
+      { status: 401, headers: corsHeaders },
     );
   }
 
@@ -139,13 +160,13 @@ export async function onRequestGet(
     const profile = mapContactToProfile(contact);
     return new Response(
       JSON.stringify({ success: true, profile }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } },
+      { status: 200, headers: corsHeaders },
     );
   } catch (err) {
     console.error('Failed to fetch contact profile:', err);
     return new Response(
       JSON.stringify({ success: false, error: 'Error obteniendo perfil' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } },
+      { status: 500, headers: corsHeaders },
     );
   }
 }
@@ -173,7 +194,7 @@ export async function onRequestPut(
   if (!session) {
     return new Response(
       JSON.stringify({ success: false, error: 'No autenticada' }),
-      { status: 401, headers: { 'Content-Type': 'application/json' } },
+      { status: 401, headers: corsHeaders },
     );
   }
 
@@ -183,7 +204,7 @@ export async function onRequestPut(
   } catch {
     return new Response(
       JSON.stringify({ success: false, error: 'Cuerpo de la solicitud inválido' }),
-      { status: 400, headers: { 'Content-Type': 'application/json' } },
+      { status: 400, headers: corsHeaders },
     );
   }
 
@@ -226,13 +247,13 @@ export async function onRequestPut(
     await updateContact(context.env, contactId, updateFields);
     return new Response(
       JSON.stringify({ success: true }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } },
+      { status: 200, headers: corsHeaders },
     );
   } catch (err) {
     console.error('Failed to update contact:', err);
     return new Response(
       JSON.stringify({ success: false, error: 'Error actualizando perfil' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } },
+      { status: 500, headers: corsHeaders },
     );
   }
 }
