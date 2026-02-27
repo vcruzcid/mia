@@ -2,24 +2,60 @@
 // PUT /api/portal/profile — update member profile in WildApricot
 //
 // Protected by _middleware.ts — context.data.session is guaranteed to exist.
-//
-// IMPORTANT: FIELD_CODES below are placeholders.
-// Run: curl -s -H "Authorization: Bearer <TOKEN>" \
-//   "https://api.wildapricot.org/v2.2/accounts/511043/contactfields" | jq '.[] | {FieldName,SystemCode}'
-// Then fill in the actual SystemCodes.
 
 import { getContact, updateContact, type WAContactsEnv, type WAContact } from '../../_lib/wa-contacts';
 
-// TODO: Fill in actual SystemCodes after running:
-// GET /accounts/511043/contactfields
+// Discovered via GET /accounts/511043/contactfields on 2026-02-27
 const FIELD_CODES = {
-  bio: 'custom-FILL_ME',
-  specializations: 'custom-FILL_ME',
-  linkedin: 'custom-FILL_ME',
-  instagram: 'custom-FILL_ME',
-  twitter: 'custom-FILL_ME',
-  website: 'custom-FILL_ME',
+  bio: 'custom-17708434',               // Biografía (text)
+  profesionPrincipal: 'custom-17708342', // Profesión Principal (Dropdown — single select)
+  profesionAdicional: 'custom-17708340', // Profesión Adicional (MultipleChoice — multi select)
+  ciudad: 'custom-17708331',             // Ciudad (custom text)
+  pais: 'custom-17708479',               // País (custom text)
+  instagram: 'custom-17708437',          // Instagram
+  linkedin: 'custom-17708438',           // LinkedIn
+  website: 'custom-17708442',            // Website
+  vimeo: 'custom-17708440',              // Vimeo (no Twitter field in WA)
+  statusEmpleo: 'custom-17708435',       // Status de Empleo
 } as const;
+
+// Label→Id mapping for Profesión Principal (Dropdown)
+// IDs from GET /accounts/511043/contactfields on 2026-02-27
+const PROFESION_PRINCIPAL_IDS: Record<string, number> = {
+  'Guión': 23050045, 'Dirección': 23050046, 'Storyboard': 23050047,
+  'Dirección de arte': 23050048, 'Concept Art': 23050049, 'Diseño de personajes': 23050050,
+  'Diseño de sets': 23050051, 'Visual Development': 23050052, 'Modelado 3D': 23050053,
+  'Motion Graphics': 23050054, 'Layout 2D': 23050055, 'Layout 3D': 23050056,
+  'Color BG': 23050057, 'Rigging 2D': 23050058, 'Rigging 3D': 23050059,
+  'Animación 2D': 23050060, '2D FX': 23050061, 'Clean Up': 23050062,
+  'Ink and Paint': 23050063, 'Animación 3D': 23050064, 'Animación StopMotion': 23050065,
+  'Artista para Stopmotion': 23050066, 'Composición Digital': 23050067,
+  'Sonido/ Música/ SFX': 23050068, 'Montaje': 23050069, 'Pipeline': 23050070,
+  'Producción': 23050071, 'Asistente de producción': 23050072,
+  'Directora de producción': 23050073, 'Coordinadora de producción': 23050074,
+  'Line producer': 23050075, 'Producción ejecutiva': 23050076, 'Matte painting': 23050077,
+  'Render wrangler': 23050078, 'Lighting': 23050079, 'Shading': 23050080,
+  'Marketing': 23050081, 'Groom artist': 23050082, 'Compositora musical': 23050083,
+};
+
+// Label→Id mapping for Profesión Adicional (MultipleChoice)
+// IDs from GET /accounts/511043/contactfields on 2026-02-27
+const PROFESION_ADICIONAL_IDS: Record<string, number> = {
+  'Guión': 23050006, 'Dirección': 23050007, 'Storyboard': 23050008,
+  'Dirección de arte': 23050009, 'Concept Art': 23050010, 'Diseño de personajes': 23050011,
+  'Diseño de sets': 23050012, 'Visual Development': 23050013, 'Modelado 3D': 23050014,
+  'Motion Graphics': 23050015, 'Layout 2D': 23050016, 'Layout 3D': 23050017,
+  'Color BG': 23050018, 'Rigging 2D': 23050019, 'Rigging 3D': 23050020,
+  'Animación 2D': 23050021, '2D FX': 23050022, 'Clean Up': 23050023,
+  'Ink and Paint': 23050024, 'Animación 3D': 23050025, 'Animación StopMotion': 23050026,
+  'Artista para Stopmotion': 23050027, 'Composición Digital': 23050028,
+  'Sonido/ Música/ SFX': 23050029, 'Montaje': 23050030, 'Pipeline': 23050031,
+  'Producción': 23050032, 'Asistente de producción': 23050033,
+  'Directora de producción': 23050034, 'Coordinadora de producción': 23050035,
+  'Line producer': 23050036, 'Producción ejecutiva': 23050037, 'Matte painting': 23050038,
+  'Render wrangler': 23050039, 'Lighting': 23050040, 'Shading': 23050041,
+  'Marketing': 23050042, 'Groom artist': 23050043, 'Compositora musical': 23050044,
+};
 
 interface Env extends WAContactsEnv {
   KV: KVNamespace;
@@ -37,34 +73,49 @@ function getStringField(fv: FieldValue[], code: string): string {
   return String(fv.find(f => f.SystemCode === code)?.Value ?? '');
 }
 
-function getArrayField(fv: FieldValue[], code: string): string[] {
+// Dropdown (single): WA returns { Id, Label } object or null
+function getDropdownLabel(fv: FieldValue[], code: string): string {
+  const raw = fv.find(f => f.SystemCode === code)?.Value;
+  if (raw && typeof raw === 'object' && 'Label' in raw) {
+    return String((raw as { Label: unknown }).Label);
+  }
+  return '';
+}
+
+// MultipleChoice (multi): WA returns [{ Id, Label }]
+function getMultiLabels(fv: FieldValue[], code: string): string[] {
   const raw = fv.find(f => f.SystemCode === code)?.Value;
   if (!Array.isArray(raw)) return [];
-  // WA multi-select returns [{ Id, Label }] — extract Label strings
   return raw.map((item: unknown) => {
     if (typeof item === 'object' && item !== null && 'Label' in item) {
       return String((item as { Label: unknown }).Label);
     }
     return String(item);
-  });
+  }).filter(Boolean);
 }
 
 function mapContactToProfile(contact: WAContact) {
   const fv = (contact.FieldValues ?? []) as FieldValue[];
+  // Collect specializations: primary (single) + additional (multi), deduplicated
+  const primary = getDropdownLabel(fv, FIELD_CODES.profesionPrincipal);
+  const additional = getMultiLabels(fv, FIELD_CODES.profesionAdicional);
+  const specializations = primary
+    ? [primary, ...additional.filter(s => s !== primary)]
+    : additional;
+
   return {
     contactId: String(contact.Id),
     firstName: contact.FirstName,
     lastName: contact.LastName,
     email: contact.Email,
     bio: getStringField(fv, FIELD_CODES.bio),
-    // City/Country: try top-level first, fall back to FieldValues if needed
-    city: (contact as Record<string, unknown>)['City'] as string ?? getStringField(fv, 'City'),
-    country: (contact as Record<string, unknown>)['Country'] as string ?? getStringField(fv, 'Country'),
-    specializations: getArrayField(fv, FIELD_CODES.specializations),
+    city: getStringField(fv, FIELD_CODES.ciudad),
+    country: getStringField(fv, FIELD_CODES.pais),
+    specializations,
     socialLinks: {
       linkedin: getStringField(fv, FIELD_CODES.linkedin),
       instagram: getStringField(fv, FIELD_CODES.instagram),
-      twitter: getStringField(fv, FIELD_CODES.twitter),
+      twitter: '', // no Twitter field in WA — kept in type for UI compat
       website: getStringField(fv, FIELD_CODES.website),
     },
     membershipLevel: contact.MembershipLevel?.Name ?? '',
@@ -137,19 +188,29 @@ export async function onRequestPut(
   }
 
   const contactId = parseInt(session.contactId, 10);
+  const specs = body.specializations ?? [];
 
-  // Build FieldValues — specializations written as [{ Id }] if we have IDs,
-  // but since we store Labels, we write string values for text fields.
-  // For multi-select fields WA expects [{ Id }], but if we only have labels
-  // we write them as-is and WA will attempt to match.
-  // TODO: once FIELD_CODES are filled and multi-select options discovered,
-  // resolve label→id mapping here.
+  // Split specializations: first → Profesión Principal (Dropdown), rest → Profesión Adicional (MultipleChoice)
+  // Dropdown write: { Id: number } or null to clear
+  const primaryLabel = specs[0];
+  const primaryId = primaryLabel ? PROFESION_PRINCIPAL_IDS[primaryLabel] : undefined;
+  const primaryValue = primaryId ? { Id: primaryId } : null;
+
+  // MultipleChoice write: [{ Id: number }]
+  const additionalLabels = specs.slice(1);
+  const additionalValue = additionalLabels
+    .map(label => PROFESION_ADICIONAL_IDS[label])
+    .filter((id): id is number => id !== undefined)
+    .map(id => ({ Id: id }));
+
   const fieldValues: FieldValue[] = [
-    { FieldName: 'Bio', SystemCode: FIELD_CODES.bio, Value: body.bio ?? '' },
-    { FieldName: 'Specializations', SystemCode: FIELD_CODES.specializations, Value: body.specializations ?? [] },
+    { FieldName: 'Biografía', SystemCode: FIELD_CODES.bio, Value: body.bio ?? '' },
+    { FieldName: 'Profesión Principal', SystemCode: FIELD_CODES.profesionPrincipal, Value: primaryValue },
+    { FieldName: 'Profesión Adicional', SystemCode: FIELD_CODES.profesionAdicional, Value: additionalValue },
+    { FieldName: 'Ciudad', SystemCode: FIELD_CODES.ciudad, Value: body.city ?? '' },
+    { FieldName: 'País', SystemCode: FIELD_CODES.pais, Value: body.country ?? '' },
     { FieldName: 'LinkedIn', SystemCode: FIELD_CODES.linkedin, Value: body.socialLinks?.linkedin ?? '' },
     { FieldName: 'Instagram', SystemCode: FIELD_CODES.instagram, Value: body.socialLinks?.instagram ?? '' },
-    { FieldName: 'Twitter', SystemCode: FIELD_CODES.twitter, Value: body.socialLinks?.twitter ?? '' },
     { FieldName: 'Website', SystemCode: FIELD_CODES.website, Value: body.socialLinks?.website ?? '' },
   ];
 
@@ -159,9 +220,6 @@ export async function onRequestPut(
 
   if (body.firstName !== undefined) updateFields['FirstName'] = body.firstName;
   if (body.lastName !== undefined) updateFields['LastName'] = body.lastName;
-  // City/Country: set as top-level fields (standard WA fields)
-  if (body.city !== undefined) updateFields['City'] = body.city;
-  if (body.country !== undefined) updateFields['Country'] = body.country;
 
   try {
     await updateContact(context.env, contactId, updateFields);
