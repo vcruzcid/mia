@@ -83,3 +83,36 @@ export interface TurnstileVerifyResponse {
   challenge_ts?: string;
   hostname?: string;
 }
+
+// Portal auth types
+export interface MagicLinkResponse {
+  success: boolean;
+  magicLink?: string; // v1: returned directly (no email)
+  error?: string;
+}
+
+export interface AuthMeResponse {
+  success: boolean;
+  member?: { email: string; contactId: string; nombre: string };
+  error?: string;
+}
+
+export interface PortalProfile {
+  contactId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  bio: string;
+  city: string;
+  country: string;
+  specializations: string[];
+  socialLinks: { linkedin: string; instagram: string; twitter: string; website: string };
+  membershipLevel: string;
+  membershipStatus: string;
+}
+
+export interface PortalProfileResponse {
+  success: boolean;
+  profile?: PortalProfile;
+  error?: string;
+}
