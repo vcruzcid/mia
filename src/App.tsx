@@ -13,6 +13,10 @@ import { FundadorasPage } from './pages/FundadorasPage';
 import { MianimaPage } from './pages/MianimaPage';
 import { RegistrationPage } from './pages/RegistrationPage';
 import { RegistroExitoPage } from './pages/RegistroExitoPage';
+import { PortalLoginPage } from './pages/portal/PortalLoginPage';
+import { PortalLayout } from './pages/portal/PortalLayout';
+import { PortalPerfilPage } from './pages/portal/PortalPerfilPage';
+import { PortalSuscripcionPage } from './pages/portal/PortalSuscripcionPage';
 import { PoliticaCookiesPage } from './pages/PoliticaCookiesPage';
 import { TerminosUsoPage } from './pages/TerminosUsoPage';
 import { PoliticaPrivacidadPage } from './pages/PoliticaPrivacidadPage';
@@ -41,6 +45,12 @@ function App() {
 
                 <Route path="registro" element={<RegistrationPage />} />
                 <Route path="registro/exito" element={<RegistroExitoPage />} />
+
+                <Route path="portal/login" element={<PortalLoginPage />} />
+                <Route path="portal" element={<PortalLayout />}>
+                  <Route path="perfil" element={<PortalPerfilPage />} />
+                  <Route path="suscripcion" element={<PortalSuscripcionPage />} />
+                </Route>
               </Routes>
             </div>
           </Router>
