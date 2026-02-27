@@ -14,8 +14,8 @@ const FIELD_CODES = {
   pais: 'custom-17708479',               // País (custom text)
   instagram: 'custom-17708437',          // Instagram
   linkedin: 'custom-17708438',           // LinkedIn
+  twitter: 'custom-17774035',            // X/Twitter
   website: 'custom-17708442',            // Website
-  vimeo: 'custom-17708440',              // Vimeo (no Twitter field in WA)
   statusEmpleo: 'custom-17708435',       // Status de Empleo
 } as const;
 
@@ -115,7 +115,7 @@ function mapContactToProfile(contact: WAContact) {
     socialLinks: {
       linkedin: getStringField(fv, FIELD_CODES.linkedin),
       instagram: getStringField(fv, FIELD_CODES.instagram),
-      twitter: '', // no Twitter field in WA — kept in type for UI compat
+      twitter: getStringField(fv, FIELD_CODES.twitter),
       website: getStringField(fv, FIELD_CODES.website),
     },
     membershipLevel: contact.MembershipLevel?.Name ?? '',
@@ -211,6 +211,7 @@ export async function onRequestPut(
     { FieldName: 'País', SystemCode: FIELD_CODES.pais, Value: body.country ?? '' },
     { FieldName: 'LinkedIn', SystemCode: FIELD_CODES.linkedin, Value: body.socialLinks?.linkedin ?? '' },
     { FieldName: 'Instagram', SystemCode: FIELD_CODES.instagram, Value: body.socialLinks?.instagram ?? '' },
+    { FieldName: 'X/Twitter', SystemCode: FIELD_CODES.twitter, Value: body.socialLinks?.twitter ?? '' },
     { FieldName: 'Website', SystemCode: FIELD_CODES.website, Value: body.socialLinks?.website ?? '' },
   ];
 
