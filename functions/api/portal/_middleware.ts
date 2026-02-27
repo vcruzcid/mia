@@ -2,8 +2,8 @@
 // Validates mia_session cookie against KV. Returns 401 if invalid.
 // Attaches session data to context.data for downstream handlers.
 
-import { getSessionId } from '../../../_lib/session';
-import { getCorsHeaders, getPreflightResponse } from '../../../_lib/cors';
+import { getSessionId } from '../../_lib/session';
+import { getCorsHeaders, getPreflightResponse } from '../../_lib/cors';
 
 interface Env {
   KV: KVNamespace;
