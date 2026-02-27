@@ -107,3 +107,56 @@ export async function lapseMembership(env: WAContactsEnv, email: string): Promis
     throw new Error(`WA membership lapse failed: ${res.status} ${err}`);
   }
 }
+
+export interface WAContact {
+  Id: number;
+  FirstName: string;
+  LastName: string;
+  Email: string;
+  DisplayName?: string;
+  MembershipLevel?: { Id: number; Name: string };
+  Status?: string;
+  MembershipEnabled?: boolean;
+  FieldValues?: Array<{ FieldName: string; SystemCode: string; Value: unknown }>;
+}
+
+export async function getContact(env: WAContactsEnv, contactId: number): Promise<WAContact> {
+  const token = await getWAToken(env);
+  const baseUrl = `https://api.wildapricot.org/v2.2/accounts/${env.WILDAPRICOT_ACCOUNT_ID}`;
+  const res = await fetch(`${baseUrl}/contacts/${contactId}`, {
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+  });
+  if (!res.ok) throw new Error(`WA getContact failed: ${res.status}`);
+  return res.json() as Promise<WAContact>;
+}
+
+export async function getContactByEmail(env: WAContactsEnv, email: string): Promise<WAContact | null> {
+  const token = await getWAToken(env);
+  const baseUrl = `https://api.wildapricot.org/v2.2/accounts/${env.WILDAPRICOT_ACCOUNT_ID}`;
+  const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
+  const filter = encodeURIComponent(`Email eq '${email}'`);
+  const res = await fetch(`${baseUrl}/contacts?$filter=${filter}&$select=Id&$async=false`, { headers });
+  if (!res.ok) throw new Error(`WA contact search failed: ${res.status}`);
+  const data = await res.json() as { Contacts: Array<{ Id: number }> };
+  const id = data.Contacts?.[0]?.Id;
+  if (!id) return null;
+  return getContact(env, id);
+}
+
+export async function updateContact(
+  env: WAContactsEnv,
+  contactId: number,
+  fields: Record<string, unknown>,
+): Promise<void> {
+  const token = await getWAToken(env);
+  const baseUrl = `https://api.wildapricot.org/v2.2/accounts/${env.WILDAPRICOT_ACCOUNT_ID}`;
+  const res = await fetch(`${baseUrl}/contacts/${contactId}`, {
+    method: 'PUT',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ Id: contactId, ...fields }),
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`WA updateContact failed: ${res.status} ${err}`);
+  }
+}
