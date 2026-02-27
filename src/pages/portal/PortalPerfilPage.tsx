@@ -21,7 +21,9 @@ async function saveProfile(data: ProfileEditFormData): Promise<{ success: boolea
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json() as Promise<{ success: boolean; error?: string }>;
+  const result = await res.json() as { success: boolean; error?: string };
+  if (!result.success) throw new Error(result.error ?? 'Error actualizando perfil');
+  return result;
 }
 
 export function PortalPerfilPage() {

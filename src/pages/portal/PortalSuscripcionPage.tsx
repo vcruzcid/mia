@@ -33,8 +33,10 @@ export function PortalSuscripcionPage() {
         setIsRedirecting(false);
         return;
       }
-      if (data.url?.startsWith('https://billing.stripe.com')) {
-        window.location.href = data.url;
+      let redirectUrl: URL | null = null;
+      try { redirectUrl = new URL(data.url ?? ''); } catch { /* invalid URL */ }
+      if (redirectUrl?.protocol === 'https:' && redirectUrl.hostname === 'billing.stripe.com') {
+        window.location.href = redirectUrl.href;
       } else {
         setError(data.error ?? 'No se pudo abrir el portal de suscripción.');
         setIsRedirecting(false);
