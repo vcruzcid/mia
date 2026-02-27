@@ -16,11 +16,17 @@ export function Header() {
     { name: 'MIANIMA', href: '/mianima' },
     { name: 'Membresía', href: '/membresia' },
     { name: 'Contacto', href: '/contacto' },
+    { name: 'Portal', href: '/portal/login' },
   ];
 
   const aboutMenu = [{ name: 'Fundadoras', href: '/fundadoras' }];
 
-  const isActive = (href: string) => location.pathname === href;
+  const isActive = (href: string) => {
+    if (href === '/portal/login') {
+      return location.pathname.startsWith('/portal');
+    }
+    return location.pathname === href;
+  };
 
   // Handle escape key and outside clicks
   useEffect(() => {
