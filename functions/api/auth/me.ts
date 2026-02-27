@@ -2,32 +2,29 @@
 // Returns session member data from KV. Used by frontend to check auth state.
 
 import { getSessionId } from '../../_lib/session';
+import { getCorsHeaders, getPreflightResponse } from '../../_lib/cors';
 
 interface Env {
   KV: KVNamespace;
 }
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Content-Type': 'application/json',
-};
+const METHODS = 'GET, OPTIONS';
 
-export function onRequestOptions(): Response {
-  return new Response(null, { status: 204, headers: corsHeaders });
+export function onRequestOptions(context: { request: Request }): Response {
+  return getPreflightResponse(context.request, METHODS);
 }
 
 export async function onRequestGet(
   context: { request: Request; env: Env },
 ): Promise<Response> {
   const { request, env } = context;
+  const cors = getCorsHeaders(request, METHODS);
 
   const sessionId = getSessionId(request);
   if (!sessionId) {
     return new Response(
       JSON.stringify({ success: false, error: 'No autenticada' }),
-      { status: 401, headers: corsHeaders },
+      { status: 401, headers: cors },
     );
   }
 
@@ -35,7 +32,7 @@ export async function onRequestGet(
   if (!raw) {
     return new Response(
       JSON.stringify({ success: false, error: 'Sesión expirada' }),
-      { status: 401, headers: corsHeaders },
+      { status: 401, headers: cors },
     );
   }
 
@@ -45,12 +42,12 @@ export async function onRequestGet(
   } catch {
     return new Response(
       JSON.stringify({ success: false, error: 'Sesión inválida' }),
-      { status: 401, headers: corsHeaders },
+      { status: 401, headers: cors },
     );
   }
 
   return new Response(
     JSON.stringify({ success: true, member: session }),
-    { status: 200, headers: corsHeaders },
+    { status: 200, headers: cors },
   );
 }

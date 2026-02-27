@@ -2,26 +2,23 @@
 // Deletes session from KV and clears cookie.
 
 import { getSessionId } from '../../_lib/session';
+import { getCorsHeaders, getPreflightResponse } from '../../_lib/cors';
 
 interface Env {
   KV: KVNamespace;
 }
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Content-Type': 'application/json',
-};
+const METHODS = 'POST, OPTIONS';
 
-export function onRequestOptions(): Response {
-  return new Response(null, { status: 204, headers: corsHeaders });
+export function onRequestOptions(context: { request: Request }): Response {
+  return getPreflightResponse(context.request, METHODS);
 }
 
 export async function onRequestPost(
   context: { request: Request; env: Env },
 ): Promise<Response> {
   const { request, env } = context;
+  const cors = getCorsHeaders(request, METHODS);
 
   const sessionId = getSessionId(request);
   if (sessionId) {
@@ -35,9 +32,6 @@ export async function onRequestPost(
 
   return new Response(
     JSON.stringify({ success: true }),
-    {
-      status: 200,
-      headers: { ...corsHeaders, 'Set-Cookie': clearCookie },
-    },
+    { status: 200, headers: { ...cors, 'Set-Cookie': clearCookie } },
   );
 }

@@ -3,6 +3,7 @@
 // Attaches session data to context.data for downstream handlers.
 
 import { getSessionId } from '../../../_lib/session';
+import { getCorsHeaders, getPreflightResponse } from '../../../_lib/cors';
 
 interface Env {
   KV: KVNamespace;
@@ -21,25 +22,20 @@ interface PortalContext {
   data: Record<string, unknown>;
 }
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Content-Type': 'application/json',
-};
+const METHODS = 'GET, POST, PUT, OPTIONS';
 
 export async function onRequest(context: PortalContext): Promise<Response> {
-  // Pass OPTIONS preflight through — downstream handlers add their own CORS.
   if (context.request.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers: corsHeaders });
+    return getPreflightResponse(context.request, METHODS);
   }
 
+  const cors = getCorsHeaders(context.request, METHODS);
   const sessionId = getSessionId(context.request);
 
   if (!sessionId) {
     return new Response(
       JSON.stringify({ success: false, error: 'No autenticada' }),
-      { status: 401, headers: corsHeaders },
+      { status: 401, headers: cors },
     );
   }
 
@@ -47,7 +43,7 @@ export async function onRequest(context: PortalContext): Promise<Response> {
   if (!raw) {
     return new Response(
       JSON.stringify({ success: false, error: 'Sesión expirada' }),
-      { status: 401, headers: corsHeaders },
+      { status: 401, headers: cors },
     );
   }
 

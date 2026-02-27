@@ -1,9 +1,9 @@
 // GET /api/auth/verify?token=xxx
 // Browser redirect endpoint — NOT a JSON API. No CORS headers.
-// Verifies magic link token from KV, creates session, sets httpOnly cookie,
-// redirects to /portal/perfil.
+// Verifies magic link token from KV, re-validates active membership,
+// creates session, sets httpOnly cookie, redirects to /portal/perfil.
 
-import { getContact, type WAContactsEnv } from '../../_lib/wa-contacts';
+import { getContact, type WAContact, type WAContactsEnv } from '../../_lib/wa-contacts';
 
 interface Env extends WAContactsEnv {
   KV: KVNamespace;
@@ -34,14 +34,19 @@ export async function onRequestGet(
     return Response.redirect(`${url.origin}/portal/login?error=token_invalid`, 302);
   }
 
-  // Delete token (single-use)
+  // Delete token (single-use) before any async work that could fail.
   await env.KV.delete(`magic_link:${token}`);
 
-  let contact;
+  let contact: WAContact;
   try {
     contact = await getContact(env, parseInt(magicData.contactId, 10));
   } catch {
     return Response.redirect(`${url.origin}/portal/login?error=contact_not_found`, 302);
+  }
+
+  // Re-validate membership — it may have lapsed between request-link and verify.
+  if (!contact.MembershipEnabled || contact.Status !== 'Active') {
+    return Response.redirect(`${url.origin}/portal/login?error=membership_inactive`, 302);
   }
 
   const sessionId = crypto.randomUUID();

@@ -1,26 +1,24 @@
 // POST /api/auth/request-link
 // Body: { email: string, turnstileToken: string }
 // Verifies Turnstile, checks WA for active membership, generates magic link token stored in KV.
-// Returns the link directly in the JSON response (v1 — no email sending).
-// TODO: replace with email delivery before go-live — returning the link in the response
-// bypasses email ownership verification. Gate behind DEV_PORTAL env var before production.
+//
+// DEV_PORTAL env var: if set to any truthy string, returns the magic link in the response body
+// for local development. In production (DEV_PORTAL unset), the link is NOT returned — email
+// delivery must be implemented before go-live to preserve email ownership verification.
 
-import { getContactByEmail, type WAContactsEnv } from '../../_lib/wa-contacts';
+import { getContactByEmail, type WAContact, type WAContactsEnv } from '../../_lib/wa-contacts';
+import { getCorsHeaders, getPreflightResponse } from '../../_lib/cors';
 
 interface Env extends WAContactsEnv {
   KV: KVNamespace;
   TURNSTILE_SECRET_KEY: string;
+  DEV_PORTAL?: string;
 }
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Content-Type': 'application/json',
-};
+const METHODS = 'POST, OPTIONS';
 
-export function onRequestOptions(): Response {
-  return new Response(null, { status: 204, headers: corsHeaders });
+export function onRequestOptions(context: { request: Request }): Response {
+  return getPreflightResponse(context.request, METHODS);
 }
 
 async function verifyTurnstile(token: string, secretKey: string, remoteip?: string): Promise<boolean> {
@@ -46,6 +44,7 @@ export async function onRequestPost(
   context: { request: Request; env: Env },
 ): Promise<Response> {
   const { request, env } = context;
+  const cors = getCorsHeaders(request, METHODS);
 
   let email: string;
   let turnstileToken: string;
@@ -56,21 +55,21 @@ export async function onRequestPost(
   } catch {
     return new Response(
       JSON.stringify({ success: false, error: 'Cuerpo de la solicitud inválido' }),
-      { status: 400, headers: corsHeaders },
+      { status: 400, headers: cors },
     );
   }
 
   if (!email || !EMAIL_RE.test(email)) {
     return new Response(
       JSON.stringify({ success: false, error: 'El email es requerido' }),
-      { status: 400, headers: corsHeaders },
+      { status: 400, headers: cors },
     );
   }
 
   if (!turnstileToken) {
     return new Response(
       JSON.stringify({ success: false, error: 'Verificación de seguridad requerida' }),
-      { status: 400, headers: corsHeaders },
+      { status: 400, headers: cors },
     );
   }
 
@@ -79,18 +78,18 @@ export async function onRequestPost(
   if (!turnstileValid) {
     return new Response(
       JSON.stringify({ success: false, error: 'Verificación de seguridad fallida. Por favor, inténtalo de nuevo.' }),
-      { status: 400, headers: corsHeaders },
+      { status: 400, headers: cors },
     );
   }
 
-  let contact;
+  let contact: WAContact | null;
   try {
     contact = await getContactByEmail(env, email);
   } catch (err) {
     console.error('WA contact lookup failed:', err);
     return new Response(
       JSON.stringify({ success: false, error: 'Error verificando membresía' }),
-      { status: 500, headers: corsHeaders },
+      { status: 500, headers: cors },
     );
   }
 
@@ -100,7 +99,7 @@ export async function onRequestPost(
         success: false,
         error: 'No se encontró una membresía activa con este email',
       }),
-      { status: 404, headers: corsHeaders },
+      { status: 404, headers: cors },
     );
   }
 
@@ -114,7 +113,16 @@ export async function onRequestPost(
     console.error('KV put failed:', err);
     return new Response(
       JSON.stringify({ success: false, error: 'Error interno del servidor' }),
-      { status: 500, headers: corsHeaders },
+      { status: 500, headers: cors },
+    );
+  }
+
+  // In production (DEV_PORTAL unset), do not return the magic link — email delivery required.
+  // Set DEV_PORTAL=true in .dev.vars to expose the link locally during development.
+  if (!env.DEV_PORTAL) {
+    return new Response(
+      JSON.stringify({ success: true }),
+      { status: 200, headers: cors },
     );
   }
 
@@ -123,6 +131,6 @@ export async function onRequestPost(
 
   return new Response(
     JSON.stringify({ success: true, magicLink }),
-    { status: 200, headers: corsHeaders },
+    { status: 200, headers: cors },
   );
 }
