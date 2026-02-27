@@ -28,7 +28,12 @@ export function PortalSuscripcionPage() {
         body: JSON.stringify({ email: member.email }),
       });
       const data = await res.json() as { success: boolean; url?: string; error?: string };
-      if (data.success && data.url) {
+      if (!res.ok) {
+        setError(data.error ?? 'No se pudo abrir el portal de suscripción.');
+        setIsRedirecting(false);
+        return;
+      }
+      if (data.url?.startsWith('https://billing.stripe.com')) {
         window.location.href = data.url;
       } else {
         setError(data.error ?? 'No se pudo abrir el portal de suscripción.');

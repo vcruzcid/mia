@@ -9,6 +9,7 @@ import { ProfileEditForm } from './ProfileEditForm';
 
 async function fetchProfile(): Promise<PortalProfileResponse> {
   const res = await fetch('/api/portal/profile', { credentials: 'include' });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json() as Promise<PortalProfileResponse>;
 }
 
@@ -19,6 +20,7 @@ async function saveProfile(data: ProfileEditFormData): Promise<{ success: boolea
     credentials: 'include',
     body: JSON.stringify(data),
   });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json() as Promise<{ success: boolean; error?: string }>;
 }
 

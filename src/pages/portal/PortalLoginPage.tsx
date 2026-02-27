@@ -79,7 +79,11 @@ export function PortalLoginPage() {
         body: JSON.stringify({ email: data.email, turnstileToken }),
       });
       const result = await res.json() as MagicLinkResponse;
-      if (result.success && result.magicLink) {
+      if (!res.ok) {
+        setSubmitError(result.error ?? 'No se pudo enviar el enlace. Inténtalo de nuevo.');
+        return;
+      }
+      if (result.magicLink) {
         setMagicLink(result.magicLink);
         setStep('sent');
       } else {
