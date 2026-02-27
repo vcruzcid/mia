@@ -4,13 +4,9 @@
 // Protected by _middleware.ts — context.data.session is guaranteed to exist.
 
 import { getContact, updateContact, type WAContactsEnv, type WAContact } from '../../_lib/wa-contacts';
+import { getCorsHeaders, getPreflightResponse } from '../../_lib/cors';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, PUT, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Content-Type': 'application/json',
-};
+const METHODS = 'GET, PUT, OPTIONS';
 
 // Discovered via GET /accounts/511043/contactfields on 2026-02-27
 const FIELD_CODES = {
@@ -144,14 +140,19 @@ function mapContactToProfile(contact: WAContact): PortalProfile {
   };
 }
 
+export function onRequestOptions(context: { request: Request }): Response {
+  return getPreflightResponse(context.request, METHODS);
+}
+
 export async function onRequestGet(
   context: { request: Request; env: Env; data: Record<string, unknown> },
 ): Promise<Response> {
+  const cors = getCorsHeaders(context.request, METHODS);
   const session = context.data['session'] as SessionData | undefined;
   if (!session) {
     return new Response(
       JSON.stringify({ success: false, error: 'No autenticada' }),
-      { status: 401, headers: corsHeaders },
+      { status: 401, headers: cors },
     );
   }
 
@@ -160,13 +161,13 @@ export async function onRequestGet(
     const profile = mapContactToProfile(contact);
     return new Response(
       JSON.stringify({ success: true, profile }),
-      { status: 200, headers: corsHeaders },
+      { status: 200, headers: cors },
     );
   } catch (err) {
     console.error('Failed to fetch contact profile:', err);
     return new Response(
       JSON.stringify({ success: false, error: 'Error obteniendo perfil' }),
-      { status: 500, headers: corsHeaders },
+      { status: 500, headers: cors },
     );
   }
 }
@@ -190,11 +191,12 @@ interface ProfileUpdateBody {
 export async function onRequestPut(
   context: { request: Request; env: Env; data: Record<string, unknown> },
 ): Promise<Response> {
+  const cors = getCorsHeaders(context.request, METHODS);
   const session = context.data['session'] as SessionData | undefined;
   if (!session) {
     return new Response(
       JSON.stringify({ success: false, error: 'No autenticada' }),
-      { status: 401, headers: corsHeaders },
+      { status: 401, headers: cors },
     );
   }
 
@@ -204,7 +206,7 @@ export async function onRequestPut(
   } catch {
     return new Response(
       JSON.stringify({ success: false, error: 'Cuerpo de la solicitud inválido' }),
-      { status: 400, headers: corsHeaders },
+      { status: 400, headers: cors },
     );
   }
 
@@ -247,13 +249,13 @@ export async function onRequestPut(
     await updateContact(context.env, contactId, updateFields);
     return new Response(
       JSON.stringify({ success: true }),
-      { status: 200, headers: corsHeaders },
+      { status: 200, headers: cors },
     );
   } catch (err) {
     console.error('Failed to update contact:', err);
     return new Response(
       JSON.stringify({ success: false, error: 'Error actualizando perfil' }),
-      { status: 500, headers: corsHeaders },
+      { status: 500, headers: cors },
     );
   }
 }

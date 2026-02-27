@@ -29,6 +29,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   token_invalid: 'El enlace de acceso no es válido o ha expirado. Por favor solicita uno nuevo.',
   token_missing: 'No se ha proporcionado un enlace de acceso. Por favor solicita uno.',
   contact_not_found: 'No encontramos ninguna socia con ese email. Comprueba tu dirección de correo.',
+  membership_inactive: 'Tu membresía no está activa. Si crees que es un error, contacta con nosotras.',
 };
 
 export function PortalLoginPage() {
