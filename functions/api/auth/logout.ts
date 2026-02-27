@@ -1,14 +1,21 @@
 // POST /api/auth/logout
 // Deletes session from KV and clears cookie.
 
+import { getSessionId } from '../../_lib/session';
+
 interface Env {
   KV: KVNamespace;
 }
 
-function getSessionId(request: Request): string | null {
-  const cookieHeader = request.headers.get('Cookie') ?? '';
-  const match = cookieHeader.match(/mia_session=([^;]+)/);
-  return match?.[1] ?? null;
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+  'Content-Type': 'application/json',
+};
+
+export function onRequestOptions(): Response {
+  return new Response(null, { status: 204, headers: corsHeaders });
 }
 
 export async function onRequestPost(
@@ -21,16 +28,16 @@ export async function onRequestPost(
     await env.KV.delete(`session:${sessionId}`);
   }
 
-  const clearCookie = 'mia_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0';
+  const isSecure = new URL(request.url).protocol === 'https:';
+  const clearCookie =
+    'mia_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0' +
+    (isSecure ? '; Secure' : '');
 
   return new Response(
     JSON.stringify({ success: true }),
     {
       status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Set-Cookie': clearCookie,
-      },
+      headers: { ...corsHeaders, 'Set-Cookie': clearCookie },
     },
   );
 }

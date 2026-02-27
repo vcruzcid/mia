@@ -2,6 +2,8 @@
 // Validates mia_session cookie against KV. Returns 401 if invalid.
 // Attaches session data to context.data for downstream handlers.
 
+import { getSessionId } from '../../../_lib/session';
+
 interface Env {
   KV: KVNamespace;
 }
@@ -19,19 +21,25 @@ interface PortalContext {
   data: Record<string, unknown>;
 }
 
-function getSessionId(request: Request): string | null {
-  const cookieHeader = request.headers.get('Cookie') ?? '';
-  const match = cookieHeader.match(/mia_session=([^;]+)/);
-  return match?.[1] ?? null;
-}
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+  'Content-Type': 'application/json',
+};
 
 export async function onRequest(context: PortalContext): Promise<Response> {
+  // Pass OPTIONS preflight through — downstream handlers add their own CORS.
+  if (context.request.method === 'OPTIONS') {
+    return new Response(null, { status: 204, headers: corsHeaders });
+  }
+
   const sessionId = getSessionId(context.request);
 
   if (!sessionId) {
     return new Response(
       JSON.stringify({ success: false, error: 'No autenticada' }),
-      { status: 401, headers: { 'Content-Type': 'application/json' } },
+      { status: 401, headers: corsHeaders },
     );
   }
 
@@ -39,7 +47,7 @@ export async function onRequest(context: PortalContext): Promise<Response> {
   if (!raw) {
     return new Response(
       JSON.stringify({ success: false, error: 'Sesión expirada' }),
-      { status: 401, headers: { 'Content-Type': 'application/json' } },
+      { status: 401, headers: corsHeaders },
     );
   }
 

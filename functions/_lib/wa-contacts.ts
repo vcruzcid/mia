@@ -42,7 +42,9 @@ async function findContactByEmail(
   headers: Record<string, string>,
   email: string,
 ): Promise<number | null> {
-  const filter = encodeURIComponent(`Email eq '${email}'`);
+  // Escape single quotes per OData convention to prevent filter injection.
+  const safeEmail = email.replace(/'/g, "''");
+  const filter = encodeURIComponent(`Email eq '${safeEmail}'`);
   const res = await fetch(
     `${baseUrl}/contacts?$filter=${filter}&$select=Id&$async=false`,
     { headers },
@@ -134,11 +136,7 @@ export async function getContactByEmail(env: WAContactsEnv, email: string): Prom
   const token = await getWAToken(env);
   const baseUrl = `https://api.wildapricot.org/v2.2/accounts/${env.WILDAPRICOT_ACCOUNT_ID}`;
   const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
-  const filter = encodeURIComponent(`Email eq '${email}'`);
-  const res = await fetch(`${baseUrl}/contacts?$filter=${filter}&$select=Id&$async=false`, { headers });
-  if (!res.ok) throw new Error(`WA contact search failed: ${res.status}`);
-  const data = await res.json() as { Contacts: Array<{ Id: number }> };
-  const id = data.Contacts?.[0]?.Id;
+  const id = await findContactByEmail(baseUrl, headers, email);
   if (!id) return null;
   return getContact(env, id);
 }

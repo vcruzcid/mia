@@ -1,14 +1,21 @@
 // GET /api/auth/me
 // Returns session member data from KV. Used by frontend to check auth state.
 
+import { getSessionId } from '../../_lib/session';
+
 interface Env {
   KV: KVNamespace;
 }
 
-function getSessionId(request: Request): string | null {
-  const cookieHeader = request.headers.get('Cookie') ?? '';
-  const match = cookieHeader.match(/mia_session=([^;]+)/);
-  return match?.[1] ?? null;
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+  'Content-Type': 'application/json',
+};
+
+export function onRequestOptions(): Response {
+  return new Response(null, { status: 204, headers: corsHeaders });
 }
 
 export async function onRequestGet(
@@ -20,7 +27,7 @@ export async function onRequestGet(
   if (!sessionId) {
     return new Response(
       JSON.stringify({ success: false, error: 'No autenticada' }),
-      { status: 401, headers: { 'Content-Type': 'application/json' } },
+      { status: 401, headers: corsHeaders },
     );
   }
 
@@ -28,14 +35,22 @@ export async function onRequestGet(
   if (!raw) {
     return new Response(
       JSON.stringify({ success: false, error: 'Sesión expirada' }),
-      { status: 401, headers: { 'Content-Type': 'application/json' } },
+      { status: 401, headers: corsHeaders },
     );
   }
 
-  const session = JSON.parse(raw) as { email: string; contactId: string; nombre: string };
+  let session: { email: string; contactId: string; nombre: string };
+  try {
+    session = JSON.parse(raw) as { email: string; contactId: string; nombre: string };
+  } catch {
+    return new Response(
+      JSON.stringify({ success: false, error: 'Sesión inválida' }),
+      { status: 401, headers: corsHeaders },
+    );
+  }
 
   return new Response(
     JSON.stringify({ success: true, member: session }),
-    { status: 200, headers: { 'Content-Type': 'application/json' } },
+    { status: 200, headers: corsHeaders },
   );
 }
