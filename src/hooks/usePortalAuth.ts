@@ -4,6 +4,7 @@ import type { AuthMeResponse } from '@/types/api';
 
 async function fetchMe(): Promise<AuthMeResponse> {
   const res = await fetch('/api/auth/me', { credentials: 'include' });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json() as Promise<AuthMeResponse>;
 }
 
