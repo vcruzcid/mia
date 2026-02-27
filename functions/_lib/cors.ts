@@ -6,6 +6,9 @@
 const ALLOWED_ORIGINS = [
   'https://animacionesmia.com',
   'https://dev.animacionesmia.com',
+  // Local dev: Vite (3000) and wrangler dev (8788)
+  'http://localhost:3000',
+  'http://localhost:8788',
 ];
 
 function getAllowedOrigin(request: Request): string {

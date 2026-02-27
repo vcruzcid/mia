@@ -138,7 +138,10 @@ export async function getContactByEmail(env: WAContactsEnv, email: string): Prom
   const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
   const id = await findContactByEmail(baseUrl, headers, email);
   if (!id) return null;
-  return getContact(env, id);
+  // Reuse headers to avoid a second getWAToken call.
+  const res = await fetch(`${baseUrl}/contacts/${id}`, { headers });
+  if (!res.ok) throw new Error(`WA getContact failed: ${res.status}`);
+  return res.json() as Promise<WAContact>;
 }
 
 export async function updateContact(

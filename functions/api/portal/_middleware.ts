@@ -47,6 +47,16 @@ export async function onRequest(context: PortalContext): Promise<Response> {
     );
   }
 
-  context.data['session'] = JSON.parse(raw) as SessionData;
+  let session: SessionData;
+  try {
+    session = JSON.parse(raw) as SessionData;
+  } catch {
+    return new Response(
+      JSON.stringify({ success: false, error: 'Sesión inválida' }),
+      { status: 401, headers: cors },
+    );
+  }
+
+  context.data['session'] = session;
   return context.next();
 }
