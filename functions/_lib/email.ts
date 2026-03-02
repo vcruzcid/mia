@@ -131,7 +131,7 @@ interface ContactData {
   message: string;
 }
 
-export async function sendContactNotification(apiKey: string, data: ContactData): Promise<void> {
+export async function sendContactNotification(apiKey: string, recipientEmail: string, data: ContactData): Promise<void> {
   const timestamp = new Date().toLocaleString('es-ES', {
     timeZone: 'Europe/Madrid',
     dateStyle: 'long',
@@ -174,7 +174,7 @@ export async function sendContactNotification(apiKey: string, data: ContactData)
 
   await sendEmail(apiKey, {
     from: 'noreply@animacionesmia.com',
-    to: 'victor@navic.us',
+    to: recipientEmail,
     reply_to: data.email,
     subject: '[MIA Website] - Contacto desde la página web',
     html: wrapInLayout(content, false),

@@ -8,7 +8,8 @@ pages_build_output_dir = "dist"
 
 [vars]
 # Public environment variables (safe to expose)
-VITE_TURNSTILE_SITE_KEY = "0x4AAAAAAClH7WCAJP8-8duv"
+VITE_TURNSTILE_SITE_KEY      = "0x4AAAAAAClH7WCAJP8-8duv"
+CONTACT_RECIPIENT_EMAIL      = "hola@animacionesmia.com"
 
 # Stripe — annual recurring Price IDs (live mode)
 STRIPE_PRICE_PLENO_DERECHO = "price_1RPHg7BWIyEInzCBpAvUsG4Y"
@@ -31,7 +32,8 @@ preview_id = "734e7db19f2b4aa9b938d9740c365cd9"
 # Uses Stripe test-mode keys and price IDs
 
 [env.preview.vars]
-VITE_TURNSTILE_SITE_KEY = "0x4AAAAAAClH7WCAJP8-8duv"
+VITE_TURNSTILE_SITE_KEY      = "0x4AAAAAAClH7WCAJP8-8duv"
+CONTACT_RECIPIENT_EMAIL      = "victor@navic.us"
 
 # Stripe — test-mode Price IDs
 STRIPE_PRICE_PLENO_DERECHO = "price_1T1d1eBWIyEInzCBDfDTNKc9"

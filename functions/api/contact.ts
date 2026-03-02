@@ -5,6 +5,7 @@ import { sendContactNotification } from '../_lib/email';
 interface Env {
   RESEND_API_KEY: string;
   TURNSTILE_SECRET_KEY: string;
+  CONTACT_RECIPIENT_EMAIL: string;
 }
 
 // Turnstile verification (same as register.ts)
@@ -79,7 +80,7 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
     }
 
     // Send email notification via Resend
-    await sendContactNotification(env.RESEND_API_KEY, {
+    await sendContactNotification(env.RESEND_API_KEY, env.CONTACT_RECIPIENT_EMAIL, {
       name: body.name,
       email: body.email,
       subject: body.subject,
