@@ -3,7 +3,6 @@ export interface MembershipType {
   name: string;
   description: string;
   price: number;
-  stripeLinkKey: keyof typeof import('../config/site.config').siteConfig.stripe;
   benefits: string[];
 }
 
@@ -62,18 +61,6 @@ export interface Member {
   membershipStatus?: 'active' | 'pending' | 'expired';
 }
 
-export interface DirectivaMember extends Member {
-  position: string;
-  responsibilities: string[];
-  yearServed: number[];
-  isCurrentMember: boolean;
-  previousPositions?: { position: string; year: number }[];
-  board_term_start?: string;
-  board_term_end?: string;
-  board_personal_commitment?: string;
-  position_history?: unknown[];
-}
-
 export interface FilterState {
   memberTypes: ('socia-pleno-derecho' | 'colaborador')[];
   specializations: string[];
@@ -85,13 +72,10 @@ export interface FilterState {
 
 export interface GalleryState {
   members: Member[];
-  directiva: DirectivaMember[];
   filters: FilterState;
   searchTerm: string;
   loading: boolean;
-  selectedYear: number;
-  availableYears: number[];
-  selectedMember: Member | DirectivaMember | null;
+  selectedMember: Member | null;
   isModalOpen: boolean;
 }
 

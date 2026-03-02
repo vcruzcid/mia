@@ -64,7 +64,7 @@ export function Footer() {
               <img
                 src="/mia-footer.png"
                 alt="MIA - Mujeres en la Industria de la Animación"
-                className="h-64 w-auto"
+                className="h-32 sm:h-48 lg:h-64 w-auto"
                 onError={(e) => {
                   // Fallback to the logo we know exists
                   (e.target as HTMLImageElement).src = "/logo-main.png";

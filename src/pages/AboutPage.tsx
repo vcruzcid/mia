@@ -117,10 +117,10 @@ export function AboutPage() {
       </BackgroundImage>
 
       {/* Section 1: Qué hace MIA */}
-      <section 
+      <section
         id="que-hace-mia"
         ref={missionAnimation.ref}
-        className="py-16 bg-white"
+        className="py-16 bg-gray-800"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -129,14 +129,14 @@ export function AboutPage() {
             }`}>
               Qué hace MIA
             </h2>
-            <p className={`mt-4 text-xl text-black max-w-3xl mx-auto transition-all duration-1000 delay-300 ${
+            <p className={`mt-4 text-xl text-gray-300 max-w-3xl mx-auto transition-all duration-1000 delay-300 ${
               missionAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}>
                 MIA - Mujeres en la Industria de la Animación es una asociación iberoamericana que promueve la
                 igualdad de género en el sector de la animación. Nuestra misión es visibilizar y fortalecer el talento
                 femenino, impulsando su presencia en todos los ámbitos de la industria: desde la creación y
                 producción hasta la dirección y liderazgo.</p>
-              <p className={`mt-4 text-xl text-black max-w-3xl mx-auto transition-all duration-1000 delay-300 ${
+              <p className={`mt-4 text-xl text-gray-300 max-w-3xl mx-auto transition-all duration-1000 delay-300 ${
               missionAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
               }`}>
                 Creamos una red de apoyo y colaboración entre mujeres con diferentes perfiles y niveles de
@@ -261,15 +261,15 @@ export function AboutPage() {
       </section>
 
       {/* Section 3: Breve Historia */}
-      <section 
+      <section
         id="breve-historia"
         ref={historyAnimation.ref}
-        className="py-16 bg-gray-50 relative overflow-hidden"
+        className="py-16 bg-gray-900 relative overflow-hidden"
       >
         {/* Parallax Background Elements */}
         <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary-200 rounded-full"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-primary-300 rounded-full"></div>
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-red-600 rounded-full"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-red-600 rounded-full"></div>
         </div>
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
@@ -279,10 +279,10 @@ export function AboutPage() {
             }`}>
               Breve Historia
             </h2>
-            <p className={`mt-4 text-xl text-black max-w-3xl mx-auto transition-all duration-1000 delay-300 ${
+            <p className={`mt-4 text-xl text-gray-300 max-w-3xl mx-auto transition-all duration-1000 delay-300 ${
               historyAnimation.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}>
-              Desde nuestros humildes comienzos hasta convertirnos en una referencia nacional 
+              Desde nuestros humildes comienzos hasta convertirnos en una referencia nacional
               en la promoción de la igualdad en la animación.
             </p>
           </div>
@@ -294,7 +294,7 @@ export function AboutPage() {
             }`} 
             style={{ transitionDelay: '500ms' }}
           >
-            <CardContent className="lg:grid lg:grid-cols-2 lg:gap-12 lg:items-center p-8">
+            <CardContent className="lg:grid lg:grid-cols-2 lg:gap-12 lg:items-center p-4 sm:p-8">
               <div>
                 <h3 className="text-2xl font-bold text-red-600 mb-4">El Comienzo de MIA</h3>
                 <p className="text-lg text-white mb-4">
@@ -335,18 +335,18 @@ export function AboutPage() {
 
           {/* Timeline */}
           <div className="relative">
-            <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-primary-200"></div>
-            
+            <div className="hidden lg:block absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-gray-600"></div>
+
             {milestones.map((milestone, index) => (
               <div
                 key={milestone.year}
-                className={`relative mb-12 ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} lg:flex lg:items-center`}
+                className={`relative mb-8 lg:mb-12 ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} lg:flex lg:items-center`}
               >
-                {/* Timeline marker */}
-                <div className={`absolute left-1/2 transform -translate-x-1/2 w-8 h-8 bg-red-600 rounded-full border-4 border-white shadow-lg transition-all duration-1000 ${
+                {/* Timeline marker — desktop only */}
+                <div className={`hidden lg:block absolute left-1/2 transform -translate-x-1/2 w-8 h-8 bg-red-600 rounded-full border-4 border-gray-900 shadow-lg transition-all duration-1000 ${
                   historyAnimation.isIntersecting ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
                 }`} style={{ transitionDelay: `${700 + index * 200}ms` }}></div>
-                
+
                 {/* Content */}
                 <div className={`lg:w-5/12 ${index % 2 === 0 ? 'lg:pr-8 lg:text-right' : 'lg:pl-8 lg:text-left'}`}>
                   <Card 

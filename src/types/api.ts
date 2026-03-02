@@ -1,4 +1,5 @@
-import type { Member, DirectivaMember, FormData, ContactFormData } from './index';
+import type { Member, FormData, ContactFormData } from './index';
+import type { BoardMember } from './member';
 
 // API Response interfaces
 export interface ApiResponse<T = unknown> {
@@ -52,10 +53,10 @@ export interface DirectivaRequest {
 
 export interface DirectivaResponse {
   year: number;
-  members: DirectivaMember[];
+  members: BoardMember[];
   positions: {
     position: string;
-    member: DirectivaMember;
+    member: BoardMember;
   }[];
   availableYears: number[];
 }
@@ -81,4 +82,37 @@ export interface TurnstileVerifyResponse {
   'error-codes'?: string[];
   challenge_ts?: string;
   hostname?: string;
+}
+
+// Portal auth types
+export interface MagicLinkResponse {
+  success: boolean;
+  magicLink?: string; // v1: returned directly (no email)
+  error?: string;
+}
+
+export interface AuthMeResponse {
+  success: boolean;
+  member?: { email: string; contactId: string; nombre: string };
+  error?: string;
+}
+
+export interface PortalProfile {
+  contactId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  bio: string;
+  city: string;
+  country: string;
+  specializations: string[];
+  socialLinks: { linkedin: string; instagram: string; twitter: string; website: string };
+  membershipLevel: string;
+  membershipStatus: string;
+}
+
+export interface PortalProfileResponse {
+  success: boolean;
+  profile?: PortalProfile;
+  error?: string;
 }
