@@ -51,6 +51,11 @@ export function useTurnstile(mode: TurnstileMode = 'render') {
 
       if (!node) return;
 
+      if (!siteConfig.turnstile.sitekey) {
+        console.error('[useTurnstile] VITE_TURNSTILE_SITE_KEY is undefined. Add it to .env.development.local for local dev.');
+        return;
+      }
+
       const mount = (): boolean => {
         if (!window.turnstile) return false;
         widgetIdRef.current = window.turnstile.render(node, {
