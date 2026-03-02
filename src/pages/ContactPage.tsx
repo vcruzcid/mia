@@ -21,6 +21,10 @@ declare global {
         opts: {
           sitekey: string;
           execution: 'execute' | 'render';
+<<<<<<< fix/remove-secret
+=======
+          appearance?: 'always' | 'execute' | 'interaction-only' | 'never';
+>>>>>>> dev
           callback: (t: string) => void;
           'expired-callback': () => void;
         }
