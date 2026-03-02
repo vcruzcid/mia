@@ -10,27 +10,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SocialMediaIcons } from '@/components/SocialMediaIcons';
 import { Accordion } from '@/components/ui/accordion';
-import { useEffect, useRef, useState } from 'react';
-import { siteConfig } from '@/config/site.config';
-
-declare global {
-  interface Window {
-    turnstile?: {
-      render: (
-        el: HTMLElement,
-        opts: {
-          sitekey: string;
-          execution: 'execute' | 'render';
-          appearance?: 'always' | 'execute' | 'interaction-only' | 'never';
-          callback: (t: string) => void;
-          'expired-callback': () => void;
-        }
-      ) => string;
-      execute: (widgetId: string) => void;
-      remove: (id: string) => void;
-    };
-  }
-}
+import { useEffect, useRef } from 'react';
+import { useTurnstile } from '@/hooks/useTurnstile';
 
 export function ContactPage() {
   const { toast } = useToastContext();
@@ -48,10 +29,8 @@ export function ContactPage() {
     resolver: zodResolver(contactFormSchema),
   });
 
-  const turnstileRef = useRef<HTMLDivElement>(null);
-  const widgetIdRef = useRef<string | null>(null);
-  const [turnstileToken, setTurnstileToken] = useState('');
   const pendingDataRef = useRef<ContactFormData | null>(null);
+  const { containerRef, token: turnstileToken, execute: executeTurnstile } = useTurnstile('execute');
 
   useEffect(() => {
     if (subjectFromState) {
@@ -59,30 +38,14 @@ export function ContactPage() {
     }
   }, [subjectFromState, setValue]);
 
-  // Mount Turnstile in execute mode on component mount
+  // When the token arrives after execute(), submit any pending form data
   useEffect(() => {
-    if (!turnstileRef.current || !window.turnstile) return;
-    widgetIdRef.current = window.turnstile.render(turnstileRef.current, {
-      sitekey: siteConfig.turnstile.sitekey,
-      execution: 'execute',
-      callback: (token) => {
-        setTurnstileToken(token);
-        // If form data is pending (submit was clicked before token was ready), submit now
-        if (pendingDataRef.current) {
-          void submitToApi(pendingDataRef.current, token);
-          pendingDataRef.current = null;
-        }
-      },
-      'expired-callback': () => setTurnstileToken(''),
-    });
-    return () => {
-      if (widgetIdRef.current) {
-        window.turnstile?.remove(widgetIdRef.current);
-        widgetIdRef.current = null;
-      }
-    };
+    if (turnstileToken && pendingDataRef.current) {
+      void submitToApi(pendingDataRef.current, turnstileToken);
+      pendingDataRef.current = null;
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [turnstileToken]);
 
   const submitToApi = async (data: ContactFormData, token: string) => {
     await withLoading(async () => {
@@ -124,11 +87,9 @@ export function ContactPage() {
 
   const onSubmit = async (data: ContactFormData) => {
     if (!turnstileToken) {
-      // Trigger challenge — submitToApi will be called from the callback
+      // Trigger challenge — submitToApi will be called from the token useEffect
       pendingDataRef.current = data;
-      if (widgetIdRef.current) {
-        window.turnstile?.execute(widgetIdRef.current);
-      }
+      executeTurnstile();
       return;
     }
     await submitToApi(data, turnstileToken);
@@ -283,7 +244,7 @@ export function ContactPage() {
 
                   <div className="pt-4">
                     {/* Hidden Turnstile widget — triggered on submit */}
-                    <div ref={turnstileRef} className="hidden" />
+                    <div ref={containerRef} className="hidden" />
 
                     <Button
                       type="submit"

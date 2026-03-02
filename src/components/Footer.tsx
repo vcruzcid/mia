@@ -1,44 +1,8 @@
 import { Facebook, Twitter, Instagram, Linkedin, Mail } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { contactFormSchema, type ContactFormData } from '@/utils/validation';
-import { useToastContext } from '@/contexts/ToastContext';
+import { Link } from 'react-router-dom';
 import { FooterLink } from './FooterLink';
 
 export function Footer() {
-  const { toast } = useToastContext();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-    reset,
-  } = useForm<ContactFormData>({
-    resolver: zodResolver(contactFormSchema),
-  });
-
-  const onSubmit = async (_: ContactFormData) => {
-    try {
-      // Here you would typically send the data to your backend
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      toast({
-        title: 'Mensaje enviado',
-        description: 'Te contactaremos pronto.',
-        variant: 'success'
-      });
-      reset();
-    } catch (_error) {      toast({
-        title: 'Error al enviar',
-        description: 'Hubo un problema. Inténtalo de nuevo.',
-        variant: 'destructive'
-      });
-    }
-  };
-
   return (
     <footer className="bg-black text-white py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -123,84 +87,42 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Right Column - Contact Form */}
-          <div className="lg:col-span-3 space-y-4">
-            <h3 className="text-lg font-semibold mb-4">ESCRÍBENOS</h3>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div>
-                <Label htmlFor="footer-name" className="block text-sm font-medium text-gray-300">
-                  Nombre completo *
-                </Label>
-                <input
-                  id="footer-name"
-                  type="text"
-                  {...register('name')}
-                  className="mt-1 block w-full rounded-md bg-gray-900 border-gray-700 text-white placeholder-gray-500 shadow-sm focus:border-red-500 focus:ring-red-500"
-                  placeholder="Tu nombre completo"
-                />
-                {errors.name && (
-                  <p className="mt-1 text-sm text-red-400">{errors.name.message}</p>
-                )}
-              </div>
-
-              <div>
-                <Label htmlFor="footer-email" className="block text-sm font-medium text-gray-300">
-                  Email *
-                </Label>
-                <input
-                  id="footer-email"
-                  type="email"
-                  {...register('email')}
-                  className="mt-1 block w-full rounded-md bg-gray-900 border-gray-700 text-white placeholder-gray-500 shadow-sm focus:border-red-500 focus:ring-red-500"
-                  placeholder="tu@email.com"
-                />
-                {errors.email && (
-                  <p className="mt-1 text-sm text-red-400">{errors.email.message}</p>
-                )}
-              </div>
-
-              <div>
-                <Label htmlFor="footer-subject" className="block text-sm font-medium text-gray-300">
-                  Asunto *
-                </Label>
-                <input
-                  id="footer-subject"
-                  type="text"
-                  {...register('subject')}
-                  className="mt-1 block w-full rounded-md bg-gray-900 border-gray-700 text-white placeholder-gray-500 shadow-sm focus:border-red-500 focus:ring-red-500"
-                  placeholder="¿En qué podemos ayudarte?"
-                />
-                {errors.subject && (
-                  <p className="mt-1 text-sm text-red-400">{errors.subject.message}</p>
-                )}
-              </div>
-
-              <div>
-                <Label htmlFor="footer-message" className="block text-sm font-medium text-gray-300">
-                  Mensaje *
-                </Label>
-                <textarea
-                  id="footer-message"
-                  rows={4}
-                  {...register('message')}
-                  className="mt-1 block w-full rounded-md bg-gray-900 border-gray-700 text-white placeholder-gray-500 shadow-sm focus:border-red-500 focus:ring-red-500 resize-none"
-                  placeholder="Cuéntanos más detalles sobre tu consulta..."
-                />
-                {errors.message && (
-                  <p className="mt-1 text-sm text-red-400">{errors.message.message}</p>
-                )}
-              </div>
-
-              <div className="pt-2">
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-                >
-                  {isSubmitting ? 'Enviando...' : 'ENVIAR'}
-                </Button>
-              </div>
-            </form>
+          {/* Right Column - Membership CTA */}
+          <div className="lg:col-span-3 flex flex-col justify-between h-full">
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">ÚNETE A MIA</h3>
+              <p className="text-sm text-gray-300">
+                Forma parte de la red de mujeres profesionales de la animación en España.
+              </p>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
+                  Socia de Pleno Derecho
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
+                  Socia Estudiante
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
+                  Socia Colaboradora
+                </li>
+              </ul>
+            </div>
+            <div className="flex flex-col gap-3 pt-6">
+              <Link
+                to="/registro"
+                className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded text-center text-sm transition-colors duration-200"
+              >
+                ÚNETE A MIA
+              </Link>
+              <Link
+                to="/membresia"
+                className="w-full border border-gray-600 hover:border-gray-400 text-gray-300 hover:text-white font-medium py-2 px-4 rounded text-center text-sm transition-colors duration-200"
+              >
+                Ver membresías
+              </Link>
+            </div>
           </div>
         </div>
 
