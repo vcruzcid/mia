@@ -51,7 +51,8 @@ export function useTurnstile(mode: TurnstileMode = 'render') {
 
       if (!node) return;
 
-      if (!siteConfig.turnstile.sitekey) {
+      const sitekey = siteConfig.turnstile.sitekey;
+      if (!sitekey) {
         console.error('[useTurnstile] VITE_TURNSTILE_SITE_KEY is undefined. Add it to .env.development.local for local dev.');
         return;
       }
@@ -59,7 +60,7 @@ export function useTurnstile(mode: TurnstileMode = 'render') {
       const mount = (): boolean => {
         if (!window.turnstile) return false;
         widgetIdRef.current = window.turnstile.render(node, {
-          sitekey: siteConfig.turnstile.sitekey,
+          sitekey,
           ...(mode === 'execute' ? { execution: 'execute' } : {}),
           callback: (t: string) => setToken(t),
           'expired-callback': () => setToken(''),
