@@ -174,7 +174,7 @@ export async function sendContactNotification(apiKey: string, data: ContactData)
 
   await sendEmail(apiKey, {
     from: 'noreply@animacionesmia.com',
-    to: 'victor@navic.com',
+    to: 'hola@animacionesmia.com',
     reply_to: data.email,
     subject: '[MIA Website] - Contacto desde la página web',
     html: wrapInLayout(content, false),
