@@ -8,7 +8,7 @@ pages_build_output_dir = "dist"
 
 [vars]
 # Public environment variables (safe to expose)
-VITE_STRIPE_PUBLIC_KEY  = "pk_test_51JUuCEBWIyEInzCB9yxYOnEOxa6aRgFZVVt9n0Q064U2hb2Z43RJjxB3MLzRuJs0IMx2vOf1C7mGuDBSSwFQRQ7100ytJ8COQI"
+VITE_STRIPE_PUBLIC_KEY  = "pk_live_51JUuCEBWIyEInzCBBa0O16pm96fHzxgTByCsr3Gwpf7ztLuHoHfQLnAIFlZTEMudhJLWevfxCdNiWAj4rE2GyDJX00VG6zSgfl"
 VITE_TURNSTILE_SITE_KEY = "0x4AAAAAAClH7WCAJP8-8duv"
 
 # Stripe — annual recurring Price IDs (live mode)
