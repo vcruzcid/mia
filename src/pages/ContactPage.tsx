@@ -10,14 +10,33 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SocialMediaIcons } from '@/components/SocialMediaIcons';
 import { Accordion } from '@/components/ui/accordion';
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { siteConfig } from '@/config/site.config';
+
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (
+        el: HTMLElement,
+        opts: {
+          sitekey: string;
+          execution: 'execute' | 'render';
+          callback: (t: string) => void;
+          'expired-callback': () => void;
+        }
+      ) => string;
+      execute: (widgetId: string) => void;
+      remove: (id: string) => void;
+    };
+  }
+}
 
 export function ContactPage() {
   const { toast } = useToastContext();
   const { withLoading } = useAsyncLoading();
   const location = useLocation();
   const subjectFromState = (location.state as { subject?: string })?.subject;
-  
+
   const {
     register,
     handleSubmit,
@@ -28,13 +47,43 @@ export function ContactPage() {
     resolver: zodResolver(contactFormSchema),
   });
 
+  const turnstileRef = useRef<HTMLDivElement>(null);
+  const widgetIdRef = useRef<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState('');
+  const pendingDataRef = useRef<ContactFormData | null>(null);
+
   useEffect(() => {
     if (subjectFromState) {
       setValue('subject', subjectFromState);
     }
   }, [subjectFromState, setValue]);
 
-  const onSubmit = async (data: ContactFormData) => {
+  // Mount Turnstile in execute mode on component mount
+  useEffect(() => {
+    if (!turnstileRef.current || !window.turnstile) return;
+    widgetIdRef.current = window.turnstile.render(turnstileRef.current, {
+      sitekey: siteConfig.turnstile.sitekey,
+      execution: 'execute',
+      callback: (token) => {
+        setTurnstileToken(token);
+        // If form data is pending (submit was clicked before token was ready), submit now
+        if (pendingDataRef.current) {
+          void submitToApi(pendingDataRef.current, token);
+          pendingDataRef.current = null;
+        }
+      },
+      'expired-callback': () => setTurnstileToken(''),
+    });
+    return () => {
+      if (widgetIdRef.current) {
+        window.turnstile?.remove(widgetIdRef.current);
+        widgetIdRef.current = null;
+      }
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const submitToApi = async (data: ContactFormData, token: string) => {
     await withLoading(async () => {
       try {
         const response = await fetch('/api/contact', {
@@ -45,7 +94,7 @@ export function ContactPage() {
             email: data.email,
             subject: data.subject,
             message: data.message,
-            turnstileToken: data.turnstileToken || '',
+            turnstileToken: token,
           }),
         });
 
@@ -61,6 +110,7 @@ export function ContactPage() {
           variant: 'success'
         });
         reset();
+        setTurnstileToken('');
       } catch (error) {
         toast({
           title: 'Error al enviar',
@@ -69,6 +119,18 @@ export function ContactPage() {
         });
       }
     }, 'Enviando mensaje...');
+  };
+
+  const onSubmit = async (data: ContactFormData) => {
+    if (!turnstileToken) {
+      // Trigger challenge — submitToApi will be called from the callback
+      pendingDataRef.current = data;
+      if (widgetIdRef.current) {
+        window.turnstile?.execute(widgetIdRef.current);
+      }
+      return;
+    }
+    await submitToApi(data, turnstileToken);
   };
 
   return (
@@ -91,7 +153,7 @@ export function ContactPage() {
               <h2 className="text-2xl font-semibold mb-6" style={{ color: 'var(--color-text-primary)' }}>
                 Información de contacto
               </h2>
-              
+
                               <div className="space-y-8">
                 <div className="flex items-start">
                   <svg className="h-6 w-6 text-primary-600 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -130,7 +192,7 @@ export function ContactPage() {
                     Síguenos en redes sociales
                   </h3>
                   <div className="flex justify-center">
-                    <SocialMediaIcons 
+                    <SocialMediaIcons
                       socialMedia={{
                         linkedin: 'https://linkedin.com/company/animacionesmia',
                         twitter: 'https://twitter.com/animacionesmia',
@@ -219,13 +281,16 @@ export function ContactPage() {
                 </div>
 
                 <div className="pt-4">
+                  {/* Hidden Turnstile widget — triggered on submit */}
+                  <div ref={turnstileRef} className="hidden" />
+
                   <Button
                     type="submit"
                     disabled={isSubmitting}
                     className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-                    style={{ 
-                      backgroundColor: 'var(--color-btn-primary-bg)', 
-                      color: 'var(--color-btn-primary-text)' 
+                    style={{
+                      backgroundColor: 'var(--color-btn-primary-bg)',
+                      color: 'var(--color-btn-primary-text)'
                     }}
                   >
                     {isSubmitting ? 'Enviando...' : 'Enviar mensaje'}
@@ -244,7 +309,7 @@ export function ContactPage() {
               <h2 className="text-2xl font-semibold mb-8 text-center" style={{ color: 'var(--color-text-primary)' }}>
                 Preguntas frecuentes
               </h2>
-              
+
               <Accordion
                 items={[
                   {

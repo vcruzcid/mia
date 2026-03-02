@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 
 interface MagicLinkSentStepProps {
-  magicLink: string;
+  magicLink?: string | null;
   isSubmitting: boolean;
   onBack: () => void;
 }
@@ -11,6 +11,7 @@ export function MagicLinkSentStep({ magicLink, isSubmitting, onBack }: MagicLink
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
+    if (!magicLink) return;
     try {
       await navigator.clipboard.writeText(magicLink);
       setCopied(true);
@@ -28,35 +29,42 @@ export function MagicLinkSentStep({ magicLink, isSubmitting, onBack }: MagicLink
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h3 className="mt-2 text-lg font-medium text-white">Enlace generado</h3>
+        <h3 className="mt-2 text-lg font-medium text-white">Enlace enviado</h3>
         <p className="mt-1 text-sm text-gray-300">
-          Tu enlace de acceso es válido durante 15 minutos.
+          {magicLink
+            ? 'Tu enlace de acceso es válido durante 15 minutos.'
+            : 'Hemos enviado un enlace de acceso a tu correo electrónico. Es válido durante 15 minutos. Revisa también tu carpeta de spam.'}
         </p>
       </div>
 
-      <a
-        href={magicLink}
-        className="block w-full text-center py-3 px-4 rounded-md bg-red-600 hover:bg-red-700 text-white font-medium transition-colors text-sm"
-      >
-        Acceder al portal
-      </a>
+      {magicLink ? (
+        // DEV mode — show direct access buttons
+        <>
+          <a
+            href={magicLink}
+            className="block w-full text-center py-3 px-4 rounded-md bg-red-600 hover:bg-red-700 text-white font-medium transition-colors text-sm"
+          >
+            Acceder al portal
+          </a>
 
-      <Button
-        variant="ghost"
-        onClick={() => void handleCopy()}
-        className="w-full border border-gray-600 text-gray-300 hover:text-white hover:bg-gray-700"
-      >
-        {copied ? (
-          <span className="flex items-center justify-center gap-2">
-            <svg className="h-4 w-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-            Enlace copiado
-          </span>
-        ) : (
-          'Copiar enlace'
-        )}
-      </Button>
+          <Button
+            variant="ghost"
+            onClick={() => void handleCopy()}
+            className="w-full border border-gray-600 text-gray-300 hover:text-white hover:bg-gray-700"
+          >
+            {copied ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="h-4 w-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                Enlace copiado
+              </span>
+            ) : (
+              'Copiar enlace'
+            )}
+          </Button>
+        </>
+      ) : null}
 
       <div className="flex flex-col gap-2 text-center">
         <button

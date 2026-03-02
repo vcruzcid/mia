@@ -1,8 +1,9 @@
 // Cloudflare Pages Function for contact form with Turnstile verification
 import type { ContactRequest, ContactResponse, TurnstileVerifyResponse } from '../../src/types/api';
+import { sendContactNotification } from '../_lib/email';
 
 interface Env {
-  ZAPIER_WEBHOOK_URL: string;
+  RESEND_API_KEY: string;
   TURNSTILE_SECRET_KEY: string;
 }
 
@@ -52,7 +53,7 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
     // Validate required fields
     const requiredFields = ['name', 'email', 'subject', 'message', 'turnstileToken'];
     const missingFields = requiredFields.filter(field => !body[field as keyof ContactRequest]);
-    
+
     if (missingFields.length > 0) {
       return new Response(
         JSON.stringify({
@@ -77,37 +78,13 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
       );
     }
 
-    // Prepare data for Zapier webhook
-    const webhookData = {
+    // Send email notification via Resend
+    await sendContactNotification(env.RESEND_API_KEY, {
       name: body.name,
       email: body.email,
       subject: body.subject,
       message: body.message,
-      timestamp: new Date().toISOString(),
-      source: 'mia-contact-form',
-      userAgent: request.headers.get('User-Agent') || '',
-      ip: clientIP || '',
-    };
-
-    // Send to Zapier webhook
-    const zapierResponse = await fetch(env.ZAPIER_WEBHOOK_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(webhookData),
     });
-
-    if (!zapierResponse.ok) {
-      console.error('Zapier webhook failed:', zapierResponse.status, zapierResponse.statusText);
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: 'Error enviando mensaje. Por favor, inténtalo de nuevo.',
-        }),
-        { status: 500, headers: corsHeaders }
-      );
-    }
 
     // Generate response
     const response: ContactResponse = {
@@ -122,7 +99,7 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
 
   } catch (error) {
     console.error('Contact form error:', error);
-    
+
     return new Response(
       JSON.stringify({
         success: false,
