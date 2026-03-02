@@ -29,7 +29,7 @@ export function PortalLoginPage() {
   const [magicLink, setMagicLink] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const { containerRef, token: turnstileToken } = useTurnstile('render');
+  const { containerRef, token: turnstileToken, resetWidget: resetTurnstile } = useTurnstile('render');
 
   const errorParam = searchParams.get('error');
   const urlError = errorParam ? (ERROR_MESSAGES[errorParam] ?? 'Error de autenticación. Inténtalo de nuevo.') : null;
@@ -152,7 +152,7 @@ export function PortalLoginPage() {
               <MagicLinkSentStep
                 magicLink={magicLink}
                 isSubmitting={isSubmitting}
-                onBack={() => { setStep('email'); setMagicLink(null); setSubmitError(null); setTurnstileToken(''); }}
+                onBack={() => { setStep('email'); setMagicLink(null); setSubmitError(null); resetTurnstile(); }}
               />
             )}
           </CardContent>

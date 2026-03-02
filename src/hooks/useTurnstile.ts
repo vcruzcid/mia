@@ -15,6 +15,7 @@ declare global {
         }
       ) => string;
       execute: (widgetId: string) => void;
+      reset: (widgetId: string) => void;
       remove: (widgetId: string) => void;
     };
   }
@@ -29,8 +30,8 @@ type TurnstileMode = 'execute' | 'render';
  * (mounts/unmounts). Polls until window.turnstile is available, resolving the
  * race condition with the async-loaded Turnstile script.
  *
- * @param mode 'execute' — hidden widget, call execute() manually on submit.
- *             'render' — interactive widget visible to the user.
+ * @param mode 'execute' — deferred challenge, call execute() manually on submit.
+ *             'render' — challenge runs automatically on widget mount.
  */
 export function useTurnstile(mode: TurnstileMode = 'render') {
   const [token, setToken] = useState('');
@@ -87,5 +88,12 @@ export function useTurnstile(mode: TurnstileMode = 'render') {
     }
   };
 
-  return { containerRef, token, execute };
+  const resetWidget = () => {
+    if (widgetIdRef.current) {
+      window.turnstile?.reset(widgetIdRef.current);
+    }
+    setToken('');
+  };
+
+  return { containerRef, token, execute, resetWidget };
 }
