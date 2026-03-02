@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,18 +10,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { loginSchema, type LoginFormData } from '@/schemas/portalSchema';
-import { siteConfig } from '@/config/site.config';
 import { MagicLinkSentStep } from './MagicLinkSentStep';
+import { useTurnstile } from '@/hooks/useTurnstile';
 import type { MagicLinkResponse } from '@/types/api';
-
-declare global {
-  interface Window {
-    turnstile?: {
-      render: (el: HTMLElement, opts: { sitekey: string; callback: (t: string) => void; 'expired-callback': () => void }) => string;
-      remove: (id: string) => void;
-    };
-  }
-}
 
 type PageStep = 'email' | 'sent';
 
@@ -38,9 +29,7 @@ export function PortalLoginPage() {
   const [magicLink, setMagicLink] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [turnstileToken, setTurnstileToken] = useState('');
-  const turnstileRef = useRef<HTMLDivElement>(null);
-  const widgetIdRef = useRef<string | null>(null);
+  const { containerRef, token: turnstileToken } = useTurnstile('render');
 
   const errorParam = searchParams.get('error');
   const urlError = errorParam ? (ERROR_MESSAGES[errorParam] ?? 'Error de autenticación. Inténtalo de nuevo.') : null;
@@ -52,22 +41,6 @@ export function PortalLoginPage() {
   useEffect(() => {
     if (urlError) setStep('email');
   }, [urlError]);
-
-  // Mount Turnstile widget when on the email step
-  useEffect(() => {
-    if (step !== 'email' || !turnstileRef.current || !window.turnstile) return;
-    widgetIdRef.current = window.turnstile.render(turnstileRef.current, {
-      sitekey: siteConfig.turnstile.sitekey,
-      callback: (token) => setTurnstileToken(token),
-      'expired-callback': () => setTurnstileToken(''),
-    });
-    return () => {
-      if (widgetIdRef.current) {
-        window.turnstile?.remove(widgetIdRef.current);
-        widgetIdRef.current = null;
-      }
-    };
-  }, [step]);
 
   const onSubmit = async (data: LoginFormData) => {
     setSubmitError(null);
@@ -144,7 +117,9 @@ export function PortalLoginPage() {
                   )}
                 </div>
 
-                <div ref={turnstileRef} />
+                <div className="flex justify-center">
+                  <div ref={containerRef} />
+                </div>
 
                 <Button
                   type="submit"

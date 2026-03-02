@@ -27,17 +27,14 @@ a public member gallery, and a member portal.
 - **Token cache:** Cloudflare KV — WildApricot OAuth token
 - **Bot protection:** Cloudflare Turnstile — all public forms
 - **Membership CRM:** WildApricot REST API v2.2
-- **Payments:** Stripe Payment Links (current) → WildApricot native gateway (planned)
+- **Payments:** Stripe Checkout Sessions (current) → WildApricot native gateway (planned)
 - **Membership emails:** WildApricot native (welcome, renewal, expiry)
-- **Marketing email:** Mailchimp via Make.com — zero app code
 - **Node.js:** 24.x (Active LTS) — required, see `.nvmrc`
 
 ## What We Are NOT Using
 - ~~Supabase~~ — replaced by Cloudflare D1. Supabase MCP is kept as **read-only** for migrating existing photo URLs to R2. Do not write to Supabase or add new Supabase dependencies.
 - ~~Express/Node server~~ — Cloudflare Workers only
-- ~~Mailchimp SDK~~ — Make.com handles sync
 - ~~reCAPTCHA~~ — Cloudflare Turnstile only
-- ~~Zapier~~ — removed, contact form uses direct email notification
 - ~~Discount codes in app code~~ — managed in WildApricot admin dashboard
 
 ---
@@ -164,9 +161,10 @@ CREATE INDEX IF NOT EXISTS idx_mostrar ON members(mostrar_galeria);
 
 1. User selects membership on `/registro`
 2. Accepts TOS + GDPR
-3. Redirects to Stripe Payment Link from `siteConfig.stripe`
-4. Stripe handles checkout
-5. **No post-payment WA sync yet** — to be added
+3. POSTs to `/api/create-checkout-session` with `{ membershipType }`
+4. Worker returns `{ url }` — frontend redirects to Stripe-hosted checkout
+5. Stripe handles payment and redirects to `/registro/exito`
+6. **No post-payment WA sync yet** — to be added
 
 **Discount codes:** Managed in WildApricot admin dashboard — NOT in app code. Do not add discount code UI or logic to RegistrationPage.
 
