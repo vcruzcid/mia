@@ -2,12 +2,27 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
 import { VitePWA } from 'vite-plugin-pwa'
 import tailwindcss from '@tailwindcss/vite'
+import fs from 'node:fs'
+import path from 'node:path'
+
+// Cloudflare Pages SPA fallback: copy index.html → 404.html so unmatched
+// routes serve the app shell instead of a bare 404.
+function spaFallback(): import('vite').Plugin {
+  return {
+    name: 'spa-fallback',
+    closeBundle() {
+      const dir = path.resolve(__dirname, 'dist')
+      fs.copyFileSync(path.join(dir, 'index.html'), path.join(dir, '404.html'))
+    },
+  }
+}
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
+    spaFallback(),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'logo-main.png'],
