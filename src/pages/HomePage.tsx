@@ -233,10 +233,10 @@ export function HomePage() {
 
 
       {/* Recent Achievements Section */}
-      <div className="py-16 bg-white">
+      <div className="py-16 bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-base text-primary-600 font-semibold tracking-wide uppercase">
+            <h2 className="text-base text-red-600 font-semibold tracking-wide uppercase">
               NUESTROS LOGROS
             </h2>
             <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl" style={{ color: 'var(--color-primary)' }}>
@@ -245,16 +245,16 @@ export function HomePage() {
           </div>
 
           <div className="mt-12 grid gap-8 lg:grid-cols-2">
-            <Card className="bg-gradient-to-r from-primary-50 to-primary-100">
+            <Card className="bg-gray-700">
               <CardContent className="flex items-start">
                 <div className="flex-shrink-0">
-                  <div className="flex items-center justify-center h-12 w-12 rounded-md bg-primary-500 text-white">
+                  <div className="flex items-center justify-center h-12 w-12 rounded-md bg-red-600 text-white">
                     👥
                   </div>
                 </div>
                 <div className="ml-4">
-                  <h3 className="text-lg font-medium text-gray-900">Red de socias</h3>
-                  <p className="mt-2 text-gray-600">
+                  <h3 className="text-lg font-medium text-white">Red de socias</h3>
+                  <p className="mt-2 text-gray-300">
                     Profesionales iberoamericanas de más de 10 países diferentes forman parte de MIA,
                     creando una comunidad sólida y colaborativa.
                   </p>
@@ -262,16 +262,16 @@ export function HomePage() {
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-r from-primary-50 to-primary-100">
+            <Card className="bg-gray-700">
               <CardContent className="flex items-start">
                 <div className="flex-shrink-0">
-                  <div className="flex items-center justify-center h-12 w-12 rounded-md bg-primary-500 text-white">
+                  <div className="flex items-center justify-center h-12 w-12 rounded-md bg-red-600 text-white">
                     📊
                   </div>
                 </div>
                 <div className="ml-4">
-                  <h3 className="text-lg font-medium text-gray-900">Informe MIA</h3>
-                  <p className="mt-2 text-gray-600">
+                  <h3 className="text-lg font-medium text-white">Informe MIA</h3>
+                  <p className="mt-2 text-gray-300">
                     Publicación bienal que analiza la situación de las mujeres en la animación en
                     España, destacando avances y áreas de mejora.
                   </p>
@@ -279,16 +279,16 @@ export function HomePage() {
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-r from-primary-50 to-primary-100">
+            <Card className="bg-gray-700">
               <CardContent className="flex items-start">
                 <div className="flex-shrink-0">
-                  <div className="flex items-center justify-center h-12 w-12 rounded-md bg-primary-500 text-white">
+                  <div className="flex items-center justify-center h-12 w-12 rounded-md bg-red-600 text-white">
                     🎯
                   </div>
                 </div>
                 <div className="ml-4">
-                  <h3 className="text-lg font-medium text-gray-900">MIANIMA</h3>
-                  <p className="mt-2 text-gray-600">
+                  <h3 className="text-lg font-medium text-white">MIANIMA</h3>
+                  <p className="mt-2 text-gray-300">
                     Programa de mentoría y pitching enfocado a impulsar los proyectos liderados
                     por mujeres, algunos de los cuales han sido seleccionados en festivales internacionales
                     como Annecy, Cartoon Business, los Goya.
@@ -297,16 +297,16 @@ export function HomePage() {
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-r from-primary-50 to-primary-100">
+            <Card className="bg-gray-700">
               <CardContent className="flex items-start">
                 <div className="flex-shrink-0">
-                  <div className="flex items-center justify-center h-12 w-12 rounded-md bg-primary-500 text-white">
+                  <div className="flex items-center justify-center h-12 w-12 rounded-md bg-red-600 text-white">
                     🌍
                   </div>
                 </div>
                 <div className="ml-4">
-                  <h3 className="text-lg font-medium text-gray-900">Participación en festivales</h3>
-                  <p className="mt-2 text-gray-600">
+                  <h3 className="text-lg font-medium text-white">Participación en festivales</h3>
+                  <p className="mt-2 text-gray-300">
                     Representamos la asociación en eventos nacionales e
                     internacionales, promoviendo el talento femenino y participando en paneles y espacios
                     dedicados a abrir el diálogo sobre las cuestiones existentes de género en la industria de la
