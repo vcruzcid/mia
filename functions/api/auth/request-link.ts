@@ -1,17 +1,20 @@
 // POST /api/auth/request-link
 // Body: { email: string, turnstileToken: string }
-// Verifies Turnstile, checks WA for active membership, generates magic link token stored in KV.
+// Verifies Turnstile, checks WA for active membership, generates magic link token stored in KV,
+// and sends the link via Resend email.
 //
-// DEV_PORTAL env var: if set to any truthy string, returns the magic link in the response body
-// for local development. In production (DEV_PORTAL unset), the link is NOT returned — email
-// delivery must be implemented before go-live to preserve email ownership verification.
+// DEV_PORTAL env var: if set to any truthy string, also returns the magic link in the response body
+// for local development. In production (DEV_PORTAL unset), the link is NOT returned — email is
+// the only delivery mechanism.
 
 import { getContactByEmail, type WAContact, type WAContactsEnv } from '../../_lib/wa-contacts';
 import { getCorsHeaders, getPreflightResponse } from '../../_lib/cors';
+import { sendMagicLinkEmail } from '../../_lib/email';
 
 interface Env extends WAContactsEnv {
   KV: KVNamespace;
   TURNSTILE_SECRET_KEY: string;
+  RESEND_API_KEY: string;
   DEV_PORTAL?: string;
 }
 
@@ -117,20 +120,30 @@ export async function onRequestPost(
     );
   }
 
-  // In production (DEV_PORTAL unset), do not return the magic link — email delivery required.
-  // Set DEV_PORTAL=true in .dev.vars to expose the link locally during development.
-  if (!env.DEV_PORTAL) {
+  const origin = new URL(request.url).origin;
+  const magicLink = `${origin}/api/auth/verify?token=${token}`;
+
+  // Send magic link email (always, including DEV)
+  try {
+    await sendMagicLinkEmail(env.RESEND_API_KEY, email, magicLink);
+  } catch (err) {
+    console.error('Failed to send magic link email:', err);
     return new Response(
-      JSON.stringify({ success: true }),
+      JSON.stringify({ success: false, error: 'Error enviando el enlace de acceso. Por favor, inténtalo de nuevo.' }),
+      { status: 500, headers: cors },
+    );
+  }
+
+  // In DEV, also return the link in the response for easy testing
+  if (env.DEV_PORTAL) {
+    return new Response(
+      JSON.stringify({ success: true, magicLink }),
       { status: 200, headers: cors },
     );
   }
 
-  const origin = new URL(request.url).origin;
-  const magicLink = `${origin}/api/auth/verify?token=${token}`;
-
   return new Response(
-    JSON.stringify({ success: true, magicLink }),
+    JSON.stringify({ success: true }),
     { status: 200, headers: cors },
   );
 }
