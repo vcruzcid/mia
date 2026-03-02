@@ -93,8 +93,8 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
 
       const { firstName, lastName } = splitName(fullName);
 
-      await createOrUpdateContact(env, { email, firstName, lastName, membershipType });
-      console.log(`WA contact created/updated for ${email} (${membershipType})`);
+      const contactId = await createOrUpdateContact(env, { email, firstName, lastName, membershipType });
+      console.log(`WA contact created/updated for ${email} (${membershipType}), id=${contactId}`);
     }
 
     if (event.type === 'customer.subscription.deleted') {
