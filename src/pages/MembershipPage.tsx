@@ -13,7 +13,7 @@ export function MembershipPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="text-center mb-16">
-          <h1 className="text-5xl font-bold text-red-600 mb-6">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-red-600 mb-6">
             Únete a MIA
           </h1>
           <p className="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed mb-8">
@@ -89,21 +89,21 @@ export function MembershipPage() {
               <CardContent className="p-8 h-full">
                 <div className="text-center flex flex-col h-full">
                 {/* Title */}
-                <div className="h-16 flex items-center justify-center mb-4">
+                <div className="min-h-[4rem] flex items-center justify-center mb-4">
                   <h3 className="text-2xl font-bold text-red-600">
                     {membership.name}
                   </h3>
                 </div>
-                
+
                 {/* Description */}
-                <div className="h-20 flex items-center justify-center mb-6">
+                <div className="min-h-[5rem] flex items-center justify-center mb-6">
                   <p className="text-white">
                     {membership.description}
                   </p>
                 </div>
-                
+
                 {/* Price */}
-                <div className="h-20 flex items-center justify-center mb-8">
+                <div className="min-h-[5rem] flex items-center justify-center mb-8">
                   <div className="flex items-baseline">
                     <span className="text-5xl font-bold text-red-600">
                       €{membership.price}
