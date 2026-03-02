@@ -21,6 +21,7 @@ declare global {
         opts: {
           sitekey: string;
           execution: 'execute' | 'render';
+          appearance?: 'always' | 'execute' | 'interaction-only' | 'never';
           callback: (t: string) => void;
           'expired-callback': () => void;
         }
@@ -64,6 +65,7 @@ export function ContactPage() {
     widgetIdRef.current = window.turnstile.render(turnstileRef.current, {
       sitekey: siteConfig.turnstile.sitekey,
       execution: 'execute',
+      appearance: 'interaction-only',
       callback: (token) => {
         setTurnstileToken(token);
         // If form data is pending (submit was clicked before token was ready), submit now
@@ -281,8 +283,8 @@ export function ContactPage() {
                 </div>
 
                 <div className="pt-4">
-                  {/* Hidden Turnstile widget — triggered on submit */}
-                  <div ref={turnstileRef} className="hidden" />
+                  {/* Turnstile widget — execute mode, visually invisible until challenged */}
+                  <div ref={turnstileRef} />
 
                   <Button
                     type="submit"
