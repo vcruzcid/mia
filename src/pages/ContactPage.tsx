@@ -30,7 +30,7 @@ export function ContactPage() {
   });
 
   const pendingDataRef = useRef<ContactFormData | null>(null);
-  const { containerRef, token: turnstileToken, execute: executeTurnstile } = useTurnstile('execute');
+  const { containerRef, token: turnstileToken, execute: executeTurnstile, resetWidget: resetTurnstile } = useTurnstile('execute');
 
   useEffect(() => {
     if (subjectFromState) {
@@ -74,7 +74,7 @@ export function ContactPage() {
           variant: 'success'
         });
         reset();
-        setTurnstileToken('');
+        resetTurnstile();
       } catch (error) {
         toast({
           title: 'Error al enviar',
@@ -243,8 +243,8 @@ export function ContactPage() {
                   </div>
 
                   <div className="pt-4">
-                    {/* Hidden Turnstile widget — triggered on submit */}
-                    <div ref={containerRef} className="hidden" />
+                    {/* Turnstile widget — challenge triggered on submit */}
+                    <div ref={containerRef} />
 
                     <Button
                       type="submit"
