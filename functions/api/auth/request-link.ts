@@ -134,7 +134,7 @@ export async function onRequestPost(
   }
 
   const origin = new URL(request.url).origin;
-  const magicLink = `${origin}/api/auth/verify?token=${token}`;
+  const magicLink = `${origin}/portal/verify?token=${token}`;
 
   // Send magic link email (always, including DEV)
   try {

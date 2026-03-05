@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastProvider } from './contexts/ToastContext';
 import { LoadingProvider } from './contexts/LoadingContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -17,6 +17,7 @@ import { PortalLoginPage } from './pages/portal/PortalLoginPage';
 import { PortalLayout } from './pages/portal/PortalLayout';
 import { PortalPerfilPage } from './pages/portal/PortalPerfilPage';
 import { PortalSuscripcionPage } from './pages/portal/PortalSuscripcionPage';
+import { PortalVerifyPage } from './pages/portal/PortalVerifyPage';
 import { PoliticaCookiesPage } from './pages/PoliticaCookiesPage';
 import { TerminosUsoPage } from './pages/TerminosUsoPage';
 import { PoliticaPrivacidadPage } from './pages/PoliticaPrivacidadPage';
@@ -47,7 +48,9 @@ function App() {
                 <Route path="registro/exito" element={<RegistroExitoPage />} />
 
                 <Route path="portal/login" element={<PortalLoginPage />} />
+                <Route path="portal/verify" element={<PortalVerifyPage />} />
                 <Route path="portal" element={<PortalLayout />}>
+                  <Route index element={<Navigate to="perfil" replace />} />
                   <Route path="perfil" element={<PortalPerfilPage />} />
                   <Route path="suscripcion" element={<PortalSuscripcionPage />} />
                 </Route>
