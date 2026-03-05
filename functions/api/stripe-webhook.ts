@@ -24,9 +24,10 @@ async function verifyStripeSignature(body: string, signature: string, secret: st
   if (Math.abs(Date.now() / 1000 - parseInt(timestamp, 10)) > 300) return false;
 
   const payload = `${timestamp}.${body}`;
+  const rawSecret = Uint8Array.from(atob(secret.replace(/^whsec_/, '')), c => c.charCodeAt(0));
   const key = await crypto.subtle.importKey(
     'raw',
-    new TextEncoder().encode(secret),
+    rawSecret,
     { name: 'HMAC', hash: 'SHA-256' },
     false,
     ['sign'],
