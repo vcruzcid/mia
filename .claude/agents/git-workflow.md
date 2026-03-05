@@ -37,6 +37,38 @@ git checkout -b feat/your-feature-name
 
 ---
 
+## Branch Lifecycle
+
+**One branch = one PR.** Never reuse a branch for a second pull request.
+
+After your PR is merged, GitHub auto-deletes the remote branch (`delete_branch_on_merge = true`).
+Clean up your local copy:
+```bash
+git checkout dev && git pull
+git branch -d <branch>          # delete merged local branch
+git fetch --prune               # remove stale remote-tracking refs
+```
+
+For new work, always start fresh from the latest dev:
+```bash
+git checkout dev && git pull
+git checkout -b feat/new-thing
+```
+
+**Why this matters with squash merges:** `dev` uses Squash and Merge, which collapses a PR's commits
+into one new commit with a *different SHA*. If you keep the original branch and open a second PR
+from it, git sees all the original commits as "not in dev" and includes them in the diff —
+even though the changes are already merged.
+
+**Syncing with dev mid-flight:** always rebase, never merge.
+```bash
+git fetch origin
+git rebase origin/dev   # NOT: git merge dev
+```
+`git merge dev` leaves the old commits in place and makes PR history dirty.
+
+---
+
 ## Commit Message Format
 
 Follow **Conventional Commits** spec: https://www.conventionalcommits.org

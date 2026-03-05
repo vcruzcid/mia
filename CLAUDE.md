@@ -249,8 +249,10 @@ See `.claude/agents/git-workflow.md` for full branching, commit, PR, and merge r
 
 **Quick reference:**
 - Branch from `dev`, not `main`
+- **One branch = one PR** — delete the local branch after merge; GitHub auto-deletes the remote
 - Commits: conventional format `type(scope): description` — **lowercase, never capitalize the description, never omit the scope**
 - PRs always target `dev`
+- To sync with dev mid-flight: `git rebase origin/dev` — **never** `git merge dev`
 - `main` only receives merges from `dev` via PR — never direct commits
 - Release Please reads commit messages to bump versions — wrong type = wrong version bump (`feat` = minor, `fix` = patch, `chore` = no bump)
 
