@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { HeaderMobileMenu } from '@/components/HeaderMobileMenu';
+import { PortalIcon } from '@/components/HeaderPortalIcon';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -10,14 +11,13 @@ export function Header() {
   const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   const navigation = [
-    { name: 'Inicio', href: '/' },
     { name: 'Sobre Nosotras', href: '/sobre-mia' },
     { name: 'Socias', href: '/socias' },
     { name: 'Directiva', href: '/directiva' },
     { name: 'MIANIMA', href: '/mianima' },
     { name: 'Membresía', href: '/membresia' },
     { name: 'Contacto', href: '/contacto' },
-    { name: 'Portal', href: '/portal/login' },
+    { name: 'Portal', href: '/portal/login', id: 'portal' as const },
   ];
 
   const aboutMenu = [{ name: 'Fundadoras', href: '/fundadoras' }];
@@ -61,12 +61,14 @@ export function Header() {
     };
   }, [isMenuOpen]);
 
+  const portalItem = navigation.find((n) => 'id' in n && n.id === 'portal');
+
   return (
     <header className="bg-black border-b border-gray-800 sticky top-0 z-50 backdrop-blur-sm">
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" role="navigation" aria-label="Main navigation">
-        <div className="flex justify-between items-center h-16">
+      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" role="navigation" aria-label="Navegación principal">
+        <div className="flex justify-between items-center h-16 overflow-x-clip">
           {/* Logo */}
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0 min-w-0">
             <Link to="/" className="flex items-center">
               <img 
                 src="/logo-main.png" 
@@ -76,22 +78,22 @@ export function Header() {
             </Link>
           </div>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:block">
-            <div className="ml-10 flex items-center space-x-4">
-              <div className="flex items-baseline space-x-4">
-                {navigation.map((item) => (
+          {/* Desktop Navigation — from 1100px up */}
+          <div className="hidden min-[1100px]:flex min-w-0 flex-1 shrink justify-end overflow-visible">
+            <div className="ml-10 flex flex-nowrap items-center gap-4 shrink-0">
+              <div className="flex flex-nowrap items-center gap-4 shrink-0">
+                {navigation.filter((item) => !('id' in item && item.id === 'portal')).map((item) => (
                   item.name === 'Sobre Nosotras' ? (
-                    <div key={item.name} className="relative group">
+                    <div key={item.name} className="relative group flex-shrink-0">
                       <Link
                         to={item.href}
-                        className={isActive(item.href) || aboutMenu.some((i) => isActive(i.href))
+                        className={`inline-block ${isActive(item.href) || aboutMenu.some((i) => isActive(i.href))
                           ? 'text-white bg-gray-800 px-3 py-2 rounded-md text-sm font-medium border border-white transition-colors duration-200'
                           : 'text-white hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200'
-                        }
+                        }`}
                         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                       >
-                        {item.name}
+                        <span className="whitespace-nowrap">{item.name}</span>
                       </Link>
                       {/* Hover submenu */}
                       <div className="absolute left-0 top-full mt-1 hidden group-hover:block bg-black border border-gray-800 rounded-md shadow-lg min-w-[180px] z-50">
@@ -111,28 +113,41 @@ export function Header() {
                     <Link
                       key={item.name}
                       to={item.href}
-                      className={isActive(item.href)
+                      className={`inline-block flex-shrink-0 ${isActive(item.href)
                         ? 'text-white bg-gray-800 px-3 py-2 rounded-md text-sm font-medium border border-white transition-colors duration-200'
                         : 'text-white hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200'
-                      }
+                      }`}
                       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                     >
-                      {item.name}
+                      <span className="whitespace-nowrap">{item.name}</span>
                     </Link>
                   )
                 ))}
+                <Button asChild className="shrink-0 bg-red-600 hover:bg-red-700 text-white whitespace-nowrap">
+                  <Link to="/registro">
+                    Únete a MIA
+                  </Link>
+                </Button>
+                {portalItem ? (
+                  <Link
+                    to={portalItem.href}
+                    className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md border border-transparent ${isActive(portalItem.href)
+                      ? 'text-white bg-gray-800 border-white transition-colors duration-200'
+                      : 'text-white hover:text-red-400 transition-colors duration-200'
+                    }`}
+                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                    aria-label="Portal"
+                    title="Portal"
+                  >
+                    <PortalIcon className="size-5 shrink-0 text-white" />
+                  </Link>
+                ) : null}
               </div>
-              
-              <Button asChild className="bg-red-600 hover:bg-red-700 text-white">
-                <Link to="/registro">
-                  Únete a MIA
-                </Link>
-              </Button>
             </div>
           </div>
 
-          {/* Mobile menu button */}
-          <div className="md:hidden">
+          {/* Mobile menu button — shown when browser < 1100px */}
+          <div className="shrink-0 min-[1100px]:hidden">
             <Button
               ref={menuButtonRef}
               variant="ghost"
@@ -161,6 +176,7 @@ export function Header() {
           <HeaderMobileMenu
             mobileMenuRef={mobileMenuRef}
             navigation={navigation}
+            portalItem={portalItem}
             aboutMenu={aboutMenu}
             isActive={isActive}
             onLinkClick={() => setIsMenuOpen(false)}
