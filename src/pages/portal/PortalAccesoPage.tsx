@@ -18,7 +18,7 @@ async function verifyMagicToken(token: string): Promise<{ success: boolean; erro
 export function PortalAccesoPage() {
   const navigate = useNavigate();
 
-  const mutation = useMutation({
+  const { mutate } = useMutation({
     mutationFn: verifyMagicToken,
     onSuccess: (result) => {
       if (result.success) {
@@ -38,8 +38,8 @@ export function PortalAccesoPage() {
       void navigate('/portal/login?error=token_missing', { replace: true });
       return;
     }
-    mutation.mutate(token);
-  }, [mutation.mutate, navigate]);
+    mutate(token);
+  }, [mutate, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900">
