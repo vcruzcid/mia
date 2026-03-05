@@ -15,6 +15,7 @@ export interface NewMemberData {
   firstName: string;
   lastName: string;
   membershipType: string;
+  country?: string; // from Stripe customer_details.address.country
 }
 
 function resolveLevelId(env: WAContactsEnv, membershipType: string): number {
@@ -58,7 +59,7 @@ async function findContactByEmail(
   return contactId;
 }
 
-export async function createOrUpdateContact(env: WAContactsEnv, data: NewMemberData, requestId?: string): Promise<number> {
+export async function createOrUpdateContact(env: WAContactsEnv, data: NewMemberData, requestId?: string): Promise<{ contactId: number; renewalDate: string }> {
   const token = await getWAToken(env, requestId);
   const baseUrl = `https://api.wildapricot.org/v2.2/accounts/${env.WILDAPRICOT_ACCOUNT_ID}`;
   const headers = {
@@ -69,6 +70,18 @@ export async function createOrUpdateContact(env: WAContactsEnv, data: NewMemberD
   const existingId = await findContactByEmail(baseUrl, headers, data.email, requestId);
   const levelId = resolveLevelId(env, data.membershipType);
 
+  const today = new Date().toISOString().split('T')[0]; // "YYYY-MM-DD"
+  const nextYear = new Date();
+  nextYear.setFullYear(nextYear.getFullYear() + 1);
+  const renewalDate = nextYear.toISOString().split('T')[0];
+
+  const fieldValues: Array<{ SystemCode: string; Value: unknown }> = [
+    { SystemCode: 'RenewalDue', Value: `${renewalDate}T00:00:00` },
+  ];
+  if (data.country) {
+    fieldValues.push({ SystemCode: 'custom-17708479', Value: data.country });
+  }
+
   const body = {
     ...(existingId ? { Id: existingId } : {}),
     Email: data.email,
@@ -77,6 +90,9 @@ export async function createOrUpdateContact(env: WAContactsEnv, data: NewMemberD
     MembershipLevel: { Id: levelId },
     MembershipEnabled: true,
     Status: 'Active',
+    MemberSince: today,
+    RecreateInvoice: false,
+    FieldValues: fieldValues,
   };
 
   const method = existingId ? 'PUT' : 'POST';
@@ -91,12 +107,12 @@ export async function createOrUpdateContact(env: WAContactsEnv, data: NewMemberD
 
   const durationMs = Date.now() - t0;
   if (existingId) {
-    log('wa.contact_updated', { email: data.email, contactId: existingId, membershipType: data.membershipType, durationMs, requestId });
-    return existingId;
+    log('wa.contact_updated', { email: data.email, contactId: existingId, membershipType: data.membershipType, memberSince: today, renewalDue: renewalDate, durationMs, requestId });
+    return { contactId: existingId, renewalDate };
   }
   const created = await res.json() as { Id: number };
-  log('wa.contact_created', { email: data.email, contactId: created.Id, membershipType: data.membershipType, durationMs, requestId });
-  return created.Id;
+  log('wa.contact_created', { email: data.email, contactId: created.Id, membershipType: data.membershipType, memberSince: today, renewalDue: renewalDate, durationMs, requestId });
+  return { contactId: created.Id, renewalDate };
 }
 
 export async function lapseMembership(env: WAContactsEnv, email: string, requestId?: string): Promise<void> {
@@ -137,6 +153,8 @@ export interface WAContact {
   MembershipLevel?: { Id: number; Name: string };
   Status?: string;
   MembershipEnabled?: boolean;
+  MemberSince?: string;
+  MembershipRenewalDue?: string;
   FieldValues?: Array<{ FieldName: string; SystemCode: string; Value: unknown }>;
 }
 
