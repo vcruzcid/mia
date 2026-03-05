@@ -8,7 +8,7 @@ interface NavItem {
 }
 
 interface Props {
-  mobileMenuRef: React.RefObject<HTMLDivElement>;
+  mobileMenuRef: React.RefObject<HTMLDivElement | null>;
   navigation: NavItem[];
   aboutMenu: NavItem[];
   isActive: (href: string) => boolean;
@@ -20,6 +20,8 @@ export function HeaderMobileMenu({ mobileMenuRef, navigation, aboutMenu, isActiv
     onLinkClick();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  const portalItem = navigation.find((n) => n.name === 'Portal');
 
   return (
     <div id="mobile-menu" ref={mobileMenuRef} className="min-[1100px]:hidden border-t border-gray-800">
@@ -47,24 +49,21 @@ export function HeaderMobileMenu({ mobileMenuRef, navigation, aboutMenu, isActiv
           </Button>
         </div>
 
-        {(() => {
-          const portalItem = navigation.find((n) => n.name === 'Portal');
-          return portalItem ? (
-            <Link
-              to={portalItem.href}
-              className={`flex items-center gap-2 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 ${
-                isActive(portalItem.href)
-                  ? 'text-white bg-gray-800 border border-white'
-                  : 'text-white hover:bg-gray-900 hover:text-red-400'
-              }`}
-              onClick={handleClick}
-              aria-label="Portal"
-              title="Portal"
-            >
-              <PortalIcon className="size-6 shrink-0 text-white" />
-            </Link>
-          ) : null;
-        })()}
+        {portalItem ? (
+          <Link
+            to={portalItem.href}
+            className={`flex items-center gap-2 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 ${
+              isActive(portalItem.href)
+                ? 'text-white bg-gray-800 border border-white'
+                : 'text-white hover:bg-gray-900 hover:text-red-400'
+            }`}
+            onClick={handleClick}
+            aria-label="Portal"
+            title="Portal"
+          >
+            <PortalIcon className="size-6 shrink-0 text-white" />
+          </Link>
+        ) : null}
 
         <div className="px-3 pt-3">
           <p className="text-xs font-semibold text-gray-400 mb-2">SOBRE NOSOTRAS</p>

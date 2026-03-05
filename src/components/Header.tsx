@@ -61,10 +61,12 @@ export function Header() {
     };
   }, [isMenuOpen]);
 
+  const portalItem = navigation.find((n) => n.name === 'Portal');
+
   return (
     <header className="bg-black border-b border-gray-800 sticky top-0 z-50 backdrop-blur-sm">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" role="navigation" aria-label="Main navigation">
-        <div className="flex justify-between items-center h-16 overflow-hidden">
+        <div className="flex justify-between items-center h-16 overflow-x-clip">
           {/* Logo */}
           <div className="flex-shrink-0 min-w-0">
             <Link to="/" className="flex items-center">
@@ -126,23 +128,20 @@ export function Header() {
                     Únete a MIA
                   </Link>
                 </Button>
-                {(() => {
-                  const portalItem = navigation.find((n) => n.name === 'Portal');
-                  return portalItem ? (
-                    <Link
-                      to={portalItem.href}
-                      className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md border border-transparent ${isActive(portalItem.href)
-                        ? 'text-white bg-gray-800 border-white transition-colors duration-200'
-                        : 'text-white hover:text-red-400 transition-colors duration-200'
-                      }`}
-                      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                      aria-label="Portal"
-                      title="Portal"
-                    >
-                      <PortalIcon className="size-5 shrink-0 text-white" />
-                    </Link>
-                  ) : null;
-                })()}
+                {portalItem ? (
+                  <Link
+                    to={portalItem.href}
+                    className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md border border-transparent ${isActive(portalItem.href)
+                      ? 'text-white bg-gray-800 border-white transition-colors duration-200'
+                      : 'text-white hover:text-red-400 transition-colors duration-200'
+                    }`}
+                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                    aria-label="Portal"
+                    title="Portal"
+                  >
+                    <PortalIcon className="size-5 shrink-0 text-white" />
+                  </Link>
+                ) : null}
               </div>
             </div>
           </div>
