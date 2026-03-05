@@ -79,7 +79,7 @@ export function Header() {
           <div className="hidden xl:flex min-w-0 flex-1 shrink overflow-hidden justify-end">
             <div className="ml-10 flex flex-nowrap items-center gap-4 shrink-0">
               <div className="flex flex-nowrap items-baseline gap-4 shrink-0">
-                {navigation.map((item) => (
+                {navigation.filter((item) => item.name !== 'Portal').map((item) => (
                   item.name === 'Sobre Nosotras' ? (
                     <div key={item.name} className="relative group flex-shrink-0">
                       <Link
@@ -120,12 +120,27 @@ export function Header() {
                     </Link>
                   )
                 ))}
+                <Button asChild className="shrink-0 bg-red-600 hover:bg-red-700 text-white whitespace-nowrap">
+                  <Link to="/registro">
+                    Únete a MIA
+                  </Link>
+                </Button>
+                {(() => {
+                  const portalItem = navigation.find((n) => n.name === 'Portal');
+                  return portalItem ? (
+                    <Link
+                      to={portalItem.href}
+                      className={`inline-block flex-shrink-0 ${isActive(portalItem.href)
+                        ? 'text-white bg-gray-800 px-3 py-2 rounded-md text-sm font-medium border border-white transition-colors duration-200'
+                        : 'text-white hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200'
+                      }`}
+                      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                    >
+                      <span style={{ whiteSpace: 'nowrap' }}>Portal</span>
+                    </Link>
+                  ) : null;
+                })()}
               </div>
-              <Button asChild className="shrink-0 bg-red-600 hover:bg-red-700 text-white whitespace-nowrap">
-                <Link to="/registro">
-                  Únete a MIA
-                </Link>
-              </Button>
             </div>
           </div>
 
