@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { membershipTypes } from '@/utils/memberships';
 import { Header } from '@/components/Header';
@@ -25,6 +25,11 @@ export function RegistrationPage() {
   const [showTerms, setShowTerms] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [gdprAccepted, setGdprAccepted] = useState(false);
+  const mainRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    mainRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, []);
 
   // Handle pre-selected membership from navigation state
   useEffect(() => {
@@ -73,7 +78,7 @@ export function RegistrationPage() {
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Header />
-      <main className="flex-1 py-12">
+      <main ref={mainRef} className="flex-1 py-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="text-center mb-12">
