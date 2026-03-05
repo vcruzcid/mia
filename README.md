@@ -1,438 +1,82 @@
-# 🌟 MIA - Mujeres en la Industria de Animación
+# MIA — Mujeres en la Industria de Animación
 
-[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)](https://reactjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite)](https://vitejs.dev/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
-[![Stripe](https://img.shields.io/badge/Stripe-626CD9?style=flat-square&logo=Stripe)](https://stripe.com/)
-[![Cloudflare](https://img.shields.io/badge/Cloudflare-F38020?style=flat-square&logo=Cloudflare)](https://cloudflare.com/)
+Asociación profesional de mujeres en la industria de animación en España.
 
-> Asociación profesional de mujeres en la industria de animación en España
+[![CI](https://github.com/vcruzcid/mia/actions/workflows/ci.yml/badge.svg)](https://github.com/vcruzcid/mia/actions/workflows/ci.yml)
 
-Una aplicación web moderna y robusta para la gestión de membresías, eventos y comunidad de MIA. Construida con las mejores prácticas de desarrollo frontend y backend-as-a-service.
+## Stack
 
-## ✨ Características Principales
+| Layer | Technology |
+|---|---|
+| Frontend | React 19, TypeScript, Vite 7 |
+| Styling | Tailwind CSS 4, Radix UI (shadcn/ui) |
+| Routing / Forms | React Router 7, react-hook-form + Zod |
+| Data fetching | TanStack React Query v5 |
+| Hosting | Cloudflare Pages + Workers (Functions) |
+| Database | Cloudflare D1 (SQLite) — member gallery cache |
+| Storage | Cloudflare R2 — member photos |
+| Token cache | Cloudflare KV — WildApricot OAuth token |
+| CRM | WildApricot REST API v2.2 |
+| Payments | Stripe Checkout Sessions |
+| Email | Resend |
+| Bot protection | Cloudflare Turnstile |
 
-- 💳 **Sistema de Membresías** - Integración con Wildapricot + Stripe para registro y pagos
-- 🛡️ **Protección Anti-Bots** - Doble capa: Cloudflare Turnstile + reCAPTCHA de Wildapricot
-- 🎭 **Directorio de Socias** - Información de socias fundadoras y junta directiva
-- 📱 **Diseño Responsive** - Optimizado para móvil y desktop
-- ⚡ **PWA Ready** - Instalable como aplicación nativa
-- 📧 **Formulario de Contacto** - Con protección Cloudflare Turnstile
-- 🎯 **Programa Miánima** - Información sobre el programa de mentoría
+## Development
 
-## 🏗️ Arquitectura Técnica
-
-### Stack Tecnológico
-
-| Categoría | Tecnologías |
-|-----------|-------------|
-| **Frontend** | React 19, TypeScript, Vite |
-| **UI/UX** | Tailwind CSS 4, Radix UI, shadcn/ui |
-| **Estado** | React Context, React Hook Form |
-| **Membresías** | Wildapricot (Backend + Pagos + Portal) |
-| **Pagos** | Wildapricot + Stripe (integración nativa) |
-| **Hosting** | Cloudflare Pages + Functions |
-| **Seguridad** | Turnstile (wrapper) + reCAPTCHA (Wildapricot) |
-| **Testing** | Vitest |
-
-### Estructura del Proyecto
-
-```
-📁 mia/
-├── 📂 src/
-│   ├── 🧩 components/          # Componentes reutilizables
-│   │   ├── ui/                # Primitivos shadcn/ui
-│   │   ├── Header.tsx         # Navegación principal
-│   │   ├── Footer.tsx         # Pie de página
-│   │   ├── ErrorBoundary.tsx  # Manejo de errores
-│   │   └── VimeoVideo.tsx     # Reproductor de video
-│   ├── 📄 pages/              # Páginas de la aplicación
-│   │   ├── HomePage.tsx       # Página de inicio
-│   │   ├── AboutPage.tsx      # Sobre MIA
-│   │   ├── DirectivaPage.tsx  # Junta directiva
-│   │   ├── FundadorasPage.tsx # Socias fundadoras
-│   │   ├── MianimaPage.tsx    # Programa Miánima
-│   │   ├── ContactPage.tsx    # Formulario de contacto
-│   │   ├── MembershipPage.tsx # Página de membresías
-│   │   ├── RegistroPage.tsx   # Registro con widget Wildapricot
-│   │   ├── ConfirmacionPage.tsx # Confirmación post-pago
-│   │   ├── LoginPage.tsx      # Página de login (stub)
-│   │   └── WelcomePage.tsx    # Bienvenida (legacy)
-│   ├── 🎣 hooks/              # Hooks personalizados
-│   │   ├── useAuth.ts         # Autenticación (stub)
-│   │   ├── useCounterAnimation.ts # Animación de contadores
-│   │   └── useScrollAnimation.ts  # Efectos de scroll
-│   ├── 🎭 contexts/           # React Contexts
-│   │   ├── AuthContext.tsx    # Contexto de autenticación (stub)
-│   │   ├── ToastContext.tsx   # Notificaciones toast
-│   │   └── LoadingContext.tsx # Estados de carga
-│   ├── 📊 data/               # Datos estáticos
-│   │   ├── directiva.ts       # Datos de junta directiva
-│   │   └── fundadoras.ts      # Datos de fundadoras
-│   ├── 📋 types/              # Definiciones TypeScript
-│   ├── 🎨 config/             # Configuración del sitio
-│   ├── 📝 schemas/            # Validación Zod
-│   └── 🛠️ utils/              # Utilidades
-├── ⚙️ functions/               # Cloudflare Functions
-│   └── api/                   # APIs serverless
-│       └── contact.ts         # Formulario de contacto + Turnstile
-└── 📦 dist/                   # Build de producción
-```
-
-## 🚀 Inicio Rápido
-
-### 📋 Prerrequisitos
-
-- **Node.js** 18+ y npm
-- **Cuenta Wildapricot** configurada (web.animacionesmia.com)
-- **Cuenta Cloudflare** (para deployment)
-- **Cloudflare Turnstile** site key (para CAPTCHA)
-
-### ⚙️ Configuración Inicial
-
-1. **Clona el repositorio**
-   ```bash
-   git clone <repository-url>
-   cd mia
-   ```
-
-2. **Instala dependencias**
-   ```bash
-   npm install
-   ```
-
-3. **Configura variables de entorno**
-
-   Crea un archivo `.env` en la raíz del proyecto:
-
-   ```env
-   # 🔒 Cloudflare Turnstile (CAPTCHA)
-   VITE_TURNSTILE_SITE_KEY=0x4AAA...
-   TURNSTILE_SECRET_KEY=0x4AAA...
-
-   # 🔗 Zapier Webhook (opcional, para notificaciones del formulario de contacto)
-   ZAPIER_WEBHOOK_URL=https://hooks.zapier.com/...
-   ```
-
-   **Nota:** No se requieren variables de Stripe. Wildapricot maneja el backend de membresías y pagos.
-
-### 🏃‍♀️ Desarrollo Local
+**Requires Node 24.x** (see `.nvmrc`).
 
 ```bash
-# Inicia servidor de desarrollo
-npm run dev
-
-# Abre http://localhost:3000
-```
-
-### 🧪 Comandos Disponibles
-
-| Comando | Descripción |
-|---------|-------------|
-| `npm run dev` | Servidor de desarrollo con hot reload |
-| `npm run build` | Build de producción |
-| `npm run build:dev` | Build de desarrollo |
-| `npm run preview` | Vista previa del build |
-| `npm run lint` | Ejecuta ESLint |
-| `npm test` | Ejecuta tests con Vitest |
-| `npm run test:ui` | Tests con interfaz visual |
-| `npm run deploy:dev` | Deploy a entorno de desarrollo |
-
-### 🔧 Testing de Funciones Localmente
-
-Para probar las Cloudflare Functions localmente:
-
-```bash
-# Inicia el servidor de funciones
-npx wrangler dev
-
-# La app estará disponible en http://localhost:8788
-```
-
-## 💳 Sistema de Registro Wildapricot
-
-### Flujo de Registro y Pago
-
-```
-Usuario → Turnstile CAPTCHA → Widget Wildapricot → Stripe (vía Wildapricot) → Confirmación → Portal de Socias
-```
-
-### 🎯 Arquitectura
-
-- 🛡️ **Protección Anti-Bots** - Cloudflare Turnstile antes del widget
-- 📝 **Widget Wildapricot** - Formulario nativo embebido (`web.animacionesmia.com/widget/join`)
-- 💳 **Pago Integrado** - Wildapricot maneja Stripe internamente
-- ✅ **Creación Automática** - Contacto + Membresía + Email de bienvenida
-- 🔑 **Portal de Socias** - Acceso al portal Wildapricot con credenciales
-
-### 🔐 Seguridad (Doble Capa)
-
-1. **Capa 1 (Nuestra App)**: Turnstile CAPTCHA antes de cargar el widget
-   - Previene bots casuales de nuestra interfaz
-   - Reduce carga en Wildapricot
-   - Experiencia moderna y rápida
-
-2. **Capa 2 (Wildapricot)**: reCAPTCHA en el widget
-   - Defensa final contra bots sofisticados
-   - Configurada en el admin de Wildapricot
-
-### 📋 Planes de Membresía
-
-| Plan | Precio | Características |
-|------|--------|-----------------|
-| **Pleno Derecho** | €60/año | Membresía completa para profesionales |
-| **Estudiante** | €30/año | Tarifa reducida para estudiantes |
-| **Colaborador** | €60/año | Membresía de apoyo empresarial |
-
-> **Nota:** Los niveles de membresía se configuran en el admin de Wildapricot
-
-### ⚙️ Configuración Wildapricot (Admin)
-
-Para que el sistema funcione correctamente, configurar en Wildapricot:
-
-1. **Membership Levels** - Crear 3 niveles con precios (€60, €30, €60)
-2. **Stripe Integration** - Conectar cuenta de Stripe
-3. **Success URL** - `https://animacionesmia.com/registro/confirmacion`
-4. **Cancel URL** - `https://animacionesmia.com/registro?cancelado=true`
-5. **Form Fields** - Nombre, Apellidos, Email, Teléfono (opcional)
-6. **reCAPTCHA** - Activar en Settings > Security > Anti-spam
-
-## 🎨 Funcionalidades
-
-### 🏠 Página de Inicio
-- **Hero Section** - Video de fondo con Vimeo
-- **Estadísticas Animadas** - Contadores con efectos de scroll
-- **CTA's Destacados** - Llamadas a la acción para registro
-
-### 🎭 Junta Directiva y Fundadoras
-- **Galerías Visuales** - Perfiles con imágenes y biografías
-- **Información Detallada** - Roles, responsabilidades y trayectoria
-- **Links a Redes Sociales** - Conecta con las integrantes
-
-### 📧 Formulario de Contacto
-- **Protección CAPTCHA** - Cloudflare Turnstile
-- **Validación Robusta** - React Hook Form + Zod
-- **Integración Zapier** - Notificaciones automáticas (opcional)
-
-### 💳 Sistema de Registro
-- **Protección Anti-Bots** - Turnstile CAPTCHA antes del formulario
-- **Widget Wildapricot** - Formulario nativo embebido con pago integrado
-- **Proceso Automatizado** - Contacto + Membresía + Email automático
-- **Portal de Socias** - Acceso directo tras registro exitoso
-- **Confirmación Visual** - Página de éxito con próximos pasos
-- **Página de Bienvenida** - Confirmación post-registro
-
-### 🎯 Programa Miánima
-- **Información del Programa** - Descripción detallada
-- **Video Integrado** - Presentación en Vimeo
-- **FAQ** - Preguntas frecuentes
-
-## 🚀 Despliegue
-
-### ☁️ Cloudflare Pages + Functions
-
-#### Configuración en Cloudflare Dashboard
-
-1. **Conectar Repositorio**
-   - Vincula tu repo de GitHub a Cloudflare Pages
-   - Rama: `main` (producción) o `develop` (desarrollo)
-
-2. **Configuración de Build**
-   ```yaml
-   Build command: npm run build
-   Build output directory: dist
-   Root directory: (leave empty)
-   ```
-
-3. **Variables de Entorno en Cloudflare**
-   ```
-   VITE_STRIPE_PUBLIC_KEY=pk_live_...
-   VITE_TURNSTILE_SITE_KEY=0x4AAA...
-   ```
-
-4. **Secrets Requeridos (via Wrangler)**
-   ```bash
-   npx wrangler secret put TURNSTILE_SECRET_KEY
-   npx wrangler secret put ZAPIER_WEBHOOK_URL
-   ```
-
-### 🌍 Entornos
-
-| Entorno | URL | Comando |
-|---------|-----|---------|
-| **Desarrollo** | `dev.animacionesmia.com` | `npm run deploy:dev` |
-| **Producción** | `animacionesmia.com` | Deploy automático desde `main` |
-
-## 🧪 Testing & Calidad
-
-### 🧪 Suite de Tests
-
-```bash
-# Ejecutar todos los tests
-npm test
-
-# Tests con interfaz visual
-npm run test:ui
-
-# Cobertura de tests
-npm run test:coverage
-
-# Linting
+npm install
+npm run dev          # Vite dev server → http://localhost:3000
+npx wrangler dev     # Cloudflare Functions locally → http://localhost:8788
+npm run build        # tsc --noEmit && vite build
 npm run lint
+npm test
 ```
 
+## Registration flow
 
-## 📚 Documentación
+1. User selects a membership tier on `/registro`
+2. Accepts TOS + GDPR, completes Turnstile challenge
+3. Frontend POSTs to `/api/create-checkout-session`
+4. Worker returns a Stripe Checkout URL; frontend redirects
+5. Stripe processes payment, redirects to `/registro/exito`
+6. Stripe fires `checkout.session.completed` webhook to `/api/stripe-webhook`
+7. Worker creates/updates the WildApricot contact and sends a welcome email via Resend
 
-### 📖 Guías y Referencias
+## Deployment
 
-| Documento | Descripción | Ubicación |
-|-----------|-------------|-----------|
-| **Blueprint** | Arquitectura general del proyecto | `docs/blueprint.md` |
-| **CLAUDE.md** | Guía para Claude Code | `CLAUDE.md` |
+Cloudflare Pages Git integration — no manual deploy step needed.
 
-### 🔧 APIs y Servicios
+| Branch | Environment | URL |
+|---|---|---|
+| `main` | Production | animacionesmia.com |
+| `dev` | Preview | dev.animacionesmia.com |
+| PR branch | Preview | auto-generated by Cloudflare |
 
-- **Cloudflare Functions**: Documentación inline en `functions/api/`
-- **Hooks Personalizados**: Comentarios en `src/hooks/`
-- **Tipos TypeScript**: Definiciones en `src/types/`
+### Secrets (`wrangler secret put <NAME>`)
 
-## 🤝 Contribución
-
-### 🎯 Estándares de Código
-
-- **TypeScript Strict Mode** - Tipado estricto obligatorio
-- **Conventional Commits** - Formato: `tipo: descripción`
-- **Componentes** - Máximo 200 líneas por componente
-- **JSDoc** - Documentación para APIs públicas
-- **Tests** - Cobertura mínima del 80%
-
-### 🌊 Flujo de Trabajo Git
-
-```bash
-# Crear rama de feature
-git checkout -b feature/nueva-funcionalidad
-
-# Commits siguiendo conventional commits
-git commit -m "feat: añadir búsqueda avanzada en directorio"
-git commit -m "fix: corregir validación de formulario"
-git commit -m "docs: actualizar documentación de API"
-
-# Push y crear PR
-git push origin feature/nueva-funcionalidad
+```
+WILDAPRICOT_API_KEY
+TURNSTILE_SECRET_KEY
+STRIPE_SECRET_KEY
+STRIPE_WEBHOOK_SECRET
+RESEND_API_KEY
 ```
 
-### 🔍 Pull Request Checklist
+### Vars (`wrangler.toml`)
 
-- [ ] **Tests pasan** - `npm test`
-- [ ] **Linting OK** - `npm run lint`
-- [ ] **Build exitoso** - `npm run build`
-- [ ] **Documentación actualizada**
-- [ ] **Variables de entorno revisadas**
+Non-sensitive config lives in `wrangler.toml` under `[vars]` / `[env.preview.vars]`: Turnstile site key, contact email, Stripe price IDs, WildApricot account + level IDs, WhatsApp group URL.
 
-### 🏷️ Tipos de Commit
+## Git workflow
 
-- `feat:` Nueva funcionalidad
-- `fix:` Corrección de bug
-- `docs:` Cambios en documentación
-- `style:` Cambios de formato/código
-- `refactor:` Refactorización de código
-- `test:` Añadir/modificar tests
-- `chore:` Tareas de mantenimiento
+- Branch from `dev`
+- Commits: `type(scope): description` (conventional commits, lowercase)
+- PRs target `dev`
+- `main` only receives merges from `dev` via PR
 
-## 🐛 Solución de Problemas
+See `CLAUDE.md` for full conventions and sub-agent reference.
 
-### 🔨 Problemas de Build
+## License
 
-```bash
-# Limpiar cache completo
-rm -rf node_modules dist .vite .cache
-
-# Reinstalar dependencias
-npm ci
-
-# Verificar build
-npm run build
-```
-
-**Errores Comunes:**
-- ❌ **Versiones de Node.js** - Requiere Node 18+
-- ❌ **Variables faltantes** - Revisar `.env`
-- ❌ **Dependencias corruptas** - `rm -rf node_modules && npm ci`
-
-### 🌐 Problemas de Despliegue
-
-#### Build Falla en Producción
-- ✅ Variables de entorno configuradas en Cloudflare
-- ✅ Secrets de Turnstile/Zapier correctos
-- ✅ Node.js version compatible (18+)
-
-#### Funciones No Responden
-```bash
-# Verificar estado de funciones
-npx wrangler tail
-
-# Test endpoint de contacto
-curl -X POST https://tu-app.pages.dev/api/contact
-```
-
-### 📱 Problemas de PWA/Service Worker
-
-```bash
-# Limpiar service worker cache
-# En DevTools: Application → Storage → Clear site data
-
-# Forzar actualización
-# En DevTools: Application → Service Workers → Unregister
-```
-
-## 📄 Licencia
-
-Privada - Mujeres en la Industria de Animación
-
-## 🙏 Agradecimientos
-
-Construido con ❤️ por y para la comunidad de mujeres en animación.
-
-### 🛠️ Tecnologías y Librerías
-
-| Tecnología | Propósito | Enlace |
-|------------|-----------|--------|
-| **React 19** | Framework frontend moderno | [reactjs.org](https://reactjs.org) |
-| **TypeScript** | Tipado estático | [typescriptlang.org](https://typescriptlang.org) |
-| **Vite** | Build tool ultrarrápido | [vitejs.dev](https://vitejs.dev) |
-| **Tailwind CSS 4** | Framework CSS utility-first | [tailwindcss.com](https://tailwindcss.com) |
-| **Radix UI** | Componentes accesibles | [radix-ui.com](https://radix-ui.com) |
-| **React Hook Form** | Gestión de formularios | [react-hook-form.com](https://react-hook-form.com) |
-| **Zod** | Validación de esquemas | [zod.dev](https://zod.dev) |
-| **Stripe** | Procesamiento de pagos | [stripe.com](https://stripe.com) |
-| **Cloudflare** | Hosting y edge computing | [cloudflare.com](https://cloudflare.com) |
-
-### 👥 Comunidad
-
-Únete a la comunidad de MIA en:
-- 🌐 **Web**: [animacionesmia.com](https://animacionesmia.com)
-- 📧 **Email**: info@animacionesmia.com
-- 💼 **LinkedIn**: [MIA España](https://linkedin.com/company/mia-espana)
-
----
-
-## 📊 Estado del Proyecto
-
-| Aspecto | Estado | Última Verificación |
-|---------|--------|-------------------|
-| **Build** | ✅ Pasando | $(date '+%B %d, %Y') |
-| **Tests** | ✅ Cubierta | $(date '+%B %d, %Y') |
-| **Linting** | ✅ Sin errores | $(date '+%B %d, %Y') |
-| **Deploy** | ✅ Automático | $(date '+%B %d, %Y') |
-
-**Versión:** 2.1.0
-**Última Actualización:** Febrero 15, 2025
-**Estado:** 🟢 Producción - Optimizado y Limpio
-
----
-
-<p align="center">
-  <strong>¡Gracias por contribuir al empoderamiento de las mujeres en la industria de animación! 🎭✨</strong>
-</p>
+Private — Mujeres en la Industria de Animación
