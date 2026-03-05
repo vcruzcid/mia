@@ -209,6 +209,27 @@ Before using any library, SDK, API, or tool:
 
 ---
 
+## Logging (Workers Logs)
+
+Workers Logs is enabled in `wrangler.toml` (`[observability] enabled = true`) for both production and preview environments.
+
+**Rules for Pages Functions (`functions/`):**
+- Never use raw `console.log/warn/error` strings — always use the shared logger at `functions/_lib/logger.ts`
+- Import: `import { log, warn, logError } from '../_lib/logger';` (adjust relative path)
+- Emit **objects**, not strings — Workers Logs indexes JSON fields for dashboard filtering:
+  ```typescript
+  log('event.name', { email, contactId, membershipType });   // info
+  warn('event.name', { email, reason });                      // warning
+  logError('event.name', err, { email, step: 'wa_lookup' }); // error — extracts err.message
+  ```
+- Event names use `domain.action` format: `auth.session_created`, `portal.error`, `wa.contact_updated`, etc.
+- Include identifying fields where available: `email`, `contactId`, `membershipType`, `step`
+- Never log secrets, tokens, or full request bodies
+
+When adding a new Pages Function, always add structured log calls for success paths and error paths.
+
+---
+
 ## Coding Conventions
 
 - TypeScript strict mode — all new code must pass `npm run build`

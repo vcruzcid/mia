@@ -10,6 +10,7 @@
 import { getContactByEmail, type WAContact, type WAContactsEnv } from '../../_lib/wa-contacts';
 import { getCorsHeaders, getPreflightResponse } from '../../_lib/cors';
 import { sendMagicLinkEmail } from '../../_lib/email';
+import { log, warn, logError } from '../../_lib/logger';
 
 interface Env extends WAContactsEnv {
   KV: KVNamespace;
@@ -89,14 +90,26 @@ export async function onRequestPost(
   try {
     contact = await getContactByEmail(env, email);
   } catch (err) {
-    console.error('WA contact lookup failed:', err);
+    logError('auth.error', err, { email, step: 'wa_lookup' });
     return new Response(
       JSON.stringify({ success: false, error: 'Error verificando membresía' }),
       { status: 500, headers: cors },
     );
   }
 
-  if (!contact || !contact.MembershipEnabled || contact.Status !== 'Active') {
+  if (!contact) {
+    warn('auth.contact_not_found', { email });
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: 'No se encontró una membresía activa con este email',
+      }),
+      { status: 404, headers: cors },
+    );
+  }
+
+  if (!contact.MembershipEnabled || contact.Status !== 'Active') {
+    warn('auth.membership_inactive', { email, contactId: String(contact.Id), status: contact.Status });
     return new Response(
       JSON.stringify({
         success: false,
@@ -113,7 +126,7 @@ export async function onRequestPost(
   try {
     await env.KV.put(kvKey, kvValue, { expirationTtl: 900 }); // 15 minutes
   } catch (err) {
-    console.error('KV put failed:', err);
+    logError('auth.error', err, { email, step: 'kv_put' });
     return new Response(
       JSON.stringify({ success: false, error: 'Error interno del servidor' }),
       { status: 500, headers: cors },
@@ -127,12 +140,14 @@ export async function onRequestPost(
   try {
     await sendMagicLinkEmail(env.RESEND_API_KEY, email, magicLink);
   } catch (err) {
-    console.error('Failed to send magic link email:', err);
+    logError('auth.error', err, { email, step: 'send_email' });
     return new Response(
       JSON.stringify({ success: false, error: 'Error enviando el enlace de acceso. Por favor, inténtalo de nuevo.' }),
       { status: 500, headers: cors },
     );
   }
+
+  log('auth.magic_link_sent', { email, contactId: String(contact.Id) });
 
   // In DEV, also return the link in the response for easy testing
   if (env.DEV_PORTAL) {
