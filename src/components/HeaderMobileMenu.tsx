@@ -21,7 +21,7 @@ export function HeaderMobileMenu({ mobileMenuRef, navigation, aboutMenu, isActiv
   };
 
   return (
-    <div id="mobile-menu" ref={mobileMenuRef} className="xl:hidden border-t border-gray-800">
+    <div id="mobile-menu" ref={mobileMenuRef} className="min-[1100px]:hidden border-t border-gray-800">
       <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-black">
         {navigation.filter((item) => item.name !== 'Portal').map((item) => (
           <Link

@@ -75,8 +75,8 @@ export function Header() {
             </Link>
           </div>
 
-          {/* Desktop Navigation — from 1280px (xl) up */}
-          <div className="hidden xl:flex min-w-0 flex-1 shrink overflow-hidden justify-end">
+          {/* Desktop Navigation — from 1100px up */}
+          <div className="hidden min-[1100px]:flex min-w-0 flex-1 shrink overflow-hidden justify-end">
             <div className="ml-10 flex flex-nowrap items-center gap-4 shrink-0">
               <div className="flex flex-nowrap items-baseline gap-4 shrink-0">
                 {navigation.filter((item) => item.name !== 'Portal').map((item) => (
@@ -144,8 +144,8 @@ export function Header() {
             </div>
           </div>
 
-          {/* Mobile menu button — shown when browser < 1280px (xl) */}
-          <div className="shrink-0 xl:hidden">
+          {/* Mobile menu button — shown when browser < 1100px */}
+          <div className="shrink-0 min-[1100px]:hidden">
             <Button
               ref={menuButtonRef}
               variant="ghost"
