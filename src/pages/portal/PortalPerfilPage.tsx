@@ -28,7 +28,7 @@ async function saveProfile(data: ProfileEditFormData): Promise<{ success: boolea
 
 export function PortalPerfilPage() {
   const navigate = useNavigate();
-  const { isAuthenticated, isLoading: authLoading } = usePortalAuth();
+  const { isAuthenticated, isLoading: authLoading, isError: authError } = usePortalAuth();
   const [isEditing, setIsEditing] = useState(false);
   const queryClient = useQueryClient();
 
@@ -56,6 +56,14 @@ export function PortalPerfilPage() {
   });
 
   if (authLoading || isLoading) {
+    return (
+      <div className="flex justify-center py-16">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500" />
+      </div>
+    );
+  }
+
+  if (authError || (!authLoading && !isAuthenticated)) {
     return (
       <div className="flex justify-center py-16">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500" />
