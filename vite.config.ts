@@ -52,6 +52,7 @@ export default defineConfig({
         enabled: true
       },
       workbox: {
+        mode: 'development', // avoids @rollup/plugin-terser race in workbox-build (renderChunk unfinished on exit)
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         runtimeCaching: [
           {
