@@ -42,6 +42,7 @@ async function findContactByEmail(
   baseUrl: string,
   headers: Record<string, string>,
   email: string,
+  requestId?: string,
 ): Promise<number | null> {
   // Escape single quotes per OData convention to prevent filter injection.
   const safeEmail = email.replace(/'/g, "''");
@@ -52,18 +53,20 @@ async function findContactByEmail(
   );
   if (!res.ok) throw new Error(`WA contact search failed: ${res.status}`);
   const data = await res.json() as { Contacts: Array<{ Id: number }> };
-  return data.Contacts?.[0]?.Id ?? null;
+  const contactId = data.Contacts?.[0]?.Id ?? null;
+  log('wa.contact_lookup', { email, found: contactId !== null, requestId });
+  return contactId;
 }
 
-export async function createOrUpdateContact(env: WAContactsEnv, data: NewMemberData): Promise<number> {
-  const token = await getWAToken(env);
+export async function createOrUpdateContact(env: WAContactsEnv, data: NewMemberData, requestId?: string): Promise<number> {
+  const token = await getWAToken(env, requestId);
   const baseUrl = `https://api.wildapricot.org/v2.2/accounts/${env.WILDAPRICOT_ACCOUNT_ID}`;
   const headers = {
     Authorization: `Bearer ${token}`,
     'Content-Type': 'application/json',
   };
 
-  const existingId = await findContactByEmail(baseUrl, headers, data.email);
+  const existingId = await findContactByEmail(baseUrl, headers, data.email, requestId);
   const levelId = resolveLevelId(env, data.membershipType);
 
   const body = {
@@ -79,35 +82,38 @@ export async function createOrUpdateContact(env: WAContactsEnv, data: NewMemberD
   const method = existingId ? 'PUT' : 'POST';
   const url = existingId ? `${baseUrl}/contacts/${existingId}` : `${baseUrl}/contacts`;
 
+  const t0 = Date.now();
   const res = await fetch(url, { method, headers, body: JSON.stringify(body) });
   if (!res.ok) {
     const err = await res.text();
     throw new Error(`WA contact ${existingId ? 'update' : 'create'} failed: ${res.status} ${err}`);
   }
 
+  const durationMs = Date.now() - t0;
   if (existingId) {
-    log('wa.contact_updated', { email: data.email, contactId: existingId, membershipType: data.membershipType });
+    log('wa.contact_updated', { email: data.email, contactId: existingId, membershipType: data.membershipType, durationMs, requestId });
     return existingId;
   }
   const created = await res.json() as { Id: number };
-  log('wa.contact_created', { email: data.email, contactId: created.Id, membershipType: data.membershipType });
+  log('wa.contact_created', { email: data.email, contactId: created.Id, membershipType: data.membershipType, durationMs, requestId });
   return created.Id;
 }
 
-export async function lapseMembership(env: WAContactsEnv, email: string): Promise<void> {
-  const token = await getWAToken(env);
+export async function lapseMembership(env: WAContactsEnv, email: string, requestId?: string): Promise<void> {
+  const token = await getWAToken(env, requestId);
   const baseUrl = `https://api.wildapricot.org/v2.2/accounts/${env.WILDAPRICOT_ACCOUNT_ID}`;
   const headers = {
     Authorization: `Bearer ${token}`,
     'Content-Type': 'application/json',
   };
 
-  const existingId = await findContactByEmail(baseUrl, headers, email);
+  const existingId = await findContactByEmail(baseUrl, headers, email, requestId);
   if (!existingId) {
-    warn('wa.contact_not_found', { email });
+    warn('wa.contact_not_found', { email, requestId });
     return;
   }
 
+  const t0 = Date.now();
   const res = await fetch(`${baseUrl}/contacts/${existingId}`, {
     method: 'PUT',
     headers,
@@ -119,7 +125,7 @@ export async function lapseMembership(env: WAContactsEnv, email: string): Promis
     throw new Error(`WA membership lapse failed: ${res.status} ${err}`);
   }
 
-  log('wa.membership_lapsed', { email, contactId: existingId });
+  log('wa.membership_lapsed', { email, contactId: existingId, durationMs: Date.now() - t0, requestId });
 }
 
 export interface WAContact {

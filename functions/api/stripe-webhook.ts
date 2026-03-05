@@ -51,6 +51,7 @@ async function getStripeCustomerEmail(customerId: string, secretKey: string): Pr
 
 export async function onRequestPost(context: { request: Request; env: Env }): Promise<Response> {
   const { request, env } = context;
+  const requestId = crypto.randomUUID();
 
   // Must read raw body before parsing to verify signature
   const rawBody = await request.text();
@@ -58,7 +59,7 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
 
   const valid = await verifyStripeSignature(rawBody, signature, env.STRIPE_WEBHOOK_SECRET);
   if (!valid) {
-    logError('webhook.signature_invalid');
+    logError('webhook.signature_invalid', undefined, { requestId });
     return new Response('Firma inválida', { status: 400 });
   }
 
@@ -88,14 +89,14 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
       const fullName = session.customer_details?.name ?? '';
 
       if (!membershipType || !email) {
-        logError('webhook.checkout_completed', undefined, { membershipType, email, reason: 'missing_fields' });
+        logError('webhook.checkout_completed', undefined, { membershipType, email: email ?? null, reason: 'missing_fields', requestId });
         return new Response('Datos incompletos', { status: 400 });
       }
 
       const { firstName, lastName } = splitName(fullName);
 
-      const contactId = await createOrUpdateContact(env, { email, firstName, lastName, membershipType });
-      log('webhook.checkout_completed', { email, membershipType, contactId });
+      const contactId = await createOrUpdateContact(env, { email, firstName, lastName, membershipType }, requestId);
+      log('webhook.checkout_completed', { email, membershipType, contactId, requestId });
     }
 
     if (event.type === 'customer.subscription.deleted') {
@@ -103,21 +104,22 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
       const customerId = subscription.customer;
 
       if (!customerId) {
-        logError('webhook.subscription_deleted', undefined, { reason: 'missing_customer_id' });
+        logError('webhook.subscription_deleted', undefined, { reason: 'missing_customer_id', requestId });
         return new Response('Datos incompletos', { status: 400 });
       }
 
       const email = await getStripeCustomerEmail(customerId, env.STRIPE_SECRET_KEY);
       if (!email) {
-        logError('webhook.subscription_deleted', undefined, { customerId, reason: 'customer_email_not_found' });
-        return new Response('Cliente no encontrado', { status: 400 });
+        // Transient Stripe API failure — return 500 so Stripe retries
+        logError('webhook.subscription_deleted', undefined, { customerId, reason: 'customer_email_not_found', requestId });
+        return new Response('Cliente no encontrado', { status: 500 });
       }
 
-      await lapseMembership(env, email);
-      log('webhook.subscription_deleted', { email });
+      await lapseMembership(env, email, requestId);
+      log('webhook.subscription_deleted', { email, requestId });
     }
   } catch (err) {
-    logError('webhook.error', err, { eventType: event.type });
+    logError('webhook.error', err, { eventType: event.type, requestId });
     // Return 500 so Stripe retries the event
     return new Response('Error interno', { status: 500 });
   }
