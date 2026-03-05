@@ -27,7 +27,7 @@ async function verifyTurnstile(token: string, secretKey: string, remoteip?: stri
     const result: TurnstileVerifyResponse = await response.json();
     return result.success;
   } catch (error) {
-    logError('contact.turnstile_failed', error);
+    logError('contact.turnstile_error', error);
     return false;
   }
 }
