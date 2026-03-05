@@ -10,7 +10,6 @@ export function Header() {
   const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   const navigation = [
-    { name: 'Inicio', href: '/' },
     { name: 'Sobre Nosotras', href: '/sobre-mia' },
     { name: 'Socias', href: '/socias' },
     { name: 'Directiva', href: '/directiva' },
