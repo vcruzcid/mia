@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { HeaderMobileMenu } from '@/components/HeaderMobileMenu';
+import { PortalIcon } from '@/components/HeaderPortalIcon';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -76,9 +77,9 @@ export function Header() {
           </div>
 
           {/* Desktop Navigation — from 1100px up */}
-          <div className="hidden min-[1100px]:flex min-w-0 flex-1 shrink overflow-hidden justify-end">
+          <div className="hidden min-[1100px]:flex min-w-0 flex-1 shrink justify-end overflow-visible">
             <div className="ml-10 flex flex-nowrap items-center gap-4 shrink-0">
-              <div className="flex flex-nowrap items-baseline gap-4 shrink-0">
+              <div className="flex flex-nowrap items-center gap-4 shrink-0">
                 {navigation.filter((item) => item.name !== 'Portal').map((item) => (
                   item.name === 'Sobre Nosotras' ? (
                     <div key={item.name} className="relative group flex-shrink-0">
@@ -130,13 +131,15 @@ export function Header() {
                   return portalItem ? (
                     <Link
                       to={portalItem.href}
-                      className={`inline-block flex-shrink-0 ${isActive(portalItem.href)
-                        ? 'text-white bg-gray-800 px-3 py-2 rounded-md text-sm font-medium border border-white transition-colors duration-200'
-                        : 'text-white hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200'
+                      className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md border border-transparent ${isActive(portalItem.href)
+                        ? 'text-white bg-gray-800 border-white transition-colors duration-200'
+                        : 'text-white hover:text-red-400 transition-colors duration-200'
                       }`}
                       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                      aria-label="Portal"
+                      title="Portal"
                     >
-                      <span style={{ whiteSpace: 'nowrap' }}>Portal</span>
+                      <PortalIcon className="size-5 shrink-0 text-white" />
                     </Link>
                   ) : null;
                 })()}
