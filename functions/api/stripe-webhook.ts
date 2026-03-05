@@ -6,10 +6,12 @@
 
 import { createOrUpdateContact, lapseMembership, splitName, type WAContactsEnv } from '../_lib/wa-contacts';
 import { log, logError } from '../_lib/logger';
+import { sendWelcomeMemberEmail } from '../_lib/email';
 
 interface Env extends WAContactsEnv {
   STRIPE_SECRET_KEY: string;
   STRIPE_WEBHOOK_SECRET: string;
+  RESEND_API_KEY: string;
 }
 
 // Verify Stripe webhook signature using Web Crypto API
@@ -75,7 +77,7 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as {
         metadata?: { membership_type?: string };
-        customer_details?: { name?: string; email?: string };
+        customer_details?: { name?: string; email?: string; address?: { country?: string } };
         customer?: string;
         mode?: string;
       };
@@ -95,9 +97,19 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
       }
 
       const { firstName, lastName } = splitName(fullName);
+      const country = session.customer_details?.address?.country ?? undefined;
 
-      const contactId = await createOrUpdateContact(env, { email, firstName, lastName, membershipType }, requestId);
+      const contactId = await createOrUpdateContact(env, { email, firstName, lastName, membershipType, country }, requestId);
+
+      const nextYear = new Date();
+      nextYear.setFullYear(nextYear.getFullYear() + 1);
+      const renewalDate = nextYear.toISOString().split('T')[0];
+
       log('webhook.checkout_completed', { email, membershipType, contactId, requestId });
+
+      // Best-effort welcome email — never block or retry on email failure
+      sendWelcomeMemberEmail(env.RESEND_API_KEY, email, firstName, membershipType, contactId, renewalDate)
+        .catch(err => logError('webhook.welcome_email_failed', err, { email, membershipType, requestId }));
     }
 
     if (event.type === 'customer.subscription.deleted') {
