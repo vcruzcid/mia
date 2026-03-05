@@ -12,6 +12,7 @@ interface Env extends WAContactsEnv {
   STRIPE_SECRET_KEY: string;
   STRIPE_WEBHOOK_SECRET: string;
   RESEND_API_KEY: string;
+  WA_WHATSAPP_GROUP_URL: string;
 }
 
 // Verify Stripe webhook signature using Web Crypto API
@@ -99,16 +100,12 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
       const { firstName, lastName } = splitName(fullName);
       const country = session.customer_details?.address?.country ?? undefined;
 
-      const contactId = await createOrUpdateContact(env, { email, firstName, lastName, membershipType, country }, requestId);
-
-      const nextYear = new Date();
-      nextYear.setFullYear(nextYear.getFullYear() + 1);
-      const renewalDate = nextYear.toISOString().split('T')[0];
+      const { contactId, renewalDate } = await createOrUpdateContact(env, { email, firstName, lastName, membershipType, country }, requestId);
 
       log('webhook.checkout_completed', { email, membershipType, contactId, requestId });
 
       // Best-effort welcome email — never block or retry on email failure
-      sendWelcomeMemberEmail(env.RESEND_API_KEY, email, firstName, membershipType, contactId, renewalDate)
+      sendWelcomeMemberEmail(env.RESEND_API_KEY, email, firstName, membershipType, contactId, renewalDate, env.WA_WHATSAPP_GROUP_URL)
         .catch(err => logError('webhook.welcome_email_failed', err, { email, membershipType, requestId }));
     }
 

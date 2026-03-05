@@ -38,19 +38,19 @@ function wrapInLayout(content: string, showSocialIcons: boolean): string {
             <tr>
               <td style="padding: 0 8px;">
                 <a href="https://instagram.com/animacionesmia" target="_blank">
-                  <img src="https://cdn-images.mailchimp.com/icons/social-block-v3/color-instagram-48.png"
+                  <img src="${ICON_INSTAGRAM}"
                        alt="Instagram" width="32" height="32" style="display:block;" />
                 </a>
               </td>
               <td style="padding: 0 8px;">
                 <a href="https://linkedin.com/company/animacionesmia" target="_blank">
-                  <img src="https://cdn-images.mailchimp.com/icons/social-block-v3/color-linkedin-48.png"
+                  <img src="${ICON_LINKEDIN}"
                        alt="LinkedIn" width="32" height="32" style="display:block;" />
                 </a>
               </td>
               <td style="padding: 0 8px;">
                 <a href="https://twitter.com/animacionesmia" target="_blank">
-                  <img src="https://cdn-images.mailchimp.com/icons/social-block-v3/color-twitter-48.png"
+                  <img src="${ICON_TWITTER}"
                        alt="Twitter / X" width="32" height="32" style="display:block;" />
                 </a>
               </td>
@@ -104,7 +104,7 @@ function wrapInLayout(content: string, showSocialIcons: boolean): string {
                      style="display:block; margin: 0 auto 16px auto; opacity:0.8;" />
               </a>
               <p style="margin:0 0 8px 0; font-size:12px; color:#aaaaaa; font-family:'Poppins',Helvetica,Arial,sans-serif;">
-                © 2025 MIA — Mujeres en la Industria de la Animación
+                © ${new Date().getFullYear()} MIA — Mujeres en la Industria de la Animación
               </p>
               <p style="margin:0; font-size:12px; font-family:'Poppins',Helvetica,Arial,sans-serif;">
                 <a href="https://animacionesmia.com" style="color:#d8242e; text-decoration:none;">
@@ -236,8 +236,10 @@ const LEVEL_DISPLAY_NAMES: Record<string, string> = {
   'colaborador': 'Colaborador',
 };
 
-// WhatsApp group invite URL — replace with real invite link before go-live
-const WHATSAPP_GROUP_URL = 'https://chat.whatsapp.com/MIA';
+// Social icons inlined as base64 SVG — no external CDN dependency
+const ICON_INSTAGRAM = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIj48cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSI4IiBmaWxsPSIjQzEzNTg0Ii8+PHJlY3QgeD0iOSIgeT0iOSIgd2lkdGg9IjE0IiBoZWlnaHQ9IjE0IiByeD0iNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIi8+PGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMy41IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiLz48Y2lyY2xlIGN4PSIyMiIgY3k9IjEwIiByPSIxLjUiIGZpbGw9IndoaXRlIi8+PC9zdmc+';
+const ICON_LINKEDIN  = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIj48cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSI0IiBmaWxsPSIjMEE2NkMyIi8+PHJlY3QgeD0iOSIgeT0iMTMiIHdpZHRoPSIzIiBoZWlnaHQ9IjEwIiBmaWxsPSJ3aGl0ZSIvPjxjaXJjbGUgY3g9IjEwLjUiIGN5PSIxMC41IiByPSIxLjciIGZpbGw9IndoaXRlIi8+PHBhdGggZD0iTTE1IDEzaDIuOHYxLjRjLjQtLjggMS41LTEuNSAzLTEuNSAzLjIgMCAzLjcgMi4xIDMuNyA0LjhWMjNoLTN2LTQuOGMwLTEuMS0uMDItMi42LTEuNi0yLjZzLTEuOSAxLjItMS45IDIuNVYyM0gxNXoiIGZpbGw9IndoaXRlIi8+PC9zdmc+';
+const ICON_TWITTER   = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIj48cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSI0IiBmaWxsPSIjMDAwIi8+PHBhdGggZD0iTTIyLjUgOGgzbC02LjUgNy41IDcuNSA5LjVoLTUuOGwtNC43LTYtNS4zIDZINy41bDctOEw3IDhoNS45bDQuMiA1LjV6IiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==';
 
 export async function sendWelcomeMemberEmail(
   apiKey: string,
@@ -246,6 +248,7 @@ export async function sendWelcomeMemberEmail(
   membershipType: string,
   contactId: number,
   renewalDate: string,
+  whatsappGroupUrl: string,
 ): Promise<void> {
   const isColaborador = membershipType === 'colaborador';
   const levelName = LEVEL_DISPLAY_NAMES[membershipType] ?? membershipType;
@@ -273,7 +276,7 @@ export async function sendWelcomeMemberEmail(
                       <p style="margin:0 0 16px 0; font-size:14px; color:#555; line-height:1.6; font-family:'Poppins',Helvetica,Arial,sans-serif;">
                         Accede al grupo de WhatsApp exclusivo para socias de MIA y conéctate con el resto de la comunidad.
                       </p>
-                      <a href="${WHATSAPP_GROUP_URL}" target="_blank"
+                      <a href="${whatsappGroupUrl}" target="_blank"
                          style="display:inline-block; background:#25D366; color:#ffffff; font-family:'Poppins',Helvetica,Arial,sans-serif;
                                 font-size:14px; font-weight:600; text-decoration:none; padding:10px 24px; border-radius:6px;">
                         Unirse al grupo de WhatsApp
@@ -408,19 +411,19 @@ export async function sendWelcomeMemberEmail(
                   <tr>
                     <td style="padding:0 8px;">
                       <a href="https://instagram.com/animacionesmia" target="_blank">
-                        <img src="https://cdn-images.mailchimp.com/icons/social-block-v3/color-instagram-48.png"
+                        <img src="${ICON_INSTAGRAM}"
                              alt="Instagram" width="32" height="32" style="display:block;" />
                       </a>
                     </td>
                     <td style="padding:0 8px;">
                       <a href="https://linkedin.com/company/animacionesmia" target="_blank">
-                        <img src="https://cdn-images.mailchimp.com/icons/social-block-v3/color-linkedin-48.png"
+                        <img src="${ICON_LINKEDIN}"
                              alt="LinkedIn" width="32" height="32" style="display:block;" />
                       </a>
                     </td>
                     <td style="padding:0 8px;">
                       <a href="https://twitter.com/animacionesmia" target="_blank">
-                        <img src="https://cdn-images.mailchimp.com/icons/social-block-v3/color-twitter-48.png"
+                        <img src="${ICON_TWITTER}"
                              alt="Twitter / X" width="32" height="32" style="display:block;" />
                       </a>
                     </td>
@@ -438,7 +441,7 @@ export async function sendWelcomeMemberEmail(
                        style="display:block; margin:0 auto 16px auto; opacity:0.8;" />
                 </a>
                 <p style="margin:0 0 8px 0; font-size:12px; color:#aaaaaa; font-family:'Poppins',Helvetica,Arial,sans-serif;">
-                  © 2025 MIA — Mujeres en la Industria de la Animación
+                  © ${new Date().getFullYear()} MIA — Mujeres en la Industria de la Animación
                 </p>
                 <p style="margin:0; font-size:12px; font-family:'Poppins',Helvetica,Arial,sans-serif;">
                   <a href="https://animacionesmia.com" style="color:#d8242e; text-decoration:none;">

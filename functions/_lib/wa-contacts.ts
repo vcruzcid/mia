@@ -59,7 +59,7 @@ async function findContactByEmail(
   return contactId;
 }
 
-export async function createOrUpdateContact(env: WAContactsEnv, data: NewMemberData, requestId?: string): Promise<number> {
+export async function createOrUpdateContact(env: WAContactsEnv, data: NewMemberData, requestId?: string): Promise<{ contactId: number; renewalDate: string }> {
   const token = await getWAToken(env, requestId);
   const baseUrl = `https://api.wildapricot.org/v2.2/accounts/${env.WILDAPRICOT_ACCOUNT_ID}`;
   const headers = {
@@ -108,11 +108,11 @@ export async function createOrUpdateContact(env: WAContactsEnv, data: NewMemberD
   const durationMs = Date.now() - t0;
   if (existingId) {
     log('wa.contact_updated', { email: data.email, contactId: existingId, membershipType: data.membershipType, memberSince: today, renewalDue: renewalDate, durationMs, requestId });
-    return existingId;
+    return { contactId: existingId, renewalDate };
   }
   const created = await res.json() as { Id: number };
   log('wa.contact_created', { email: data.email, contactId: created.Id, membershipType: data.membershipType, memberSince: today, renewalDue: renewalDate, durationMs, requestId });
-  return created.Id;
+  return { contactId: created.Id, renewalDate };
 }
 
 export async function lapseMembership(env: WAContactsEnv, email: string, requestId?: string): Promise<void> {
