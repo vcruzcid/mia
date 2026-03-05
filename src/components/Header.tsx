@@ -63,9 +63,9 @@ export function Header() {
   return (
     <header className="bg-black border-b border-gray-800 sticky top-0 z-50 backdrop-blur-sm">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" role="navigation" aria-label="Main navigation">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-16 overflow-hidden">
           {/* Logo */}
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0 min-w-0">
             <Link to="/" className="flex items-center">
               <img 
                 src="/logo-main.png" 
@@ -75,22 +75,22 @@ export function Header() {
             </Link>
           </div>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:block">
-            <div className="ml-10 flex items-center space-x-4">
-              <div className="flex items-baseline space-x-4">
+          {/* Desktop Navigation — from 1280px (xl) up */}
+          <div className="hidden xl:flex min-w-0 flex-1 shrink overflow-hidden justify-end">
+            <div className="ml-10 flex flex-nowrap items-center gap-4 shrink-0">
+              <div className="flex flex-nowrap items-baseline gap-4 shrink-0">
                 {navigation.map((item) => (
                   item.name === 'Sobre Nosotras' ? (
-                    <div key={item.name} className="relative group">
+                    <div key={item.name} className="relative group flex-shrink-0">
                       <Link
                         to={item.href}
-                        className={isActive(item.href) || aboutMenu.some((i) => isActive(i.href))
+                        className={`inline-block ${isActive(item.href) || aboutMenu.some((i) => isActive(i.href))
                           ? 'text-white bg-gray-800 px-3 py-2 rounded-md text-sm font-medium border border-white transition-colors duration-200'
                           : 'text-white hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200'
-                        }
+                        }`}
                         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                       >
-                        {item.name}
+                        <span style={{ whiteSpace: 'nowrap' }}>{item.name === 'Sobre Nosotras' ? <>Sobre{'\u00A0'}Nosotras</> : item.name}</span>
                       </Link>
                       {/* Hover submenu */}
                       <div className="absolute left-0 top-full mt-1 hidden group-hover:block bg-black border border-gray-800 rounded-md shadow-lg min-w-[180px] z-50">
@@ -110,19 +110,18 @@ export function Header() {
                     <Link
                       key={item.name}
                       to={item.href}
-                      className={isActive(item.href)
+                      className={`inline-block flex-shrink-0 ${isActive(item.href)
                         ? 'text-white bg-gray-800 px-3 py-2 rounded-md text-sm font-medium border border-white transition-colors duration-200'
                         : 'text-white hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200'
-                      }
+                      }`}
                       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                     >
-                      {item.name}
+                      <span style={{ whiteSpace: 'nowrap' }}>{item.name === 'Sobre Nosotras' ? <>Sobre{'\u00A0'}Nosotras</> : item.name}</span>
                     </Link>
                   )
                 ))}
               </div>
-              
-              <Button asChild className="bg-red-600 hover:bg-red-700 text-white">
+              <Button asChild className="shrink-0 bg-red-600 hover:bg-red-700 text-white whitespace-nowrap">
                 <Link to="/registro">
                   Únete a MIA
                 </Link>
@@ -130,8 +129,8 @@ export function Header() {
             </div>
           </div>
 
-          {/* Mobile menu button */}
-          <div className="md:hidden">
+          {/* Mobile menu button — shown when browser < 1280px (xl) */}
+          <div className="shrink-0 xl:hidden">
             <Button
               ref={menuButtonRef}
               variant="ghost"

@@ -21,20 +21,20 @@ export function HeaderMobileMenu({ mobileMenuRef, navigation, aboutMenu, isActiv
   };
 
   return (
-    <div id="mobile-menu" ref={mobileMenuRef} className="md:hidden border-t border-gray-800">
+    <div id="mobile-menu" ref={mobileMenuRef} className="xl:hidden border-t border-gray-800">
       <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-black">
         {navigation.map((item) => (
           <Link
             key={item.name}
             to={item.href}
-            className={`block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 ${
+            className={`block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 whitespace-nowrap ${
               isActive(item.href)
                 ? 'text-white bg-gray-800 border border-white'
                 : 'text-white hover:bg-gray-900 hover:text-red-400'
             }`}
             onClick={handleClick}
           >
-            {item.name}
+            <span style={{ whiteSpace: 'nowrap' }}>{item.name === 'Sobre Nosotras' ? <>Sobre{'\u00A0'}Nosotras</> : item.name}</span>
           </Link>
         ))}
 
@@ -44,7 +44,7 @@ export function HeaderMobileMenu({ mobileMenuRef, navigation, aboutMenu, isActiv
             <Link
               key={item.href}
               to={item.href}
-              className={`block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 ${
+              className={`block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 whitespace-nowrap ${
                 isActive(item.href)
                   ? 'text-white bg-gray-800 border border-white'
                   : 'text-white hover:bg-gray-900 hover:text-red-400'
