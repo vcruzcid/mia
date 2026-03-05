@@ -42,3 +42,6 @@ global.IntersectionObserver = class IntersectionObserver {
   unobserve() {}
 } as unknown as typeof IntersectionObserver;
 
+// jsdom does not implement window.scrollTo
+window.scrollTo = vi.fn();
+
