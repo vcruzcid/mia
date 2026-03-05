@@ -1,6 +1,46 @@
 // Resend email utility — uses REST API directly (no npm package, better Workers compatibility)
 const RESEND_API = 'https://api.resend.com/emails';
 
+// ─── Shared assets ─────────────────────────────────────────────────────────────
+
+// Logo variants served from Cloudflare Pages (public/)
+const LOGO_HEADER = 'https://animacionesmia.com/logo-main.png';
+const LOGO_FOOTER = 'https://animacionesmia.com/mia-footer.png'; // white variant for dark backgrounds
+
+// Social icons inlined as base64 SVG — no external CDN dependency
+const ICON_INSTAGRAM = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIj48cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSI4IiBmaWxsPSIjQzEzNTg0Ii8+PHJlY3QgeD0iOSIgeT0iOSIgd2lkdGg9IjE0IiBoZWlnaHQ9IjE0IiByeD0iNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIi8+PGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMy41IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiLz48Y2lyY2xlIGN4PSIyMiIgY3k9IjEwIiByPSIxLjUiIGZpbGw9IndoaXRlIi8+PC9zdmc+';
+const ICON_LINKEDIN  = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIj48cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSI0IiBmaWxsPSIjMEE2NkMyIi8+PHJlY3QgeD0iOSIgeT0iMTMiIHdpZHRoPSIzIiBoZWlnaHQ9IjEwIiBmaWxsPSJ3aGl0ZSIvPjxjaXJjbGUgY3g9IjEwLjUiIGN5PSIxMC41IiByPSIxLjciIGZpbGw9IndoaXRlIi8+PHBhdGggZD0iTTE1IDEzaDIuOHYxLjRjLjQtLjggMS41LTEuNSAzLTEuNSAzLjIgMCAzLjcgMi4xIDMuNyA0LjhWMjNoLTN2LTQuOGMwLTEuMS0uMDItMi42LTEuNi0yLjZzLTEuOSAxLjItMS45IDIuNVYyM0gxNXoiIGZpbGw9IndoaXRlIi8+PC9zdmc+';
+const ICON_TWITTER   = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIj48cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSI0IiBmaWxsPSIjMDAwIi8+PHBhdGggZD0iTTIyLjUgOGgzbC02LjUgNy41IDcuNSA5LjVoLTUuOGwtNC43LTYtNS4zIDZINy41bDctOEw3IDhoNS45bDQuMiA1LjV6IiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==';
+
+function buildSocialIconsRow(indent = ''): string {
+  return `${indent}<tr>
+${indent}  <td align="center" style="padding: 24px 40px 0 40px;">
+${indent}    <p style="margin: 0 0 16px 0; font-size: 14px; color: #aaaaaa; font-family: 'Poppins', Helvetica, Arial, sans-serif;">
+${indent}      Síguenos en redes
+${indent}    </p>
+${indent}    <table cellpadding="0" cellspacing="0" border="0">
+${indent}      <tr>
+${indent}        <td style="padding: 0 8px;">
+${indent}          <a href="https://instagram.com/animacionesmia" target="_blank">
+${indent}            <img src="${ICON_INSTAGRAM}" alt="Instagram" width="32" height="32" style="display:block;" />
+${indent}          </a>
+${indent}        </td>
+${indent}        <td style="padding: 0 8px;">
+${indent}          <a href="https://linkedin.com/company/animacionesmia" target="_blank">
+${indent}            <img src="${ICON_LINKEDIN}" alt="LinkedIn" width="32" height="32" style="display:block;" />
+${indent}          </a>
+${indent}        </td>
+${indent}        <td style="padding: 0 8px;">
+${indent}          <a href="https://twitter.com/animacionesmia" target="_blank">
+${indent}            <img src="${ICON_TWITTER}" alt="Twitter / X" width="32" height="32" style="display:block;" />
+${indent}          </a>
+${indent}        </td>
+${indent}      </tr>
+${indent}    </table>
+${indent}  </td>
+${indent}</tr>`;
+}
+
 interface EmailPayload {
   from: string;
   to: string | string[];
@@ -27,38 +67,7 @@ export async function sendEmail(apiKey: string, payload: EmailPayload): Promise<
 // ─── Shared layout ────────────────────────────────────────────────────────────
 
 function wrapInLayout(content: string, showSocialIcons: boolean): string {
-  const socialBlock = showSocialIcons
-    ? `
-      <tr>
-        <td align="center" style="padding: 24px 40px 0 40px;">
-          <p style="margin: 0 0 16px 0; font-size: 14px; color: #aaaaaa; font-family: 'Poppins', Helvetica, Arial, sans-serif;">
-            Síguenos en redes
-          </p>
-          <table cellpadding="0" cellspacing="0" border="0">
-            <tr>
-              <td style="padding: 0 8px;">
-                <a href="https://instagram.com/animacionesmia" target="_blank">
-                  <img src="${ICON_INSTAGRAM}"
-                       alt="Instagram" width="32" height="32" style="display:block;" />
-                </a>
-              </td>
-              <td style="padding: 0 8px;">
-                <a href="https://linkedin.com/company/animacionesmia" target="_blank">
-                  <img src="${ICON_LINKEDIN}"
-                       alt="LinkedIn" width="32" height="32" style="display:block;" />
-                </a>
-              </td>
-              <td style="padding: 0 8px;">
-                <a href="https://twitter.com/animacionesmia" target="_blank">
-                  <img src="${ICON_TWITTER}"
-                       alt="Twitter / X" width="32" height="32" style="display:block;" />
-                </a>
-              </td>
-            </tr>
-          </table>
-        </td>
-      </tr>`
-    : '';
+  const socialBlock = showSocialIcons ? `\n          ${buildSocialIconsRow('          ')}\n` : '';
 
   return `<!DOCTYPE html>
 <html lang="es">
@@ -78,7 +87,7 @@ function wrapInLayout(content: string, showSocialIcons: boolean): string {
           <tr>
             <td style="background-color:#1d1d1b; padding: 24px 40px; text-align:center;">
               <a href="https://animacionesmia.com" target="_blank">
-                <img src="https://animacionesmia.com/logo-main.png"
+                <img src="${LOGO_HEADER}"
                      alt="MIA — Mujeres en la Industria de la Animación"
                      width="160" height="auto"
                      style="display:block; margin:0 auto;" />
@@ -92,16 +101,14 @@ function wrapInLayout(content: string, showSocialIcons: boolean): string {
               ${content}
             </td>
           </tr>
-
           ${socialBlock}
-
           <!-- Footer -->
           <tr>
             <td style="background-color:#1d1d1b; padding: 24px 40px; text-align:center;">
               <a href="https://animacionesmia.com" target="_blank">
-                <img src="https://animacionesmia.com/logo-main.png"
+                <img src="${LOGO_FOOTER}"
                      alt="MIA" width="80" height="auto"
-                     style="display:block; margin: 0 auto 16px auto; opacity:0.8;" />
+                     style="display:block; margin: 0 auto 16px auto;" />
               </a>
               <p style="margin:0 0 8px 0; font-size:12px; color:#aaaaaa; font-family:'Poppins',Helvetica,Arial,sans-serif;">
                 © ${new Date().getFullYear()} MIA — Mujeres en la Industria de la Animación
@@ -236,11 +243,6 @@ const LEVEL_DISPLAY_NAMES: Record<string, string> = {
   'colaborador': 'Colaborador',
 };
 
-// Social icons inlined as base64 SVG — no external CDN dependency
-const ICON_INSTAGRAM = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIj48cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSI4IiBmaWxsPSIjQzEzNTg0Ii8+PHJlY3QgeD0iOSIgeT0iOSIgd2lkdGg9IjE0IiBoZWlnaHQ9IjE0IiByeD0iNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIi8+PGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMy41IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiLz48Y2lyY2xlIGN4PSIyMiIgY3k9IjEwIiByPSIxLjUiIGZpbGw9IndoaXRlIi8+PC9zdmc+';
-const ICON_LINKEDIN  = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIj48cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSI0IiBmaWxsPSIjMEE2NkMyIi8+PHJlY3QgeD0iOSIgeT0iMTMiIHdpZHRoPSIzIiBoZWlnaHQ9IjEwIiBmaWxsPSJ3aGl0ZSIvPjxjaXJjbGUgY3g9IjEwLjUiIGN5PSIxMC41IiByPSIxLjciIGZpbGw9IndoaXRlIi8+PHBhdGggZD0iTTE1IDEzaDIuOHYxLjRjLjQtLjggMS41LTEuNSAzLTEuNSAzLjIgMCAzLjcgMi4xIDMuNyA0LjhWMjNoLTN2LTQuOGMwLTEuMS0uMDItMi42LTEuNi0yLjZzLTEuOSAxLjItMS45IDIuNVYyM0gxNXoiIGZpbGw9IndoaXRlIi8+PC9zdmc+';
-const ICON_TWITTER   = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIj48cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSI0IiBmaWxsPSIjMDAwIi8+PHBhdGggZD0iTTIyLjUgOGgzbC02LjUgNy41IDcuNSA5LjVoLTUuOGwtNC43LTYtNS4zIDZINy41bDctOEw3IDhoNS45bDQuMiA1LjV6IiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==';
-
 export async function sendWelcomeMemberEmail(
   apiKey: string,
   memberEmail: string,
@@ -317,7 +319,7 @@ export async function sendWelcomeMemberEmail(
             <tr>
               <td style="background-color:#1d1d1b; padding:24px 40px; text-align:center;">
                 <a href="https://animacionesmia.com" target="_blank">
-                  <img src="https://animacionesmia.com/logo-main.png"
+                  <img src="${LOGO_HEADER}"
                        alt="MIA — Mujeres en la Industria de la Animación"
                        width="160" height="auto"
                        style="display:block; margin:0 auto;" />
@@ -400,45 +402,15 @@ export async function sendWelcomeMemberEmail(
             </tr>
             ${whatsappSection}
             ${manualSection}
-
-            <!-- Social icons -->
-            <tr>
-              <td align="center" style="padding:24px 40px 0 40px;">
-                <p style="margin:0 0 16px 0; font-size:14px; color:#aaaaaa; font-family:'Poppins',Helvetica,Arial,sans-serif;">
-                  Síguenos en redes
-                </p>
-                <table cellpadding="0" cellspacing="0" border="0">
-                  <tr>
-                    <td style="padding:0 8px;">
-                      <a href="https://instagram.com/animacionesmia" target="_blank">
-                        <img src="${ICON_INSTAGRAM}"
-                             alt="Instagram" width="32" height="32" style="display:block;" />
-                      </a>
-                    </td>
-                    <td style="padding:0 8px;">
-                      <a href="https://linkedin.com/company/animacionesmia" target="_blank">
-                        <img src="${ICON_LINKEDIN}"
-                             alt="LinkedIn" width="32" height="32" style="display:block;" />
-                      </a>
-                    </td>
-                    <td style="padding:0 8px;">
-                      <a href="https://twitter.com/animacionesmia" target="_blank">
-                        <img src="${ICON_TWITTER}"
-                             alt="Twitter / X" width="32" height="32" style="display:block;" />
-                      </a>
-                    </td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
+            ${buildSocialIconsRow('            ')}
 
             <!-- Footer -->
             <tr>
               <td style="background-color:#1d1d1b; padding:24px 40px; text-align:center; margin-top:24px;">
                 <a href="https://animacionesmia.com" target="_blank">
-                  <img src="https://animacionesmia.com/logo-main.png"
+                  <img src="${LOGO_FOOTER}"
                        alt="MIA" width="80" height="auto"
-                       style="display:block; margin:0 auto 16px auto; opacity:0.8;" />
+                       style="display:block; margin:0 auto 16px auto;" />
                 </a>
                 <p style="margin:0 0 8px 0; font-size:12px; color:#aaaaaa; font-family:'Poppins',Helvetica,Arial,sans-serif;">
                   © ${new Date().getFullYear()} MIA — Mujeres en la Industria de la Animación
