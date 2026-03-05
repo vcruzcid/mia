@@ -209,6 +209,27 @@ Before using any library, SDK, API, or tool:
 
 ---
 
+## Logging (Workers Logs)
+
+Workers Logs is enabled in `wrangler.toml` (`[observability] enabled = true`) for both production and preview environments.
+
+**Rules for Pages Functions (`functions/`):**
+- Never use raw `console.log/warn/error` strings — always use the shared logger at `functions/_lib/logger.ts`
+- Import: `import { log, warn, logError } from '../_lib/logger';` (adjust relative path)
+- Emit **objects**, not strings — Workers Logs indexes JSON fields for dashboard filtering:
+  ```typescript
+  log('event.name', { email, contactId, membershipType });   // info
+  warn('event.name', { email, reason });                      // warning
+  logError('event.name', err, { email, step: 'wa_lookup' }); // error — extracts err.message
+  ```
+- Event names use `domain.action` format: `auth.session_created`, `portal.error`, `wa.contact_updated`, etc.
+- Include identifying fields where available: `email`, `contactId`, `membershipType`, `step`
+- Never log secrets, tokens, or full request bodies
+
+When adding a new Pages Function, always add structured log calls for success paths and error paths.
+
+---
+
 ## Coding Conventions
 
 - TypeScript strict mode — all new code must pass `npm run build`
@@ -228,8 +249,10 @@ See `.claude/agents/git-workflow.md` for full branching, commit, PR, and merge r
 
 **Quick reference:**
 - Branch from `dev`, not `main`
+- **One branch = one PR** — delete the local branch after merge; GitHub auto-deletes the remote
 - Commits: conventional format `type(scope): description` — **lowercase, never capitalize the description, never omit the scope**
 - PRs always target `dev`
+- To sync with dev mid-flight: `git rebase origin/dev` — **never** `git merge dev`
 - `main` only receives merges from `dev` via PR — never direct commits
 - Release Please reads commit messages to bump versions — wrong type = wrong version bump (`feat` = minor, `fix` = patch, `chore` = no bump)
 

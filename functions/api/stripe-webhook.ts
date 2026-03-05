@@ -5,6 +5,7 @@
 //   - customer.subscription.deleted → lapse WildApricot membership
 
 import { createOrUpdateContact, lapseMembership, splitName, type WAContactsEnv } from '../_lib/wa-contacts';
+import { log, logError } from '../_lib/logger';
 
 interface Env extends WAContactsEnv {
   STRIPE_SECRET_KEY: string;
@@ -57,7 +58,7 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
 
   const valid = await verifyStripeSignature(rawBody, signature, env.STRIPE_WEBHOOK_SECRET);
   if (!valid) {
-    console.error('Stripe webhook signature verification failed');
+    logError('webhook.signature_invalid');
     return new Response('Firma inválida', { status: 400 });
   }
 
@@ -87,14 +88,14 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
       const fullName = session.customer_details?.name ?? '';
 
       if (!membershipType || !email) {
-        console.error('checkout.session.completed missing required fields', { membershipType, email });
+        logError('webhook.checkout_completed', undefined, { membershipType, email, reason: 'missing_fields' });
         return new Response('Datos incompletos', { status: 400 });
       }
 
       const { firstName, lastName } = splitName(fullName);
 
       const contactId = await createOrUpdateContact(env, { email, firstName, lastName, membershipType });
-      console.log(`WA contact created/updated for ${email} (${membershipType}), id=${contactId}`);
+      log('webhook.checkout_completed', { email, membershipType, contactId });
     }
 
     if (event.type === 'customer.subscription.deleted') {
@@ -102,21 +103,21 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
       const customerId = subscription.customer;
 
       if (!customerId) {
-        console.error('customer.subscription.deleted missing customer ID');
+        logError('webhook.subscription_deleted', undefined, { reason: 'missing_customer_id' });
         return new Response('Datos incompletos', { status: 400 });
       }
 
       const email = await getStripeCustomerEmail(customerId, env.STRIPE_SECRET_KEY);
       if (!email) {
-        console.error(`Could not fetch email for Stripe customer ${customerId}`);
+        logError('webhook.subscription_deleted', undefined, { customerId, reason: 'customer_email_not_found' });
         return new Response('Cliente no encontrado', { status: 400 });
       }
 
       await lapseMembership(env, email);
-      console.log(`WA membership lapsed for ${email}`);
+      log('webhook.subscription_deleted', { email });
     }
   } catch (err) {
-    console.error(`Error handling ${event.type}:`, err);
+    logError('webhook.error', err, { eventType: event.type });
     // Return 500 so Stripe retries the event
     return new Response('Error interno', { status: 500 });
   }

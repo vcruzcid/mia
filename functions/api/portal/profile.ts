@@ -6,6 +6,7 @@
 import { getContact, updateContact, type WAContactsEnv, type WAContact } from '../../_lib/wa-contacts';
 import { getCorsHeaders, getPreflightResponse } from '../../_lib/cors';
 import { FIELD_CODES, PROFESION_PRINCIPAL_IDS, PROFESION_ADICIONAL_IDS } from '../../_lib/wa-field-ids';
+import { log, logError } from '../../_lib/logger';
 
 const METHODS = 'GET, PUT, OPTIONS';
 
@@ -108,12 +109,13 @@ export async function onRequestGet(
   try {
     const contact = await getContact(context.env, parseInt(session.contactId, 10));
     const profile = mapContactToProfile(contact);
+    log('portal.profile_fetched', { contactId: session.contactId });
     return new Response(
       JSON.stringify({ success: true, profile }),
       { status: 200, headers: cors },
     );
   } catch (err) {
-    console.error('Failed to fetch contact profile:', err);
+    logError('portal.error', err, { contactId: session.contactId, step: 'fetch' });
     return new Response(
       JSON.stringify({ success: false, error: 'Error obteniendo perfil' }),
       { status: 500, headers: cors },
@@ -196,12 +198,13 @@ export async function onRequestPut(
 
   try {
     await updateContact(context.env, contactId, updateFields);
+    log('portal.profile_updated', { contactId: session.contactId });
     return new Response(
       JSON.stringify({ success: true }),
       { status: 200, headers: cors },
     );
   } catch (err) {
-    console.error('Failed to update contact:', err);
+    logError('portal.error', err, { contactId: session.contactId, step: 'update' });
     return new Response(
       JSON.stringify({ success: false, error: 'Error actualizando perfil' }),
       { status: 500, headers: cors },
