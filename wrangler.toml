@@ -27,7 +27,7 @@ WA_LEVEL_ID_ESTUDIANTE    = "1765872"
 WA_LEVEL_ID_COLABORADOR   = "1765873"
 
 # WhatsApp — group invite URL for new socias (update before go-live)
-WA_WHATSAPP_GROUP_URL = "https://chat.whatsapp.com/PLACEHOLDER"
+WA_WHATSAPP_GROUP_URL = "https://chat.whatsapp.com/Dle6uwsO3ThKuFE4hELdCp"
 
 # KV — WA OAuth token cache (production namespace)
 [[kv_namespaces]]
@@ -58,7 +58,7 @@ WA_LEVEL_ID_ESTUDIANTE    = "1765872"
 WA_LEVEL_ID_COLABORADOR   = "1765873"
 
 # WhatsApp — use a test/dev group for preview
-WA_WHATSAPP_GROUP_URL = "https://chat.whatsapp.com/PLACEHOLDER"
+WA_WHATSAPP_GROUP_URL = "https://chat.whatsapp.com/Dle6uwsO3ThKuFE4hELdCp"
 
 # KV — preview namespace
 [[env.preview.kv_namespaces]]
