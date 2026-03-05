@@ -39,7 +39,7 @@ export function PortalAccesoPage() {
       return;
     }
     mutation.mutate(token);
-  }, [mutation, navigate]);
+  }, [mutation.mutate, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900">
