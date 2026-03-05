@@ -35,13 +35,13 @@ export function HeaderMobileMenu({ mobileMenuRef, navigation, aboutMenu, isActiv
             }`}
             onClick={handleClick}
           >
-            <span style={{ whiteSpace: 'nowrap' }}>{item.name === 'Sobre Nosotras' ? <>Sobre{'\u00A0'}Nosotras</> : item.name}</span>
+            {item.name}
           </Link>
         ))}
 
         <div className="pt-4 pb-2">
           <Button asChild className="w-full bg-red-600 hover:bg-red-700 text-white">
-            <Link to="/registro" onClick={onLinkClick}>
+            <Link to="/registro" onClick={handleClick}>
               Únete a MIA
             </Link>
           </Button>

@@ -11,7 +11,7 @@ export function Footer() {
           <div className="lg:col-span-3 flex flex-col justify-between h-full">
             <nav className="flex flex-col justify-between h-full space-y-6">
               <FooterLink to="/">INICIO</FooterLink>
-              <FooterLink to="/sobre-mia"><span style={{ whiteSpace: 'nowrap' }}>SOBRE{'\u00A0'}NOSOTRAS</span></FooterLink>
+              <FooterLink to="/sobre-mia"><span className="whitespace-nowrap">SOBRE NOSOTRAS</span></FooterLink>
               <FooterLink to="/socias">SOCIAS</FooterLink>
               <FooterLink to="/directiva">DIRECTIVA</FooterLink>
               <FooterLink to="/fundadoras">FUNDADORAS</FooterLink>

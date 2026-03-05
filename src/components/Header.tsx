@@ -91,7 +91,7 @@ export function Header() {
                         }`}
                         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                       >
-                        <span style={{ whiteSpace: 'nowrap' }}>{item.name === 'Sobre Nosotras' ? <>Sobre{'\u00A0'}Nosotras</> : item.name}</span>
+                        <span className="whitespace-nowrap">{item.name}</span>
                       </Link>
                       {/* Hover submenu */}
                       <div className="absolute left-0 top-full mt-1 hidden group-hover:block bg-black border border-gray-800 rounded-md shadow-lg min-w-[180px] z-50">
@@ -117,7 +117,7 @@ export function Header() {
                       }`}
                       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                     >
-                      <span style={{ whiteSpace: 'nowrap' }}>{item.name === 'Sobre Nosotras' ? <>Sobre{'\u00A0'}Nosotras</> : item.name}</span>
+                      <span className="whitespace-nowrap">{item.name}</span>
                     </Link>
                   )
                 ))}
