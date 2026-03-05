@@ -26,6 +26,10 @@ export function RegistrationPage() {
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [gdprAccepted, setGdprAccepted] = useState(false);
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+  }, []);
+
   // Handle pre-selected membership from navigation state
   useEffect(() => {
     if (location.state?.selectedMembership && !state.selectedMembership) {
