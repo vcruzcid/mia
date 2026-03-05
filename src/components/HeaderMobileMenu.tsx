@@ -5,28 +5,28 @@ import { PortalIcon } from '@/components/HeaderPortalIcon';
 interface NavItem {
   name: string;
   href: string;
+  id?: string;
 }
 
 interface Props {
   mobileMenuRef: React.RefObject<HTMLDivElement | null>;
   navigation: NavItem[];
+  portalItem?: NavItem | null;
   aboutMenu: NavItem[];
   isActive: (href: string) => boolean;
   onLinkClick: () => void;
 }
 
-export function HeaderMobileMenu({ mobileMenuRef, navigation, aboutMenu, isActive, onLinkClick }: Props) {
+export function HeaderMobileMenu({ mobileMenuRef, navigation, portalItem, aboutMenu, isActive, onLinkClick }: Props) {
   const handleClick = () => {
     onLinkClick();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const portalItem = navigation.find((n) => n.name === 'Portal');
-
   return (
     <div id="mobile-menu" ref={mobileMenuRef} className="min-[1100px]:hidden border-t border-gray-800">
       <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-black">
-        {navigation.filter((item) => item.name !== 'Portal').map((item) => (
+        {navigation.filter((item) => (portalItem ? item !== portalItem : item.name !== 'Portal')).map((item) => (
           <Link
             key={item.name}
             to={item.href}
@@ -52,7 +52,7 @@ export function HeaderMobileMenu({ mobileMenuRef, navigation, aboutMenu, isActiv
         {portalItem ? (
           <Link
             to={portalItem.href}
-            className={`flex items-center gap-2 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 ${
+            className={`flex items-center px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 ${
               isActive(portalItem.href)
                 ? 'text-white bg-gray-800 border border-white'
                 : 'text-white hover:bg-gray-900 hover:text-red-400'

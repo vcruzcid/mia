@@ -17,7 +17,7 @@ export function Header() {
     { name: 'MIANIMA', href: '/mianima' },
     { name: 'Membresía', href: '/membresia' },
     { name: 'Contacto', href: '/contacto' },
-    { name: 'Portal', href: '/portal/login' },
+    { name: 'Portal', href: '/portal/login', id: 'portal' as const },
   ];
 
   const aboutMenu = [{ name: 'Fundadoras', href: '/fundadoras' }];
@@ -61,11 +61,11 @@ export function Header() {
     };
   }, [isMenuOpen]);
 
-  const portalItem = navigation.find((n) => n.name === 'Portal');
+  const portalItem = navigation.find((n) => 'id' in n && n.id === 'portal');
 
   return (
     <header className="bg-black border-b border-gray-800 sticky top-0 z-50 backdrop-blur-sm">
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" role="navigation" aria-label="Main navigation">
+      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" role="navigation" aria-label="Navegación principal">
         <div className="flex justify-between items-center h-16 overflow-x-clip">
           {/* Logo */}
           <div className="flex-shrink-0 min-w-0">
@@ -82,7 +82,7 @@ export function Header() {
           <div className="hidden min-[1100px]:flex min-w-0 flex-1 shrink justify-end overflow-visible">
             <div className="ml-10 flex flex-nowrap items-center gap-4 shrink-0">
               <div className="flex flex-nowrap items-center gap-4 shrink-0">
-                {navigation.filter((item) => item.name !== 'Portal').map((item) => (
+                {navigation.filter((item) => !('id' in item && item.id === 'portal')).map((item) => (
                   item.name === 'Sobre Nosotras' ? (
                     <div key={item.name} className="relative group flex-shrink-0">
                       <Link
@@ -176,6 +176,7 @@ export function Header() {
           <HeaderMobileMenu
             mobileMenuRef={mobileMenuRef}
             navigation={navigation}
+            portalItem={portalItem}
             aboutMenu={aboutMenu}
             isActive={isActive}
             onLinkClick={() => setIsMenuOpen(false)}
