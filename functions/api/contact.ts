@@ -93,7 +93,13 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
       });
     } catch (emailErr) {
       logError('contact.email_failed', emailErr, { email: body.email });
-      throw emailErr;
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'Error interno del servidor. Por favor, inténtalo de nuevo.',
+        }),
+        { status: 500, headers: corsHeaders }
+      );
     }
 
     log('contact.sent', { email: body.email });
