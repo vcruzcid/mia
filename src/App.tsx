@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastProvider } from './contexts/ToastContext';
 import { LoadingProvider } from './contexts/LoadingContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -14,6 +14,7 @@ import { MianimaPage } from './pages/MianimaPage';
 import { RegistrationPage } from './pages/RegistrationPage';
 import { RegistroExitoPage } from './pages/RegistroExitoPage';
 import { PortalLoginPage } from './pages/portal/PortalLoginPage';
+import { PortalAccesoPage } from './pages/portal/PortalAccesoPage';
 import { PortalLayout } from './pages/portal/PortalLayout';
 import { PortalPerfilPage } from './pages/portal/PortalPerfilPage';
 import { PortalSuscripcionPage } from './pages/portal/PortalSuscripcionPage';
@@ -47,10 +48,12 @@ function App() {
                 <Route path="registro/exito" element={<RegistroExitoPage />} />
 
                 <Route path="portal/login" element={<PortalLoginPage />} />
+                <Route path="portal/acceso" element={<PortalAccesoPage />} />
                 <Route path="portal" element={<PortalLayout />}>
                   <Route path="perfil" element={<PortalPerfilPage />} />
                   <Route path="suscripcion" element={<PortalSuscripcionPage />} />
                 </Route>
+                <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </div>
           </Router>
