@@ -1,6 +1,7 @@
 // Cloudflare Pages Function for contact form with Turnstile verification
 import type { ContactRequest, ContactResponse, TurnstileVerifyResponse } from '../../src/types/api';
 import { sendContactNotification } from '../_lib/email';
+import { log, warn, logError } from '../_lib/logger';
 
 interface Env {
   RESEND_API_KEY: string;
@@ -26,7 +27,7 @@ async function verifyTurnstile(token: string, secretKey: string, remoteip?: stri
     const result: TurnstileVerifyResponse = await response.json();
     return result.success;
   } catch (error) {
-    console.error('Turnstile verification error:', error);
+    logError('contact.turnstile_failed', error);
     return false;
   }
 }
@@ -51,6 +52,8 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
     // Parse request body
     const body: ContactRequest = await request.json();
 
+    log('contact.received', { email: body.email });
+
     // Validate required fields
     const requiredFields = ['name', 'email', 'subject', 'message', 'turnstileToken'];
     const missingFields = requiredFields.filter(field => !body[field as keyof ContactRequest]);
@@ -70,6 +73,7 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
     const turnstileValid = await verifyTurnstile(body.turnstileToken, env.TURNSTILE_SECRET_KEY, clientIP || undefined);
 
     if (!turnstileValid) {
+      warn('contact.turnstile_failed', { email: body.email });
       return new Response(
         JSON.stringify({
           success: false,
@@ -80,12 +84,19 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
     }
 
     // Send email notification via Resend
-    await sendContactNotification(env.RESEND_API_KEY, env.CONTACT_RECIPIENT_EMAIL, {
-      name: body.name,
-      email: body.email,
-      subject: body.subject,
-      message: body.message,
-    });
+    try {
+      await sendContactNotification(env.RESEND_API_KEY, env.CONTACT_RECIPIENT_EMAIL, {
+        name: body.name,
+        email: body.email,
+        subject: body.subject,
+        message: body.message,
+      });
+    } catch (emailErr) {
+      logError('contact.email_failed', emailErr, { email: body.email });
+      throw emailErr;
+    }
+
+    log('contact.sent', { email: body.email });
 
     // Generate response
     const response: ContactResponse = {
@@ -99,7 +110,7 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
     );
 
   } catch (error) {
-    console.error('Contact form error:', error);
+    logError('contact.error', error);
 
     return new Response(
       JSON.stringify({

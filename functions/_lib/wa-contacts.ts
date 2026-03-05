@@ -1,6 +1,7 @@
 // WildApricot contact helpers — create/update contacts and apply membership levels
 
 import { getWAToken, type WATokenEnv } from './wa-token';
+import { log, warn } from './logger';
 
 export interface WAContactsEnv extends WATokenEnv {
   WILDAPRICOT_ACCOUNT_ID: string;
@@ -84,8 +85,12 @@ export async function createOrUpdateContact(env: WAContactsEnv, data: NewMemberD
     throw new Error(`WA contact ${existingId ? 'update' : 'create'} failed: ${res.status} ${err}`);
   }
 
-  if (existingId) return existingId;
+  if (existingId) {
+    log('wa.contact_updated', { email: data.email, contactId: existingId, membershipType: data.membershipType });
+    return existingId;
+  }
   const created = await res.json() as { Id: number };
+  log('wa.contact_created', { email: data.email, contactId: created.Id, membershipType: data.membershipType });
   return created.Id;
 }
 
@@ -99,7 +104,7 @@ export async function lapseMembership(env: WAContactsEnv, email: string): Promis
 
   const existingId = await findContactByEmail(baseUrl, headers, email);
   if (!existingId) {
-    console.warn(`WA contact not found for email ${email} — skipping lapse`);
+    warn('wa.contact_not_found', { email });
     return;
   }
 
@@ -113,6 +118,8 @@ export async function lapseMembership(env: WAContactsEnv, email: string): Promis
     const err = await res.text();
     throw new Error(`WA membership lapse failed: ${res.status} ${err}`);
   }
+
+  log('wa.membership_lapsed', { email, contactId: existingId });
 }
 
 export interface WAContact {
