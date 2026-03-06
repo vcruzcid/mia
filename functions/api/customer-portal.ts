@@ -2,8 +2,6 @@
 // Looks up a Stripe customer by email and returns a Customer Portal session URL.
 // The browser then redirects the member to manage their subscription.
 
-import { logError } from '../_lib/logger';
-
 interface Env {
   STRIPE_SECRET_KEY: string;
 }
@@ -47,7 +45,7 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
   );
 
   if (!searchRes.ok) {
-    logError('stripe.customer_search_failed', undefined, { email, status: searchRes.status });
+    console.error('Stripe customer search failed:', searchRes.status);
     return new Response(
       JSON.stringify({ success: false, error: 'Error al buscar el cliente' }),
       { status: 500, headers: corsHeaders },
@@ -82,7 +80,7 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
 
   if (!portalRes.ok) {
     const err = await portalRes.json() as { error?: { message?: string } };
-    logError('stripe.portal_session_error', undefined, { email, stripeError: err.error?.message });
+    console.error('Stripe portal session error:', err);
     return new Response(
       JSON.stringify({ success: false, error: err.error?.message ?? 'Error creando el portal' }),
       { status: 500, headers: corsHeaders },
