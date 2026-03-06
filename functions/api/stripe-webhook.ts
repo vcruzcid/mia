@@ -16,7 +16,7 @@ interface Env extends WAContactsEnv {
 }
 
 // Verify Stripe webhook signature using Web Crypto API
-async function verifyStripeSignature(body: string, signature: string, secret: string): Promise<boolean> {
+export async function verifyStripeSignature(body: string, signature: string, secret: string): Promise<boolean> {
   const parts = signature.split(',');
   const timestamp = parts.find(p => p.startsWith('t='))?.slice(2);
   const signatures = parts.filter(p => p.startsWith('v1=')).map(p => p.slice(3));
