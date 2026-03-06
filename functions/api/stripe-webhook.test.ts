@@ -1,23 +1,8 @@
 // @vitest-environment node
 // Unit tests for Stripe webhook signature verification.
-// The production verifyStripeSignature function is not exported, so these tests
-// validate the algorithm directly to prove the fix is correct.
 
 import { describe, it, expect } from 'vitest';
-
-// Reproduces the exact algorithm in stripe-webhook.ts verifyStripeSignature.
-async function verifySignature(body: string, signature: string, secret: string): Promise<boolean> {
-  const parts = signature.split(',');
-  const timestamp = parts.find(p => p.startsWith('t='))?.slice(2);
-  const signatures = parts.filter(p => p.startsWith('v1=')).map(p => p.slice(3));
-  if (!timestamp || signatures.length === 0) return false;
-  const payload = `${timestamp}.${body}`;
-  const rawSecret = new TextEncoder().encode(secret);
-  const key = await crypto.subtle.importKey('raw', rawSecret, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
-  const sigBytes = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(payload));
-  const computed = Array.from(new Uint8Array(sigBytes)).map(b => b.toString(16).padStart(2, '0')).join('');
-  return signatures.includes(computed);
-}
+import { verifyStripeSignature } from './stripe-webhook';
 
 // Produces a valid Stripe-Signature header for a given body + secret.
 async function signBody(body: string, secret: string, timestamp: number): Promise<string> {
@@ -41,28 +26,28 @@ describe('stripe webhook signature verification', () => {
   it('accepts a correctly signed payload', async () => {
     const ts = Math.floor(Date.now() / 1000);
     const header = await signBody(BODY, SECRET, ts);
-    expect(await verifySignature(BODY, header, SECRET)).toBe(true);
+    expect(await verifyStripeSignature(BODY, header, SECRET)).toBe(true);
   });
 
   it('rejects a tampered body', async () => {
     const ts = Math.floor(Date.now() / 1000);
     const header = await signBody(BODY, SECRET, ts);
-    expect(await verifySignature('{"tampered":true}', header, SECRET)).toBe(false);
+    expect(await verifyStripeSignature('{"tampered":true}', header, SECRET)).toBe(false);
   });
 
   it('rejects a wrong secret', async () => {
     const ts = Math.floor(Date.now() / 1000);
     const header = await signBody(BODY, SECRET, ts);
-    expect(await verifySignature(BODY, header, 'whsec_wrongSecret')).toBe(false);
+    expect(await verifyStripeSignature(BODY, header, 'whsec_wrongSecret')).toBe(false);
   });
 
   it('rejects a missing v1 signature', async () => {
     const ts = Math.floor(Date.now() / 1000);
-    expect(await verifySignature(BODY, `t=${ts}`, SECRET)).toBe(false);
+    expect(await verifyStripeSignature(BODY, `t=${ts}`, SECRET)).toBe(false);
   });
 
   it('rejects an empty signature header', async () => {
-    expect(await verifySignature(BODY, '', SECRET)).toBe(false);
+    expect(await verifyStripeSignature(BODY, '', SECRET)).toBe(false);
   });
 
   it('old base64-decode approach produces a different key and would never match', async () => {
