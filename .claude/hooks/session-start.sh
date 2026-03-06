@@ -6,6 +6,12 @@ BRANCH=$(git branch --show-current 2>/dev/null || echo "unknown")
 LAST_COMMITS=$(git log --oneline -3 2>/dev/null || echo "no git history")
 GIT_STATUS=$(git status --short 2>/dev/null || echo "")
 
+# Auto-install dependencies if node_modules is missing (common in fresh worktrees)
+if [[ ! -d "node_modules" ]]; then
+  echo "[session-start] node_modules missing — running npm install..." >&2
+  npm install --silent 2>/dev/null
+fi
+
 # Warn if on protected branch
 BRANCH_WARNING=""
 if [[ "$BRANCH" == "main" || "$BRANCH" == "dev" ]]; then
