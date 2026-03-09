@@ -5,7 +5,7 @@
 
 import { getContact, updateContact, type WAContactsEnv, type WAContact } from '../../_lib/wa-contacts';
 import { getCorsHeaders, getPreflightResponse } from '../../_lib/cors';
-import { FIELD_CODES, PROFESION_PRINCIPAL_IDS, PROFESION_ADICIONAL_IDS } from '../../_lib/wa-field-ids';
+import { FIELD_CODES, PROFESION_PRINCIPAL_IDS, PROFESION_ADICIONAL_IDS, WA_COUNTRIES } from '../../_lib/wa-field-ids';
 import { log, logError } from '../../_lib/logger';
 
 const METHODS = 'GET, PUT, OPTIONS';
@@ -182,7 +182,7 @@ export async function onRequestPut(
     { FieldName: 'Profesión Principal', SystemCode: FIELD_CODES.profesionPrincipal, Value: primaryValue },
     { FieldName: 'Profesión Adicional', SystemCode: FIELD_CODES.profesionAdicional, Value: additionalValue },
     { FieldName: 'Ciudad', SystemCode: FIELD_CODES.ciudad, Value: body.city ?? '' },
-    { FieldName: 'País', SystemCode: FIELD_CODES.pais, Value: body.country ?? '' },
+    { FieldName: 'País', SystemCode: FIELD_CODES.pais, Value: body.country && WA_COUNTRIES.includes(body.country) ? body.country : '' },
     { FieldName: 'LinkedIn', SystemCode: FIELD_CODES.linkedin, Value: body.socialLinks?.linkedin ?? '' },
     { FieldName: 'Instagram', SystemCode: FIELD_CODES.instagram, Value: body.socialLinks?.instagram ?? '' },
     { FieldName: 'X/Twitter', SystemCode: FIELD_CODES.twitter, Value: body.socialLinks?.twitter ?? '' },
