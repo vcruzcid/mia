@@ -6,13 +6,40 @@ export const FIELD_CODES = {
   profesionPrincipal: 'custom-17708342', // Profesión Principal (Dropdown — single select)
   profesionAdicional: 'custom-17708340', // Profesión Adicional (MultipleChoice — multi select)
   ciudad: 'custom-17708331',             // Ciudad (custom text)
-  pais: 'custom-17708479',               // País (custom text)
+  pais: 'custom-17708479',               // País (Choice dropdown — Spanish country names, see WA_COUNTRIES)
   instagram: 'custom-17708437',          // Instagram
   linkedin: 'custom-17708438',           // LinkedIn
   twitter: 'custom-17774035',            // X/Twitter
   website: 'custom-17708442',            // Website
   statusEmpleo: 'custom-17708435',       // Status de Empleo
 } as const;
+
+// Valid values for País (Choice dropdown — Spanish country names, must match WA options exactly)
+export const WA_COUNTRIES: readonly string[] = [
+  'Albania', 'Alemania', 'Andorra', 'Anguila', 'Antigua y Barbuda', 'Argentina',
+  'Aruba', 'Australia', 'Austria', 'Bahamas', 'Barbados', 'Bélgica', 'Belice',
+  'Bermudas', 'Bielorrusia', 'Bolivia', 'Bosnia y Herzegovina', 'Brasil', 'Bulgaria',
+  'Canadá', 'Chipre', 'Chile', 'Colombia', 'Costa Rica', 'Croacia', 'Cuba',
+  'Dinamarca', 'Dominica', 'Ecuador', 'El Salvador', 'Eslovaquia', 'Eslovenia',
+  'España', 'Estados Unidos', 'Estonia', 'Federación Rusa', 'Fiyi', 'Finlandia',
+  'Francia', 'Francia Metropolitana', 'Gibraltar', 'Granada', 'Grecia', 'Groenlandia',
+  'Guadalupe', 'Guam', 'Guatemala', 'Guyana', 'Guayana Francesa', 'Haití',
+  'Honduras', 'Hungría', 'Irlanda', 'Islandia', 'Isla Norfolk', 'Islas Caimán',
+  'Islas Cook', 'Islas Feroe', 'Islas Malvinas', 'Islas Marshall', 'Islas Pitcairn',
+  'Islas Salomón', 'Islas Turcas y Caicos', 'Islas Vírgenes Británicas',
+  'Islas Vírgenes de los Estados Unidos', 'Italia', 'Jamaica', 'Kiribati',
+  'Letonia', 'Liechtenstein', 'Lituania', 'Luxemburgo', 'Macedonia del Norte',
+  'Malta', 'Martinica', 'México', 'Micronesia', 'Moldavia', 'Mónaco',
+  'Montenegro', 'Montserrat', 'Nauru', 'Nicaragua', 'Niue', 'Noruega',
+  'Nueva Caledonia', 'Nueva Zelanda', 'Países Bajos', 'Antillas Neerlandesas',
+  'Palaos', 'Panamá', 'Papúa Nueva Guinea', 'Paraguay', 'Perú', 'Polonia',
+  'Polinesia Francesa', 'Portugal', 'Puerto Rico', 'Reino Unido', 'República Checa',
+  'República Dominicana', 'Rumania', 'Samoa', 'San Cristóbal y Nieves',
+  'San Marino', 'San Pedro y Miquelón', 'San Vicente y las Granadinas', 'Santa Lucía',
+  'Serbia', 'Suecia', 'Suiza', 'Surinam', 'Svalbard y Jan Mayen', 'Tonga',
+  'Trinidad y Tobago', 'Tuvalu', 'Ucrania', 'Uruguay', 'Vanuatu',
+  'Ciudad del Vaticano', 'Venezuela', 'Wallis y Futuna',
+];
 
 // Label→Id mapping for Profesión Principal (Dropdown — single select)
 export const PROFESION_PRINCIPAL_IDS: Record<string, number> = {
