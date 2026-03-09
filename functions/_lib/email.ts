@@ -1,4 +1,6 @@
 // Resend email utility — uses REST API directly (no npm package, better Workers compatibility)
+import { log, logError } from './logger';
+
 const RESEND_API = 'https://api.resend.com/emails';
 
 // ─── Shared assets ─────────────────────────────────────────────────────────────
@@ -60,7 +62,9 @@ export async function sendEmail(apiKey: string, payload: EmailPayload): Promise<
   });
   if (!res.ok) {
     const body = await res.text();
-    throw new Error(`Resend API error ${res.status}: ${body}`);
+    const err = new Error(`Resend API error ${res.status}: ${body}`);
+    logError('email.send_failed', err, { status: res.status });
+    throw err;
   }
 }
 
@@ -252,6 +256,8 @@ export async function sendWelcomeMemberEmail(
   renewalDate: string,
   whatsappGroupUrl: string,
 ): Promise<void> {
+  log('email.welcome_queued', { email: memberEmail, membershipType });
+
   const isColaborador = membershipType === 'colaborador';
   const levelName = LEVEL_DISPLAY_NAMES[membershipType] ?? membershipType;
 
@@ -437,6 +443,7 @@ export async function sendWelcomeMemberEmail(
     subject,
     html,
   });
+  log('email.welcome_sent', { email: memberEmail, membershipType });
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
