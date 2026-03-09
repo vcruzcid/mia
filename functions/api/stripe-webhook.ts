@@ -98,9 +98,8 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
       }
 
       const { firstName, lastName } = splitName(fullName);
-      const country = session.customer_details?.address?.country ?? undefined;
 
-      const { contactId, renewalDate } = await createOrUpdateContact(env, { email, firstName, lastName, membershipType, country }, requestId);
+      const { contactId, renewalDate } = await createOrUpdateContact(env, { email, firstName, lastName, membershipType }, requestId);
 
       log('webhook.checkout_completed', { email, membershipType, contactId, requestId });
 

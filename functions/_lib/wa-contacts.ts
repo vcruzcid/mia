@@ -15,7 +15,6 @@ export interface NewMemberData {
   firstName: string;
   lastName: string;
   membershipType: string;
-  country?: string; // from Stripe customer_details.address.country
 }
 
 function resolveLevelId(env: WAContactsEnv, membershipType: string): number {
@@ -78,9 +77,6 @@ export async function createOrUpdateContact(env: WAContactsEnv, data: NewMemberD
   const fieldValues: Array<{ SystemCode: string; Value: unknown }> = [
     { SystemCode: 'RenewalDue', Value: `${renewalDate}T00:00:00` },
   ];
-  if (data.country) {
-    fieldValues.push({ SystemCode: 'custom-17708479', Value: data.country });
-  }
 
   const body = {
     ...(existingId ? { Id: existingId } : {}),

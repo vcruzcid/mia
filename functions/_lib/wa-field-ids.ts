@@ -6,7 +6,7 @@ export const FIELD_CODES = {
   profesionPrincipal: 'custom-17708342', // Profesión Principal (Dropdown — single select)
   profesionAdicional: 'custom-17708340', // Profesión Adicional (MultipleChoice — multi select)
   ciudad: 'custom-17708331',             // Ciudad (custom text)
-  pais: 'custom-17708479',               // País (custom text)
+  pais: 'custom-17708479',               // País (Choice dropdown — English country names)
   instagram: 'custom-17708437',          // Instagram
   linkedin: 'custom-17708438',           // LinkedIn
   twitter: 'custom-17774035',            // X/Twitter
