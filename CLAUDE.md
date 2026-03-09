@@ -210,6 +210,11 @@ Before using any library, SDK, API, or tool:
 5. **Always use KISS (Keep It Simple, Stupid)** principle when implementing any feature. Do not over-engineer or add unnecessary complexity.
 6. **Always use YAGNI (You Ain't Gonna Need This)** principle when implementing any feature. Do not add features that are not required for the current implementation.
 7. **Always use DRY (Don't Repeat Yourself)** principle when implementing any feature. Do not repeat code or logic.
+8. **Always use TDD (Test-Driven Development)** principle when implementing any feature. Do not add features that are not required for the current implementation.
+9. **Always use SOLID (Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion)** principle when implementing any feature. Do not over-engineer or add unnecessary complexity.
+10. **Always use Clean Architecture (Separation of Concerns, Dependency Rule, Testability)** principle when implementing any feature. Do not over-engineer or add unnecessary complexity.
+11. **Always use Clean Architecture (Separation of Concerns, Dependency Rule, Testability)** principle when implementing any feature. Do not over-engineer or add unnecessary complexity.
+12. **Open Source** Open source is your friend. Don't try to build everything from scratch, find stable and trusted libs, 
 
 ---
 
