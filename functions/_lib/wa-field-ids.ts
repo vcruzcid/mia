@@ -39,7 +39,7 @@ export const WA_COUNTRIES: readonly string[] = [
   'Serbia', 'Suecia', 'Suiza', 'Surinam', 'Svalbard y Jan Mayen', 'Tonga',
   'Trinidad y Tobago', 'Tuvalu', 'Ucrania', 'Uruguay', 'Vanuatu',
   'Ciudad del Vaticano', 'Venezuela', 'Wallis y Futuna',
-] as const;
+];
 
 // Label→Id mapping for Profesión Principal (Dropdown — single select)
 export const PROFESION_PRINCIPAL_IDS: Record<string, number> = {
