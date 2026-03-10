@@ -1,21 +1,29 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RegistroExitoPage } from './RegistroExitoPage';
 
 vi.mock('@/components/Header', () => ({ Header: () => null }));
 vi.mock('@/components/Footer', () => ({ Footer: () => null }));
 
-function renderPage() {
+function renderPage(initialEntry = '/registro/exito') {
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
-    <MemoryRouter>
-      <RegistroExitoPage />
-    </MemoryRouter>,
+    <QueryClientProvider client={client}>
+      <MemoryRouter initialEntries={[initialEntry]}>
+        <RegistroExitoPage />
+      </MemoryRouter>
+    </QueryClientProvider>,
   );
 }
 
 describe('RegistroExitoPage', () => {
-  it('renders the welcome heading', () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('renders the default welcome heading when no session_id', () => {
     renderPage();
     expect(screen.getByRole('heading', { name: /bienvenida a mia/i })).toBeInTheDocument();
   });
@@ -56,5 +64,49 @@ describe('RegistroExitoPage', () => {
     const link = screen.getByRole('link', { name: /hola@animacionesmia\.com/i });
     expect(link).toBeInTheDocument();
     expect(link).toHaveAttribute('href', '/contacto');
+  });
+
+  it('shows personalized heading when session resolves with paid status', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      json: () => Promise.resolve({
+        success: true,
+        name: 'Ana García',
+        email: 'ana@example.com',
+        payment_status: 'paid',
+      }),
+    }));
+
+    renderPage('/registro/exito?session_id=cs_test_abc123');
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: /bienvenida, ana/i })).toBeInTheDocument();
+    });
+  });
+
+  it('falls back to default heading when payment_status is not paid', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      json: () => Promise.resolve({
+        success: true,
+        name: 'Ana García',
+        email: 'ana@example.com',
+        payment_status: 'unpaid',
+      }),
+    }));
+
+    renderPage('/registro/exito?session_id=cs_test_abc123');
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: /bienvenida a mia/i })).toBeInTheDocument();
+    });
+  });
+
+  it('falls back to default heading when fetch fails', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('network error')));
+
+    renderPage('/registro/exito?session_id=cs_test_abc123');
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: /bienvenida a mia/i })).toBeInTheDocument();
+    });
   });
 });
