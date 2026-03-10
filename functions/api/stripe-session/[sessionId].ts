@@ -58,8 +58,8 @@ export async function onRequestGet(context: { request: Request; env: Env; params
       );
     }
 
-    // Get customer info
-    const customer = session.customer as any;
+    // Get customer info (expanded object has email/name; string means only ID was returned)
+    const customer = typeof session.customer === 'object' && session.customer !== null ? session.customer as { email?: string; name?: string; id?: string } : null;
 
     // Extract membership type from line items or metadata
     let membershipType = '';

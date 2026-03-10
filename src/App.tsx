@@ -46,7 +46,7 @@ function App() {
                   {/* Authentication routes (have their own header/footer) */}
                   <Route path="login" element={<LoginPage />} />
                   <Route path="registro" element={<RegistrationPage />} />
-                  <Route path="registro/bienvenida" element={<WelcomePage />} />
+                  <Route path="registro/exito" element={<WelcomePage />} />
                 </Routes>
               </div>
             </Router>

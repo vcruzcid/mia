@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext } from 'react';
 
 // Stubbed authentication context - all authentication is non-functional
@@ -21,7 +22,7 @@ interface AuthContextType {
   sendMagicLink: (email: string) => Promise<{ success: boolean; message: string }>;
   verifyMagicLink: (tokenHash: string) => Promise<{ success: boolean; message: string }>;
   signOut: () => Promise<void>;
-  updateProfile: (updates: any) => Promise<void>;
+  updateProfile: (updates: Record<string, unknown>) => Promise<void>;
   refreshMemberData: () => Promise<void>;
 }
 
@@ -37,8 +38,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isAuthenticated: false,
     isAdmin: false,
     membershipStatus: null,
-    sendMagicLink: async () => ({ success: false, message: 'Authentication is not available' }),
-    verifyMagicLink: async () => ({ success: false, message: 'Authentication is not available' }),
+    sendMagicLink: async () => ({ success: false, message: 'La autenticación no está disponible en este momento' }),
+    verifyMagicLink: async () => ({ success: false, message: 'La autenticación no está disponible en este momento' }),
     signOut: async () => {},
     updateProfile: async () => {},
     refreshMemberData: async () => {},
@@ -76,7 +77,7 @@ export function useMember() {
 // Helper hook for authentication actions (stubbed)
 export function useAuthActions() {
   return {
-    sendMagicLink: async () => ({ success: false, message: 'Authentication is not available' }),
+    sendMagicLink: async () => ({ success: false, message: 'La autenticación no está disponible en este momento' }),
     signOut: async () => {},
     updateProfile: async () => {},
     refreshMemberData: async () => {}
