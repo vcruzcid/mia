@@ -25,11 +25,18 @@ describe('RegistroExitoPage', () => {
     expect(screen.getByText(/tu suscripción ha sido procesada/i)).toBeInTheDocument();
   });
 
-  it('has a link to the homepage', () => {
+  it('has a link to complete profile', () => {
     renderPage();
-    const link = screen.getByRole('link', { name: /ir a la página principal/i });
+    const link = screen.getByRole('link', { name: /completa tu perfil/i });
     expect(link).toBeInTheDocument();
-    expect(link).toHaveAttribute('href', '/');
+    expect(link).toHaveAttribute('href', '/portal/perfil');
+  });
+
+  it('has a link to view invoice', () => {
+    renderPage();
+    const link = screen.getByRole('link', { name: /ver factura/i });
+    expect(link).toBeInTheDocument();
+    expect(link).toHaveAttribute('href', '/portal/suscripcion');
   });
 
   it('has a link to the socias directory', () => {
@@ -44,8 +51,10 @@ describe('RegistroExitoPage', () => {
     expect(screen.getByText(/qué pasa ahora/i)).toBeInTheDocument();
   });
 
-  it('shows the contact email', () => {
+  it('shows the contact link', () => {
     renderPage();
-    expect(screen.getByText(/info@animacionesmia\.com/i)).toBeInTheDocument();
+    const link = screen.getByRole('link', { name: /hola@animacionesmia\.com/i });
+    expect(link).toBeInTheDocument();
+    expect(link).toHaveAttribute('href', '/contacto');
   });
 });
