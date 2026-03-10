@@ -15,6 +15,7 @@ import { MianimaPage } from './pages/MianimaPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegistrationPage } from './pages/RegistrationPage';
 import { WelcomePage } from './pages/WelcomePage';
+import { ProfileCompletarPage } from './pages/ProfileCompletarPage';
 import { PoliticaCookiesPage } from './pages/PoliticaCookiesPage';
 import { TerminosUsoPage } from './pages/TerminosUsoPage';
 import { PoliticaPrivacidadPage } from './pages/PoliticaPrivacidadPage';
@@ -47,6 +48,7 @@ function App() {
                   <Route path="login" element={<LoginPage />} />
                   <Route path="registro" element={<RegistrationPage />} />
                   <Route path="registro/exito" element={<WelcomePage />} />
+                  <Route path="perfil/completar" element={<ProfileCompletarPage />} />
                 </Routes>
               </div>
             </Router>

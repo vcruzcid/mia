@@ -1,19 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { membershipTypes } from '../utils/memberships';
-import { VALID_DISCOUNT_CODES, calculateDiscountedPrice } from '../schemas/registrationSchema';
 import { siteConfig } from '../config/site.config';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Spinner } from '@/components/ui/spinner';
 
 interface RegistrationState {
   selectedMembership: string | null;
-  discountCode: string;
   isProcessing: boolean;
   error: string | null;
   successMessage: string | null;
@@ -23,14 +20,11 @@ export function RegistrationPage() {
   const location = useLocation();
   const [state, setState] = useState<RegistrationState>({
     selectedMembership: null,
-    discountCode: '',
     isProcessing: false,
     error: null,
     successMessage: null,
   });
 
-  const [discountInput, setDiscountInput] = useState('');
-  const [discountError, setDiscountError] = useState('');
   const [showTerms, setShowTerms] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [gdprAccepted, setGdprAccepted] = useState(false);
@@ -55,34 +49,6 @@ export function RegistrationPage() {
   const selectedMembership = membershipTypes.find(m => m.id === state.selectedMembership);
   const isPaidMembership = selectedMembership && selectedMembership.price > 0;
 
-  // Calculate pricing with discount
-  const pricingInfo = selectedMembership 
-    ? calculateDiscountedPrice(selectedMembership.price, state.discountCode)
-    : null;
-
-  const applyDiscountCode = () => {
-    const code = discountInput.trim().toUpperCase();
-    
-    if (!code) {
-      setState(prev => ({ ...prev, discountCode: '' }));
-      setDiscountError('');
-      return;
-    }
-
-    if (VALID_DISCOUNT_CODES[code as keyof typeof VALID_DISCOUNT_CODES]) {
-      setState(prev => ({ ...prev, discountCode: code }));
-      setDiscountError('');
-    } else {
-      setDiscountError('Código de descuento no válido');
-    }
-  };
-
-  const removeDiscountCode = () => {
-    setState(prev => ({ ...prev, discountCode: '' }));
-    setDiscountInput('');
-    setDiscountError('');
-  };
-
   const handlePayment = async () => {
     if (!selectedMembership) return;
     
@@ -103,20 +69,10 @@ export function RegistrationPage() {
   const handlePaidMembershipCheckout = async () => {
     if (!selectedMembership || !pricingInfo) return;
 
-    const checkoutData = {
-      membershipType: selectedMembership.id,
-      amount: pricingInfo.finalPrice,
-      originalAmount: pricingInfo.originalPrice,
-      discountCode: state.discountCode,
-      discountPercentage: pricingInfo.discountPercentage,
-      collectShipping: true, // Collect full address for paid memberships
-      mode: 'payment',
-    };
-
-    await redirectToStripeCheckout(checkoutData);
+    await redirectToStripeCheckout();
   };
 
-  const redirectToStripeCheckout = async (checkoutData: Record<string, unknown>) => {
+  const redirectToStripeCheckout = async () => {
     // In production, this would call your backend API:
     /*
     const response = await fetch('/api/create-simple-checkout', {
@@ -264,99 +220,25 @@ export function RegistrationPage() {
               ))}
             </div>
 
-            {/* Discount Code Section */}
-            {isPaidMembership && (
-              <div className="mb-8 p-6 bg-gray-50 rounded-lg">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">
-                  ¿Tienes un código de descuento?
-                </h3>
-                
-                {!state.discountCode ? (
-                  <div className="flex gap-3">
-                    <Input
-                      type="text"
-                      value={discountInput}
-                      onChange={(e) => setDiscountInput(e.target.value.toUpperCase())}
-                      className="flex-1"
-                      placeholder="Introduce tu código..."
-                      maxLength={20}
-                    />
-                    <Button
-                      type="button"
-                      onClick={applyDiscountCode}
-                      className="bg-red-600 hover:bg-red-700 text-white"
-                      size="sm"
-                    >
-                      Aplicar
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="bg-green-50 border border-green-200 rounded-md p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <svg className="h-5 w-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                        <div>
-                          <p className="font-medium text-green-800">
-                            Código aplicado: <span className="font-bold">{state.discountCode}</span>
-                          </p>
-                          <p className="text-sm text-green-700">
-                            {VALID_DISCOUNT_CODES[state.discountCode as keyof typeof VALID_DISCOUNT_CODES]?.description}
-                          </p>
-                        </div>
-                      </div>
-                      <Button
-                        type="button"
-                        onClick={removeDiscountCode}
-                        variant="ghost"
-                        size="sm"
-                        className="text-green-600 hover:text-green-800"
-                      >
-                        Eliminar
-                      </Button>
-                    </div>
-                  </div>
-                )}
-
-                {discountError && (
-                  <p className="mt-2 text-sm text-red-600">{discountError}</p>
-                )}
-              </div>
-            )}
-
             {/* Pricing Summary */}
-            {isPaidMembership && pricingInfo && (
+            {isPaidMembership && (
               <div className="mb-8 p-6 bg-blue-50 rounded-lg border border-blue-200">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">
                   Resumen de Pago
                 </h3>
-                
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-gray-800">Membresía {selectedMembership?.name}:</span>
-                    <span className="font-medium">€{pricingInfo.originalPrice}</span>
+                    <span className="font-medium">€{selectedMembership?.price}</span>
                   </div>
-                  
-                  {pricingInfo.isValid && pricingInfo.discountPercentage > 0 && (
-                    <div className="flex justify-between text-green-600">
-                      <span>Descuento ({pricingInfo.discountPercentage}%):</span>
-                      <span>-€{pricingInfo.discountAmount}</span>
-                    </div>
-                  )}
-                  
                   <hr className="border-gray-300" />
-                  
                   <div className="flex justify-between text-xl font-bold">
                     <span>Total:</span>
-                    <span className="text-red-600">€{pricingInfo.finalPrice}</span>
+                    <span className="text-red-600">€{selectedMembership?.price}</span>
                   </div>
-                  
-                  {pricingInfo.finalPrice > 0 && (
-                    <p className="text-sm text-gray-700 mt-2">
-                      Precio anual. Los datos personales se recogerán durante el proceso de pago.
-                    </p>
-                  )}
+                  <p className="text-sm text-gray-700 mt-2">
+                    Precio anual. Los datos personales se recogerán durante el proceso de pago.
+                  </p>
                 </div>
               </div>
             )}
@@ -374,9 +256,10 @@ export function RegistrationPage() {
                 />
                 <span className="text-sm text-gray-700">
                   Acepto los{' '}
-                  <a 
-                    href="/terminos-condiciones" 
+                  <a
+                    href="/terminos-uso"
                     target="_blank"
+                    rel="noreferrer"
                     className="text-primary-600 hover:text-primary-700 font-medium underline"
                   >
                     términos y condiciones
@@ -485,7 +368,7 @@ export function RegistrationPage() {
                     <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                     </svg>
-                    Proceder al Pago - €{pricingInfo?.finalPrice || 0}
+                    Proceder al Pago - €{selectedMembership?.price || 0}
                   </>
                 )}
               </Button>

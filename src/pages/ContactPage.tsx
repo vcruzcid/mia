@@ -49,9 +49,13 @@ export function ContactPage() {
           }),
         });
 
+        if (!response.ok) {
+          throw new Error('Error al enviar el mensaje');
+        }
+
         const result = await response.json();
 
-        if (!response.ok || !result.success) {
+        if (!result.success) {
           throw new Error(result.error || 'Error al enviar el mensaje');
         }
 
