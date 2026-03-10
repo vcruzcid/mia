@@ -7,6 +7,7 @@ import type { CheckoutSessionResponse } from '@/types/api';
 
 async function fetchCheckoutSession(sessionId: string): Promise<CheckoutSessionResponse> {
   const res = await fetch(`/api/checkout-session?session_id=${encodeURIComponent(sessionId)}`);
+  if (!res.ok) throw new Error(`stripe session lookup failed: ${res.status}`);
   return res.json() as Promise<CheckoutSessionResponse>;
 }
 

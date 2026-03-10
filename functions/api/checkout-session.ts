@@ -54,7 +54,6 @@ export async function onRequestGet(context: { request: Request; env: Env }): Pro
     JSON.stringify({
       success: true,
       name: session.customer_details?.name ?? null,
-      email: session.customer_details?.email ?? null,
       payment_status: session.payment_status,
     }),
     { status: 200, headers: corsHeaders },

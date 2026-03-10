@@ -120,7 +120,6 @@ export interface PortalProfileResponse {
 export interface CheckoutSessionResponse {
   success: boolean;
   name: string | null;
-  email: string | null;
   payment_status: string;
   error?: string;
 }

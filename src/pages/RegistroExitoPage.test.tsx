@@ -68,10 +68,10 @@ describe('RegistroExitoPage', () => {
 
   it('shows personalized heading when session resolves with paid status', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
       json: () => Promise.resolve({
         success: true,
         name: 'Ana García',
-        email: 'ana@example.com',
         payment_status: 'paid',
       }),
     }));
@@ -85,10 +85,10 @@ describe('RegistroExitoPage', () => {
 
   it('falls back to default heading when payment_status is not paid', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
       json: () => Promise.resolve({
         success: true,
         name: 'Ana García',
-        email: 'ana@example.com',
         payment_status: 'unpaid',
       }),
     }));
@@ -100,8 +100,18 @@ describe('RegistroExitoPage', () => {
     });
   });
 
-  it('falls back to default heading when fetch fails', async () => {
+  it('falls back to default heading on network error', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('network error')));
+
+    renderPage('/registro/exito?session_id=cs_test_abc123');
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: /bienvenida a mia/i })).toBeInTheDocument();
+    });
+  });
+
+  it('falls back to default heading on non-ok HTTP response', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 502 }));
 
     renderPage('/registro/exito?session_id=cs_test_abc123');
 
