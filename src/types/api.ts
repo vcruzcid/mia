@@ -116,3 +116,10 @@ export interface PortalProfileResponse {
   profile?: PortalProfile;
   error?: string;
 }
+
+export interface CheckoutSessionResponse {
+  success: boolean;
+  name: string | null;
+  payment_status: string;
+  error?: string;
+}

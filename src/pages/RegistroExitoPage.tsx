@@ -1,9 +1,31 @@
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
+import type { CheckoutSessionResponse } from '@/types/api';
+
+async function fetchCheckoutSession(sessionId: string): Promise<CheckoutSessionResponse> {
+  const res = await fetch(`/api/checkout-session?session_id=${encodeURIComponent(sessionId)}`);
+  if (!res.ok) throw new Error(`stripe session lookup failed: ${res.status}`);
+  return res.json() as Promise<CheckoutSessionResponse>;
+}
 
 export function RegistroExitoPage() {
+  const [searchParams] = useSearchParams();
+  const sessionId = searchParams.get('session_id');
+
+  const { data } = useQuery({
+    queryKey: ['checkout-session', sessionId],
+    queryFn: () => fetchCheckoutSession(sessionId!),
+    enabled: !!sessionId,
+    staleTime: Infinity,
+    retry: false,
+  });
+
+  const isPaid = data?.payment_status === 'paid';
+  const firstName = isPaid && data?.name ? data.name.split(' ')[0] : null;
+
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Header />
@@ -17,7 +39,7 @@ export function RegistroExitoPage() {
           </div>
 
           <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            ¡Bienvenida a MIA!
+            {firstName ? `¡Bienvenida, ${firstName}!` : '¡Bienvenida a MIA!'}
           </h1>
 
           <p className="text-lg text-gray-700 mb-2">
