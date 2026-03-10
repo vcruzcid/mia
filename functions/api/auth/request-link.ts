@@ -138,7 +138,7 @@ export async function onRequestPost(
 
   // Send magic link email (always, including DEV)
   try {
-    await sendMagicLinkEmail(env.RESEND_API_KEY, email, magicLink);
+    await sendMagicLinkEmail(env.RESEND_API_KEY, email, magicLink, contact.FirstName);
   } catch (err) {
     logError('auth.error', err, { email, step: 'send_email' });
     return new Response(
