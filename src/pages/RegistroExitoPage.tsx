@@ -27,9 +27,9 @@ export function RegistroExitoPage() {
           <p className="text-gray-600 mb-8">
             En breve recibirás un email de confirmación con los detalles de tu membresía.
             Si tienes alguna duda, escríbenos a{' '}
-            <a href="mailto:info@animacionesmia.com" className="text-red-600 hover:text-red-700 underline">
-              info@animacionesmia.com
-            </a>.
+            <Link to="/contacto" className="text-red-600 hover:text-red-700 underline">
+              hola@animacionesmia.com
+            </Link>.
           </p>
 
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-5 mb-8 text-left">
@@ -52,10 +52,13 @@ export function RegistroExitoPage() {
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button asChild>
-              <Link to="/">Ir a la página principal</Link>
+              <Link to="/portal/perfil">Completa tu perfil</Link>
             </Button>
             <Button variant="outline" asChild>
               <Link to="/socias">Ver el directorio de socias</Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link to="/portal/suscripcion">Ver factura</Link>
             </Button>
           </div>
         </div>
