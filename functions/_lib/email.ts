@@ -244,7 +244,7 @@ export async function sendMagicLinkEmail(
     from: 'noreply@animacionesmia.com',
     to: memberEmail,
     subject: 'Tu enlace de acceso al portal MIA',
-    html: wrapInLayout(content, true),
+    html: wrapInLayout(content, true, false),
   });
 }
 
@@ -428,7 +428,7 @@ export async function sendWelcomeMemberEmail(
             ${manualSection}
             ${buildSocialIconsRow('            ')}
 
-            ${buildFooter()}
+            ${buildFooter(false)}
 
           </table>
         </td>
