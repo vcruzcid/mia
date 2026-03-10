@@ -53,7 +53,11 @@ async function getStripeCustomerEmail(customerId: string, secretKey: string): Pr
   return customer.email ?? null;
 }
 
-export async function onRequestPost(context: { request: Request; env: Env }): Promise<Response> {
+export async function onRequestPost(context: {
+  request: Request;
+  env: Env;
+  waitUntil: (promise: Promise<unknown>) => void;
+}): Promise<Response> {
   const { request, env } = context;
   const requestId = crypto.randomUUID();
 
@@ -103,9 +107,12 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
 
       log('webhook.checkout_completed', { email, membershipType, contactId, requestId });
 
-      // Best-effort welcome email — never block or retry on email failure
-      sendWelcomeMemberEmail(env.RESEND_API_KEY, email, firstName, membershipType, contactId, renewalDate, env.WA_WHATSAPP_GROUP_URL)
-        .catch(err => logError('webhook.welcome_email_failed', err, { email, membershipType, requestId }));
+      // Best-effort welcome email — use waitUntil so the runtime keeps the worker alive
+      // until the Resend fetch completes (fire-and-forget without waitUntil is killed on response)
+      context.waitUntil(
+        sendWelcomeMemberEmail(env.RESEND_API_KEY, email, firstName, membershipType, contactId, renewalDate, env.WA_WHATSAPP_GROUP_URL)
+          .catch(err => logError('webhook.welcome_email_failed', err, { email, membershipType, requestId }))
+      );
     }
 
     if (event.type === 'customer.subscription.deleted') {

@@ -1,4 +1,6 @@
 // Resend email utility — uses REST API directly (no npm package, better Workers compatibility)
+import { log } from './logger';
+
 const RESEND_API = 'https://api.resend.com/emails';
 
 // ─── Shared assets ─────────────────────────────────────────────────────────────
@@ -252,6 +254,8 @@ export async function sendWelcomeMemberEmail(
   renewalDate: string,
   whatsappGroupUrl: string,
 ): Promise<void> {
+  log('email.welcome_queued', { email: memberEmail, membershipType });
+
   const isColaborador = membershipType === 'colaborador';
   const levelName = LEVEL_DISPLAY_NAMES[membershipType] ?? membershipType;
 
@@ -437,6 +441,7 @@ export async function sendWelcomeMemberEmail(
     subject,
     html,
   });
+  log('email.welcome_sent', { email: memberEmail, membershipType });
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
