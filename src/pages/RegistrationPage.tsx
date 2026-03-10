@@ -67,7 +67,7 @@ export function RegistrationPage() {
   };
 
   const handlePaidMembershipCheckout = async () => {
-    if (!selectedMembership || !pricingInfo) return;
+    if (!selectedMembership) return;
 
     await redirectToStripeCheckout();
   };
