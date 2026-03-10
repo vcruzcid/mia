@@ -1,5 +1,5 @@
 // GET /api/checkout-session?session_id=cs_xxx
-// Retrieves a Stripe Checkout Session and returns customer name, email, and payment status.
+// Retrieves a Stripe Checkout Session and returns customer name and payment status.
 
 import { log, warn, logError } from '../_lib/logger';
 
