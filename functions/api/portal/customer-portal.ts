@@ -1,56 +1,54 @@
-// POST /api/customer-portal
+// POST /api/portal/customer-portal
 // Looks up a Stripe customer by email and returns a Customer Portal session URL.
 // The browser then redirects the member to manage their subscription.
+//
+// Protected by _middleware.ts — context.data.session is guaranteed to exist.
 
-import { log, warn } from '../_lib/logger';
+import { getCorsHeaders, getPreflightResponse } from '../../_lib/cors';
+import { log, warn } from '../../_lib/logger';
 
 interface Env {
   STRIPE_SECRET_KEY: string;
 }
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Content-Type': 'application/json',
-};
-
-export function onRequestOptions() {
-  return new Response(null, { status: 204, headers: corsHeaders });
+interface SessionData {
+  email: string;
+  contactId: string;
+  nombre: string;
 }
 
-export async function onRequestPost(context: { request: Request; env: Env }): Promise<Response> {
-  const { request, env } = context;
+const METHODS = 'POST, OPTIONS';
 
-  let email: string;
-  try {
-    const body = await request.json() as { email?: string };
-    email = body.email?.trim().toLowerCase() ?? '';
-  } catch {
+export function onRequestOptions(context: { request: Request }): Response {
+  return getPreflightResponse(context.request, METHODS);
+}
+
+export async function onRequestPost(
+  context: { request: Request; env: Env; data: Record<string, unknown> },
+): Promise<Response> {
+  const cors = getCorsHeaders(context.request, METHODS);
+  const session = context.data['session'] as SessionData | undefined;
+
+  if (!session) {
     return new Response(
-      JSON.stringify({ success: false, error: 'Cuerpo de la solicitud inválido' }),
-      { status: 400, headers: corsHeaders },
+      JSON.stringify({ success: false, error: 'No autenticada' }),
+      { status: 401, headers: cors },
     );
   }
 
-  if (!email) {
-    return new Response(
-      JSON.stringify({ success: false, error: 'El email es requerido' }),
-      { status: 400, headers: corsHeaders },
-    );
-  }
+  const email = session.email;
 
   // Find Stripe customer by email
   const searchRes = await fetch(
     `https://api.stripe.com/v1/customers?email=${encodeURIComponent(email)}&limit=1`,
-    { headers: { Authorization: `Bearer ${env.STRIPE_SECRET_KEY}` } },
+    { headers: { Authorization: `Bearer ${context.env.STRIPE_SECRET_KEY}` } },
   );
 
   if (!searchRes.ok) {
     warn('stripe.customer_search_failed', { email, status: searchRes.status });
     return new Response(
       JSON.stringify({ success: false, error: 'Error al buscar el cliente' }),
-      { status: 500, headers: corsHeaders },
+      { status: 500, headers: cors },
     );
   }
 
@@ -60,12 +58,12 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
   if (!customer) {
     return new Response(
       JSON.stringify({ success: false, error: 'No se encontró ninguna suscripción con este email' }),
-      { status: 404, headers: corsHeaders },
+      { status: 404, headers: cors },
     );
   }
 
   // Create portal session
-  const origin = new URL(request.url).origin;
+  const origin = new URL(context.request.url).origin;
   const portalParams = new URLSearchParams({
     customer: customer.id,
     return_url: origin,
@@ -74,7 +72,7 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
   const portalRes = await fetch('https://api.stripe.com/v1/billing_portal/sessions', {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${env.STRIPE_SECRET_KEY}`,
+      Authorization: `Bearer ${context.env.STRIPE_SECRET_KEY}`,
       'Content-Type': 'application/x-www-form-urlencoded',
     },
     body: portalParams.toString(),
@@ -89,7 +87,7 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
     warn('stripe.portal_session_error', { email, stripeError: errMessage });
     return new Response(
       JSON.stringify({ success: false, error: errMessage }),
-      { status: 500, headers: corsHeaders },
+      { status: 500, headers: cors },
     );
   }
 
@@ -97,6 +95,6 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
   log('stripe.portal_session_created', { email, hasUrl: !!portal.url });
   return new Response(
     JSON.stringify({ success: true, url: portal.url }),
-    { status: 200, headers: corsHeaders },
+    { status: 200, headers: cors },
   );
 }

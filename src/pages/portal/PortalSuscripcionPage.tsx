@@ -21,7 +21,7 @@ export function PortalSuscripcionPage() {
     setIsRedirecting(true);
     setError(null);
     try {
-      const res = await fetch('/api/customer-portal', {
+      const res = await fetch('/api/portal/customer-portal', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
