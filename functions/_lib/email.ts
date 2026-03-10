@@ -1,5 +1,5 @@
 // Resend email utility — uses REST API directly (no npm package, better Workers compatibility)
-import { log, logError } from './logger';
+import { log } from './logger';
 
 const RESEND_API = 'https://api.resend.com/emails';
 
@@ -62,9 +62,7 @@ export async function sendEmail(apiKey: string, payload: EmailPayload): Promise<
   });
   if (!res.ok) {
     const body = await res.text();
-    const err = new Error(`Resend API error ${res.status}: ${body}`);
-    logError('email.send_failed', err, { status: res.status });
-    throw err;
+    throw new Error(`Resend API error ${res.status}: ${body}`);
   }
 }
 
