@@ -2,7 +2,7 @@
 // Looks up a Stripe customer by email and returns a Customer Portal session URL.
 // The browser then redirects the member to manage their subscription.
 
-import { warn } from '../_lib/logger';
+import { log, warn } from '../_lib/logger';
 
 interface Env {
   STRIPE_SECRET_KEY: string;
@@ -81,15 +81,20 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
   });
 
   if (!portalRes.ok) {
-    const err = await portalRes.json() as { error?: { message?: string } };
-    warn('stripe.portal_session_error', { email, stripeError: err.error?.message });
+    let errMessage = 'Error creando el portal';
+    try {
+      const err = await portalRes.json() as { error?: { message?: string } };
+      errMessage = err.error?.message ?? errMessage;
+    } catch { /* non-json stripe error */ }
+    warn('stripe.portal_session_error', { email, stripeError: errMessage });
     return new Response(
-      JSON.stringify({ success: false, error: err.error?.message ?? 'Error creando el portal' }),
+      JSON.stringify({ success: false, error: errMessage }),
       { status: 500, headers: corsHeaders },
     );
   }
 
   const portal = await portalRes.json() as { url: string };
+  log('stripe.portal_session_created', { email, hasUrl: !!portal.url });
   return new Response(
     JSON.stringify({ success: true, url: portal.url }),
     { status: 200, headers: corsHeaders },

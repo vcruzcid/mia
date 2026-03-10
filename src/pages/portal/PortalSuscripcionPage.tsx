@@ -33,12 +33,18 @@ export function PortalSuscripcionPage() {
         setIsRedirecting(false);
         return;
       }
+      if (!data.url) {
+        setError('No se pudo abrir el portal de suscripción.');
+        setIsRedirecting(false);
+        return;
+      }
+      const STRIPE_PORTAL_HOSTS = ['pagos.animacionesmia.com', 'billing.stripe.com'];
       let redirectUrl: URL | null = null;
-      try { redirectUrl = new URL(data.url ?? ''); } catch { /* invalid URL */ }
-      if (redirectUrl?.protocol === 'https:' && redirectUrl.hostname === 'billing.stripe.com') {
+      try { redirectUrl = new URL(data.url); } catch { /* invalid URL */ }
+      if (redirectUrl?.protocol === 'https:' && STRIPE_PORTAL_HOSTS.includes(redirectUrl.hostname)) {
         window.location.href = redirectUrl.href;
       } else {
-        setError(data.error ?? 'No se pudo abrir el portal de suscripción.');
+        setError('URL de portal inválida. Contacta con soporte.');
         setIsRedirecting(false);
       }
     } catch {
