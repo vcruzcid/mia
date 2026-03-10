@@ -207,11 +207,18 @@ export async function sendMagicLinkEmail(
   apiKey: string,
   memberEmail: string,
   magicLink: string,
+  firstName = '',
 ): Promise<void> {
+  const greeting = firstName ? `¡Hola, ${escapeHtml(firstName)}!` : '¡Hola!';
   const content = `
     <table style="margin: 0 auto; width: calc(100% - 80px);">
       <tr>
-        <td style="padding: 40px 0 16px 0; font-size: 20px; font-weight: 600; color: #1d1d1b; font-family:'Poppins',Helvetica,Arial,sans-serif;">
+        <td style="padding: 40px 0 8px 0; font-size: 24px; font-weight: 700; color: #1d1d1b; font-family:'Poppins',Helvetica,Arial,sans-serif;">
+          ${greeting}
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 0 0 16px 0; font-size: 20px; font-weight: 600; color: #1d1d1b; font-family:'Poppins',Helvetica,Arial,sans-serif;">
           Tu enlace de acceso al portal
         </td>
       </tr>
@@ -233,6 +240,7 @@ export async function sendMagicLinkEmail(
       </tr>
       <tr>
         <td style="font-size: 13px; color: #999; line-height: 1.5; padding-bottom: 8px; font-family:'Poppins',Helvetica,Arial,sans-serif;">
+          Este enlace se ha enviado a <strong style="color:#555;">${escapeHtml(memberEmail)}</strong>.<br>
           Si no solicitaste este enlace, puedes ignorar este correo con seguridad.<br>
           ¿Problemas para acceder?
           <a href="https://animacionesmia.com/contacto" style="color:#d8242e;">Contáctanos</a>.
