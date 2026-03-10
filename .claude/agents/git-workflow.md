@@ -55,10 +55,9 @@ git checkout dev && git pull
 git checkout -b feat/new-thing
 ```
 
-**Why this matters with squash merges:** `dev` uses Squash and Merge, which collapses a PR's commits
-into one new commit with a *different SHA*. If you keep the original branch and open a second PR
-from it, git sees all the original commits as "not in dev" and includes them in the diff —
-even though the changes are already merged.
+**Why this matters:** after a merge commit, the feature branch SHA is already in `dev`'s history.
+If you keep the original branch and open a second PR from it, git will include the already-merged
+commits in the diff. Always start fresh from `dev` for new work.
 
 **Syncing with dev mid-flight:** always rebase, never merge.
 ```bash
@@ -190,9 +189,8 @@ Before / After
 ## Merge Strategy
 
 ### Feature branches → dev
-- Use **Squash and Merge** for feature branches
-- This keeps `dev` history clean and linear
-- The squash commit message = PR title (conventional commit format)
+- Use **Merge Commit** for feature branches — preserves individual commit history on `dev`
+- Never squash unless explicitly requested by the user
 
 ### dev → main  
 - Use **Merge Commit** (not squash) to preserve dev history
