@@ -4,11 +4,12 @@
 //   - checkout.session.completed  → create/update WildApricot contact
 //   - customer.subscription.deleted → lapse WildApricot membership
 
-import { createOrUpdateContact, lapseMembership, splitName, type WAContactsEnv } from '../_lib/wa-contacts';
+import { createOrUpdateContact, lapseMembership, splitName } from '../_lib/wa-contacts';
 import { log, logError } from '../_lib/logger';
 import { sendWelcomeMemberEmail } from '../_lib/email';
+import { ensureMemberCode, type MemberCodeEnv } from '../_lib/member-code';
 
-interface Env extends WAContactsEnv {
+interface Env extends MemberCodeEnv {
   STRIPE_SECRET_KEY: string;
   STRIPE_WEBHOOK_SECRET: string;
   RESEND_API_KEY: string;
@@ -100,11 +101,12 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
       const { firstName, lastName } = splitName(fullName);
       const country = session.customer_details?.address?.country ?? undefined;
 
-      const { contactId, renewalDate, memberCode } = await createOrUpdateContact(
+      const { contactId, renewalDate, memberCode: waMemberCode } = await createOrUpdateContact(
         env,
         { email, firstName, lastName, membershipType, country },
         requestId,
       );
+      const memberCode = waMemberCode || await ensureMemberCode(env, contactId, email);
 
       log('webhook.checkout_completed', { email, membershipType, contactId, requestId });
 
