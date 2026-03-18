@@ -16,6 +16,7 @@ interface Env extends WAContactsEnv {
 
 interface PortalProfile {
   contactId: string;
+  memberCode: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -72,6 +73,7 @@ function mapContactToProfile(contact: WAContact): PortalProfile {
 
   return {
     contactId: String(contact.Id),
+    memberCode: getStringField(fv, FIELD_CODES.memberCode),
     firstName: contact.FirstName,
     lastName: contact.LastName,
     email: contact.Email,

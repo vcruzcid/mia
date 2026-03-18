@@ -2,6 +2,7 @@
 
 import { getWAToken, type WATokenEnv } from './wa-token';
 import { log, warn } from './logger';
+import { FIELD_CODES } from './wa-field-ids';
 
 export interface WAContactsEnv extends WATokenEnv {
   WILDAPRICOT_ACCOUNT_ID: string;
@@ -17,6 +18,8 @@ export interface NewMemberData {
   membershipType: string;
   country?: string; // from Stripe customer_details.address.country
 }
+
+type WAFieldValue = { FieldName?: string; SystemCode: string; Value: unknown };
 
 function resolveLevelId(env: WAContactsEnv, membershipType: string): number {
   const map: Record<string, string> = {
@@ -39,6 +42,26 @@ function splitName(fullName: string): { firstName: string; lastName: string } {
 
 export { splitName };
 
+function getStringFieldValue(fieldValues: WAFieldValue[] | undefined, systemCode: string): string {
+  const raw = fieldValues?.find(field => field.SystemCode === systemCode)?.Value;
+  if (raw === undefined || raw === null) return '';
+  return String(raw).trim();
+}
+
+export function getMemberCode(contact: Pick<WAContact, 'FieldValues'>): string {
+  return getStringFieldValue(contact.FieldValues as WAFieldValue[] | undefined, FIELD_CODES.memberCode);
+}
+
+async function getContactById(
+  baseUrl: string,
+  headers: Record<string, string>,
+  contactId: number,
+): Promise<WAContact> {
+  const res = await fetch(`${baseUrl}/contacts/${contactId}`, { headers });
+  if (!res.ok) throw new Error(`WA getContact failed: ${res.status}`);
+  return res.json() as Promise<WAContact>;
+}
+
 async function findContactByEmail(
   baseUrl: string,
   headers: Record<string, string>,
@@ -59,7 +82,11 @@ async function findContactByEmail(
   return contactId;
 }
 
-export async function createOrUpdateContact(env: WAContactsEnv, data: NewMemberData, requestId?: string): Promise<{ contactId: number; renewalDate: string }> {
+export async function createOrUpdateContact(
+  env: WAContactsEnv,
+  data: NewMemberData,
+  requestId?: string,
+): Promise<{ contactId: number; renewalDate: string; memberCode: string }> {
   const token = await getWAToken(env, requestId);
   const baseUrl = `https://api.wildapricot.org/v2.2/accounts/${env.WILDAPRICOT_ACCOUNT_ID}`;
   const headers = {
@@ -107,12 +134,16 @@ export async function createOrUpdateContact(env: WAContactsEnv, data: NewMemberD
 
   const durationMs = Date.now() - t0;
   if (existingId) {
+    const updatedContact = await getContactById(baseUrl, headers, existingId);
+    const memberCode = getMemberCode(updatedContact);
     log('wa.contact_updated', { email: data.email, contactId: existingId, membershipType: data.membershipType, memberSince: today, renewalDue: renewalDate, durationMs, requestId });
-    return { contactId: existingId, renewalDate };
+    return { contactId: existingId, renewalDate, memberCode };
   }
   const created = await res.json() as { Id: number };
+  const createdContact = await getContactById(baseUrl, headers, created.Id);
+  const memberCode = getMemberCode(createdContact);
   log('wa.contact_created', { email: data.email, contactId: created.Id, membershipType: data.membershipType, memberSince: today, renewalDue: renewalDate, durationMs, requestId });
-  return { contactId: created.Id, renewalDate };
+  return { contactId: created.Id, renewalDate, memberCode };
 }
 
 export async function lapseMembership(env: WAContactsEnv, email: string, requestId?: string): Promise<void> {
@@ -161,11 +192,7 @@ export interface WAContact {
 export async function getContact(env: WAContactsEnv, contactId: number): Promise<WAContact> {
   const token = await getWAToken(env);
   const baseUrl = `https://api.wildapricot.org/v2.2/accounts/${env.WILDAPRICOT_ACCOUNT_ID}`;
-  const res = await fetch(`${baseUrl}/contacts/${contactId}`, {
-    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-  });
-  if (!res.ok) throw new Error(`WA getContact failed: ${res.status}`);
-  return res.json() as Promise<WAContact>;
+  return getContactById(baseUrl, { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, contactId);
 }
 
 export async function getContactByEmail(env: WAContactsEnv, email: string): Promise<WAContact | null> {
@@ -174,10 +201,7 @@ export async function getContactByEmail(env: WAContactsEnv, email: string): Prom
   const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
   const id = await findContactByEmail(baseUrl, headers, email);
   if (!id) return null;
-  // Reuse headers to avoid a second getWAToken call.
-  const res = await fetch(`${baseUrl}/contacts/${id}`, { headers });
-  if (!res.ok) throw new Error(`WA getContact failed: ${res.status}`);
-  return res.json() as Promise<WAContact>;
+  return getContactById(baseUrl, headers, id);
 }
 
 export async function updateContact(

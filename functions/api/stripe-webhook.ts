@@ -100,12 +100,16 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
       const { firstName, lastName } = splitName(fullName);
       const country = session.customer_details?.address?.country ?? undefined;
 
-      const { contactId, renewalDate } = await createOrUpdateContact(env, { email, firstName, lastName, membershipType, country }, requestId);
+      const { contactId, renewalDate, memberCode } = await createOrUpdateContact(
+        env,
+        { email, firstName, lastName, membershipType, country },
+        requestId,
+      );
 
       log('webhook.checkout_completed', { email, membershipType, contactId, requestId });
 
       // Best-effort welcome email — never block or retry on email failure
-      sendWelcomeMemberEmail(env.RESEND_API_KEY, email, firstName, membershipType, contactId, renewalDate, env.WA_WHATSAPP_GROUP_URL)
+      sendWelcomeMemberEmail(env.RESEND_API_KEY, email, firstName, membershipType, memberCode, renewalDate, env.WA_WHATSAPP_GROUP_URL)
         .catch(err => logError('webhook.welcome_email_failed', err, { email, membershipType, requestId }));
     }
 

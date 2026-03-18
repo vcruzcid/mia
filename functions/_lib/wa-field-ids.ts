@@ -2,6 +2,7 @@
 // Discovered via GET /accounts/511043/contactfields on 2026-02-27.
 
 export const FIELD_CODES = {
+  memberCode: 'custom-17813765',         // Código de socia (text)
   bio: 'custom-17708434',               // Biografía (text)
   profesionPrincipal: 'custom-17708342', // Profesión Principal (Dropdown — single select)
   profesionAdicional: 'custom-17708340', // Profesión Adicional (MultipleChoice — multi select)

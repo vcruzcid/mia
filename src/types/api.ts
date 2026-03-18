@@ -99,6 +99,7 @@ export interface AuthMeResponse {
 
 export interface PortalProfile {
   contactId: string;
+  memberCode: string;
   firstName: string;
   lastName: string;
   email: string;
