@@ -75,6 +75,7 @@ db-backups/
 *.temp
 .temp/
 tmp/
+scripts/
 
 # Tools and MCP
 .mcp.json
