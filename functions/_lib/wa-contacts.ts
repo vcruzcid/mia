@@ -17,6 +17,12 @@ export interface NewMemberData {
   lastName: string;
   membershipType: string;
   country?: string;
+  memberCode?: string;
+  /**
+   * When provided, skips the internal `findContactByEmail` lookup and uses this ID directly.
+   * Pass when the caller has already resolved the contact ID to avoid a redundant WA API call.
+   */
+  existingContactId?: number;
 }
 
 type WAFieldValue = { FieldName?: string; SystemCode: string; Value: unknown };
@@ -94,7 +100,7 @@ export async function createOrUpdateContact(
     'Content-Type': 'application/json',
   };
 
-  const existingId = await findContactByEmail(baseUrl, headers, data.email, requestId);
+  const existingId = data.existingContactId ?? await findContactByEmail(baseUrl, headers, data.email, requestId);
   const levelId = resolveLevelId(env, data.membershipType);
 
   const today = new Date().toISOString().split('T')[0]; // "YYYY-MM-DD"
@@ -111,6 +117,9 @@ export async function createOrUpdateContact(
     if (countryId) {
       fieldValues.push({ SystemCode: FIELD_CODES.pais, Value: { Id: countryId } });
     }
+  }
+  if (data.memberCode) {
+    fieldValues.push({ SystemCode: FIELD_CODES.memberCode, Value: data.memberCode });
   }
 
   const body = {
@@ -145,7 +154,7 @@ export async function createOrUpdateContact(
   }
   const created = await res.json() as { Id: number };
   log('wa.contact_created', { email: data.email, contactId: created.Id, membershipType: data.membershipType, memberSince: today, renewalDue: renewalDate, durationMs, requestId });
-  return { contactId: created.Id, renewalDate, memberCode: '' };
+  return { contactId: created.Id, renewalDate, memberCode: data.memberCode ?? '' };
 }
 
 export async function lapseMembership(env: WAContactsEnv, email: string, requestId?: string): Promise<void> {

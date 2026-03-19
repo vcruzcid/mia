@@ -4,10 +4,15 @@
 //   - checkout.session.completed  → create/update WildApricot contact
 //   - customer.subscription.deleted → lapse WildApricot membership
 
-import { createOrUpdateContact, lapseMembership, splitName } from '../_lib/wa-contacts';
+import { createOrUpdateContact, getContactByEmail, lapseMembership, splitName } from '../_lib/wa-contacts';
 import { log, logError } from '../_lib/logger';
 import { sendWelcomeMemberEmail } from '../_lib/email';
-import { ensureMemberCode, type MemberCodeEnv } from '../_lib/member-code';
+import {
+  ensureMemberCode,
+  ensureMemberCodeAssignment,
+  reserveNextMemberCode,
+  type MemberCodeEnv,
+} from '../_lib/member-code';
 
 interface Env extends MemberCodeEnv {
   STRIPE_SECRET_KEY: string;
@@ -104,13 +109,35 @@ export async function onRequestPost(context: {
       }
 
       const { firstName, lastName } = splitName(fullName);
+      const existingContact = await getContactByEmail(env, email);
+      // Reserve a code upfront for new contacts so it can be embedded in the WA POST,
+      // reducing API calls from 2 to 1. The sequence is already incremented at this point;
+      // if the WA call below fails, the reserved code is permanently orphaned (a gap in the
+      // sequence). Gaps are acceptable — the alternative (reserving after WA) would require
+      // a separate PUT and doesn't eliminate the failure window.
+      const preassignedMemberCode = existingContact
+        ? ''
+        : await reserveNextMemberCode(env);
 
       const { contactId, renewalDate, memberCode: waMemberCode } = await createOrUpdateContact(
         env,
-        { email, firstName, lastName, membershipType, country },
+        {
+          email,
+          firstName,
+          lastName,
+          membershipType,
+          country,
+          memberCode: preassignedMemberCode !== '' ? preassignedMemberCode : undefined,
+          existingContactId: existingContact?.Id,
+        },
         requestId,
       );
-      const memberCode = waMemberCode || await ensureMemberCode(env, contactId, email);
+      // ensureMemberCodeAssignment trusts D1 as the source of truth: if a concurrent webhook
+      // delivery already persisted a code, it returns that code and the caller syncs WA.
+      // ensureMemberCode handles the fallback path (existing contacts without a code).
+      const memberCode = waMemberCode
+        ? await ensureMemberCodeAssignment(env, email, contactId, waMemberCode)
+        : await ensureMemberCode(env, contactId, email);
 
       log('webhook.checkout_completed', { email, membershipType, contactId, requestId });
 
