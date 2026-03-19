@@ -42,7 +42,6 @@ export const cookieConsentConfig: CookieConsentConfig = {
       enabled: true,
       readOnly: true,
     },
-    functional: {},
     analytics: {
       autoClear: {
         cookies: [
@@ -75,14 +74,14 @@ export const cookieConsentConfig: CookieConsentConfig = {
             {
               title: 'Cookies necesarias',
               description:
-                'Imprescindibles para el funcionamiento de la web. Incluyen la protección anti-bots de Cloudflare Turnstile. No se pueden desactivar.',
+                'Imprescindibles para el funcionamiento de la web. Incluyen la protección anti-bots de Cloudflare Turnstile y la cookie de sesión del portal de socias (<code>mia_session</code>). No se pueden desactivar.',
               linkedCategory: 'necessary',
-            },
-            {
-              title: 'Cookies funcionales',
-              description:
-                'Permiten recordar tus preferencias y mantener tu sesión en el portal de socias.',
-              linkedCategory: 'functional',
+              cookieTable: {
+                headers: { name: 'Cookie', domain: 'Dominio', desc: 'Descripción' },
+                body: [
+                  { name: 'mia_session', domain: 'animacionesmia.com', desc: 'Sesión autenticada del portal de socias (7 días, HTTP-only)' },
+                ],
+              },
             },
             {
               title: 'Cookies de análisis',
