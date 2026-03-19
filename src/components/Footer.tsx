@@ -50,11 +50,11 @@ export function Footer() {
                   <Facebook className="h-5 w-5" />
                 </a>
                 <a
-                  href="https://twitter.com/mianimacion"
+                  href="https://x.com/MIAnimacion"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-12 h-12 rounded-full border-2 border-red-500 flex items-center justify-center text-white hover:bg-red-500 hover:text-white transition-colors duration-200"
-                  aria-label="Visitar perfil de Twitter de MIA"
+                  aria-label="Visitar perfil de X de MIA"
                 >
                   <Twitter className="h-5 w-5" />
                 </a>
@@ -68,7 +68,7 @@ export function Footer() {
                   <Instagram className="h-5 w-5" />
                 </a>
                 <a
-                  href="https://www.linkedin.com/company/mia-mujeres-en-la-industria-de-la-animacion"
+                  href="https://www.linkedin.com/company/mianimacion"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-12 h-12 rounded-full border-2 border-red-500 flex items-center justify-center text-white hover:bg-red-500 hover:text-white transition-colors duration-200"
@@ -129,7 +129,7 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-gray-800 text-center">
           <p className="text-sm text-gray-400 mb-4">
-            Copyright 2025 Mujeres en la Industria de la Animación | All rights reserved
+            Copyright 2026 Mujeres en la Industria de la Animación | All rights reserved
           </p>
           <div className="flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-4">
             <FooterLink to="/politica-cookies" className="text-sm text-red-400 hover:text-red-300">
