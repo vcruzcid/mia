@@ -25,13 +25,11 @@
     <!-- Cloudflare Turnstile -->
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
 
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YLBF3GWPRV"></script>
+    <!-- Google Consent Mode v2 defaults — GA loads only after analytics consent -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-YLBF3GWPRV');
+      gtag('consent', 'default', { analytics_storage: 'denied', ad_storage: 'denied' });
     </script>
   </head>
   <body>
