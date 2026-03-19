@@ -4,10 +4,15 @@
 //   - checkout.session.completed  → create/update WildApricot contact
 //   - customer.subscription.deleted → lapse WildApricot membership
 
-import { createOrUpdateContact, lapseMembership, splitName } from '../_lib/wa-contacts';
+import { createOrUpdateContact, getContactByEmail, lapseMembership, splitName } from '../_lib/wa-contacts';
 import { log, logError } from '../_lib/logger';
 import { sendWelcomeMemberEmail } from '../_lib/email';
-import { ensureMemberCode, type MemberCodeEnv } from '../_lib/member-code';
+import {
+  attachMemberCodeAssignment,
+  ensureMemberCode,
+  getOrReserveMemberCodeForEmail,
+  type MemberCodeEnv,
+} from '../_lib/member-code';
 
 interface Env extends MemberCodeEnv {
   STRIPE_SECRET_KEY: string;
@@ -104,13 +109,27 @@ export async function onRequestPost(context: {
       }
 
       const { firstName, lastName } = splitName(fullName);
+      const existingContact = await getContactByEmail(env, email);
+      const preassignedMemberCode = existingContact
+        ? ''
+        : await getOrReserveMemberCodeForEmail(env, email);
 
       const { contactId, renewalDate, memberCode: waMemberCode } = await createOrUpdateContact(
         env,
-        { email, firstName, lastName, membershipType, country },
+        {
+          email,
+          firstName,
+          lastName,
+          membershipType,
+          country,
+          memberCode: preassignedMemberCode || undefined,
+          existingContactId: existingContact?.Id,
+        },
         requestId,
       );
-      const memberCode = waMemberCode || await ensureMemberCode(env, contactId, email);
+      const memberCode = existingContact
+        ? (waMemberCode || await ensureMemberCode(env, contactId, email))
+        : await attachMemberCodeAssignment(env, email, contactId, preassignedMemberCode);
 
       log('webhook.checkout_completed', { email, membershipType, contactId, requestId });
 
