@@ -336,7 +336,7 @@ export async function sendWelcomeMemberEmail(
             <tr>
               <td style="padding:0 40px 32px 40px; font-size:14px; color:#555; line-height:1.6; font-family:'Poppins',Helvetica,Arial,sans-serif;">
                 Recuerda que tienes disponible el
-                <a href="https://drive.google.com/file/d/1UYt2aikhUCA2lnDhyiz3ZnleCSEmHUfl/view?usp=sharing"
+                <a href="https://drive.google.com/drive/folders/1ZTaFBoznw5L5yq8X3yRz5wCSiGJWgzCG?usp=sharing"
                    style="color:#d8242e; text-decoration:none; font-weight:600;" target="_blank">manual de socia</a>
                 con toda la información sobre los beneficios y recursos disponibles para ti.
               </td>

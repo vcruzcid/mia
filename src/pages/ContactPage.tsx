@@ -156,9 +156,9 @@ export function ContactPage() {
                   <div className="flex justify-center">
                     <SocialMediaIcons
                       socialMedia={{
-                        linkedin: 'https://linkedin.com/company/animacionesmia',
-                        twitter: 'https://twitter.com/animacionesmia',
-                        instagram: 'https://instagram.com/animacionesmia',
+                        linkedin: 'https://www.linkedin.com/company/mianimacion',
+                        twitter: 'https://x.com/MIAnimacion',
+                        instagram: 'https://www.instagram.com/mianimacion/',
                         website: 'https://animacionesmia.com'
                       }}
                       className="space-x-6"
