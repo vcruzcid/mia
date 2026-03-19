@@ -16,7 +16,7 @@ export interface NewMemberData {
   firstName: string;
   lastName: string;
   membershipType: string;
-  country?: string; // from Stripe customer_details.address.country
+  country?: string;
 }
 
 type WAFieldValue = { FieldName?: string; SystemCode: string; Value: unknown };

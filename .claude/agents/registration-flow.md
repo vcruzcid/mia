@@ -26,24 +26,6 @@ You are responsible for the MIA registration flow.
 
 ---
 
-## Discount Code Decision (IMPORTANT)
-
-**Discount codes are managed entirely in WildApricot admin — NOT in this app.**
-
-- WA admin: Members → Discount Codes → create codes (% off, fixed, per level, limited redemptions)
-- Members receive codes via email and enter them on the WA checkout page
-- **Remove from this app:** `VALID_DISCOUNT_CODES`, `calculateDiscountedPrice()`, discount input UI
-- **Do NOT** use Stripe promotion codes — MIA is not using Stripe Checkout Sessions
-- **Do NOT** try to pass discount codes via WA API `CouponCode` param — documented as buggy
-  (silently ignored in some cases per WA forums, July 2024)
-
-### Why Stripe promo codes don't work here
-WA Stripe Connect routes through WA's own internal checkout page. You cannot inject
-`allow_promotion_codes` or `discounts[]` into WA's Stripe session — WA creates it, not you.
-Stripe Dashboard promo codes only work with Stripe Checkout Sessions your server creates.
-
----
-
 ## Schemas (extend only, do not duplicate)
 
 Location: `src/schemas/registrationSchema.ts`
@@ -52,8 +34,6 @@ Location: `src/schemas/registrationSchema.ts`
 - `membershipPaymentSchema` — Step 2: membership type, TOS, GDPR (**remove discountCode field**)
 - `profileDetailsSchema` — Step 3: bio, company, social media, gallery visibility
 - `registrationSchema` — combined schema with cross-step refinements
-
-**Remove from schema:** `discountCode` field, `VALID_DISCOUNT_CODES` const, `calculateDiscountedPrice` function.
 
 ---
 

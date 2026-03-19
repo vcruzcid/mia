@@ -1,6 +1,8 @@
 // POST /api/create-checkout-session
 // Creates a Stripe Checkout Session (subscription mode) and returns the redirect URL.
 
+import { warn } from '../_lib/logger';
+
 interface Env {
   STRIPE_SECRET_KEY: string;
   STRIPE_PRICE_PLENO_DERECHO: string;
@@ -70,7 +72,7 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
 
   if (!res.ok) {
     const err = await res.json() as { error?: { message?: string } };
-    console.error('Stripe checkout session error:', err);
+    warn('stripe.checkout_error', { membershipType, stripeError: err.error?.message });
     return new Response(
       JSON.stringify({ success: false, error: err.error?.message ?? 'Error creando sesión de pago' }),
       { status: 500, headers: corsHeaders },

@@ -1,9 +1,31 @@
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
+import type { CheckoutSessionResponse } from '@/types/api';
+
+async function fetchCheckoutSession(sessionId: string): Promise<CheckoutSessionResponse> {
+  const res = await fetch(`/api/checkout-session?session_id=${encodeURIComponent(sessionId)}`);
+  if (!res.ok) throw new Error(`stripe session lookup failed: ${res.status}`);
+  return res.json() as Promise<CheckoutSessionResponse>;
+}
 
 export function RegistroExitoPage() {
+  const [searchParams] = useSearchParams();
+  const sessionId = searchParams.get('session_id');
+
+  const { data } = useQuery({
+    queryKey: ['checkout-session', sessionId],
+    queryFn: () => fetchCheckoutSession(sessionId!),
+    enabled: !!sessionId,
+    staleTime: Infinity,
+    retry: false,
+  });
+
+  const isPaid = data?.payment_status === 'paid';
+  const firstName = isPaid && data?.name ? data.name.split(' ')[0] : null;
+
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Header />
@@ -17,7 +39,7 @@ export function RegistroExitoPage() {
           </div>
 
           <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            ¡Bienvenida a MIA!
+            {firstName ? `¡Bienvenida, ${firstName}!` : '¡Bienvenida a MIA!'}
           </h1>
 
           <p className="text-lg text-gray-700 mb-2">
@@ -27,9 +49,9 @@ export function RegistroExitoPage() {
           <p className="text-gray-600 mb-8">
             En breve recibirás un email de confirmación con los detalles de tu membresía.
             Si tienes alguna duda, escríbenos a{' '}
-            <a href="mailto:info@animacionesmia.com" className="text-red-600 hover:text-red-700 underline">
-              info@animacionesmia.com
-            </a>.
+            <Link to="/contacto" className="text-red-600 hover:text-red-700 underline">
+              hola@animacionesmia.com
+            </Link>.
           </p>
 
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-5 mb-8 text-left">
@@ -52,10 +74,13 @@ export function RegistroExitoPage() {
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button asChild>
-              <Link to="/">Ir a la página principal</Link>
+              <Link to="/portal/perfil">Completa tu perfil</Link>
             </Button>
             <Button variant="outline" asChild>
               <Link to="/socias">Ver el directorio de socias</Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link to="/portal/suscripcion">Ver factura</Link>
             </Button>
           </div>
         </div>

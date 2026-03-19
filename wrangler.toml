@@ -1,11 +1,5 @@
 name = "miawapp"
 compatibility_date = "2024-12-15"
-
-[observability]
-enabled = true
-head_sampling_rate = 1
-
-# Pages configuration
 pages_build_output_dir = "dist"
 
 # ─── Production (animacionesmia.com) ───────────────────────────────────────────
@@ -44,10 +38,6 @@ database_id = "cffaefb1-8b4b-46d0-ab05-d0d725ff34fe"
 
 # ─── Preview (dev.animacionesmia.com + PR previews) ────────────────────────────
 # Uses Stripe test-mode keys and price IDs
-
-[env.preview.observability]
-enabled = true
-head_sampling_rate = 1
 
 [env.preview.vars]
 VITE_TURNSTILE_SITE_KEY      = "0x4AAAAAAClH7WCAJP8-8duv"

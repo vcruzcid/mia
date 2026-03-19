@@ -17,7 +17,7 @@ interface Env extends MemberCodeEnv {
 }
 
 // Verify Stripe webhook signature using Web Crypto API
-async function verifyStripeSignature(body: string, signature: string, secret: string): Promise<boolean> {
+export async function verifyStripeSignature(body: string, signature: string, secret: string): Promise<boolean> {
   const parts = signature.split(',');
   const timestamp = parts.find(p => p.startsWith('t='))?.slice(2);
   const signatures = parts.filter(p => p.startsWith('v1=')).map(p => p.slice(3));
@@ -28,7 +28,7 @@ async function verifyStripeSignature(body: string, signature: string, secret: st
   if (Math.abs(Date.now() / 1000 - parseInt(timestamp, 10)) > 300) return false;
 
   const payload = `${timestamp}.${body}`;
-  const rawSecret = Uint8Array.from(atob(secret.replace(/^whsec_/, '')), c => c.charCodeAt(0));
+  const rawSecret = new TextEncoder().encode(secret);
   const key = await crypto.subtle.importKey(
     'raw',
     rawSecret,
@@ -54,7 +54,11 @@ async function getStripeCustomerEmail(customerId: string, secretKey: string): Pr
   return customer.email ?? null;
 }
 
-export async function onRequestPost(context: { request: Request; env: Env }): Promise<Response> {
+export async function onRequestPost(context: {
+  request: Request;
+  env: Env;
+  waitUntil: (promise: Promise<unknown>) => void;
+}): Promise<Response> {
   const { request, env } = context;
   const requestId = crypto.randomUUID();
 
@@ -92,6 +96,7 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
       const membershipType = session.metadata?.membership_type;
       const email = session.customer_details?.email;
       const fullName = session.customer_details?.name ?? '';
+      const country = session.customer_details?.address?.country ?? undefined;
 
       if (!membershipType || !email) {
         logError('webhook.checkout_completed', undefined, { membershipType, email: email ?? null, reason: 'missing_fields', requestId });
@@ -99,7 +104,6 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
       }
 
       const { firstName, lastName } = splitName(fullName);
-      const country = session.customer_details?.address?.country ?? undefined;
 
       const { contactId, renewalDate, memberCode: waMemberCode } = await createOrUpdateContact(
         env,
@@ -110,9 +114,12 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
 
       log('webhook.checkout_completed', { email, membershipType, contactId, requestId });
 
-      // Best-effort welcome email — never block or retry on email failure
-      sendWelcomeMemberEmail(env.RESEND_API_KEY, email, firstName, membershipType, memberCode, renewalDate, env.WA_WHATSAPP_GROUP_URL)
-        .catch(err => logError('webhook.welcome_email_failed', err, { email, membershipType, requestId }));
+      // Best-effort welcome email — use waitUntil so the runtime keeps the worker alive
+      // until the Resend fetch completes (fire-and-forget without waitUntil is killed on response)
+      context.waitUntil(
+        sendWelcomeMemberEmail(env.RESEND_API_KEY, email, firstName, membershipType, memberCode, renewalDate, env.WA_WHATSAPP_GROUP_URL)
+          .catch(err => logError('webhook.welcome_email_failed', err, { email, membershipType, requestId }))
+      );
     }
 
     if (event.type === 'customer.subscription.deleted') {

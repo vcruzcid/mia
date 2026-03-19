@@ -206,6 +206,15 @@ Before using any library, SDK, API, or tool:
 1. **Always use Context7 MCP** to pull current documentation for any library in use. Never rely on training knowledge for API signatures, config options, or version-specific behavior.
 2. **Always use web search** to verify the current stable version of any software before installing or referencing it. Check the official source (npm, GitHub releases, official docs).
 3. This applies to: npm packages, Cloudflare APIs, WildApricot API, Stripe, Vite plugins, Tailwind config, shadcn/ui, React Router, TanStack Query, Wrangler CLI, and any new integration.
+4. **Always use the latest stable version** of any library, SDK, API, or tool. Do not use beta, alpha, or release candidate versions unless explicitly approved by the user.
+5. **Always use KISS (Keep It Simple, Stupid)** principle when implementing any feature. Do not over-engineer or add unnecessary complexity.
+6. **Always use YAGNI (You Ain't Gonna Need This)** principle when implementing any feature. Do not add features that are not required for the current implementation.
+7. **Always use DRY (Don't Repeat Yourself)** principle when implementing any feature. Do not repeat code or logic.
+8. **Always use TDD (Test-Driven Development)** principle when implementing any feature. Do not add features that are not required for the current implementation.
+9. **Always use SOLID (Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion)** principle when implementing any feature. Do not over-engineer or add unnecessary complexity.
+10. **Always use Clean Architecture (Separation of Concerns, Dependency Rule, Testability)** principle when implementing any feature. Do not over-engineer or add unnecessary complexity.
+11. **Always use Clean Architecture (Separation of Concerns, Dependency Rule, Testability)** principle when implementing any feature. Do not over-engineer or add unnecessary complexity.
+12. **Open Source** Open source is your friend. Don't try to build everything from scratch, find stable and trusted libs, 
 
 ---
 
@@ -234,7 +243,7 @@ When adding a new Pages Function, always add structured log calls for success pa
 
 - TypeScript strict mode — all new code must pass `npm run build`
 - Functional components with hooks only
-- Keep components under 200 lines — extract sub-components if needed
+- Keep components under 300 lines — extract sub-components if needed
 - `cn()` from `@/lib/utils` for className merging
 - No inline styles
 - Error boundaries on all async views
@@ -278,4 +287,3 @@ See `.claude/agents/git-workflow.md` for full branching, commit, PR, and merge r
 - `registrationSchema.ts` — remove `VALID_DISCOUNT_CODES` and `calculateDiscountedPrice`
 - Member stats in `HomePage` — manually updated (see TODO comment)
 - D1, R2, KV bindings not yet in `wrangler.toml`
-- No WildApricot integration yet — not started
