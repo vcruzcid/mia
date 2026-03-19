@@ -18,6 +18,10 @@ export interface NewMemberData {
   membershipType: string;
   country?: string;
   memberCode?: string;
+  /**
+   * When provided, skips the internal `findContactByEmail` lookup and uses this ID directly.
+   * Pass when the caller has already resolved the contact ID to avoid a redundant WA API call.
+   */
   existingContactId?: number;
 }
 

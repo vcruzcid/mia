@@ -149,9 +149,14 @@ export async function ensureMemberCodeAssignment(
   const existingByContact = await findAssignmentByContactId(env, contactId);
   if (existingByContact) {
     if (existingByContact.member_code !== parsedCode) {
-      throw new Error(
-        `Contact ${contactId} already has member code ${existingByContact.member_code}, cannot replace with ${parsedCode}`,
-      );
+      // D1 is the source of truth. A concurrent request already persisted a different code.
+      // Return D1's code; the caller is responsible for syncing WA if the codes differ.
+      warn('member_code.concurrent_assignment_resolved', {
+        email,
+        contactId,
+        requestedCode: parsedCode,
+        resolvedCode: existingByContact.member_code,
+      });
     }
     if (existingByContact.email !== email) {
       await syncAssignmentEmail(env, contactId, email);
@@ -184,9 +189,13 @@ export async function ensureMemberCodeAssignment(
     const byContact = await findAssignmentByContactId(env, contactId);
     if (byContact) {
       if (byContact.member_code !== parsedCode) {
-        throw new Error(
-          `Contact ${contactId} already has member code ${byContact.member_code}, cannot replace with ${parsedCode}`,
-        );
+        // Same as the pre-check case: trust D1 over the requested code.
+        warn('member_code.concurrent_assignment_resolved', {
+          email,
+          contactId,
+          requestedCode: parsedCode,
+          resolvedCode: byContact.member_code,
+        });
       }
       if (byContact.email !== email) {
         await syncAssignmentEmail(env, contactId, email);
@@ -233,7 +242,12 @@ export async function ensureMemberCode(
   const contact = await getContact(env, contactId);
   const existingCode = getMemberCode(contact);
   if (existingCode) {
-    return ensureMemberCodeAssignment(env, email, contactId, existingCode);
+    const assignedCode = await ensureMemberCodeAssignment(env, email, contactId, existingCode);
+    if (assignedCode !== existingCode) {
+      // WA has a stale code from a concurrent request — restore the D1 truth.
+      await writeMemberCodeToWA(env, contactId, assignedCode);
+    }
+    return assignedCode;
   }
 
   const existingAssignment = await findAssignmentByContactId(env, contactId);

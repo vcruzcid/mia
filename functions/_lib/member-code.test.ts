@@ -245,4 +245,71 @@ describe('member code helpers', () => {
 
     expect(memberCode).toBe('9001');
   });
+
+  it('returns D1 code when a concurrent request already assigned a different code to the contact', async () => {
+    // Simulates the race: D1 has code 9001 for contact 10, but caller is trying to assign 9002
+    // (because a concurrent webhook reserved and wrote 9002 in WA before D1 was updated).
+    // Expected: D1 wins; 9001 is returned and the caller can sync WA back.
+    const { env, db } = createEnv();
+    db.seedAssignment('race@example.com', 10, 9001);
+
+    const memberCode = await ensureMemberCodeAssignment(env, 'race@example.com', 10, '9002');
+
+    expect(memberCode).toBe('9001');
+  });
+
+  it('returns D1 code from conflict retry path when INSERT loses the race', async () => {
+    // Simulates the optimistic-insert path: INSERT fails with a UNIQUE violation because a
+    // concurrent request already inserted code 9001 for contact 20 between our pre-check
+    // and our INSERT. The post-insert lookup should resolve to the winning code.
+    const { env, db } = createEnv();
+
+    // Intercept insertAssignment to inject the pre-existing row after the first INSERT fails.
+    const origPrepare = db.prepare.bind(db);
+    let insertCalled = false;
+    db.prepare = (query: string) => {
+      const stmt = origPrepare(query);
+      if (query.includes('INSERT INTO member_code_assignments')) {
+        const origRun = stmt.run.bind(stmt);
+        stmt.run = async () => {
+          if (!insertCalled) {
+            insertCalled = true;
+            // Seed the winning row (from the concurrent request) before throwing
+            db.seedAssignment('race2@example.com', 20, 9001);
+            throw new Error('UNIQUE constraint failed: member_code_assignments.contact_id');
+          }
+          return origRun();
+        };
+      }
+      return stmt;
+    };
+
+    const memberCode = await ensureMemberCodeAssignment(env, 'race2@example.com', 20, '9001');
+
+    expect(memberCode).toBe('9001');
+  });
+
+  it('throws when a different contact already owns the requested member code', async () => {
+    // This is a genuine data-integrity error (should never happen with the atomic sequence).
+    const { env, db } = createEnv();
+    db.seedAssignment('other@example.com', 99, 9005);
+
+    await expect(
+      ensureMemberCodeAssignment(env, 'new@example.com', 50, '9005'),
+    ).rejects.toThrow('already assigned to contact 99');
+  });
+
+  it('throws when ensureMemberCodeAssignment receives an invalid member code string', async () => {
+    const { env } = createEnv();
+
+    await expect(ensureMemberCodeAssignment(env, 'x@example.com', 1, 'abc')).rejects.toThrow(
+      'Invalid member code value',
+    );
+    await expect(ensureMemberCodeAssignment(env, 'x@example.com', 1, '0')).rejects.toThrow(
+      'Invalid member code value',
+    );
+    await expect(ensureMemberCodeAssignment(env, 'x@example.com', 1, '-5')).rejects.toThrow(
+      'Invalid member code value',
+    );
+  });
 });

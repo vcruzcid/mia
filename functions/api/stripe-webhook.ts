@@ -110,6 +110,11 @@ export async function onRequestPost(context: {
 
       const { firstName, lastName } = splitName(fullName);
       const existingContact = await getContactByEmail(env, email);
+      // Reserve a code upfront for new contacts so it can be embedded in the WA POST,
+      // reducing API calls from 2 to 1. The sequence is already incremented at this point;
+      // if the WA call below fails, the reserved code is permanently orphaned (a gap in the
+      // sequence). Gaps are acceptable — the alternative (reserving after WA) would require
+      // a separate PUT and doesn't eliminate the failure window.
       const preassignedMemberCode = existingContact
         ? ''
         : await reserveNextMemberCode(env);
@@ -122,11 +127,14 @@ export async function onRequestPost(context: {
           lastName,
           membershipType,
           country,
-          memberCode: preassignedMemberCode || undefined,
+          memberCode: preassignedMemberCode !== '' ? preassignedMemberCode : undefined,
           existingContactId: existingContact?.Id,
         },
         requestId,
       );
+      // ensureMemberCodeAssignment trusts D1 as the source of truth: if a concurrent webhook
+      // delivery already persisted a code, it returns that code and the caller syncs WA.
+      // ensureMemberCode handles the fallback path (existing contacts without a code).
       const memberCode = waMemberCode
         ? await ensureMemberCodeAssignment(env, email, contactId, waMemberCode)
         : await ensureMemberCode(env, contactId, email);

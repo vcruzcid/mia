@@ -1,3 +1,5 @@
+BEGIN;
+
 DROP INDEX IF EXISTS idx_member_code_assignments_member_code;
 
 ALTER TABLE member_code_assignments RENAME TO member_code_assignments_old;
@@ -20,3 +22,5 @@ CREATE INDEX idx_member_code_assignments_member_code
 
 CREATE INDEX idx_member_code_assignments_email
   ON member_code_assignments(email);
+
+COMMIT;
