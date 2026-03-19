@@ -29,15 +29,8 @@ export function PoliticaCookiesPage() {
                 <p>
                   Imprescindibles para el funcionamiento básico del sitio. No se pueden desactivar.
                   Incluyen la protección anti-bots de <strong>Cloudflare Turnstile</strong>, cuyo uso se ampara en
-                  el interés legítimo de la seguridad del servicio, y las cookies de sesión del portal de socias.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="text-xl font-semibold mb-2 text-gray-900">Funcionales</h3>
-                <p>
-                  Permiten recordar tus preferencias y mantener tu sesión activa en el portal de socias.
-                  Solo se activan si las aceptas.
+                  el interés legítimo de la seguridad del servicio, y la cookie <code>mia_session</code> que mantiene
+                  la sesión autenticada en el portal de socias (estrictamente necesaria para el servicio solicitado).
                 </p>
               </div>
 
@@ -53,33 +46,44 @@ export function PoliticaCookiesPage() {
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4 text-gray-900">Cookies específicas de análisis</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-gray-900">Listado de cookies</h2>
             <div className="overflow-x-auto">
               <table className="w-full text-sm border-collapse">
                 <thead>
                   <tr className="bg-gray-100">
                     <th className="border border-gray-300 px-3 py-2 text-left">Cookie</th>
                     <th className="border border-gray-300 px-3 py-2 text-left">Proveedor</th>
+                    <th className="border border-gray-300 px-3 py-2 text-left">Categoría</th>
                     <th className="border border-gray-300 px-3 py-2 text-left">Duración</th>
                     <th className="border border-gray-300 px-3 py-2 text-left">Finalidad</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
+                    <td className="border border-gray-300 px-3 py-2"><code>mia_session</code></td>
+                    <td className="border border-gray-300 px-3 py-2">animacionesmia.com</td>
+                    <td className="border border-gray-300 px-3 py-2">Necesaria</td>
+                    <td className="border border-gray-300 px-3 py-2">7 días</td>
+                    <td className="border border-gray-300 px-3 py-2">Sesión autenticada del portal de socias (HTTP-only)</td>
+                  </tr>
+                  <tr>
                     <td className="border border-gray-300 px-3 py-2">_ga</td>
                     <td className="border border-gray-300 px-3 py-2">Google Analytics</td>
+                    <td className="border border-gray-300 px-3 py-2">Análisis</td>
                     <td className="border border-gray-300 px-3 py-2">2 años</td>
                     <td className="border border-gray-300 px-3 py-2">Identifica usuarios únicos</td>
                   </tr>
                   <tr>
                     <td className="border border-gray-300 px-3 py-2">_ga_*</td>
                     <td className="border border-gray-300 px-3 py-2">Google Analytics</td>
+                    <td className="border border-gray-300 px-3 py-2">Análisis</td>
                     <td className="border border-gray-300 px-3 py-2">2 años</td>
                     <td className="border border-gray-300 px-3 py-2">Almacena el estado de sesión</td>
                   </tr>
                   <tr>
                     <td className="border border-gray-300 px-3 py-2">_gid</td>
                     <td className="border border-gray-300 px-3 py-2">Google Analytics</td>
+                    <td className="border border-gray-300 px-3 py-2">Análisis</td>
                     <td className="border border-gray-300 px-3 py-2">24 horas</td>
                     <td className="border border-gray-300 px-3 py-2">Distingue usuarios en la sesión</td>
                   </tr>
