@@ -75,6 +75,7 @@ db-backups/
 *.temp
 .temp/
 tmp/
+scripts/
 
 # Tools and MCP
 .mcp.json
@@ -84,3 +85,5 @@ tmp/
 
 # Claude Code local files
 .claude/worktrees/
+.worktrees/
+.serena/

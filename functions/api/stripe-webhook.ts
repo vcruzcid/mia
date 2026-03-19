@@ -4,11 +4,12 @@
 //   - checkout.session.completed  → create/update WildApricot contact
 //   - customer.subscription.deleted → lapse WildApricot membership
 
-import { createOrUpdateContact, lapseMembership, splitName, type WAContactsEnv } from '../_lib/wa-contacts';
+import { createOrUpdateContact, lapseMembership, splitName } from '../_lib/wa-contacts';
 import { log, logError } from '../_lib/logger';
 import { sendWelcomeMemberEmail } from '../_lib/email';
+import { ensureMemberCode, type MemberCodeEnv } from '../_lib/member-code';
 
-interface Env extends WAContactsEnv {
+interface Env extends MemberCodeEnv {
   STRIPE_SECRET_KEY: string;
   STRIPE_WEBHOOK_SECRET: string;
   RESEND_API_KEY: string;
@@ -95,6 +96,7 @@ export async function onRequestPost(context: {
       const membershipType = session.metadata?.membership_type;
       const email = session.customer_details?.email;
       const fullName = session.customer_details?.name ?? '';
+      const country = session.customer_details?.address?.country ?? undefined;
 
       if (!membershipType || !email) {
         logError('webhook.checkout_completed', undefined, { membershipType, email: email ?? null, reason: 'missing_fields', requestId });
@@ -103,14 +105,19 @@ export async function onRequestPost(context: {
 
       const { firstName, lastName } = splitName(fullName);
 
-      const { contactId, renewalDate } = await createOrUpdateContact(env, { email, firstName, lastName, membershipType }, requestId);
+      const { contactId, renewalDate, memberCode: waMemberCode } = await createOrUpdateContact(
+        env,
+        { email, firstName, lastName, membershipType, country },
+        requestId,
+      );
+      const memberCode = waMemberCode || await ensureMemberCode(env, contactId, email);
 
       log('webhook.checkout_completed', { email, membershipType, contactId, requestId });
 
       // Best-effort welcome email — use waitUntil so the runtime keeps the worker alive
       // until the Resend fetch completes (fire-and-forget without waitUntil is killed on response)
       context.waitUntil(
-        sendWelcomeMemberEmail(env.RESEND_API_KEY, email, firstName, membershipType, contactId, renewalDate, env.WA_WHATSAPP_GROUP_URL)
+        sendWelcomeMemberEmail(env.RESEND_API_KEY, email, firstName, membershipType, memberCode, renewalDate, env.WA_WHATSAPP_GROUP_URL)
           .catch(err => logError('webhook.welcome_email_failed', err, { email, membershipType, requestId }))
       );
     }

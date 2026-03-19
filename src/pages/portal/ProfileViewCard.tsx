@@ -43,6 +43,7 @@ function SocialLink({ label, value, isHandle }: { label: string; value: string; 
 
 export function ProfileViewCard({ profile, onEdit }: ProfileViewCardProps) {
   const {
+    memberCode,
     firstName,
     lastName,
     email,
@@ -72,6 +73,9 @@ export function ProfileViewCard({ profile, onEdit }: ProfileViewCardProps) {
             {firstName} {lastName}
           </h2>
           <p className="text-gray-400 text-sm mt-1">{email}</p>
+          {memberCode && (
+            <p className="text-gray-400 text-sm mt-1">Código de socia: {memberCode}</p>
+          )}
           {(city || country) && (
             <p className="text-gray-400 text-sm mt-1">
               {[city, country].filter(Boolean).join(', ')}

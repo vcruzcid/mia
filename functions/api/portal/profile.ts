@@ -5,8 +5,8 @@
 
 import { getContact, updateContact, type WAContactsEnv, type WAContact } from '../../_lib/wa-contacts';
 import { getCorsHeaders, getPreflightResponse } from '../../_lib/cors';
-import { FIELD_CODES, PROFESION_PRINCIPAL_IDS, PROFESION_ADICIONAL_IDS, WA_COUNTRIES } from '../../_lib/wa-field-ids';
-import { log, warn, logError } from '../../_lib/logger';
+import { COUNTRY_IDS, FIELD_CODES, PROFESION_PRINCIPAL_IDS, PROFESION_ADICIONAL_IDS } from '../../_lib/wa-field-ids';
+import { log, logError, warn } from '../../_lib/logger';
 
 const METHODS = 'GET, PUT, OPTIONS';
 
@@ -16,6 +16,7 @@ interface Env extends WAContactsEnv {
 
 interface PortalProfile {
   contactId: string;
+  memberCode: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -72,12 +73,13 @@ function mapContactToProfile(contact: WAContact): PortalProfile {
 
   return {
     contactId: String(contact.Id),
+    memberCode: getStringField(fv, FIELD_CODES.memberCode),
     firstName: contact.FirstName,
     lastName: contact.LastName,
     email: contact.Email,
     bio: getStringField(fv, FIELD_CODES.bio),
     city: getStringField(fv, FIELD_CODES.ciudad),
-    country: getStringField(fv, FIELD_CODES.pais),
+    country: getDropdownLabel(fv, FIELD_CODES.pais),
     specializations,
     socialLinks: {
       linkedin: getStringField(fv, FIELD_CODES.linkedin),
@@ -162,37 +164,60 @@ export async function onRequestPut(
   }
 
   const contactId = parseInt(session.contactId, 10);
-  const specs = body.specializations ?? [];
+  const fieldValues: FieldValue[] = [];
 
-  // Split specializations: first → Profesión Principal (Dropdown), rest → Profesión Adicional (MultipleChoice)
-  // Dropdown write: { Id: number } or null to clear
-  const primaryLabel = specs[0];
-  const primaryId = primaryLabel ? PROFESION_PRINCIPAL_IDS[primaryLabel] : undefined;
-  const primaryValue = primaryId ? { Id: primaryId } : null;
+  if (body.bio !== undefined) {
+    fieldValues.push({ FieldName: 'Biografía', SystemCode: FIELD_CODES.bio, Value: body.bio });
+  }
 
-  // MultipleChoice write: [{ Id: number }]
-  const additionalLabels = specs.slice(1);
-  const additionalValue = additionalLabels
-    .map(label => PROFESION_ADICIONAL_IDS[label])
-    .filter((id): id is number => id !== undefined)
-    .map(id => ({ Id: id }));
+  if (body.specializations !== undefined) {
+    const specs = body.specializations;
 
-  const fieldValues: FieldValue[] = [
-    { FieldName: 'Biografía', SystemCode: FIELD_CODES.bio, Value: body.bio ?? '' },
-    { FieldName: 'Profesión Principal', SystemCode: FIELD_CODES.profesionPrincipal, Value: primaryValue },
-    { FieldName: 'Profesión Adicional', SystemCode: FIELD_CODES.profesionAdicional, Value: additionalValue },
-    { FieldName: 'Ciudad', SystemCode: FIELD_CODES.ciudad, Value: body.city ?? '' },
-    { FieldName: 'LinkedIn', SystemCode: FIELD_CODES.linkedin, Value: body.socialLinks?.linkedin ?? '' },
-    { FieldName: 'Instagram', SystemCode: FIELD_CODES.instagram, Value: body.socialLinks?.instagram ?? '' },
-    { FieldName: 'X/Twitter', SystemCode: FIELD_CODES.twitter, Value: body.socialLinks?.twitter ?? '' },
-    { FieldName: 'Website', SystemCode: FIELD_CODES.website, Value: body.socialLinks?.website ?? '' },
-  ];
+    // Split specializations: first → Profesión Principal (Dropdown), rest → Profesión Adicional (MultipleChoice)
+    // Dropdown write: { Id: number } or null to clear
+    const primaryLabel = specs[0];
+    const primaryId = primaryLabel ? PROFESION_PRINCIPAL_IDS[primaryLabel] : undefined;
+    const primaryValue = primaryId ? { Id: primaryId } : null;
 
-  if (body.country) {
-    if (WA_COUNTRIES.includes(body.country)) {
-      fieldValues.push({ FieldName: 'País', SystemCode: FIELD_CODES.pais, Value: body.country });
-    } else {
-      warn('portal.profile.invalid_country', { country: body.country });
+    // MultipleChoice write: [{ Id: number }]
+    const additionalLabels = specs.slice(1);
+    const additionalValue = additionalLabels
+      .map(label => PROFESION_ADICIONAL_IDS[label])
+      .filter((id): id is number => id !== undefined)
+      .map(id => ({ Id: id }));
+
+    fieldValues.push(
+      { FieldName: 'Profesión Principal', SystemCode: FIELD_CODES.profesionPrincipal, Value: primaryValue },
+      { FieldName: 'Profesión Adicional', SystemCode: FIELD_CODES.profesionAdicional, Value: additionalValue },
+    );
+  }
+
+  if (body.city !== undefined) {
+    fieldValues.push({ FieldName: 'Ciudad', SystemCode: FIELD_CODES.ciudad, Value: body.city });
+  }
+
+  if (body.socialLinks?.linkedin !== undefined) {
+    fieldValues.push({ FieldName: 'LinkedIn', SystemCode: FIELD_CODES.linkedin, Value: body.socialLinks.linkedin });
+  }
+  if (body.socialLinks?.instagram !== undefined) {
+    fieldValues.push({ FieldName: 'Instagram', SystemCode: FIELD_CODES.instagram, Value: body.socialLinks.instagram });
+  }
+  if (body.socialLinks?.twitter !== undefined) {
+    fieldValues.push({ FieldName: 'X/Twitter', SystemCode: FIELD_CODES.twitter, Value: body.socialLinks.twitter });
+  }
+  if (body.socialLinks?.website !== undefined) {
+    fieldValues.push({ FieldName: 'Website', SystemCode: FIELD_CODES.website, Value: body.socialLinks.website });
+  }
+
+  if (body.country !== undefined) {
+    const countryLabel = body.country.trim();
+    const countryId = countryLabel ? COUNTRY_IDS[countryLabel] : undefined;
+    if (countryLabel && countryId === undefined) {
+      warn('portal.profile.unknown_country', { country: countryLabel, contactId: session.contactId });
+    }
+    const countryValue = countryLabel ? (countryId ? { Id: countryId } : undefined) : null;
+    if (countryValue !== undefined) {
+      fieldValues.push({ FieldName: 'País', SystemCode: FIELD_CODES.pais, Value: countryValue });
     }
   }
 
