@@ -6,7 +6,7 @@
 import { getContact, updateContact, type WAContactsEnv, type WAContact } from '../../_lib/wa-contacts';
 import { getCorsHeaders, getPreflightResponse } from '../../_lib/cors';
 import { COUNTRY_IDS, FIELD_CODES, PROFESION_PRINCIPAL_IDS, PROFESION_ADICIONAL_IDS } from '../../_lib/wa-field-ids';
-import { log, logError } from '../../_lib/logger';
+import { log, logError, warn } from '../../_lib/logger';
 
 const METHODS = 'GET, PUT, OPTIONS';
 
@@ -180,6 +180,9 @@ export async function onRequestPut(
     .map(id => ({ Id: id }));
   const countryLabel = body.country?.trim() ?? '';
   const countryId = countryLabel ? COUNTRY_IDS[countryLabel] : undefined;
+  if (countryLabel && countryId === undefined) {
+    warn('portal.profile.unknown_country', { country: countryLabel, contactId: session.contactId });
+  }
   const countryValue = countryLabel ? (countryId ? { Id: countryId } : undefined) : null;
 
   const fieldValues: FieldValue[] = [
@@ -193,7 +196,7 @@ export async function onRequestPut(
     { FieldName: 'Website', SystemCode: FIELD_CODES.website, Value: body.socialLinks?.website ?? '' },
   ];
   if (countryValue !== undefined) {
-    fieldValues.push({ FieldName: 'Pais', SystemCode: FIELD_CODES.pais, Value: countryValue });
+    fieldValues.push({ FieldName: 'País', SystemCode: FIELD_CODES.pais, Value: countryValue });
   }
 
   const updateFields: Record<string, unknown> = {

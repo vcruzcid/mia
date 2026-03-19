@@ -144,10 +144,8 @@ export async function createOrUpdateContact(
     return { contactId: existingId, renewalDate, memberCode };
   }
   const created = await res.json() as { Id: number };
-  const createdContact = await getContactById(baseUrl, headers, created.Id);
-  const memberCode = getMemberCode(createdContact);
   log('wa.contact_created', { email: data.email, contactId: created.Id, membershipType: data.membershipType, memberSince: today, renewalDue: renewalDate, durationMs, requestId });
-  return { contactId: created.Id, renewalDate, memberCode };
+  return { contactId: created.Id, renewalDate, memberCode: '' };
 }
 
 export async function lapseMembership(env: WAContactsEnv, email: string, requestId?: string): Promise<void> {

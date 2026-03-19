@@ -1,5 +1,6 @@
 import { FIELD_CODES } from './wa-field-ids';
 import { getContact, getMemberCode, updateContact, type WAContactsEnv } from './wa-contacts';
+import { warn } from './logger';
 
 export interface MemberCodeEnv extends WAContactsEnv {
   DB: D1Database;
@@ -88,7 +89,8 @@ async function persistAssignment(
       .run();
 
     return memberCode;
-  } catch {
+  } catch (err) {
+    warn('member_code.conflict_on_insert', err, { email, contactId });
     const existing = await findAssignment(env, email, contactId);
     if (!existing) throw new Error('Unable to persist member code assignment');
     return existing.member_code;
