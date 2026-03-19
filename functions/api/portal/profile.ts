@@ -164,39 +164,61 @@ export async function onRequestPut(
   }
 
   const contactId = parseInt(session.contactId, 10);
-  const specs = body.specializations ?? [];
+  const fieldValues: FieldValue[] = [];
 
-  // Split specializations: first → Profesión Principal (Dropdown), rest → Profesión Adicional (MultipleChoice)
-  // Dropdown write: { Id: number } or null to clear
-  const primaryLabel = specs[0];
-  const primaryId = primaryLabel ? PROFESION_PRINCIPAL_IDS[primaryLabel] : undefined;
-  const primaryValue = primaryId ? { Id: primaryId } : null;
-
-  // MultipleChoice write: [{ Id: number }]
-  const additionalLabels = specs.slice(1);
-  const additionalValue = additionalLabels
-    .map(label => PROFESION_ADICIONAL_IDS[label])
-    .filter((id): id is number => id !== undefined)
-    .map(id => ({ Id: id }));
-  const countryLabel = body.country?.trim() ?? '';
-  const countryId = countryLabel ? COUNTRY_IDS[countryLabel] : undefined;
-  if (countryLabel && countryId === undefined) {
-    warn('portal.profile.unknown_country', { country: countryLabel, contactId: session.contactId });
+  if (body.bio !== undefined) {
+    fieldValues.push({ FieldName: 'Biografía', SystemCode: FIELD_CODES.bio, Value: body.bio });
   }
-  const countryValue = countryLabel ? (countryId ? { Id: countryId } : undefined) : null;
 
-  const fieldValues: FieldValue[] = [
-    { FieldName: 'Biografía', SystemCode: FIELD_CODES.bio, Value: body.bio ?? '' },
-    { FieldName: 'Profesión Principal', SystemCode: FIELD_CODES.profesionPrincipal, Value: primaryValue },
-    { FieldName: 'Profesión Adicional', SystemCode: FIELD_CODES.profesionAdicional, Value: additionalValue },
-    { FieldName: 'Ciudad', SystemCode: FIELD_CODES.ciudad, Value: body.city ?? '' },
-    { FieldName: 'LinkedIn', SystemCode: FIELD_CODES.linkedin, Value: body.socialLinks?.linkedin ?? '' },
-    { FieldName: 'Instagram', SystemCode: FIELD_CODES.instagram, Value: body.socialLinks?.instagram ?? '' },
-    { FieldName: 'X/Twitter', SystemCode: FIELD_CODES.twitter, Value: body.socialLinks?.twitter ?? '' },
-    { FieldName: 'Website', SystemCode: FIELD_CODES.website, Value: body.socialLinks?.website ?? '' },
-  ];
-  if (countryValue !== undefined) {
-    fieldValues.push({ FieldName: 'País', SystemCode: FIELD_CODES.pais, Value: countryValue });
+  if (body.specializations !== undefined) {
+    const specs = body.specializations;
+
+    // Split specializations: first → Profesión Principal (Dropdown), rest → Profesión Adicional (MultipleChoice)
+    // Dropdown write: { Id: number } or null to clear
+    const primaryLabel = specs[0];
+    const primaryId = primaryLabel ? PROFESION_PRINCIPAL_IDS[primaryLabel] : undefined;
+    const primaryValue = primaryId ? { Id: primaryId } : null;
+
+    // MultipleChoice write: [{ Id: number }]
+    const additionalLabels = specs.slice(1);
+    const additionalValue = additionalLabels
+      .map(label => PROFESION_ADICIONAL_IDS[label])
+      .filter((id): id is number => id !== undefined)
+      .map(id => ({ Id: id }));
+
+    fieldValues.push(
+      { FieldName: 'Profesión Principal', SystemCode: FIELD_CODES.profesionPrincipal, Value: primaryValue },
+      { FieldName: 'Profesión Adicional', SystemCode: FIELD_CODES.profesionAdicional, Value: additionalValue },
+    );
+  }
+
+  if (body.city !== undefined) {
+    fieldValues.push({ FieldName: 'Ciudad', SystemCode: FIELD_CODES.ciudad, Value: body.city });
+  }
+
+  if (body.socialLinks?.linkedin !== undefined) {
+    fieldValues.push({ FieldName: 'LinkedIn', SystemCode: FIELD_CODES.linkedin, Value: body.socialLinks.linkedin });
+  }
+  if (body.socialLinks?.instagram !== undefined) {
+    fieldValues.push({ FieldName: 'Instagram', SystemCode: FIELD_CODES.instagram, Value: body.socialLinks.instagram });
+  }
+  if (body.socialLinks?.twitter !== undefined) {
+    fieldValues.push({ FieldName: 'X/Twitter', SystemCode: FIELD_CODES.twitter, Value: body.socialLinks.twitter });
+  }
+  if (body.socialLinks?.website !== undefined) {
+    fieldValues.push({ FieldName: 'Website', SystemCode: FIELD_CODES.website, Value: body.socialLinks.website });
+  }
+
+  if (body.country !== undefined) {
+    const countryLabel = body.country.trim();
+    const countryId = countryLabel ? COUNTRY_IDS[countryLabel] : undefined;
+    if (countryLabel && countryId === undefined) {
+      warn('portal.profile.unknown_country', { country: countryLabel, contactId: session.contactId });
+    }
+    const countryValue = countryLabel ? (countryId ? { Id: countryId } : undefined) : null;
+    if (countryValue !== undefined) {
+      fieldValues.push({ FieldName: 'País', SystemCode: FIELD_CODES.pais, Value: countryValue });
+    }
   }
 
   const updateFields: Record<string, unknown> = {
