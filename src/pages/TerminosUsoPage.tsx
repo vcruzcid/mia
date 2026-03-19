@@ -144,7 +144,7 @@ export function TerminosUsoPage() {
 
           <div className="mt-12 p-4 bg-gray-100 rounded-lg">
             <p className="text-sm text-gray-600">
-              <strong>Última actualización:</strong> Enero 2025
+              <strong>Última actualización:</strong> Marzo 2026
             </p>
           </div>
         </CardContent>

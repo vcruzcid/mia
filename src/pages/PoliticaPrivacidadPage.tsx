@@ -33,8 +33,9 @@ export function PoliticaPrivacidadPage() {
               <h3 className="text-xl font-semibold mb-2 text-gray-900">Información que recopilamos automáticamente:</h3>
               <ul className="list-disc list-inside space-y-2 ml-4">
                 <li><strong>Datos de navegación:</strong> Dirección IP, tipo de navegador, páginas visitadas</li>
+                <li><strong>Protección anti-bots:</strong> Cloudflare Turnstile procesa datos de interacción para detectar bots (interés legítimo — seguridad del servicio)</li>
                 <li><strong>Cookies:</strong> Como se describe en nuestra Política de Cookies</li>
-                <li><strong>Analytics:</strong> Datos de Google Analytics sobre el uso del sitio web</li>
+                <li><strong>Analytics:</strong> Datos de Google Analytics 4 sobre el uso del sitio web, únicamente si aceptas las cookies de análisis</li>
               </ul>
             </div>
           </section>
@@ -74,9 +75,15 @@ export function PoliticaPrivacidadPage() {
             <div className="space-y-4">
               <p>Podemos compartir tu información con:</p>
               <ul className="list-disc list-inside space-y-2 ml-4">
-                <li><strong>Proveedores de servicios:</strong> Stripe (pagos), Google Analytics (análisis)</li>
-                <li><strong>Redes sociales:</strong> Facebook, Twitter, Instagram, LinkedIn (con tu consentimiento)</li>
-                <li><strong>Servicios de email:</strong> Para el envío de comunicaciones autorizadas</li>
+                <li><strong>Stripe:</strong> Procesamiento de pagos de membresía (PCI DSS certificado)</li>
+                <li><strong>WildApricot:</strong> CRM de gestión de membresías y comunicaciones con socias</li>
+                <li><strong>Cloudflare:</strong> Infraestructura web, protección anti-bots (Turnstile) y base de datos de códigos de socia — cubiertos por el{' '}
+                  <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer" className="text-red-600 hover:text-red-700 underline">
+                    Acuerdo de Procesamiento de Datos de Cloudflare
+                  </a>
+                </li>
+                <li><strong>Resend:</strong> Envío de emails transaccionales (bienvenida, enlace mágico)</li>
+                <li><strong>Google Analytics:</strong> Análisis anónimo del uso del sitio web, únicamente con tu consentimiento previo</li>
                 <li><strong>Autoridades:</strong> Cuando sea requerido por ley</li>
               </ul>
               <p>
@@ -87,10 +94,18 @@ export function PoliticaPrivacidadPage() {
 
           <section className="mb-8">
             <h2 className="text-2xl font-semibold mb-4 text-gray-900">6. Transferencias internacionales</h2>
-            <p>
-              Algunos de nuestros proveedores de servicios pueden estar ubicados fuera del Espacio Económico Europeo (EEE). 
-              En estos casos, garantizamos que se implementen las salvaguardas adecuadas conforme al RGPD, 
+            <p className="mb-4">
+              Algunos de nuestros proveedores de servicios pueden estar ubicados fuera del Espacio Económico Europeo (EEE).
+              En estos casos, garantizamos que se implementen las salvaguardas adecuadas conforme al RGPD,
               como cláusulas contractuales estándar o decisiones de adecuación de la Comisión Europea.
+            </p>
+            <p>
+              En particular, la base de datos de códigos de socia se aloja en <strong>Cloudflare D1</strong>, con réplica
+              primaria en Europa Occidental. El tratamiento está cubierto por el{' '}
+              <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer" className="text-red-600 hover:text-red-700 underline">
+                Acuerdo de Procesamiento de Datos de Cloudflare
+              </a>
+              , que incluye las cláusulas contractuales estándar aprobadas por la Comisión Europea.
             </p>
           </section>
 
@@ -185,7 +200,7 @@ export function PoliticaPrivacidadPage() {
 
           <div className="mt-12 p-4 bg-gray-100 rounded-lg">
             <p className="text-sm text-gray-600">
-              <strong>Última actualización:</strong> Enero 2025
+              <strong>Última actualización:</strong> Marzo 2026
             </p>
           </div>
         </CardContent>
