@@ -52,18 +52,18 @@ async function findAssignmentByContactId(
   return row ?? null;
 }
 
-async function findAssignmentByEmail(
+async function findAssignmentByMemberCode(
   env: MemberCodeEnv,
-  email: string,
+  memberCode: number,
 ): Promise<MemberCodeAssignmentRow | null> {
   const row = await env.DB
     .prepare(`
       SELECT email, contact_id, member_code
       FROM member_code_assignments
-      WHERE email = ?
+      WHERE member_code = ?
       LIMIT 1
     `)
-    .bind(email)
+    .bind(memberCode)
     .first<MemberCodeAssignmentRow>();
 
   return row ?? null;
@@ -112,75 +112,101 @@ async function reserveNextCode(env: MemberCodeEnv): Promise<number> {
   return row.member_code;
 }
 
-export async function getOrReserveMemberCodeForEmail(
-  env: MemberCodeEnv,
-  email: string,
-): Promise<string> {
-  const existingAssignment = await findAssignmentByEmail(env, email);
-  if (existingAssignment) {
-    return String(existingAssignment.member_code);
+function parseMemberCode(memberCode: string): number {
+  const parsed = Number.parseInt(memberCode, 10);
+  if (!Number.isInteger(parsed) || parsed < 1) {
+    throw new Error(`Invalid member code value: ${memberCode}`);
   }
+  return parsed;
+}
 
+export async function reserveNextMemberCode(env: MemberCodeEnv): Promise<string> {
   return String(await reserveNextCode(env));
 }
 
-async function persistAssignment(
+async function insertAssignment(
   env: MemberCodeEnv,
   email: string,
   contactId: number,
   memberCode: number,
-): Promise<number> {
-  try {
-    await env.DB
-      .prepare(`
-        INSERT INTO member_code_assignments (email, contact_id, member_code, created_at)
-        VALUES (?, ?, ?, datetime('now'))
-      `)
-      .bind(email, String(contactId), memberCode)
-      .run();
-
-    return memberCode;
-  } catch (err) {
-    warn('member_code.conflict_on_insert', {
-      email,
-      contactId,
-      error: err instanceof Error ? err.message : String(err ?? ''),
-    });
-    const existing = await findAssignmentByContactId(env, contactId);
-    if (!existing) throw new Error('Unable to persist member code assignment');
-    return existing.member_code;
-  }
+): Promise<void> {
+  await env.DB
+    .prepare(`
+      INSERT INTO member_code_assignments (email, contact_id, member_code, created_at)
+      VALUES (?, ?, ?, datetime('now'))
+    `)
+    .bind(email, String(contactId), memberCode)
+    .run();
 }
 
-export async function attachMemberCodeAssignment(
+export async function ensureMemberCodeAssignment(
   env: MemberCodeEnv,
   email: string,
   contactId: number,
   memberCode: string,
 ): Promise<string> {
+  const parsedCode = parseMemberCode(memberCode);
   const existingByContact = await findAssignmentByContactId(env, contactId);
   if (existingByContact) {
+    if (existingByContact.member_code !== parsedCode) {
+      throw new Error(
+        `Contact ${contactId} already has member code ${existingByContact.member_code}, cannot replace with ${parsedCode}`,
+      );
+    }
     if (existingByContact.email !== email) {
       await syncAssignmentEmail(env, contactId, email);
     }
     return String(existingByContact.member_code);
   }
 
-  const existingByEmail = await findAssignmentByEmail(env, email);
-  if (existingByEmail) {
-    await env.DB
-      .prepare(`
-        UPDATE member_code_assignments
-        SET contact_id = ?, member_code = ?, created_at = datetime('now')
-        WHERE email = ?
-      `)
-      .bind(String(contactId), Number.parseInt(memberCode, 10), email)
-      .run();
-    return String(existingByEmail.member_code);
+  const existingByCode = await findAssignmentByMemberCode(env, parsedCode);
+  if (existingByCode) {
+    if (existingByCode.contact_id !== String(contactId)) {
+      throw new Error(`Member code ${parsedCode} already assigned to contact ${existingByCode.contact_id}`);
+    }
+    if (existingByCode.email !== email) {
+      await syncAssignmentEmail(env, contactId, email);
+    }
+    return String(existingByCode.member_code);
   }
 
-  const assignedCode = await persistAssignment(env, email, contactId, Number.parseInt(memberCode, 10));
-  return String(assignedCode);
+  try {
+    await insertAssignment(env, email, contactId, parsedCode);
+    return String(parsedCode);
+  } catch (err) {
+    warn('member_code.conflict_on_insert', {
+      email,
+      contactId,
+      memberCode: parsedCode,
+      error: err instanceof Error ? err.message : String(err ?? ''),
+    });
+
+    const byContact = await findAssignmentByContactId(env, contactId);
+    if (byContact) {
+      if (byContact.member_code !== parsedCode) {
+        throw new Error(
+          `Contact ${contactId} already has member code ${byContact.member_code}, cannot replace with ${parsedCode}`,
+        );
+      }
+      if (byContact.email !== email) {
+        await syncAssignmentEmail(env, contactId, email);
+      }
+      return String(byContact.member_code);
+    }
+
+    const byCode = await findAssignmentByMemberCode(env, parsedCode);
+    if (byCode) {
+      if (byCode.contact_id !== String(contactId)) {
+        throw new Error(`Member code ${parsedCode} already assigned to contact ${byCode.contact_id}`);
+      }
+      if (byCode.email !== email) {
+        await syncAssignmentEmail(env, contactId, email);
+      }
+      return String(byCode.member_code);
+    }
+
+    throw new Error('Unable to persist member code assignment');
+  }
 }
 
 async function writeMemberCodeToWA(
@@ -206,7 +232,9 @@ export async function ensureMemberCode(
 ): Promise<string> {
   const contact = await getContact(env, contactId);
   const existingCode = getMemberCode(contact);
-  if (existingCode) return existingCode;
+  if (existingCode) {
+    return ensureMemberCodeAssignment(env, email, contactId, existingCode);
+  }
 
   const existingAssignment = await findAssignmentByContactId(env, contactId);
   if (existingAssignment) {
@@ -219,8 +247,7 @@ export async function ensureMemberCode(
   }
 
   const reservedCode = await reserveNextCode(env);
-  const assignedCode = await persistAssignment(env, email, contactId, reservedCode);
-  const memberCode = String(assignedCode);
+  const memberCode = await ensureMemberCodeAssignment(env, email, contactId, String(reservedCode));
   await writeMemberCodeToWA(env, contactId, memberCode);
   return memberCode;
 }

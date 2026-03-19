@@ -8,9 +8,9 @@ import { createOrUpdateContact, getContactByEmail, lapseMembership, splitName } 
 import { log, logError } from '../_lib/logger';
 import { sendWelcomeMemberEmail } from '../_lib/email';
 import {
-  attachMemberCodeAssignment,
   ensureMemberCode,
-  getOrReserveMemberCodeForEmail,
+  ensureMemberCodeAssignment,
+  reserveNextMemberCode,
   type MemberCodeEnv,
 } from '../_lib/member-code';
 
@@ -112,7 +112,7 @@ export async function onRequestPost(context: {
       const existingContact = await getContactByEmail(env, email);
       const preassignedMemberCode = existingContact
         ? ''
-        : await getOrReserveMemberCodeForEmail(env, email);
+        : await reserveNextMemberCode(env);
 
       const { contactId, renewalDate, memberCode: waMemberCode } = await createOrUpdateContact(
         env,
@@ -127,9 +127,9 @@ export async function onRequestPost(context: {
         },
         requestId,
       );
-      const memberCode = existingContact
-        ? (waMemberCode || await ensureMemberCode(env, contactId, email))
-        : await attachMemberCodeAssignment(env, email, contactId, preassignedMemberCode);
+      const memberCode = waMemberCode
+        ? await ensureMemberCodeAssignment(env, email, contactId, waMemberCode)
+        : await ensureMemberCode(env, contactId, email);
 
       log('webhook.checkout_completed', { email, membershipType, contactId, requestId });
 
