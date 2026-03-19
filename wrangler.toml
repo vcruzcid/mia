@@ -35,6 +35,7 @@ preview_id = "734e7db19f2b4aa9b938d9740c365cd9"
 binding = "DB"
 database_name = "mia-member-codes"
 database_id = "cffaefb1-8b4b-46d0-ab05-d0d725ff34fe"
+primary_location_hint = "weur"
 
 # ─── Preview (dev.animacionesmia.com + PR previews) ────────────────────────────
 # Uses Stripe test-mode keys and price IDs
@@ -68,6 +69,7 @@ id      = "734e7db19f2b4aa9b938d9740c365cd9"
 binding = "DB"
 database_name = "mia-member-codes-dev"
 database_id = "514f8b44-f039-4f72-9f36-2ed5ee6473a2"
+primary_location_hint = "weur"
 
 # ─── Secrets (managed via `wrangler secret put`, never in this file) ───────────
 # - TURNSTILE_SECRET_KEY
