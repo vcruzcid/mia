@@ -2,7 +2,7 @@
 
 import { getWAToken, type WATokenEnv } from './wa-token';
 import { log, warn } from './logger';
-import { FIELD_CODES } from './wa-field-ids';
+import { COUNTRY_CODE_TO_LABEL, COUNTRY_IDS, FIELD_CODES } from './wa-field-ids';
 
 export interface WAContactsEnv extends WATokenEnv {
   WILDAPRICOT_ACCOUNT_ID: string;
@@ -106,7 +106,11 @@ export async function createOrUpdateContact(
     { SystemCode: 'RenewalDue', Value: `${renewalDate}T00:00:00` },
   ];
   if (data.country) {
-    fieldValues.push({ SystemCode: 'custom-17708479', Value: data.country });
+    const countryLabel = COUNTRY_CODE_TO_LABEL[data.country.toUpperCase()];
+    const countryId = countryLabel ? COUNTRY_IDS[countryLabel] : undefined;
+    if (countryId) {
+      fieldValues.push({ SystemCode: FIELD_CODES.pais, Value: { Id: countryId } });
+    }
   }
 
   const body = {

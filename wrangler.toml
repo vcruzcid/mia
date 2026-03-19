@@ -66,7 +66,7 @@ WA_LEVEL_ID_COLABORADOR   = "1765873"
 
 # WhatsApp — use a test/dev group for preview
 WA_WHATSAPP_GROUP_URL = "https://chat.whatsapp.com/Dle6uwsO3ThKuFE4hELdCp"
-MEMBER_CODE_NEXT_START = "405"
+MEMBER_CODE_NEXT_START = "9000"
 
 # KV — preview namespace
 [[env.preview.kv_namespaces]]

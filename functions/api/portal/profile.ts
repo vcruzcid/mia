@@ -5,7 +5,7 @@
 
 import { getContact, updateContact, type WAContactsEnv, type WAContact } from '../../_lib/wa-contacts';
 import { getCorsHeaders, getPreflightResponse } from '../../_lib/cors';
-import { FIELD_CODES, PROFESION_PRINCIPAL_IDS, PROFESION_ADICIONAL_IDS } from '../../_lib/wa-field-ids';
+import { COUNTRY_IDS, FIELD_CODES, PROFESION_PRINCIPAL_IDS, PROFESION_ADICIONAL_IDS } from '../../_lib/wa-field-ids';
 import { log, logError } from '../../_lib/logger';
 
 const METHODS = 'GET, PUT, OPTIONS';
@@ -79,7 +79,7 @@ function mapContactToProfile(contact: WAContact): PortalProfile {
     email: contact.Email,
     bio: getStringField(fv, FIELD_CODES.bio),
     city: getStringField(fv, FIELD_CODES.ciudad),
-    country: getStringField(fv, FIELD_CODES.pais),
+    country: getDropdownLabel(fv, FIELD_CODES.pais),
     specializations,
     socialLinks: {
       linkedin: getStringField(fv, FIELD_CODES.linkedin),
@@ -178,18 +178,23 @@ export async function onRequestPut(
     .map(label => PROFESION_ADICIONAL_IDS[label])
     .filter((id): id is number => id !== undefined)
     .map(id => ({ Id: id }));
+  const countryLabel = body.country?.trim() ?? '';
+  const countryId = countryLabel ? COUNTRY_IDS[countryLabel] : undefined;
+  const countryValue = countryLabel ? (countryId ? { Id: countryId } : undefined) : null;
 
   const fieldValues: FieldValue[] = [
     { FieldName: 'Biografía', SystemCode: FIELD_CODES.bio, Value: body.bio ?? '' },
     { FieldName: 'Profesión Principal', SystemCode: FIELD_CODES.profesionPrincipal, Value: primaryValue },
     { FieldName: 'Profesión Adicional', SystemCode: FIELD_CODES.profesionAdicional, Value: additionalValue },
     { FieldName: 'Ciudad', SystemCode: FIELD_CODES.ciudad, Value: body.city ?? '' },
-    { FieldName: 'País', SystemCode: FIELD_CODES.pais, Value: body.country ?? '' },
     { FieldName: 'LinkedIn', SystemCode: FIELD_CODES.linkedin, Value: body.socialLinks?.linkedin ?? '' },
     { FieldName: 'Instagram', SystemCode: FIELD_CODES.instagram, Value: body.socialLinks?.instagram ?? '' },
     { FieldName: 'X/Twitter', SystemCode: FIELD_CODES.twitter, Value: body.socialLinks?.twitter ?? '' },
     { FieldName: 'Website', SystemCode: FIELD_CODES.website, Value: body.socialLinks?.website ?? '' },
   ];
+  if (countryValue !== undefined) {
+    fieldValues.push({ FieldName: 'Pais', SystemCode: FIELD_CODES.pais, Value: countryValue });
+  }
 
   const updateFields: Record<string, unknown> = {
     FieldValues: fieldValues,
