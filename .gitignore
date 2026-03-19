@@ -85,3 +85,4 @@ scripts/
 
 # Claude Code local files
 .claude/worktrees/
+.worktrees/
