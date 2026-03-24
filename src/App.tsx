@@ -3,6 +3,7 @@ import { ToastProvider } from './contexts/ToastContext';
 import { LoadingProvider } from './contexts/LoadingContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Layout } from './components/Layout';
+import { useCookieConsent } from './hooks/useCookieConsent';
 import { HomePage } from './pages/HomePage';
 import { AboutPage } from './pages/AboutPage';
 import { MembershipPage } from './pages/MembershipPage';
@@ -23,6 +24,7 @@ import { TerminosUsoPage } from './pages/TerminosUsoPage';
 import { PoliticaPrivacidadPage } from './pages/PoliticaPrivacidadPage';
 
 function App() {
+  useCookieConsent();
   return (
     <ErrorBoundary>
       <LoadingProvider>
