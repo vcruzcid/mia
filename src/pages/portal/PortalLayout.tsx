@@ -1,4 +1,4 @@
-import { Link, useLocation, Outlet } from 'react-router-dom';
+import { Link, useLocation, Outlet, Navigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { usePortalAuth } from '@/hooks/usePortalAuth';
@@ -10,7 +10,19 @@ const navItems = [
 
 export function PortalLayout() {
   const location = useLocation();
-  const { member, logout, isLoggingOut } = usePortalAuth();
+  const { member, logout, isLoggingOut, isLoading, isAuthenticated } = usePortalAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-900">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/portal/login" replace />;
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-900">
