@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { usePortalAuth } from '@/hooks/usePortalAuth';
 import type { PortalProfileResponse } from '@/types/api';
@@ -27,16 +26,9 @@ async function saveProfile(data: ProfileEditFormData): Promise<{ success: boolea
 }
 
 export function PortalPerfilPage() {
-  const navigate = useNavigate();
-  const { isAuthenticated, isLoading: authLoading, isError: authError } = usePortalAuth();
+  const { isAuthenticated } = usePortalAuth();
   const [isEditing, setIsEditing] = useState(false);
   const queryClient = useQueryClient();
-
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      navigate('/portal/login', { replace: true });
-    }
-  }, [isAuthenticated, authLoading, navigate]);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['portal', 'profile'],
@@ -55,15 +47,7 @@ export function PortalPerfilPage() {
     },
   });
 
-  if (authLoading || isLoading) {
-    return (
-      <div className="flex justify-center py-16">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500" />
-      </div>
-    );
-  }
-
-  if (authError || (!authLoading && !isAuthenticated)) {
+  if (isLoading) {
     return (
       <div className="flex justify-center py-16">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500" />

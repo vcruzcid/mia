@@ -1,20 +1,12 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import { usePortalAuth } from '@/hooks/usePortalAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
 export function PortalSuscripcionPage() {
-  const navigate = useNavigate();
-  const { isAuthenticated, isLoading: authLoading, member } = usePortalAuth();
+  const { member } = usePortalAuth();
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      navigate('/portal/login', { replace: true });
-    }
-  }, [isAuthenticated, authLoading, navigate]);
 
   const handleManageSubscription = async () => {
     if (!member?.email) return;
@@ -52,14 +44,6 @@ export function PortalSuscripcionPage() {
       setIsRedirecting(false);
     }
   };
-
-  if (authLoading) {
-    return (
-      <div className="flex justify-center py-16">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500" />
-      </div>
-    );
-  }
 
   return (
     <div>

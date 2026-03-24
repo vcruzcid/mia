@@ -50,6 +50,7 @@ function App() {
                 <Route path="portal/login" element={<PortalLoginPage />} />
                 <Route path="portal/acceso" element={<PortalAccesoPage />} />
                 <Route path="portal" element={<PortalLayout />}>
+                  <Route index element={<Navigate to="perfil" replace />} />
                   <Route path="perfil" element={<PortalPerfilPage />} />
                   <Route path="suscripcion" element={<PortalSuscripcionPage />} />
                 </Route>
