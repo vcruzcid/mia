@@ -1,344 +1,39 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MIA — Próximamente</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/logo-main.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Mujeres en la Industria de Animación - Asociación profesional de mujeres en la industria de animación en España" />
+    <meta name="keywords" content="animación, mujeres, industria, profesionales, España, networking, formación" />
+    <meta name="author" content="Mujeres en la Industria de Animación" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://animacionesmia.com" />
+    <meta property="og:title" content="Mujeres en la Industria de Animación (MIA)" />
+    <meta property="og:description" content="Asociación profesional de mujeres en la industria de animación en España" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://animacionesmia.com" />
+    <meta property="twitter:title" content="Mujeres en la Industria de Animación (MIA)" />
+    <meta property="twitter:description" content="Asociación profesional de mujeres en la industria de animación en España" />
+    
+    <title>Mujeres en la Industria de Animación (MIA)</title>
+    
+    <!-- Cloudflare Turnstile -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
 
-    :root {
-      --red: #d8242e;
-      --dark: #1d1d1b;
-      --gray: #555;
-      --light-gray: #f4f4f4;
-      --border: #e8e8e8;
-    }
-
-    body {
-      font-family: 'Poppins', Helvetica, Arial, sans-serif;
-      background: #fff;
-      color: var(--dark);
-      line-height: 1.6;
-    }
-
-    /* ── Header ── */
-    .site-header {
-      background: var(--dark);
-      padding: 20px 24px;
-      text-align: center;
-    }
-    .site-header img {
-      height: 40px;
-      width: auto;
-      display: inline-block;
-    }
-
-    /* ── Hero ── */
-    .hero {
-      background: var(--light-gray);
-      padding: 80px 24px 72px;
-      text-align: center;
-    }
-    .badge {
-      display: inline-block;
-      background: var(--red);
-      color: #fff;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      padding: 6px 18px;
-      border-radius: 20px;
-      margin-bottom: 28px;
-    }
-    .hero h1 {
-      font-size: clamp(2rem, 5vw, 3.5rem);
-      font-weight: 800;
-      color: var(--dark);
-      line-height: 1.15;
-      margin-bottom: 20px;
-    }
-    .hero h1 span { color: var(--red); }
-    .hero .tagline {
-      font-size: clamp(1rem, 2vw, 1.25rem);
-      font-weight: 500;
-      color: var(--gray);
-      margin-bottom: 28px;
-    }
-    .hero p {
-      max-width: 540px;
-      margin: 0 auto;
-      font-size: 16px;
-      color: var(--gray);
-    }
-
-    /* ── Section wrapper ── */
-    .section {
-      padding: 72px 24px;
-    }
-    .section.alt {
-      background: var(--light-gray);
-    }
-    .container {
-      max-width: 960px;
-      margin: 0 auto;
-    }
-    .section-title {
-      font-size: clamp(1.3rem, 3vw, 2rem);
-      font-weight: 700;
-      color: var(--dark);
-      margin-bottom: 12px;
-      text-align: center;
-    }
-    .section-subtitle {
-      font-size: 16px;
-      color: var(--gray);
-      text-align: center;
-      margin-bottom: 48px;
-    }
-
-    /* ── Pillars ── */
-    .pillars {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 24px;
-    }
-    .pillar {
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 28px 24px;
-      text-align: center;
-    }
-    .pillar-icon {
-      font-size: 36px;
-      margin-bottom: 14px;
-      display: block;
-    }
-    .pillar h3 {
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--dark);
-      margin-bottom: 8px;
-    }
-    .pillar p {
-      font-size: 14px;
-      color: var(--gray);
-    }
-
-    /* ── Stats ── */
-    .stats {
-      background: var(--red);
-      padding: 56px 24px;
-    }
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 32px;
-      max-width: 760px;
-      margin: 0 auto;
-      text-align: center;
-    }
-    .stat-number {
-      font-size: clamp(2rem, 5vw, 3rem);
-      font-weight: 800;
-      color: #fff;
-      line-height: 1;
-      margin-bottom: 8px;
-    }
-    .stat-label {
-      font-size: 14px;
-      color: rgba(255,255,255,0.85);
-      font-weight: 500;
-    }
-
-    /* ── Achievements ── */
-    .achievements {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 24px;
-    }
-    .achievement {
-      border-left: 3px solid var(--red);
-      padding-left: 16px;
-    }
-    .achievement h3 {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--dark);
-      margin-bottom: 6px;
-    }
-    .achievement p {
-      font-size: 14px;
-      color: var(--gray);
-    }
-
-    /* ── Footer ── */
-    .site-footer {
-      background: var(--dark);
-      padding: 48px 24px 36px;
-      text-align: center;
-    }
-    .site-footer img.footer-logo {
-      height: 48px;
-      width: auto;
-      margin-bottom: 24px;
-    }
-    .social-icons {
-      display: flex;
-      justify-content: center;
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-    .social-icons a {
-      display: inline-block;
-      opacity: 0.85;
-      transition: opacity 0.2s;
-    }
-    .social-icons a:hover { opacity: 1; }
-    .social-icons img {
-      width: 32px;
-      height: 32px;
-      display: block;
-    }
-    .footer-contact {
-      font-size: 14px;
-      color: #aaa;
-      margin-bottom: 8px;
-    }
-    .footer-contact a {
-      color: var(--red);
-      text-decoration: none;
-    }
-    .footer-copy {
-      font-size: 12px;
-      color: #666;
-    }
-  </style>
-</head>
-<body>
-
-  <!-- Header -->
-  <header class="site-header">
-    <img src="/logo-main.png" alt="MIA — Mujeres en la Industria de la Animación" />
-  </header>
-
-  <!-- Hero -->
-  <section class="hero">
-    <div class="container">
-      <span class="badge">Próximamente</span>
-      <h1>Mujeres en la <span>Industria</span> de Animación</h1>
-      <p class="tagline">Promovemos la igualdad y visibilidad de las mujeres en la industria de la animación española,
-        creando oportunidades de networking, formación y desarrollo profesional.</p>
-      <p>
-        Muy pronto podrás acceder a nuestra nueva plataforma,
-        con el directorio de socias, el portal de membresía y todos nuestros recursos.
-      </p>
-    </div>
-  </section>
-
-  <!-- Mission pillars -->
-  <section class="section">
-    <div class="container">
-      <h2 class="section-title">Lo que encontrarás aquí</h2>
-      <p class="section-subtitle">Una plataforma pensada para apoyar y visibilizar a las profesionales de la animación</p>
-      <div class="pillars">
-        <div class="pillar">
-          <span class="pillar-icon">🤝</span>
-          <h3>Networking</h3>
-          <p>Conecta con profesionales de la industria de la animación en España y Europa.</p>
-        </div>
-        <div class="pillar">
-          <span class="pillar-icon">📚</span>
-          <h3>Formación</h3>
-          <p>Accede a recursos, talleres y oportunidades de desarrollo profesional.</p>
-        </div>
-        <div class="pillar">
-          <span class="pillar-icon">✨</span>
-          <h3>Visibilidad</h3>
-          <p>Tu perfil y trabajo en el directorio público de la asociación.</p>
-        </div>
-        <div class="pillar">
-          <span class="pillar-icon">💬</span>
-          <h3>Comunidad</h3>
-          <p>Un espacio seguro y de apoyo mutuo para todas las socias de MIA.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Stats -->
-  <section class="stats">
-    <div class="stats-grid">
-      <div>
-        <div class="stat-number">250+</div>
-        <div class="stat-label">Socias activas</div>
-      </div>
-      <div>
-        <div class="stat-number">85%</div>
-        <div class="stat-label">Crecimiento anual</div>
-      </div>
-      <div>
-        <div class="stat-number">50+</div>
-        <div class="stat-label">Eventos al año</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Achievements -->
-  <section class="section alt">
-    <div class="container">
-      <h2 class="section-title">Nuestros logros</h2>
-      <p class="section-subtitle">Años de trabajo construyendo la comunidad de animación más importante de España</p>
-      <div class="achievements">
-        <div class="achievement">
-          <h3>Informe MIA</h3>
-          <p>Publicación anual sobre la situación de la mujer en la industria de la animación española.</p>
-        </div>
-        <div class="achievement">
-          <h3>MIANIMA</h3>
-          <p>Festival propio que celebra y visibiliza el trabajo de las creadoras en animación.</p>
-        </div>
-        <div class="achievement">
-          <h3>Red de socias</h3>
-          <p>Directorio profesional que conecta talento con estudios, productoras y proyectos.</p>
-        </div>
-        <div class="achievement">
-          <h3>Festivales</h3>
-          <p>Presencia activa en Animayo, Animac, Weird Market y los principales festivales del sector.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer class="site-footer">
-    <img class="footer-logo" src="/mia-footer.png" alt="MIA" />
-    <div class="social-icons">
-      <a href="https://www.instagram.com/mianimacion/" target="_blank" rel="noopener">
-        <img src="/icons/instagram.svg" alt="Instagram" width="32" height="32" />
-      </a>
-      <a href="https://www.linkedin.com/company/mia-mujeres-en-la-industria-de-la-animacion" target="_blank" rel="noopener">
-        <img src="/icons/linkedin.svg" alt="LinkedIn" width="32" height="32" />
-      </a>
-      <a href="https://twitter.com/mianimacion" target="_blank" rel="noopener">
-        <img src="/icons/twitter.svg" alt="Twitter / X" width="32" height="32" />
-      </a>
-      <a href="https://www.facebook.com/pages/category/Cause/MIA-Mujeres-en-la-Industria-de-la-Animaci%C3%B3n-243613666305139/" target="_blank" rel="noopener">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook" width="32" height="32" style="border-radius:6px;" />
-      </a>
-    </div>
-    <p class="footer-contact">
-      <a href="mailto:animacionesmia@gmail.com">animacionesmia@gmail.com</a>
-    </p>
-    <p class="footer-copy">
-      &copy; <script>document.write(new Date().getFullYear())</script> MIA — Mujeres en la Industria de la Animación
-    </p>
-  </footer>
-
-</body>
+    <!-- Google Consent Mode v2 defaults — GA loads only after analytics consent -->
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('consent', 'default', { analytics_storage: 'denied', ad_storage: 'denied' });
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>

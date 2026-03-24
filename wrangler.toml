@@ -1,3 +1,77 @@
 name = "miawapp"
 compatibility_date = "2024-12-15"
-pages_build_output_dir = "."
+pages_build_output_dir = "dist"
+
+# ─── Production (animacionesmia.com) ───────────────────────────────────────────
+
+[vars]
+# Public environment variables (safe to expose)
+VITE_TURNSTILE_SITE_KEY      = "0x4AAAAAAClH7WCAJP8-8duv"
+CONTACT_RECIPIENT_EMAIL      = "hola@animacionesmia.com"
+
+# Stripe — annual recurring Price IDs (live mode)
+STRIPE_PRICE_PLENO_DERECHO = "price_1RPHg7BWIyEInzCBpAvUsG4Y"
+STRIPE_PRICE_ESTUDIANTE    = "price_1RPHgyBWIyEInzCBYiwcSrRL"
+STRIPE_PRICE_COLABORADOR   = "price_1RdwWUBWIyEInzCBRGtAzIeZ"
+
+# WildApricot — account ID and membership level IDs
+WILDAPRICOT_ACCOUNT_ID    = "511043"
+WA_LEVEL_ID_PLENO_DERECHO = "1765871"
+WA_LEVEL_ID_ESTUDIANTE    = "1765872"
+WA_LEVEL_ID_COLABORADOR   = "1765873"
+
+# WhatsApp — group invite URL for new socias (update before go-live)
+WA_WHATSAPP_GROUP_URL = "https://chat.whatsapp.com/Dle6uwsO3ThKuFE4hELdCp"
+MEMBER_CODE_NEXT_START = "405"
+
+# KV — WA OAuth token cache (production namespace)
+[[kv_namespaces]]
+binding    = "KV"
+id         = "c4b76d296121474ba8b5f2703aca76f6"
+preview_id = "734e7db19f2b4aa9b938d9740c365cd9"
+
+# D1 — member code allocator
+[[d1_databases]]
+binding = "DB"
+database_name = "mia-member-codes"
+database_id = "fc04fced-6b14-4c36-af87-6d317e30cb00"
+
+# ─── Preview (dev.animacionesmia.com + PR previews) ────────────────────────────
+# Uses Stripe test-mode keys and price IDs
+
+[env.preview.vars]
+VITE_TURNSTILE_SITE_KEY      = "0x4AAAAAAClH7WCAJP8-8duv"
+CONTACT_RECIPIENT_EMAIL      = "victor@navic.us"
+
+# Stripe — test-mode Price IDs
+STRIPE_PRICE_PLENO_DERECHO = "price_1T1d1eBWIyEInzCBDfDTNKc9"
+STRIPE_PRICE_ESTUDIANTE    = "price_1T1e0yBWIyEInzCBFPYPLSpN"
+STRIPE_PRICE_COLABORADOR   = "price_1T1dyYBWIyEInzCBUsVhonqA"
+
+# WildApricot — same account, same levels
+WILDAPRICOT_ACCOUNT_ID    = "511043"
+WA_LEVEL_ID_PLENO_DERECHO = "1765871"
+WA_LEVEL_ID_ESTUDIANTE    = "1765872"
+WA_LEVEL_ID_COLABORADOR   = "1765873"
+
+# WhatsApp — use a test/dev group for preview
+WA_WHATSAPP_GROUP_URL = "https://chat.whatsapp.com/Dle6uwsO3ThKuFE4hELdCp"
+MEMBER_CODE_NEXT_START = "9000"
+
+# KV — preview namespace
+[[env.preview.kv_namespaces]]
+binding = "KV"
+id      = "734e7db19f2b4aa9b938d9740c365cd9"
+
+# D1 — preview member code allocator
+[[env.preview.d1_databases]]
+binding = "DB"
+database_name = "mia-member-codes-dev"
+database_id = "09c3026f-efc6-4e0c-b58f-e69bcd2ba90d"
+
+# ─── Secrets (managed via `wrangler secret put`, never in this file) ───────────
+# - TURNSTILE_SECRET_KEY
+# - STRIPE_SECRET_KEY
+# - STRIPE_WEBHOOK_SECRET
+# - WILDAPRICOT_API_KEY
+# - RESEND_API_KEY

@@ -1,0 +1,28 @@
+# Dependencies
+node_modules
+package-lock.json
+
+# Build outputs
+dist
+dist-ssr
+dev-dist
+.vite
+coverage
+
+# Configuration
+.mcp.json
+wrangler.toml
+
+# Test results
+test-results
+playwright-report
+
+# Temporary
+*.tmp
+*.temp
+.temp
+tmp
+
+# Other
+.DS_Store
+*.log
