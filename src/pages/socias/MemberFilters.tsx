@@ -83,18 +83,22 @@ export function MemberFilters({
             </TabsContent>
 
             <TabsContent value="location">
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-x-2 gap-y-0 max-h-40 overflow-y-auto">
-                {availableLocations.map((location) => (
-                  <label key={location} className="flex items-center gap-1.5 py-0.5 px-1 rounded hover:bg-gray-700 cursor-pointer">
-                    <Checkbox
-                      checked={filters.locations.includes(location)}
-                      onCheckedChange={() => toggleLocation(location)}
-                      className="text-primary-500 focus:ring-primary-500 shrink-0"
-                    />
-                    <span className="text-xs text-gray-300 truncate">{location}</span>
-                  </label>
-                ))}
-              </div>
+              {availableLocations.length === 0 ? (
+                <p className="text-xs text-gray-500 py-1">Las ubicaciones se cargan con los datos de socias.</p>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-x-2 gap-y-0 max-h-40 overflow-y-auto">
+                  {availableLocations.map((location) => (
+                    <label key={location} className="flex items-center gap-1.5 py-0.5 px-1 rounded hover:bg-gray-700 cursor-pointer">
+                      <Checkbox
+                        checked={filters.locations.includes(location)}
+                        onCheckedChange={() => toggleLocation(location)}
+                        className="text-primary-500 focus:ring-primary-500 shrink-0"
+                      />
+                      <span className="text-xs text-gray-300 truncate">{location}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="availability">
