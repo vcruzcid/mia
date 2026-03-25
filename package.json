@@ -50,7 +50,7 @@
     "tailwindcss": "^4.2.2",
     "vanilla-cookieconsent": "^3.1.0",
     "zod": "^4.0.14",
-    "zustand": "^5.0.6"
+    "zustand": "^5.0.12"
   },
   "overrides": {
     "serialize-javascript": ">=7.0.3"
