@@ -68,6 +68,7 @@ DEPLOYMENT.md
 
 # Application Data & Backups
 members_data/
+wildapricot-migration/
 db-backups/
 
 # Temporary files
