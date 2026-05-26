@@ -1,18 +1,46 @@
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { BackgroundImage } from '@/components/ui/background-image';
+import type { Member } from '@/types/member';
+import { useMemberFilters } from '@/hooks/useMemberFilters';
+import { MemberCard } from './socias/MemberCard';
+import { MemberFilters } from './socias/MemberFilters';
+import { MemberModal } from './socias/MemberModal';
 
-/**
- * SociasPage - Member Directory
- *
- * Displays a "Coming Soon" placeholder for the full member directory.
- * Users can browse Founders and Board Members in the meantime.
- *
- * Future enhancement: Implement member search and filtering
- * See FundadorasPage.tsx for similar member display pattern
- */
+async function fetchMembers(): Promise<Member[]> {
+  const res = await fetch('/api/members');
+  if (!res.ok) throw new Error(`Error ${res.status}`);
+  const data = await res.json() as { members: Member[] };
+  return data.members ?? [];
+}
+
 export function SociasPage() {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedMember, setSelectedMember] = useState<Member | null>(null);
+
+  const { data: members = [], isLoading, isError, refetch } = useQuery({
+    queryKey: ['gallery-members'],
+    queryFn: fetchMembers,
+    staleTime: 60 * 60 * 1000, // 1h — mirrors KV TTL
+  });
+
+  const {
+    filters,
+    setFilters,
+    resetFilters,
+    filteredMembers,
+    activeFilterCount,
+    availableLocations,
+    memberCounts,
+    toggleSpecialization,
+    toggleLocation,
+    toggleAvailabilityStatus,
+    toggleMembershipType,
+  } = useMemberFilters(members, searchTerm);
+
   return (
     <div className="min-h-screen bg-gray-900">
-      {/* Hero Section */}
+      {/* Hero */}
       <BackgroundImage
         imageUrl="/images/home-cta.webp"
         className="w-full py-16 px-4 sm:px-6 lg:px-8"
@@ -24,95 +52,96 @@ export function SociasPage() {
           <p className="text-lg md:text-xl text-gray-200 mb-8 max-w-3xl mx-auto">
             Directorio de socias profesionales de la animación en España.
           </p>
+          <div className="max-w-xl mx-auto">
+            <input
+              type="search"
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              placeholder="Buscar por nombre o profesión..."
+              className="w-full px-4 py-3 rounded-lg bg-gray-800/80 text-white placeholder-gray-400 border border-gray-600 focus:outline-none focus:border-red-500"
+            />
+          </div>
         </div>
       </BackgroundImage>
 
-      {/* Coming Soon Content */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="text-center">
-          <div className="mb-8">
-            <svg
-              className="mx-auto h-24 w-24 text-red-500"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-              />
-            </svg>
-          </div>
+      {/* Filters */}
+      <MemberFilters
+        filters={filters}
+        availableLocations={availableLocations}
+        memberCounts={memberCounts}
+        toggleMembershipType={toggleMembershipType}
+        toggleSpecialization={toggleSpecialization}
+        toggleLocation={toggleLocation}
+        toggleAvailabilityStatus={toggleAvailabilityStatus}
+        setFilters={setFilters}
+      />
 
-          <h2 className="text-3xl font-bold text-white mb-4">
-            Próximamente
-          </h2>
-
-          <p className="text-xl text-gray-300 mb-8">
-            El directorio de socias estará disponible próximamente.
-          </p>
-
-          <div className="bg-gray-800 rounded-lg p-8 text-left max-w-2xl mx-auto">
-            <h3 className="text-lg font-semibold text-white mb-4">
-              ¿Qué encontrarás en esta sección?
-            </h3>
-            <ul className="space-y-3 text-gray-300">
-              <li className="flex items-start">
-                <svg className="h-6 w-6 text-red-500 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>Directorio completo de socias profesionales</span>
-              </li>
-              <li className="flex items-start">
-                <svg className="h-6 w-6 text-red-500 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>Búsqueda por nombre, especialización y ubicación</span>
-              </li>
-              <li className="flex items-start">
-                <svg className="h-6 w-6 text-red-500 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>Filtros por tipo de membresía y estado de disponibilidad</span>
-              </li>
-              <li className="flex items-start">
-                <svg className="h-6 w-6 text-red-500 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>Perfiles detallados con información profesional y contacto</span>
-              </li>
-            </ul>
-          </div>
-
-          <div className="mt-12">
-            <p className="text-gray-400 mb-4">
-              Mientras tanto, puedes conocer más sobre nosotras:
+      {/* Gallery */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {!isLoading && !isError && (
+          <div className="flex items-center justify-between mb-6">
+            <p className="text-gray-400 text-sm">
+              {filteredMembers.length === members.length
+                ? `${members.length} socias`
+                : `${filteredMembers.length} de ${members.length} socias`}
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a
-                href="/fundadoras"
-                className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-red-600 hover:bg-red-700 transition-colors duration-200"
+            {activeFilterCount > 0 && (
+              <button
+                onClick={resetFilters}
+                className="text-sm text-red-400 hover:text-red-300 transition-colors"
               >
-                Ver Fundadoras
-              </a>
-              <a
-                href="/directiva"
-                className="inline-flex items-center justify-center px-6 py-3 border border-gray-600 text-base font-medium rounded-md text-white hover:bg-gray-800 transition-colors duration-200"
-              >
-                Ver Directiva
-              </a>
-              <a
-                href="/sobre-mia"
-                className="inline-flex items-center justify-center px-6 py-3 border border-gray-600 text-base font-medium rounded-md text-white hover:bg-gray-800 transition-colors duration-200"
-              >
-                Sobre MIA
-              </a>
-            </div>
+                Limpiar filtros ({activeFilterCount})
+              </button>
+            )}
           </div>
-        </div>
+        )}
+
+        {isLoading && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <div key={i} className="bg-gray-800 rounded-lg h-48 animate-pulse" />
+            ))}
+          </div>
+        )}
+
+        {isError && (
+          <div className="text-center py-16">
+            <p className="text-gray-300 mb-4">No se ha podido cargar el directorio.</p>
+            <button
+              onClick={() => void refetch()}
+              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm transition-colors"
+            >
+              Reintentar
+            </button>
+          </div>
+        )}
+
+        {!isLoading && !isError && filteredMembers.length === 0 && (
+          <div className="text-center py-16">
+            <p className="text-gray-400">No se han encontrado socias con esos filtros.</p>
+          </div>
+        )}
+
+        {!isLoading && !isError && filteredMembers.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredMembers.map(member => (
+              <MemberCard
+                key={member.id}
+                member={member}
+                onClick={() => setSelectedMember(member)}
+              />
+            ))}
+          </div>
+        )}
       </div>
+
+      {selectedMember && (
+        <MemberModal
+          member={selectedMember}
+          isOpen
+          onClose={() => setSelectedMember(null)}
+        />
+      )}
     </div>
   );
 }

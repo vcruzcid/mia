@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { usePortalAuth } from '@/hooks/usePortalAuth';
-import type { PortalProfileResponse } from '@/types/api';
+import type { PortalProfileResponse, PortalProfile } from '@/types/api';
 import type { ProfileEditFormData } from '@/schemas/portalSchema';
-import { ProfileViewCard } from './ProfileViewCard';
-import { ProfileEditForm } from './ProfileEditForm';
+import { PhotoCard } from './PhotoCard';
+import { PersonalInfoSection } from './PersonalInfoSection';
+import { EspecialidadesSection } from './EspecialidadesSection';
+import { RedesSocialesSection } from './RedesSocialesSection';
 
 async function fetchProfile(): Promise<PortalProfileResponse> {
   const res = await fetch('/api/portal/profile', { credentials: 'include' });
@@ -26,17 +27,21 @@ async function saveProfile(data: ProfileEditFormData): Promise<{ success: boolea
   return result;
 }
 
-export function PortalPerfilPage() {
-  const navigate = useNavigate();
-  const { isAuthenticated, isLoading: authLoading, isError: authError } = usePortalAuth();
-  const [isEditing, setIsEditing] = useState(false);
-  const queryClient = useQueryClient();
+function profileToFormData(p: PortalProfile): ProfileEditFormData {
+  return {
+    firstName: p.firstName,
+    lastName: p.lastName,
+    bio: p.bio ?? '',
+    city: p.city ?? '',
+    country: p.country ?? '',
+    specializations: p.specializations,
+    socialLinks: { ...p.socialLinks },
+  };
+}
 
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      navigate('/portal/login', { replace: true });
-    }
-  }, [isAuthenticated, authLoading, navigate]);
+export function PortalPerfilPage() {
+  const { isAuthenticated } = usePortalAuth();
+  const queryClient = useQueryClient();
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['portal', 'profile'],
@@ -45,25 +50,20 @@ export function PortalPerfilPage() {
     staleTime: 2 * 60 * 1000,
   });
 
-  const updateMutation = useMutation({
-    mutationFn: saveProfile,
-    onSuccess: (result) => {
-      if (result.success) {
-        void queryClient.invalidateQueries({ queryKey: ['portal', 'profile'] });
-        setIsEditing(false);
-      }
+  const updateMutation = useMutation({ mutationFn: saveProfile });
+
+  const handleSaveSection = useCallback(
+    async (partial: Partial<ProfileEditFormData>): Promise<void> => {
+      await updateMutation.mutateAsync({
+        ...profileToFormData(data!.profile!),
+        ...partial,
+      });
+      await queryClient.invalidateQueries({ queryKey: ['portal', 'profile'] });
     },
-  });
+    [data, updateMutation, queryClient],
+  );
 
-  if (authLoading || isLoading) {
-    return (
-      <div className="flex justify-center py-16">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500" />
-      </div>
-    );
-  }
-
-  if (authError || (!authLoading && !isAuthenticated)) {
+  if (isLoading) {
     return (
       <div className="flex justify-center py-16">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500" />
@@ -86,19 +86,12 @@ export function PortalPerfilPage() {
   }
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold text-white mb-6">Mi Perfil</h1>
-      {isEditing ? (
-        <ProfileEditForm
-          profile={data.profile}
-          onSubmit={(formData) => updateMutation.mutate(formData)}
-          onCancel={() => setIsEditing(false)}
-          isSubmitting={updateMutation.isPending}
-          submitError={updateMutation.error?.message}
-        />
-      ) : (
-        <ProfileViewCard profile={data.profile} onEdit={() => setIsEditing(true)} />
-      )}
+    <div className="space-y-4">
+      <h1 className="text-2xl font-bold text-white">Mi Perfil</h1>
+      <PhotoCard profile={data.profile} />
+      <PersonalInfoSection profile={data.profile} onSave={handleSaveSection} />
+      <EspecialidadesSection profile={data.profile} onSave={handleSaveSection} />
+      <RedesSocialesSection profile={data.profile} onSave={handleSaveSection} />
     </div>
   );
 }

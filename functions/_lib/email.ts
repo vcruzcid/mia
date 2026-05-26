@@ -210,49 +210,99 @@ export async function sendMagicLinkEmail(
   firstName = '',
 ): Promise<void> {
   const greeting = firstName ? `¡Hola, ${escapeHtml(firstName)}!` : '¡Hola!';
-  const content = `
-    <table style="margin: 0 auto; width: calc(100% - 80px);">
+
+  const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tu enlace de acceso al portal MIA</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f4f4f4; font-family:'Poppins',Helvetica,Arial,sans-serif;">
+  <center class="wrapper">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f4f4f4; padding:24px 0;">
       <tr>
-        <td style="padding: 40px 0 8px 0; font-size: 24px; font-weight: 700; color: #1d1d1b; font-family:'Poppins',Helvetica,Arial,sans-serif;">
-          ${greeting}
+        <td align="center">
+          <table width="600" cellpadding="0" cellspacing="0" border="0"
+                 style="max-width:600px; width:100%; background-color:#ffffff; border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+
+            <!-- Header -->
+            <tr>
+              <td style="background-color:#1d1d1b; padding:24px 40px; text-align:center;">
+                <a href="https://animacionesmia.com" target="_blank">
+                  <img src="${LOGO_HEADER}"
+                       alt="MIA — Mujeres en la Industria de la Animación"
+                       width="160" height="auto"
+                       style="display:block; margin:0 auto;" />
+                </a>
+              </td>
+            </tr>
+
+            <!-- Greeting -->
+            <tr>
+              <td style="padding:40px 40px 8px 40px;">
+                <h1 style="margin:0 0 16px 0; font-size:24px; font-weight:700; color:#1d1d1b; font-family:'Poppins',Helvetica,Arial,sans-serif;">
+                  ${greeting}
+                </h1>
+                <p style="margin:0 0 8px 0; font-size:20px; font-weight:600; color:#1d1d1b; font-family:'Poppins',Helvetica,Arial,sans-serif;">
+                  Tu enlace de acceso al portal
+                </p>
+              </td>
+            </tr>
+
+            <!-- Body -->
+            <tr>
+              <td style="padding:0 40px 32px 40px; font-size:16px; line-height:1.6; color:#555; font-family:'Poppins',Helvetica,Arial,sans-serif;">
+                Hemos recibido tu solicitud de acceso al portal de socias de MIA.<br>
+                Haz clic en el botón de abajo para acceder. <strong>El enlace es válido durante 15 minutos</strong>
+                y solo puede usarse una vez.
+              </td>
+            </tr>
+
+            <!-- CTA -->
+            <tr>
+              <td style="padding:0 40px 32px 40px;">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td align="center">
+                      <a href="${escapeHtml(magicLink)}" target="_blank"
+                         style="display:inline-block; background:#d8242e; color:#ffffff; font-family:'Poppins',Helvetica,Arial,sans-serif;
+                                font-size:16px; font-weight:600; text-decoration:none; padding:14px 40px; border-radius:6px;">
+                        Acceder al portal
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Disclaimer -->
+            <tr>
+              <td style="padding:0 40px 32px 40px; font-size:13px; color:#999; line-height:1.5; font-family:'Poppins',Helvetica,Arial,sans-serif;">
+                Este enlace se ha enviado a <strong style="color:#555;">${escapeHtml(memberEmail)}</strong>.<br>
+                Si no solicitaste este enlace, puedes ignorar este correo con seguridad.<br>
+                ¿Problemas para acceder?
+                <a href="https://animacionesmia.com/contacto" style="color:#d8242e;">Contáctanos</a>.
+              </td>
+            </tr>
+
+            ${buildSocialIconsRow('            ')}
+
+            ${buildFooter(false)}
+
+          </table>
         </td>
       </tr>
-      <tr>
-        <td style="padding: 0 0 16px 0; font-size: 20px; font-weight: 600; color: #1d1d1b; font-family:'Poppins',Helvetica,Arial,sans-serif;">
-          Tu enlace de acceso al portal
-        </td>
-      </tr>
-      <tr>
-        <td style="padding: 0 0 32px 0; font-size: 16px; line-height: 1.6; color: #555; font-family:'Poppins',Helvetica,Arial,sans-serif;">
-          Hemos recibido tu solicitud de acceso al portal de socias de MIA.<br>
-          Haz clic en el botón de abajo para acceder. <strong>El enlace es válido durante 15 minutos</strong>
-          y solo puede usarse una vez.
-        </td>
-      </tr>
-      <tr>
-        <td align="center" style="padding-bottom: 32px;">
-          <a href="${escapeHtml(magicLink)}" target="_blank"
-             style="display:inline-block; background:#d8242e; color:#ffffff; font-family:'Poppins',Helvetica,Arial,sans-serif;
-                    font-size:16px; font-weight:600; text-decoration:none; padding:14px 40px; border-radius:6px;">
-            Acceder al portal
-          </a>
-        </td>
-      </tr>
-      <tr>
-        <td style="font-size: 13px; color: #999; line-height: 1.5; padding-bottom: 8px; font-family:'Poppins',Helvetica,Arial,sans-serif;">
-          Este enlace se ha enviado a <strong style="color:#555;">${escapeHtml(memberEmail)}</strong>.<br>
-          Si no solicitaste este enlace, puedes ignorar este correo con seguridad.<br>
-          ¿Problemas para acceder?
-          <a href="https://animacionesmia.com/contacto" style="color:#d8242e;">Contáctanos</a>.
-        </td>
-      </tr>
-    </table>`;
+    </table>
+  </center>
+</body>
+</html>`;
 
   await sendEmail(apiKey, {
     from: 'noreply@animacionesmia.com',
     to: memberEmail,
     subject: 'Tu enlace de acceso al portal MIA',
-    html: wrapInLayout(content, true, false),
+    html,
   });
 }
 
