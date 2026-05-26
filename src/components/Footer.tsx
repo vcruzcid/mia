@@ -7,7 +7,7 @@ export function Footer() {
     <footer className="bg-black text-white py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center mb-10">
-          <span className="text-xs text-gray-400 mb-3 tracking-widest uppercase">Con el patrocinio de:</span>
+          <span className="text-xs text-gray-400 mb-3 tracking-widest uppercase">Financiado por:</span>
           <img
             src="/logo_cultura_color.webp"
             alt="Ministerio de Cultura"
@@ -43,7 +43,7 @@ export function Footer() {
                 }}
               />
             </div>
-            
+
             <div className="flex flex-col items-center pt-2">
               <p className="text-sm text-gray-300 mb-4">SÍGUENOS</p>
               {/* Social Media Icons */}
