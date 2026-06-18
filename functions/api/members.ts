@@ -108,20 +108,34 @@ export async function onRequestGet(context: { request: Request; env: Env }): Pro
     }
 
     const token = await getWAToken(env);
-    const params = new URLSearchParams({
-      '$filter': 'MembershipEnabled eq true',
-      '$select': 'Id,FirstName,LastName,DisplayName,MembershipLevel,MemberSince,ProfileImage,FieldValues',
-      '$top': '500',
-      '$async': 'false',
-    });
-    const res = await fetch(
-      `https://api.wildapricot.org/v2.2/accounts/${env.WILDAPRICOT_ACCOUNT_ID}/contacts?${params}`,
-      { headers: { Authorization: `Bearer ${token}` } },
-    );
-    if (!res.ok) throw new Error(`WA contacts fetch failed: ${res.status}`);
 
-    const data = await res.json() as { Contacts: WAContact[] };
-    const members = (data.Contacts ?? []).map(c => transformContact(env, c));
+    // WildApricot enforces pagination on Contacts since 2025-11-01: $top is capped
+    // at 100 and full lists require iterating with $skip. Page until a short page.
+    // https://gethelp.wildapricot.com/en/articles/2911-updating-your-api-integrations-for-pagination
+    const PAGE_SIZE = 100;
+    const MAX_PAGES = 50; // safety cap (≤5000 members) to avoid an unbounded loop
+    const contacts: WAContact[] = [];
+    for (let page = 0; page < MAX_PAGES; page++) {
+      const params = new URLSearchParams({
+        '$filter': 'MembershipEnabled eq true',
+        '$select': 'Id,FirstName,LastName,DisplayName,MembershipLevel,MemberSince,ProfileImage,FieldValues',
+        '$top': String(PAGE_SIZE),
+        '$skip': String(page * PAGE_SIZE),
+        '$async': 'false',
+      });
+      const res = await fetch(
+        `https://api.wildapricot.org/v2.2/accounts/${env.WILDAPRICOT_ACCOUNT_ID}/contacts?${params}`,
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      if (!res.ok) throw new Error(`WA contacts fetch failed: ${res.status}`);
+
+      const data = await res.json() as { Contacts: WAContact[] };
+      const batch = data.Contacts ?? [];
+      contacts.push(...batch);
+      if (batch.length < PAGE_SIZE) break; // last page reached
+    }
+
+    const members = contacts.map(c => transformContact(env, c));
 
     log('gallery.cache_miss', { count: members.length });
 
