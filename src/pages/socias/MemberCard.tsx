@@ -6,12 +6,12 @@ import type { Member } from '@/types/member';
 import { memo } from 'react';
 
 interface MemberCardProps {
-  member: Member & { is_founder?: boolean };
+  member: Member;
   onClick: () => void;
 }
 
 const MemberCardComponent = ({ member, onClick }: MemberCardProps) => {
-  const displayProfession = member.main_profession || member.company || 'Profesional';
+  const displayProfession = member.main_profession || 'Profesional';
   const rawSpecializations = member.other_professions || [];
   const specializationChips =
     rawSpecializations.length > 0
