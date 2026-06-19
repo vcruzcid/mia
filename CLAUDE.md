@@ -19,20 +19,21 @@ a public member gallery, and a member portal.
 - **Routing:** React Router 7
 - **Forms:** react-hook-form + Zod (schemas in `src/schemas/`)
 - **Data fetching:** TanStack React Query v5 — all API calls, never raw useEffect+fetch
-- **State:** Zustand (`src/store/`) + React Context for toasts/loading
+- **State:** React Context for toasts/loading + local component state. (No Zustand — see "What We Are NOT Using".)
 - **Hosting:** Cloudflare Pages
 - **Functions:** Cloudflare Workers via Pages Functions (`functions/`)
-- **Database:** Cloudflare D1 (SQLite) — member gallery cache
-- **Storage:** Cloudflare R2 — member profile photos
-- **Token cache:** Cloudflare KV — WildApricot OAuth token
+- **Database:** Cloudflare D1 (SQLite) — member-code allocator only (`mia-member-codes`). **Not** the gallery store.
+- **Caching:** Cloudflare KV — WildApricot OAuth token (`wa_token`), gallery JSON (`gallery_members`, 1h TTL), portal sessions (`session:*`)
+- **Member photos:** served as WildApricot photo URLs (gallery) and static `/public/images/*` (directiva, fundadoras). R2 is **planned** for member-uploaded photos but not yet wired.
 - **Bot protection:** Cloudflare Turnstile — all public forms
 - **Membership CRM:** WildApricot REST API v2.2
 - **Payments:** Stripe Checkout Sessions (current) → WildApricot native gateway (planned)
-- **Membership emails:** WildApricot native (welcome, renewal, expiry)
+- **Membership emails:** Resend (transactional) + WildApricot native (welcome, renewal, expiry)
 - **Node.js:** 24.x (Active LTS) — required, see `.nvmrc`
 
 ## What We Are NOT Using
-- ~~Supabase~~ — replaced by Cloudflare D1. Supabase MCP is kept as **read-only** for migrating existing photo URLs to R2. Do not write to Supabase or add new Supabase dependencies.
+- ~~Supabase~~ — fully removed (no dependency, no MCP writes). Photo URLs already migrated to static `/public/images/*`.
+- ~~Zustand~~ — installed previously but no stores were ever created; removed. Use React Context + React Query.
 - ~~Express/Node server~~ — Cloudflare Workers only
 - ~~reCAPTCHA~~ — Cloudflare Turnstile only
 - ~~Discount codes in app code~~ — managed in WildApricot admin dashboard
@@ -65,31 +66,35 @@ src/
 │   ├── Footer.tsx
 │   └── Layout.tsx
 ├── pages/
-│   ├── socias/          # SociasPage sub-components (gallery — primary missing feature)
+│   ├── socias/          # SociasPage sub-components (member gallery — built)
+│   ├── portal/          # Member portal pages
 │   └── *.tsx
 ├── contexts/            # ToastContext, LoadingContext
-├── hooks/               # useToast, useLoading, custom hooks
+├── hooks/               # useToast, useLoading, usePortalAuth, useMemberFilters, etc.
 ├── types/               # TypeScript interfaces — extend, don't duplicate
-│   ├── index.ts         # Member, FilterState, ANIMATION_SPECIALIZATIONS
-│   ├── member.ts        # BoardMember, Fundadora, MemberStats
+│   ├── index.ts         # MembershipType, ANIMATION_SPECIALIZATIONS, FormData
+│   ├── member.ts        # Member (gallery), BoardMember, Fundadora, MemberStats
 │   └── api.ts           # API request/response types
 ├── config/
 │   └── site.config.ts   # Env-aware config: Stripe links, Turnstile key, analytics
 ├── schemas/
-│   └── registrationSchema.ts  # Zod schemas (remove VALID_DISCOUNT_CODES — see TODOs)
-├── store/               # Zustand stores
+│   ├── registrationSchema.ts  # Zod registration schemas (step-based)
+│   └── portalSchema.ts        # Zod portal profile schema
 ├── data/                # Static data: directiva.ts, fundadoras.ts
 └── utils/
 
 functions/               # Cloudflare Pages Functions
-├── _lib/                # Shared utilities (token helper, turnstile helper)
+├── _lib/                # Shared utils: logger, wa-token, wa-contacts, email, cors, session, member-code
 └── api/
-    ├── contact.ts       # POST — Turnstile verify → email notification (working)
-    ├── members.ts       # GET  — gallery data from D1 (to build)
-    ├── member-sync.ts   # POST — WA webhook → D1 upsert (to build)
-    └── upload-photo.ts  # POST — image → R2 (to build)
+    ├── contact.ts                 # POST — Turnstile verify → Resend email (working)
+    ├── create-checkout-session.ts # POST — create Stripe Checkout Session (working)
+    ├── checkout-session.ts        # GET  — Stripe session status lookup (working)
+    ├── stripe-webhook.ts          # POST — Stripe webhook (signature-verified) (working)
+    ├── members.ts                 # GET  — gallery: live WildApricot fetch, cached in KV 1h (working)
+    ├── auth/                      # Magic-link auth: request-link, verify, me, logout
+    └── portal/                    # Member portal: profile (GET/PUT), customer-portal, _middleware
 
-migrations/              # D1 SQL migrations
+migrations/              # D1 SQL migrations (member-code allocator)
 .claude/
 └── agents/              # Sub-agent definitions
 ```
@@ -98,51 +103,33 @@ migrations/              # D1 SQL migrations
 
 ## Cloudflare Bindings (wrangler.toml)
 
-Current state has only Turnstile and Stripe keys. Missing bindings to add:
-```toml
-[[d1_databases]]
-binding = "DB"
-database_name = "mia-members"
-database_id = "FILL_AFTER_wrangler_d1_create"
+All required bindings are configured (production + `env.preview`):
+- **KV** (`binding = "KV"`) — WA token, gallery cache, portal sessions
+- **D1** (`binding = "DB"`, `mia-member-codes` / `mia-member-codes-dev`) — member-code allocator
+- Stripe price IDs, WildApricot account/level IDs, Turnstile sitekey, Resend config as `[vars]`
 
-[[r2_buckets]]
-binding = "PHOTOS"
-bucket_name = "mia-photos"
-
-[[kv_namespaces]]
-binding = "KV"
-id = "FILL_AFTER_wrangler_kv_create"
-```
+> R2 is **not** bound yet. Add a `[[r2_buckets]]` block only when implementing member photo upload (see TODOs).
 
 Secrets managed via `wrangler secret put` (never in wrangler.toml):
 ```
-WILDAPRICOT_API_KEY
-TURNSTILE_SECRET_KEY
+WILDAPRICOT_API_KEY        STRIPE_SECRET_KEY
+TURNSTILE_SECRET_KEY       STRIPE_WEBHOOK_SECRET
+RESEND_API_KEY
 ```
 
 ---
 
-## D1 Schema
-```sql
--- migrations/0001_members.sql
-CREATE TABLE IF NOT EXISTS members (
-  id              TEXT PRIMARY KEY,    -- WildApricot Contact.Id
-  nombre          TEXT NOT NULL,
-  email           TEXT,
-  foto_url        TEXT,
-  bio             TEXT,
-  categorias      TEXT,                -- JSON array
-  pais            TEXT,
-  ciudad          TEXT,
-  redes           TEXT,                -- JSON object
-  nivel           TEXT,                -- WA membership level
-  status          TEXT DEFAULT 'Active',
-  mostrar_galeria INTEGER DEFAULT 1,
-  updated_at      TEXT
-);
-CREATE INDEX IF NOT EXISTS idx_status  ON members(status);
-CREATE INDEX IF NOT EXISTS idx_mostrar ON members(mostrar_galeria);
-```
+## Data Stores
+
+**Gallery** is **not** stored in D1. `GET /api/members` fetches contacts live from WildApricot
+(async paginated), transforms them, and caches the JSON in KV under `gallery_members` for 1h
+(`CACHE_TTL = 3600`). The frontend mirrors this with React Query `staleTime: 1h`. This is
+intentional (KISS) — at the current member count, live-fetch-on-cache-miss stays well within
+WA's ~30 req/min limit. Do not reintroduce a D1 `members` table or a `member-sync` webhook
+unless scale or WA-downtime resilience demands it.
+
+**D1** holds only the member-code allocator (`migrations/0001_member_codes.sql`,
+`0002_member_code_assignments_by_contact.sql`) used during Stripe registration.
 
 ---
 
@@ -164,7 +151,7 @@ CREATE INDEX IF NOT EXISTS idx_mostrar ON members(mostrar_galeria);
 3. POSTs to `/api/create-checkout-session` with `{ membershipType }`
 4. Worker returns `{ url }` — frontend redirects to Stripe-hosted checkout
 5. Stripe handles payment and redirects to `/registro/exito`
-6. **No post-payment WA sync yet** — to be added
+6. `stripe-webhook.ts` (signature-verified) handles `checkout.session.completed` → allocate member code + create/update WildApricot contact, and `customer.subscription.deleted` → lapse WA membership
 
 **Discount codes:** Managed in WildApricot admin dashboard — NOT in app code. Do not add discount code UI or logic to RegistrationPage.
 
@@ -210,11 +197,10 @@ Before using any library, SDK, API, or tool:
 5. **Always use KISS (Keep It Simple, Stupid)** principle when implementing any feature. Do not over-engineer or add unnecessary complexity.
 6. **Always use YAGNI (You Ain't Gonna Need This)** principle when implementing any feature. Do not add features that are not required for the current implementation.
 7. **Always use DRY (Don't Repeat Yourself)** principle when implementing any feature. Do not repeat code or logic.
-8. **Always use TDD (Test-Driven Development)** principle when implementing any feature. Do not add features that are not required for the current implementation.
-9. **Always use SOLID (Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion)** principle when implementing any feature. Do not over-engineer or add unnecessary complexity.
-10. **Always use Clean Architecture (Separation of Concerns, Dependency Rule, Testability)** principle when implementing any feature. Do not over-engineer or add unnecessary complexity.
-11. **Always use Clean Architecture (Separation of Concerns, Dependency Rule, Testability)** principle when implementing any feature. Do not over-engineer or add unnecessary complexity.
-12. **Open Source** Open source is your friend. Don't try to build everything from scratch, find stable and trusted libs, 
+8. **Test the critical paths.** Payments, auth, Zod schemas, and member-code allocation must have tests; any new money- or auth-related code requires tests before merge. Prefer test-first where practical. (We do not require full TDD coverage on presentational UI.)
+9. **Always use SOLID** principles when implementing any feature. Do not over-engineer or add unnecessary complexity.
+10. **Always use Clean Architecture** (Separation of Concerns, Dependency Rule, Testability) when implementing any feature. Do not over-engineer or add unnecessary complexity.
+11. **Open Source is your friend.** Don't build everything from scratch — find stable, trusted libraries.
 
 ---
 
@@ -271,8 +257,8 @@ See `.claude/agents/git-workflow.md` for full branching, commit, PR, and merge r
 
 | Agent | Use for |
 |-------|---------|
-| `wildapricot-api` | WA API calls, token management, D1 sync, webhooks |
-| `member-gallery` | SociasPage, /api/members, D1 queries, gallery UI |
+| `wildapricot-api` | WA API calls, token management, Stripe→WA contact sync, webhooks |
+| `member-gallery` | SociasPage, /api/members, KV gallery cache, gallery UI |
 | `cloudflare-infra` | wrangler.toml, D1 migrations, R2, KV, deployments |
 | `registration-flow` | RegistrationPage, Zod schemas, payment redirect |
 | `frontend` | React components, Tailwind styling, React Query, animations, PWA |
@@ -282,8 +268,10 @@ See `.claude/agents/git-workflow.md` for full branching, commit, PR, and merge r
 
 ## Known Issues / TODOs
 
-- `SociasPage.tsx` — "Próximamente" placeholder, needs full gallery implementation
-- `directiva.ts` — photo URLs point to Supabase Storage, migrate to R2 before go-live
-- `registrationSchema.ts` — remove `VALID_DISCOUNT_CODES` and `calculateDiscountedPrice`
-- Member stats in `HomePage` — manually updated (see TODO comment)
-- D1, R2, KV bindings not yet in `wrangler.toml`
+- `portal/PhotoCard.tsx` — photo upload is a "Próximamente" stub; needs R2 bucket + `upload-photo` function
+- Member stats in `HomePage` (`MEMBER_STATS`) — hardcoded. Needs a product decision on what "active/total members" means (WA total vs gallery-visible count) before wiring to a live source.
+- `HomePage` "85% growth" / "50 events" counters — static marketing numbers, no source
+- Token/color system — brand red is defined as `--color-primary` but components hardcode `bg-red-600` (a different red), and a third value lives in the shadcn HSL tokens. Consolidate to a single Tailwind `@theme` source of truth.
+- `--color-text-secondary` (#747474) on white is ~4.48:1 — below WCAG AA (4.5:1); darken slightly.
+
+**Resolved (kept for history):** Supabase removed · D1/KV bindings configured · `VALID_DISCOUNT_CODES` removed · directiva/fundadoras photos migrated to `/public/images` · gallery built (KV-cached, not D1).

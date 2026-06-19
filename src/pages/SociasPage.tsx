@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { BackgroundImage } from '@/components/ui/background-image';
 import type { Member } from '@/types/member';
@@ -21,7 +21,7 @@ export function SociasPage() {
   const { data: members = [], isLoading, isError, refetch } = useQuery({
     queryKey: ['gallery-members'],
     queryFn: fetchMembers,
-    staleTime: 60 * 60 * 1000, // 1h — mirrors KV TTL
+    staleTime: 24 * 60 * 60 * 1000, // 24h — mirrors the KV/edge cache TTL
   });
 
   const {
@@ -37,6 +37,34 @@ export function SociasPage() {
     toggleAvailabilityStatus,
     toggleMembershipType,
   } = useMemberFilters(members, searchTerm);
+
+  // Infinite scroll: render the filtered set in batches so the DOM stays light
+  // as the directory grows. The sentinel button auto-loads when scrolled near,
+  // and is also clickable (keyboard/accessibility). Paging resets on new filters.
+  const BATCH = 24;
+  const [visibleCount, setVisibleCount] = useState(BATCH);
+  const sentinelRef = useRef<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    setVisibleCount(BATCH);
+  }, [searchTerm, filters]);
+
+  const visibleMembers = filteredMembers.slice(0, visibleCount);
+  const hasMore = visibleCount < filteredMembers.length;
+
+  useEffect(() => {
+    if (!hasMore) return;
+    const el = sentinelRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting) setVisibleCount(c => c + BATCH);
+      },
+      { rootMargin: '600px' },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [hasMore, visibleCount, filteredMembers.length]);
 
   return (
     <div className="min-h-screen bg-gray-900">
@@ -82,8 +110,8 @@ export function SociasPage() {
           <div className="flex items-center justify-between mb-6">
             <p className="text-gray-400 text-sm">
               {filteredMembers.length === members.length
-                ? `${members.length} socias`
-                : `${filteredMembers.length} de ${members.length} socias`}
+                ? `Mostrando ${visibleMembers.length} de ${members.length} socias`
+                : `Mostrando ${visibleMembers.length} de ${filteredMembers.length} socias filtradas`}
             </p>
             {activeFilterCount > 0 && (
               <button
@@ -123,15 +151,28 @@ export function SociasPage() {
         )}
 
         {!isLoading && !isError && filteredMembers.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredMembers.map(member => (
-              <MemberCard
-                key={member.id}
-                member={member}
-                onClick={() => setSelectedMember(member)}
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {visibleMembers.map(member => (
+                <MemberCard
+                  key={member.id}
+                  member={member}
+                  onClick={() => setSelectedMember(member)}
+                />
+              ))}
+            </div>
+            {hasMore && (
+              <div className="mt-10 flex justify-center">
+                <button
+                  ref={sentinelRef}
+                  onClick={() => setVisibleCount(c => c + BATCH)}
+                  className="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-gray-100 rounded-md text-sm border border-gray-700 transition-colors"
+                >
+                  Cargar más socias ({filteredMembers.length - visibleMembers.length} restantes)
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
 
