@@ -1,11 +1,11 @@
-// GET /api/members — member gallery data, fetched from WildApricot and cached in KV for 1 hour.
+// GET /api/members — member gallery data, fetched from WildApricot and cached in KV.
 
 import { getWAToken } from '../_lib/wa-token';
 import { FIELD_CODES } from '../_lib/wa-field-ids';
 import { log, logError } from '../_lib/logger';
 
 const KV_KEY = 'gallery_members';
-const CACHE_TTL = 3600; // 1 hour
+const CACHE_TTL = 86400; // 24 hours — the directory changes rarely
 
 interface Env {
   KV: KVNamespace;
