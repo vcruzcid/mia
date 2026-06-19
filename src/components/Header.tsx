@@ -95,18 +95,23 @@ export function Header() {
                       >
                         <span className="whitespace-nowrap">{item.name}</span>
                       </Link>
-                      {/* Hover submenu */}
-                      <div className="absolute left-0 top-full mt-1 hidden group-hover:block bg-black border border-gray-800 rounded-md shadow-lg min-w-[180px] z-50">
-                        {aboutMenu.map((sub) => (
-                          <Link
-                            key={sub.href}
-                            to={sub.href}
-                            className="block px-3 py-2 text-sm text-white hover:bg-gray-900 hover:text-red-400 transition-colors duration-200 first:rounded-t-md last:rounded-b-md"
-                            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                          >
-                            {sub.name}
-                          </Link>
-                        ))}
+                      {/* Hover submenu. The outer wrapper is flush with the trigger
+                          (top-full, no margin) and uses transparent pt-1 padding as a
+                          hoverable bridge — a margin gap here would drop group-hover as
+                          the pointer crosses it, making the submenu unreachable. */}
+                      <div className="absolute left-0 top-full hidden group-hover:block group-focus-within:block pt-1 min-w-[180px] z-50">
+                        <div className="bg-black border border-gray-800 rounded-md shadow-lg overflow-hidden">
+                          {aboutMenu.map((sub) => (
+                            <Link
+                              key={sub.href}
+                              to={sub.href}
+                              className="block px-3 py-2 text-sm text-white hover:bg-gray-900 hover:text-red-400 transition-colors duration-200"
+                              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                            >
+                              {sub.name}
+                            </Link>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   ) : (
