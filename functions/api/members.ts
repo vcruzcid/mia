@@ -66,6 +66,9 @@ function normalizeMembershipType(env: Env, level?: { Id: number; Name: string })
 function transformContact(env: Env, contact: WAContact): object {
   const fields = contact.FieldValues;
   const photo = contact.ProfileImage;
+  // Member photos are pending migration from Supabase to R2; the WildApricot photo
+  // field holds unusable Google Forms upload links, so we ignore it and fall back to
+  // the system avatar (empty for now → initials placeholder in the UI).
   return {
     id: String(contact.Id),
     first_name: contact.FirstName,
@@ -75,11 +78,16 @@ function transformContact(env: Env, contact: WAContact): object {
     biography: getStringField(fields, FIELD_CODES.bio) || undefined,
     main_profession: getOptionLabel(fields, FIELD_CODES.profesionPrincipal) || undefined,
     other_professions: getOptionLabels(fields, FIELD_CODES.profesionAdicional),
-    availability_status: getOptionLabel(fields, FIELD_CODES.statusEmpleo) || undefined,
+    // Status de Empleo may arrive as a single option object or an array of options.
+    availability_status:
+      getOptionLabel(fields, FIELD_CODES.statusEmpleo) ||
+      getOptionLabels(fields, FIELD_CODES.statusEmpleo)[0] ||
+      undefined,
     city: getStringField(fields, FIELD_CODES.ciudad) || undefined,
     country: getOptionLabel(fields, FIELD_CODES.pais) || undefined,
     membership_type: normalizeMembershipType(env, contact.MembershipLevel),
-    created_at: contact.MemberSince,
+    // MemberSince comes back as a FieldValue (not top-level) in async responses.
+    created_at: getStringField(fields, 'MemberSince') || contact.MemberSince || undefined,
     social_media: {
       linkedin: getStringField(fields, FIELD_CODES.linkedin) || undefined,
       instagram: getStringField(fields, FIELD_CODES.instagram) || undefined,
@@ -108,34 +116,52 @@ export async function onRequestGet(context: { request: Request; env: Env }): Pro
     }
 
     const token = await getWAToken(env);
+    const auth = { Authorization: `Bearer ${token}` };
+    const base = `https://api.wildapricot.org/v2.2/accounts/${env.WILDAPRICOT_ACCOUNT_ID}/contacts`;
+    const filter = "'Membership status' eq 'Active'";
 
-    // WildApricot enforces pagination on Contacts since 2025-11-01: $top is capped
-    // at 100 and full lists require iterating with $skip. Page until a short page.
-    // https://gethelp.wildapricot.com/en/articles/2911-updating-your-api-integrations-for-pagination
-    const PAGE_SIZE = 100;
-    const MAX_PAGES = 50; // safety cap (≤5000 members) to avoid an unbounded loop
+    // The synchronous contacts list returns only simplified records (system fields,
+    // no custom FieldValues). To get full profiles (bio, profession, social, etc.) we
+    // use the asynchronous request: kick it off ONCE, then read its computed ResultUrl.
+    // Async results are capped at 100 rows, so page the SAME result with $skip (those
+    // reads return immediately — no extra polling, which keeps us under the Worker
+    // subrequest limit). A dedup guard prevents an unbounded loop if $skip is ignored.
+    const PAGE = 100;
+    const startRes = await fetch(`${base}?$async=true&$filter=${encodeURIComponent(filter)}`, { headers: auth });
+    if (!startRes.ok) {
+      const errBody = await startRes.text().catch(() => '');
+      throw new Error(`WA contacts async start failed: ${startRes.status} — ${errBody.slice(0, 300)}`);
+    }
+    const startData = await startRes.json() as { Contacts?: WAContact[]; ResultUrl?: string };
+    const resultUrl = startData.ResultUrl;
+
     const contacts: WAContact[] = [];
-    for (let page = 0; page < MAX_PAGES; page++) {
-      const params = new URLSearchParams({
-        '$filter': 'MembershipEnabled eq true',
-        '$select': 'Id,FirstName,LastName,DisplayName,MembershipLevel,MemberSince,ProfileImage,FieldValues',
-        '$top': String(PAGE_SIZE),
-        '$skip': String(page * PAGE_SIZE),
-        '$async': 'false',
-      });
-      const res = await fetch(
-        `https://api.wildapricot.org/v2.2/accounts/${env.WILDAPRICOT_ACCOUNT_ID}/contacts?${params}`,
-        { headers: { Authorization: `Bearer ${token}` } },
-      );
-      if (!res.ok) throw new Error(`WA contacts fetch failed: ${res.status}`);
+    const seen = new Set<number>();
+    for (let skip = 0; skip < 5000; skip += PAGE) {
+      let page: WAContact[] | null = skip === 0 ? (startData.Contacts ?? null) : null;
+      // Poll only while the async result is still computing (first reads); paged reads
+      // of a ready result return Contacts immediately.
+      for (let i = 0; i < 8 && !page && resultUrl; i++) {
+        await new Promise(r => setTimeout(r, 1000));
+        const u = new URL(resultUrl);
+        u.searchParams.set('$top', String(PAGE));
+        u.searchParams.set('$skip', String(skip));
+        const r = await fetch(u.toString(), { headers: auth });
+        if (!r.ok) throw new Error(`WA contacts result failed: ${r.status}`);
+        const d = await r.json() as { Contacts?: WAContact[] };
+        if (Array.isArray(d.Contacts)) page = d.Contacts;
+      }
+      if (!page) throw new Error('WA contacts async timed out');
 
-      const data = await res.json() as { Contacts: WAContact[] };
-      const batch = data.Contacts ?? [];
-      contacts.push(...batch);
-      if (batch.length < PAGE_SIZE) break; // last page reached
+      const fresh = page.filter(c => !seen.has(c.Id));
+      fresh.forEach(c => seen.add(c.Id));
+      contacts.push(...fresh);
+      if (page.length < PAGE || fresh.length === 0) break; // last page (or $skip ignored)
     }
 
     const members = contacts.map(c => transformContact(env, c));
+
+    log('gallery.cache_miss', { count: members.length });
 
     log('gallery.cache_miss', { count: members.length });
 
