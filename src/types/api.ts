@@ -1,5 +1,5 @@
-import type { Member, FormData, ContactFormData } from './index';
-import type { BoardMember } from './member';
+import type { FormData, ContactFormData } from './index';
+import type { Member, BoardMember } from './member';
 
 // API Response interfaces
 export interface ApiResponse<T = unknown> {

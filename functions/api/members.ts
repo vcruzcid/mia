@@ -163,8 +163,6 @@ export async function onRequestGet(context: { request: Request; env: Env }): Pro
 
     log('gallery.cache_miss', { count: members.length });
 
-    log('gallery.cache_miss', { count: members.length });
-
     const body = JSON.stringify({ members, total: members.length });
     await env.KV.put(KV_KEY, body, { expirationTtl: CACHE_TTL });
 
