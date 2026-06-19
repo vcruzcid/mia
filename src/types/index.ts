@@ -30,54 +30,9 @@ export interface ApiResponse<T = unknown> {
   error?: string;
 }
 
-// Gallery and Member types
-export interface Member {
-  id: string;
-  firstName: string;
-  lastName: string;
-  displayName?: string;
-  email: string;
-  company?: string;
-  location: {
-    city?: string;
-    region?: string;
-    country: string;
-  };
-  memberType: 'socia-pleno-derecho' | 'colaborador';
-  membershipType?: string;
-  specializations: string[];
-  availabilityStatus: 'Disponible' | 'Empleada' | 'Freelance';
-  socialMedia: {
-    linkedin?: string;
-    twitter?: string;
-    instagram?: string;
-    website?: string;
-  };
-  profileImage?: string;
-  bio?: string;
-  joinDate: string;
-  isActive: boolean;
-  status?: 'active' | 'pending' | 'expired';
-  membershipStatus?: 'active' | 'pending' | 'expired';
-}
-
-export interface FilterState {
-  memberTypes: ('socia-pleno-derecho' | 'colaborador')[];
-  specializations: string[];
-  locations: string[];
-  availabilityStatus: ('Disponible' | 'Empleada' | 'Freelance')[];
-  hasSocialMedia: boolean | null;
-  isActive: boolean | null;
-}
-
-export interface GalleryState {
-  members: Member[];
-  filters: FilterState;
-  searchTerm: string;
-  loading: boolean;
-  selectedMember: Member | null;
-  isModalOpen: boolean;
-}
+// NOTE: The gallery Member type lives in `@/types/member` — import it from there.
+// The previous duplicate definition here (and the unused FilterState/GalleryState)
+// were removed; the live gallery uses the WildApricot-shaped Member in member.ts.
 
 // Animation profession categories constants
 export const ANIMATION_SPECIALIZATIONS = [
