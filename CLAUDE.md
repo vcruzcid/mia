@@ -5,8 +5,9 @@ This file provides guidance to Claude Code when working with the MIA repository.
 ## Project Overview
 
 **MIA (Mujeres en Industrias de Animación)** is a professional association web app for women
-in the animation industry in Spain. It handles member registration, membership management,
-a public member gallery, and a member portal.
+in the animation industry in Spain. It is a marketing site plus a public member gallery
+(read from WildApricot). Signup, payments, member login and emails are delegated to the
+WildApricot-hosted site (`web.animacionesmia.com`).
 
 **All user-facing text MUST be in Spanish.** Code, comments, variable names, and commits stay in English.
 
@@ -22,13 +23,10 @@ a public member gallery, and a member portal.
 - **State:** React Context for toasts/loading + local component state. (No Zustand — see "What We Are NOT Using".)
 - **Hosting:** Cloudflare Pages
 - **Functions:** Cloudflare Workers via Pages Functions (`functions/`)
-- **Database:** Cloudflare D1 (SQLite) — member-code allocator only (`mia-member-codes`). **Not** the gallery store.
-- **Caching:** Cloudflare KV — WildApricot OAuth token (`wa_token`), gallery JSON (`gallery_members`, 1h TTL), portal sessions (`session:*`)
-- **Member photos:** served as WildApricot photo URLs (gallery) and static `/public/images/*` (directiva, fundadoras). R2 is **planned** for member-uploaded photos but not yet wired.
-- **Bot protection:** Cloudflare Turnstile — all public forms
-- **Membership CRM:** WildApricot REST API v2.2
-- **Payments:** Stripe Checkout Sessions (current) → WildApricot native gateway (planned)
-- **Membership emails:** Resend (transactional) + WildApricot native (welcome, renewal, expiry)
+- **Caching:** Cloudflare KV — WildApricot OAuth token (`wa_token`) + gallery JSON (`gallery_members`, 24h TTL)
+- **Member photos:** WildApricot profile-picture URLs (gallery) and static `/public/images/*` (directiva, fundadoras).
+- **Membership CRM:** WildApricot REST API v2.2 (read-only, for the gallery)
+- **Signup / payments / member login / emails:** all handled on the **WildApricot-hosted site** (`web.animacionesmia.com`). The React app links out to it; it does not run these flows itself.
 - **Node.js:** 24.x (Active LTS) — required, see `.nvmrc`
 
 ## What We Are NOT Using
@@ -66,35 +64,24 @@ src/
 │   ├── Footer.tsx
 │   └── Layout.tsx
 ├── pages/
-│   ├── socias/          # SociasPage sub-components (member gallery — built)
-│   ├── portal/          # Member portal pages
+│   ├── socias/          # SociasPage sub-components (member gallery)
 │   └── *.tsx
 ├── contexts/            # ToastContext, LoadingContext
-├── hooks/               # useToast, useLoading, usePortalAuth, useMemberFilters, etc.
+├── hooks/               # useToast, useLoading, useMemberFilters, etc.
 ├── types/               # TypeScript interfaces — extend, don't duplicate
-│   ├── index.ts         # MembershipType, ANIMATION_SPECIALIZATIONS, FormData
+│   ├── index.ts         # MembershipType, ANIMATION_SPECIALIZATIONS
 │   ├── member.ts        # Member (gallery), BoardMember, Fundadora, MemberStats
-│   └── api.ts           # API request/response types
+│   └── api.ts           # ApiResponse
 ├── config/
-│   └── site.config.ts   # Env-aware config: Stripe links, Turnstile key, analytics
-├── schemas/
-│   ├── registrationSchema.ts  # Zod registration schemas (step-based)
-│   └── portalSchema.ts        # Zod portal profile schema
+│   └── site.config.ts   # Env-aware config: WildApricot URLs, analytics
 ├── data/                # Static data: directiva.ts, fundadoras.ts
 └── utils/
 
-functions/               # Cloudflare Pages Functions
-├── _lib/                # Shared utils: logger, wa-token, wa-contacts, email, cors, session, member-code
+functions/               # Cloudflare Pages Functions (gallery only)
+├── _lib/                # Shared utils: logger, wa-token, wa-field-ids, cors
 └── api/
-    ├── contact.ts                 # POST — Turnstile verify → Resend email (working)
-    ├── create-checkout-session.ts # POST — create Stripe Checkout Session (working)
-    ├── checkout-session.ts        # GET  — Stripe session status lookup (working)
-    ├── stripe-webhook.ts          # POST — Stripe webhook (signature-verified) (working)
-    ├── members.ts                 # GET  — gallery: live WildApricot fetch, cached in KV 1h (working)
-    ├── auth/                      # Magic-link auth: request-link, verify, me, logout
-    └── portal/                    # Member portal: profile (GET/PUT), customer-portal, _middleware
+    └── members.ts       # GET — gallery: WildApricot async fetch, cached in KV 24h
 
-migrations/              # D1 SQL migrations (member-code allocator)
 .claude/
 └── agents/              # Sub-agent definitions
 ```
@@ -103,33 +90,24 @@ migrations/              # D1 SQL migrations (member-code allocator)
 
 ## Cloudflare Bindings (wrangler.toml)
 
-All required bindings are configured (production + `env.preview`):
-- **KV** (`binding = "KV"`) — WA token, gallery cache, portal sessions
-- **D1** (`binding = "DB"`, `mia-member-codes` / `mia-member-codes-dev`) — member-code allocator
-- Stripe price IDs, WildApricot account/level IDs, Turnstile sitekey, Resend config as `[vars]`
-
-> R2 is **not** bound yet. Add a `[[r2_buckets]]` block only when implementing member photo upload (see TODOs).
+Configured (production + `env.preview`):
+- **KV** (`binding = "KV"`) — WA OAuth token + gallery cache
+- WildApricot account/level IDs as `[vars]`
 
 Secrets managed via `wrangler secret put` (never in wrangler.toml):
 ```
-WILDAPRICOT_API_KEY        STRIPE_SECRET_KEY
-TURNSTILE_SECRET_KEY       STRIPE_WEBHOOK_SECRET
-RESEND_API_KEY
+WILDAPRICOT_API_KEY   (read-only WildApricot access for the gallery)
 ```
 
 ---
 
 ## Data Stores
 
-**Gallery** is **not** stored in D1. `GET /api/members` fetches contacts live from WildApricot
-(async paginated), transforms them, and caches the JSON in KV under `gallery_members` for 1h
-(`CACHE_TTL = 3600`). The frontend mirrors this with React Query `staleTime: 1h`. This is
-intentional (KISS) — at the current member count, live-fetch-on-cache-miss stays well within
-WA's ~30 req/min limit. Do not reintroduce a D1 `members` table or a `member-sync` webhook
-unless scale or WA-downtime resilience demands it.
-
-**D1** holds only the member-code allocator (`migrations/0001_member_codes.sql`,
-`0002_member_code_assignments_by_contact.sql`) used during Stripe registration.
+`GET /api/members` fetches active contacts from WildApricot via the **async** Contacts API
+(filter `'Membership status' eq 'Active'`, paged with `$skip` because async results cap at 100),
+transforms them, and caches the JSON in KV under `gallery_members` for 24h (`CACHE_TTL = 86400`).
+The frontend mirrors this with React Query `staleTime: 24h` and renders with infinite scroll.
+There is no app database — WildApricot is the source of truth.
 
 ---
 
@@ -144,16 +122,16 @@ unless scale or WA-downtime resilience demands it.
 
 ---
 
-## Registration Flow (Current — Working, Do Not Break)
+## Signup / login / contact (delegated to WildApricot)
 
-1. User selects membership on `/registro`
-2. Accepts TOS + GDPR
-3. POSTs to `/api/create-checkout-session` with `{ membershipType }`
-4. Worker returns `{ url }` — frontend redirects to Stripe-hosted checkout
-5. Stripe handles payment and redirects to `/registro/exito`
-6. `stripe-webhook.ts` (signature-verified) handles `checkout.session.completed` → allocate member code + create/update WildApricot contact, and `customer.subscription.deleted` → lapse WA membership
+The React app does **not** run signup, payment, auth, or email flows. It links out to the
+WildApricot-hosted site (URLs in `src/config/site.config.ts` → `wildApricot`):
+- **Signup / "Únete a MIA"** → `https://web.animacionesmia.com/membresia`
+- **Member login / "Acceso socias"** → `https://web.animacionesmia.com/Sys/Login`
+- **Contact form** → `https://web.animacionesmia.com/contacto`
 
-**Discount codes:** Managed in WildApricot admin dashboard — NOT in app code. Do not add discount code UI or logic to RegistrationPage.
+All such links are external (`<a target="_blank" rel="noopener noreferrer">`), not React Router
+`<Link>`. WildApricot handles payments, the member portal, and welcome/renewal emails natively.
 
 ---
 
@@ -257,10 +235,9 @@ See `.claude/agents/git-workflow.md` for full branching, commit, PR, and merge r
 
 | Agent | Use for |
 |-------|---------|
-| `wildapricot-api` | WA API calls, token management, Stripe→WA contact sync, webhooks |
+| `wildapricot-api` | WA API calls, token management (read-only gallery fetch) |
 | `member-gallery` | SociasPage, /api/members, KV gallery cache, gallery UI |
-| `cloudflare-infra` | wrangler.toml, D1 migrations, R2, KV, deployments |
-| `registration-flow` | RegistrationPage, Zod schemas, payment redirect |
+| `cloudflare-infra` | wrangler.toml, KV, deployments |
 | `frontend` | React components, Tailwind styling, React Query, animations, PWA |
 | `git-workflow` | Branching strategy, commits, PRs, merges |
 
@@ -268,10 +245,10 @@ See `.claude/agents/git-workflow.md` for full branching, commit, PR, and merge r
 
 ## Known Issues / TODOs
 
-- `portal/PhotoCard.tsx` — photo upload is a "Próximamente" stub; needs R2 bucket + `upload-photo` function
+- **Member photos** — the gallery reads WildApricot profile pictures (`ProfileImage.Url`); pending the Supabase→WildApricot photo import. Verify those URLs are publicly loadable by an `<img>` once added.
 - Member stats in `HomePage` (`MEMBER_STATS`) — hardcoded. Needs a product decision on what "active/total members" means (WA total vs gallery-visible count) before wiring to a live source.
 - `HomePage` "85% growth" / "50 events" counters — static marketing numbers, no source
 - Token/color system — brand red is defined as `--color-primary` but components hardcode `bg-red-600` (a different red), and a third value lives in the shadcn HSL tokens. Consolidate to a single Tailwind `@theme` source of truth.
 - `--color-text-secondary` (#747474) on white is ~4.48:1 — below WCAG AA (4.5:1); darken slightly.
 
-**Resolved (kept for history):** Supabase removed · D1/KV bindings configured · `VALID_DISCOUNT_CODES` removed · directiva/fundadoras photos migrated to `/public/images` · gallery built (KV-cached, not D1).
+**Resolved (kept for history):** Supabase removed · gallery built (KV-cached) with infinite scroll · email/auth/portal/Stripe/D1/Turnstile/Resend removed — signup, payments, login and emails delegated to the WildApricot-hosted site.

@@ -6,8 +6,12 @@ export const siteConfig = {
   shortName: 'MIA',
   description: 'Asociación profesional de mujeres en la industria de animación en España',
   url: isDev ? 'https://dev.animacionesmia.com' : 'https://animacionesmia.com',
-  turnstile: {
-    sitekey: import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined
+  // WildApricot-hosted pages handle membership signup, member login/portal and
+  // contact — the app links out to these instead of running its own flows.
+  wildApricot: {
+    signupUrl: 'https://web.animacionesmia.com/membresia',
+    loginUrl: 'https://web.animacionesmia.com/Sys/Login',
+    contactUrl: 'https://web.animacionesmia.com/contacto',
   },
 } as const;
 

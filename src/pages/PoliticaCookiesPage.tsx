@@ -28,9 +28,7 @@ export function PoliticaCookiesPage() {
                 <h3 className="text-xl font-semibold mb-2 text-gray-900">Necesarias</h3>
                 <p>
                   Imprescindibles para el funcionamiento básico del sitio. No se pueden desactivar.
-                  Incluyen la protección anti-bots de <strong>Cloudflare Turnstile</strong>, cuyo uso se ampara en
-                  el interés legítimo de la seguridad del servicio, y la cookie <code>mia_session</code> que mantiene
-                  la sesión autenticada en el portal de socias (estrictamente necesaria para el servicio solicitado).
+                  Incluyen la cookie que guarda tus preferencias de consentimiento de cookies.
                 </p>
               </div>
 
@@ -59,13 +57,6 @@ export function PoliticaCookiesPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td className="border border-gray-300 px-3 py-2"><code>mia_session</code></td>
-                    <td className="border border-gray-300 px-3 py-2">animacionesmia.com</td>
-                    <td className="border border-gray-300 px-3 py-2">Necesaria</td>
-                    <td className="border border-gray-300 px-3 py-2">7 días</td>
-                    <td className="border border-gray-300 px-3 py-2">Sesión autenticada del portal de socias (HTTP-only)</td>
-                  </tr>
                   <tr>
                     <td className="border border-gray-300 px-3 py-2">_ga</td>
                     <td className="border border-gray-300 px-3 py-2">Google Analytics</td>

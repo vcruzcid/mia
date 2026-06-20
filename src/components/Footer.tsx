@@ -1,6 +1,8 @@
 import { Facebook, Twitter, Instagram, Linkedin, Mail } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { FooterLink } from './FooterLink';
+import { Button } from '@/components/ui/button';
+import { siteConfig } from '@/config/site.config';
 
 export function Footer() {
   return (
@@ -26,7 +28,13 @@ export function Footer() {
               <FooterLink to="/mianima">MIANIMA</FooterLink>
               <FooterLink to="/membresia">MEMBRESÍA</FooterLink>
               <FooterLink to="/contacto">CONTACTO</FooterLink>
-              <FooterLink to="/registro">ÚNETE A MIA</FooterLink>
+              <Button
+                variant="link"
+                asChild
+                className="text-base text-gray-300 p-0 h-auto hover:text-red-400 transition-colors duration-200 justify-start"
+              >
+                <a href={siteConfig.wildApricot.signupUrl} target="_blank" rel="noopener noreferrer">ÚNETE A MIA</a>
+              </Button>
             </nav>
           </div>
 
@@ -118,12 +126,14 @@ export function Footer() {
               </ul>
             </div>
             <div className="flex flex-col gap-3 pt-6">
-              <Link
-                to="/registro"
+              <a
+                href={siteConfig.wildApricot.signupUrl}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded text-center text-sm transition-colors duration-200"
               >
                 ÚNETE A MIA
-              </Link>
+              </a>
               <Link
                 to="/membresia"
                 className="w-full border border-gray-600 hover:border-gray-400 text-gray-300 hover:text-white font-medium py-2 px-4 rounded text-center text-sm transition-colors duration-200"
