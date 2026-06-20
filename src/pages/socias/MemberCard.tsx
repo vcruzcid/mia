@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import type { Member } from '@/types/member';
 import { memo } from 'react';
+import { getAvailabilityStyle } from './availability';
 
 interface MemberCardProps {
   member: Member;
@@ -20,7 +21,9 @@ const MemberCardComponent = ({ member, onClick }: MemberCardProps) => {
         ? [member.main_profession]
         : [];
   const availabilityStatus = member.availability_status || 'Disponible';
+  const availability = getAvailabilityStyle(availabilityStatus);
   const isFounder = member.is_founder === true;
+  const location = [member.city, member.country].filter(Boolean).join(', ');
 
   return (
     <Card
@@ -53,27 +56,17 @@ const MemberCardComponent = ({ member, onClick }: MemberCardProps) => {
             ) : (
               <span />
             )}
-            <Badge 
-              variant={
-                availabilityStatus === 'Disponible' ? 'default' : 
-                availabilityStatus === 'Empleada' ? 'destructive' : 
-                'secondary'
-              }
-            >
-              <span className="flex items-center space-x-1">
-                {availabilityStatus === 'Disponible' && (
-                  <span title="Disponible - Abierta a nuevas oportunidades laborales">🟢</span>
-                )}
-                {availabilityStatus === 'Empleada' && (
-                  <span title="Empleada - Actualmente trabajando, no disponible para nuevas oportunidades">🔴</span>
-                )}
-                {availabilityStatus === 'Freelance' && (
-                  <span title="Freelance - Trabajando por cuenta propia, disponible para proyectos">🔵</span>
-                )}
-                <span>{availabilityStatus}</span>
-              </span>
+            <Badge variant="outline" className={availability.badgeClass} title={availability.title}>
+              {availabilityStatus}
             </Badge>
           </div>
+
+          {location && (
+            <p className="flex items-center gap-1.5 text-sm text-gray-300">
+              <span aria-hidden="true">📍</span>
+              <span className="truncate">{location}</span>
+            </p>
+          )}
 
           <div>
             <p className="text-sm text-gray-300 font-medium mb-1">Especializaciones:</p>

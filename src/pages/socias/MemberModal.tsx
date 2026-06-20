@@ -3,6 +3,7 @@ import { SocialMediaIcons } from '@/components/SocialMediaIcons';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import type { Member } from '@/types/member';
+import { getAvailabilityStyle } from './availability';
 
 interface MemberModalProps {
   member: Member;
@@ -12,7 +13,9 @@ interface MemberModalProps {
 
 export function MemberModal({ member, isOpen, onClose }: MemberModalProps) {
   const availabilityStatus = member.availability_status || 'Disponible';
+  const availability = getAvailabilityStyle(availabilityStatus);
   const isFounder = member.is_founder === true;
+  const location = [member.city, member.country].filter(Boolean).join(', ');
 
   const membershipLabel =
     member.membership_type === 'pleno_derecho'
@@ -55,19 +58,8 @@ export function MemberModal({ member, isOpen, onClose }: MemberModalProps) {
                     ⭐ Fundadora
                   </Badge>
                 )}
-                <Badge 
-                  variant={
-                    availabilityStatus === 'Disponible' ? 'default' : 
-                    availabilityStatus === 'Empleada' ? 'destructive' : 
-                    'secondary'
-                  }
-                >
-                  <span className="flex items-center space-x-1">
-                    {availabilityStatus === 'Disponible' && <span>🟢</span>}
-                    {availabilityStatus === 'Empleada' && <span>🔴</span>}
-                    {availabilityStatus === 'Freelance' && <span>🔵</span>}
-                    <span>{availabilityStatus}</span>
-                  </span>
+                <Badge variant="outline" className={availability.badgeClass} title={availability.title}>
+                  {availabilityStatus}
                 </Badge>
               </div>
             </div>
@@ -109,8 +101,8 @@ export function MemberModal({ member, isOpen, onClose }: MemberModalProps) {
             <h4 className="text-sm font-medium text-gray-200 mb-2">Ubicación</h4>
             <div className="text-sm text-gray-300 space-y-1">
               <p className="flex items-center">
-                <span className="text-gray-500 mr-2">🌍</span>
-                {member.country || 'España'}
+                <span className="mr-2" aria-hidden="true">🌍</span>
+                {location || member.country || 'España'}
               </p>
             </div>
           </div>
