@@ -84,7 +84,7 @@ export function MemberFilters({
 
             <TabsContent value="location">
               {availableLocations.length === 0 ? (
-                <p className="text-xs text-gray-500 py-1">Las ubicaciones se cargan con los datos de socias.</p>
+                <p className="text-xs text-gray-400 py-1">Las ubicaciones se cargan con los datos de socias.</p>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-x-2 gap-y-0 max-h-40 overflow-y-auto">
                   {availableLocations.map((location) => (
@@ -112,7 +112,7 @@ export function MemberFilters({
                     />
                     <span className="text-xs text-gray-300">
                       {status}
-                      <span className="ml-1 text-gray-500">({memberCounts.byAvailability[status] || 0})</span>
+                      <span className="ml-1 text-gray-400">({memberCounts.byAvailability[status] || 0})</span>
                     </span>
                   </label>
                 ))}
@@ -137,7 +137,7 @@ export function MemberFilters({
                         />
                         <span className="text-xs text-gray-300">
                           {label}
-                          <span className="ml-1 text-gray-500">({memberCounts.byType[value] || 0})</span>
+                          <span className="ml-1 text-gray-400">({memberCounts.byType[value] || 0})</span>
                         </span>
                       </label>
                     ))}
