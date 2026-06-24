@@ -24,6 +24,10 @@ export function MembershipPage() {
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
             Descubre los beneficios exclusivos que obtienes al formar parte de nuestra comunidad
           </p>
+          <p className="text-lg text-gray-400 max-w-2xl mx-auto mt-4">
+            Completa tu alta aquí mismo. El proceso es seguro y lo gestiona nuestra
+            plataforma de membresía.
+          </p>
         </div>
 
         {/* Benefits Cards */}
@@ -129,14 +133,6 @@ export function MembershipPage() {
                 </ul>
                 </div>
 
-                {/* CTA Button */}
-                <div className="mt-auto">
-                  <Button asChild className="w-full" variant="default">
-                    <a href={siteConfig.wildApricot.signupUrl} target="_blank" rel="noopener noreferrer">
-                      Seleccionar Subscripción
-                    </a>
-                  </Button>
-                </div>
                 </div>
               </CardContent>
             </Card>
@@ -147,15 +143,6 @@ export function MembershipPage() {
 
         {/* Join now — WildApricot signup widget */}
         <div id="iniciar-membresia" className="scroll-mt-20 mb-16">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-white mb-4">
-              Hazte socia
-            </h2>
-            <p className="text-lg text-gray-300 max-w-2xl mx-auto">
-              Completa tu alta aquí mismo. El proceso es seguro y lo gestiona nuestra
-              plataforma de membresía.
-            </p>
-          </div>
           <WildApricotMembershipWidget />
         </div>
 
