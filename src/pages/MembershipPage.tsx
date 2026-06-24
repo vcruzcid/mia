@@ -5,6 +5,7 @@ import { Accordion } from '@/components/ui/accordion';
 import { BackgroundImage } from '@/components/ui/background-image';
 import { membershipTypes } from '@/utils/memberships';
 import { siteConfig } from '@/config/site.config';
+import { WildApricotMembershipWidget } from '@/components/WildApricotMembershipWidget';
 
 export function MembershipPage() {
   const [selectedMembership, setSelectedMembership] = useState<string | null>(null);
@@ -143,6 +144,20 @@ export function MembershipPage() {
         </div>
 
 
+
+        {/* Join now — WildApricot signup widget */}
+        <div id="iniciar-membresia" className="scroll-mt-20 mb-16">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-white mb-4">
+              Hazte socia
+            </h2>
+            <p className="text-lg text-gray-300 max-w-2xl mx-auto">
+              Completa tu alta aquí mismo. El proceso es seguro y lo gestiona nuestra
+              plataforma de membresía.
+            </p>
+          </div>
+          <WildApricotMembershipWidget />
+        </div>
 
         {/* FAQ Section */}
         <div className="text-center mb-12">
