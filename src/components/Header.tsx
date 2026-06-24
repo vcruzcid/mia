@@ -81,7 +81,7 @@ export function Header() {
                       <Link
                         to={item.href}
                         className={`inline-block ${isActive(item.href) || aboutMenu.some((i) => isActive(i.href))
-                          ? 'text-white bg-gray-800 px-3 py-2 rounded-md text-sm font-medium border border-white transition-colors duration-200'
+                          ? 'text-white bg-gray-800 px-3 py-2 rounded-md text-sm font-medium border border-red-600 transition-colors duration-200'
                           : 'text-white hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200'
                         }`}
                         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
@@ -112,7 +112,7 @@ export function Header() {
                       key={item.name}
                       to={item.href}
                       className={`inline-block flex-shrink-0 ${isActive(item.href)
-                        ? 'text-white bg-gray-800 px-3 py-2 rounded-md text-sm font-medium border border-white transition-colors duration-200'
+                        ? 'text-white bg-gray-800 px-3 py-2 rounded-md text-sm font-medium border border-red-600 transition-colors duration-200'
                         : 'text-white hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200'
                       }`}
                       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}

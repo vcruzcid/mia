@@ -2,7 +2,6 @@ import { Mail } from 'lucide-react';
 import { Facebook, Twitter, Instagram, Linkedin } from '@/components/icons/BrandIcons';
 import { Link } from 'react-router-dom';
 import { FooterLink } from './FooterLink';
-import { Button } from '@/components/ui/button';
 import { siteConfig } from '@/config/site.config';
 
 export function Footer() {
@@ -29,13 +28,6 @@ export function Footer() {
               <FooterLink to="/mianima">MIANIMA</FooterLink>
               <FooterLink to="/membresia">MEMBRESÍA</FooterLink>
               <FooterLink to="/contacto">CONTACTO</FooterLink>
-              <Button
-                variant="link"
-                asChild
-                className="text-base text-gray-300 p-0 h-auto hover:text-red-400 transition-colors duration-200 justify-start"
-              >
-                <a href={siteConfig.wildApricot.signupUrl} target="_blank" rel="noopener noreferrer">ÚNETE A MIA</a>
-              </Button>
             </nav>
           </div>
 
