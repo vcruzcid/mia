@@ -1,6 +1,5 @@
 import { Mail } from 'lucide-react';
 import { Facebook, Twitter, Instagram, Linkedin } from '@/components/icons/BrandIcons';
-import { Link } from 'react-router-dom';
 import { FooterLink } from './FooterLink';
 import { siteConfig } from '@/config/site.config';
 
@@ -97,7 +96,7 @@ export function Footer() {
           </div>
 
           {/* Right Column - Membership CTA */}
-          <div className="lg:col-span-3 flex flex-col justify-between h-full">
+          <div className="lg:col-span-3 flex flex-col">
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">ÚNETE A MIA</h3>
               <p className="text-sm text-gray-300">
@@ -117,22 +116,14 @@ export function Footer() {
                   Socia Colaboradora
                 </li>
               </ul>
-            </div>
-            <div className="flex flex-col gap-3 pt-6">
               <a
                 href={siteConfig.wildApricot.signupUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded text-center text-sm transition-colors duration-200"
+                className="inline-block w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded text-center text-sm transition-colors duration-200 mt-2"
               >
-                ÚNETE A MIA
+                Hazte socia
               </a>
-              <Link
-                to="/membresia"
-                className="w-full border border-gray-600 hover:border-gray-400 text-gray-300 hover:text-white font-medium py-2 px-4 rounded text-center text-sm transition-colors duration-200"
-              >
-                Ver membresías
-              </Link>
             </div>
           </div>
         </div>
