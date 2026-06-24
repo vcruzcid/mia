@@ -11,8 +11,9 @@ function spaFallback(): import('vite').Plugin {
   return {
     name: 'spa-fallback',
     closeBundle() {
-      const dir = path.resolve(__dirname, 'dist')
-      fs.copyFileSync(path.join(dir, 'index.html'), path.join(dir, '404.html'))
+      const src = path.resolve(__dirname, 'dist', 'index.html')
+      if (!fs.existsSync(src)) return
+      fs.copyFileSync(src, path.resolve(__dirname, 'dist', '404.html'))
     },
   }
 }
