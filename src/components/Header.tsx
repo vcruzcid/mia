@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { HeaderMobileMenu } from '@/components/HeaderMobileMenu';
 import { PortalIcon } from '@/components/HeaderPortalIcon';
+import { siteConfig } from '@/config/site.config';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -17,17 +18,11 @@ export function Header() {
     { name: 'MIANIMA', href: '/mianima' },
     { name: 'Membresía', href: '/membresia' },
     { name: 'Contacto', href: '/contacto' },
-    { name: 'Portal', href: '/portal/login', id: 'portal' as const },
   ];
 
   const aboutMenu = [{ name: 'Fundadoras', href: '/fundadoras' }];
 
-  const isActive = (href: string) => {
-    if (href === '/portal/login') {
-      return location.pathname.startsWith('/portal');
-    }
-    return location.pathname === href;
-  };
+  const isActive = (href: string) => location.pathname === href;
 
   // Handle escape key and outside clicks
   useEffect(() => {
@@ -61,8 +56,6 @@ export function Header() {
     };
   }, [isMenuOpen]);
 
-  const portalItem = navigation.find((n) => 'id' in n && n.id === 'portal');
-
   return (
     <header className="bg-black border-b border-gray-800 sticky top-0 z-50 backdrop-blur-sm">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" role="navigation" aria-label="Navegación principal">
@@ -82,31 +75,36 @@ export function Header() {
           <div className="hidden min-[1100px]:flex min-w-0 flex-1 shrink justify-end overflow-visible">
             <div className="ml-10 flex flex-nowrap items-center gap-4 shrink-0">
               <div className="flex flex-nowrap items-center gap-4 shrink-0">
-                {navigation.filter((item) => !('id' in item && item.id === 'portal')).map((item) => (
+                {navigation.map((item) => (
                   item.name === 'Sobre Nosotras' ? (
                     <div key={item.name} className="relative group flex-shrink-0">
                       <Link
                         to={item.href}
                         className={`inline-block ${isActive(item.href) || aboutMenu.some((i) => isActive(i.href))
-                          ? 'text-white bg-gray-800 px-3 py-2 rounded-md text-sm font-medium border border-white transition-colors duration-200'
+                          ? 'text-white bg-gray-800 px-3 py-2 rounded-md text-sm font-medium border border-red-600 transition-colors duration-200'
                           : 'text-white hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200'
                         }`}
                         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                       >
                         <span className="whitespace-nowrap">{item.name}</span>
                       </Link>
-                      {/* Hover submenu */}
-                      <div className="absolute left-0 top-full mt-1 hidden group-hover:block bg-black border border-gray-800 rounded-md shadow-lg min-w-[180px] z-50">
-                        {aboutMenu.map((sub) => (
-                          <Link
-                            key={sub.href}
-                            to={sub.href}
-                            className="block px-3 py-2 text-sm text-white hover:bg-gray-900 hover:text-red-400 transition-colors duration-200 first:rounded-t-md last:rounded-b-md"
-                            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                          >
-                            {sub.name}
-                          </Link>
-                        ))}
+                      {/* Hover submenu. The outer wrapper is flush with the trigger
+                          (top-full, no margin) and uses transparent pt-1 padding as a
+                          hoverable bridge — a margin gap here would drop group-hover as
+                          the pointer crosses it, making the submenu unreachable. */}
+                      <div className="absolute left-0 top-full hidden group-hover:block group-focus-within:block pt-1 min-w-[180px] z-50">
+                        <div className="bg-black border border-gray-800 rounded-md shadow-lg overflow-hidden">
+                          {aboutMenu.map((sub) => (
+                            <Link
+                              key={sub.href}
+                              to={sub.href}
+                              className="block px-3 py-2 text-sm text-white hover:bg-gray-900 hover:text-red-400 transition-colors duration-200"
+                              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                            >
+                              {sub.name}
+                            </Link>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   ) : (
@@ -114,7 +112,7 @@ export function Header() {
                       key={item.name}
                       to={item.href}
                       className={`inline-block flex-shrink-0 ${isActive(item.href)
-                        ? 'text-white bg-gray-800 px-3 py-2 rounded-md text-sm font-medium border border-white transition-colors duration-200'
+                        ? 'text-white bg-gray-800 px-3 py-2 rounded-md text-sm font-medium border border-red-600 transition-colors duration-200'
                         : 'text-white hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200'
                       }`}
                       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
@@ -124,24 +122,20 @@ export function Header() {
                   )
                 ))}
                 <Button asChild className="shrink-0 bg-red-600 hover:bg-red-700 text-white whitespace-nowrap">
-                  <Link to="/registro">
+                  <Link to="/membresia" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
                     Únete a MIA
                   </Link>
                 </Button>
-                {portalItem ? (
-                  <Link
-                    to={portalItem.href}
-                    className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md border border-transparent ${isActive(portalItem.href)
-                      ? 'text-white bg-gray-800 border-white transition-colors duration-200'
-                      : 'text-white hover:text-red-400 transition-colors duration-200'
-                    }`}
-                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                    aria-label="Portal"
-                    title="Portal"
-                  >
-                    <PortalIcon className="size-5 shrink-0 text-white" />
-                  </Link>
-                ) : null}
+                <a
+                  href={siteConfig.wildApricot.loginUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md border border-transparent text-white hover:text-red-400 transition-colors duration-200"
+                  aria-label="Acceso socias"
+                  title="Acceso socias"
+                >
+                  <PortalIcon className="size-5 shrink-0 text-white" />
+                </a>
               </div>
             </div>
           </div>
@@ -176,7 +170,6 @@ export function Header() {
           <HeaderMobileMenu
             mobileMenuRef={mobileMenuRef}
             navigation={navigation}
-            portalItem={portalItem}
             aboutMenu={aboutMenu}
             isActive={isActive}
             onLinkClick={() => setIsMenuOpen(false)}

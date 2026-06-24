@@ -1,9 +1,9 @@
 import { ProfileImage } from '@/components/ProfileImage';
 import { SocialMediaIcons } from '@/components/SocialMediaIcons';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import type { Member } from '@/types/member';
+import { getAvailabilityStyle } from './availability';
 
 interface MemberModalProps {
   member: Member;
@@ -13,7 +13,9 @@ interface MemberModalProps {
 
 export function MemberModal({ member, isOpen, onClose }: MemberModalProps) {
   const availabilityStatus = member.availability_status || 'Disponible';
-  const isFounder = (member as Member & { is_founder?: boolean }).is_founder === true;
+  const availability = getAvailabilityStyle(availabilityStatus);
+  const isFounder = member.is_founder === true;
+  const location = [member.city, member.country].filter(Boolean).join(', ');
 
   const membershipLabel =
     member.membership_type === 'pleno_derecho'
@@ -45,9 +47,6 @@ export function MemberModal({ member, isOpen, onClose }: MemberModalProps) {
                 {member.main_profession && (
                   <span className="block font-medium">{member.main_profession}</span>
                 )}
-                {member.company && (
-                  <span className="block">{member.company}</span>
-                )}
                 <span className="block text-sm text-gray-400 mt-1">
                   {membershipLabel}
                   {member.created_at && ` • Socia desde ${new Date(member.created_at).getFullYear()}`}
@@ -59,28 +58,9 @@ export function MemberModal({ member, isOpen, onClose }: MemberModalProps) {
                     ⭐ Fundadora
                   </Badge>
                 )}
-                <Badge 
-                  variant={
-                    availabilityStatus === 'Disponible' ? 'default' : 
-                    availabilityStatus === 'Empleada' ? 'destructive' : 
-                    'secondary'
-                  }
-                >
-                  <span className="flex items-center space-x-1">
-                    {availabilityStatus === 'Disponible' && <span>🟢</span>}
-                    {availabilityStatus === 'Empleada' && <span>🔴</span>}
-                    {availabilityStatus === 'Freelance' && <span>🔵</span>}
-                    <span>{availabilityStatus}</span>
-                  </span>
+                <Badge variant="outline" className={availability.badgeClass} title={availability.title}>
+                  {availabilityStatus}
                 </Badge>
-                {member.accepts_job_offers && (
-                  <Badge variant="outline" className="border-green-500 text-green-400">
-                    <span className="flex items-center space-x-1">
-                      <span>💼</span>
-                      <span>Acepta ofertas laborales</span>
-                    </span>
-                  </Badge>
-                )}
               </div>
             </div>
           </div>
@@ -113,18 +93,6 @@ export function MemberModal({ member, isOpen, onClose }: MemberModalProps) {
                   <p className="text-gray-100">{member.other_professions.join(', ')}</p>
                 </div>
               )}
-              {member.professional_role && (
-                <div>
-                  <span className="text-gray-400">Rol profesional:</span>
-                  <p className="text-gray-100">{member.professional_role}</p>
-                </div>
-              )}
-              {member.years_experience && (
-                <div>
-                  <span className="text-gray-400">Años de experiencia:</span>
-                  <p className="text-gray-100">{member.years_experience} años</p>
-                </div>
-              )}
             </div>
           </div>
 
@@ -132,45 +100,17 @@ export function MemberModal({ member, isOpen, onClose }: MemberModalProps) {
           <div>
             <h4 className="text-sm font-medium text-gray-200 mb-2">Ubicación</h4>
             <div className="text-sm text-gray-300 space-y-1">
-              {member.province && (
-                <p className="flex items-center">
-                  <span className="text-gray-500 mr-2">🌍</span>
-                  {member.province}
-                  {member.autonomous_community && `, ${member.autonomous_community}`}
-                </p>
-              )}
               <p className="flex items-center">
-                <span className="text-gray-500 mr-2">🇪🇸</span>
-                {member.country || 'España'}
+                <span className="mr-2" aria-hidden="true">🌍</span>
+                {location || member.country || 'España'}
               </p>
             </div>
           </div>
-
-          {/* CV Download */}
-          {member.cv_document_url && (
-            <div>
-              <Button
-                onClick={() => window.open(member.cv_document_url!, '_blank')}
-                className="w-full sm:w-auto bg-primary-600 hover:bg-primary-700 text-white"
-              >
-                <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Descargar CV
-              </Button>
-            </div>
-          )}
 
           {/* Contact & Social Media */}
           <div>
             <h4 className="text-sm font-medium text-gray-200 mb-3">Contacto y Redes Sociales</h4>
             <div className="space-y-3">
-              {member.phone && (
-                <div className="flex items-center text-sm">
-                  <span className="text-gray-500 mr-2">📞</span>
-                  <span className="text-gray-300">{member.phone}</span>
-                </div>
-              )}
               <div>
                 <SocialMediaIcons
                   socialMedia={member.social_media || {}}

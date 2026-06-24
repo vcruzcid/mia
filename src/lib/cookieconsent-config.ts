@@ -74,14 +74,8 @@ export const cookieConsentConfig: CookieConsentConfig = {
             {
               title: 'Cookies necesarias',
               description:
-                'Imprescindibles para el funcionamiento de la web. Incluyen la protección anti-bots de Cloudflare Turnstile y la cookie de sesión del portal de socias (<code>mia_session</code>). No se pueden desactivar.',
+                'Imprescindibles para el funcionamiento de la web. Incluyen la cookie que guarda tus preferencias de consentimiento. No se pueden desactivar.',
               linkedCategory: 'necessary',
-              cookieTable: {
-                headers: { name: 'Cookie', domain: 'Dominio', desc: 'Descripción' },
-                body: [
-                  { name: 'mia_session', domain: 'animacionesmia.com', desc: 'Sesión autenticada del portal de socias (7 días, HTTP-only)' },
-                ],
-              },
             },
             {
               title: 'Cookies de análisis',

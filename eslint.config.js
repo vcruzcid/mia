@@ -12,7 +12,7 @@ export default tseslint.config([
     extends: [
       js.configs.recommended,
       tseslint.configs.recommended,
-      reactHooks.configs['recommended-latest'],
+      reactHooks.configs.flat['recommended-latest'],
       reactRefresh.configs.vite,
     ],
     languageOptions: {
@@ -26,6 +26,14 @@ export default tseslint.config([
         caughtErrorsIgnorePattern: '^_',
         varsIgnorePattern: '^_',
       }],
+      // eslint-plugin-react-hooks v7 adds stricter rules (notably react-hooks/refs)
+      // that flag ~58 pre-existing spots, many in code scheduled for removal. Surface
+      // them as warnings for now so the upgrade lands; address them incrementally.
+      'react-hooks/refs': 'warn',
+      'react-hooks/set-state-in-effect': 'warn',
+      'react-hooks/immutability': 'warn',
+      'react-hooks/incompatible-library': 'warn',
+      'react-hooks/exhaustive-deps': 'warn',
     },
   },
   {

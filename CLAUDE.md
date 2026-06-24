@@ -5,8 +5,9 @@ This file provides guidance to Claude Code when working with the MIA repository.
 ## Project Overview
 
 **MIA (Mujeres en Industrias de Animación)** is a professional association web app for women
-in the animation industry in Spain. It handles member registration, membership management,
-a public member gallery, and a member portal.
+in the animation industry in Spain. It is a marketing site plus a public member gallery
+(read from WildApricot). Signup, payments, member login and emails are delegated to the
+WildApricot-hosted site (`web.animacionesmia.com`).
 
 **All user-facing text MUST be in Spanish.** Code, comments, variable names, and commits stay in English.
 
@@ -19,20 +20,18 @@ a public member gallery, and a member portal.
 - **Routing:** React Router 7
 - **Forms:** react-hook-form + Zod (schemas in `src/schemas/`)
 - **Data fetching:** TanStack React Query v5 — all API calls, never raw useEffect+fetch
-- **State:** Zustand (`src/store/`) + React Context for toasts/loading
+- **State:** React Context for toasts/loading + local component state. (No Zustand — see "What We Are NOT Using".)
 - **Hosting:** Cloudflare Pages
 - **Functions:** Cloudflare Workers via Pages Functions (`functions/`)
-- **Database:** Cloudflare D1 (SQLite) — member gallery cache
-- **Storage:** Cloudflare R2 — member profile photos
-- **Token cache:** Cloudflare KV — WildApricot OAuth token
-- **Bot protection:** Cloudflare Turnstile — all public forms
-- **Membership CRM:** WildApricot REST API v2.2
-- **Payments:** Stripe Checkout Sessions (current) → WildApricot native gateway (planned)
-- **Membership emails:** WildApricot native (welcome, renewal, expiry)
+- **Caching:** Cloudflare KV — WildApricot OAuth token (`wa_token`) + gallery JSON (`gallery_members`, 24h TTL)
+- **Member photos:** WildApricot profile-picture URLs (gallery) and static `/public/images/*` (directiva, fundadoras).
+- **Membership CRM:** WildApricot REST API v2.2 (read-only, for the gallery)
+- **Signup / payments / member login / emails:** all handled on the **WildApricot-hosted site** (`web.animacionesmia.com`). The React app links out to it; it does not run these flows itself.
 - **Node.js:** 24.x (Active LTS) — required, see `.nvmrc`
 
 ## What We Are NOT Using
-- ~~Supabase~~ — replaced by Cloudflare D1. Supabase MCP is kept as **read-only** for migrating existing photo URLs to R2. Do not write to Supabase or add new Supabase dependencies.
+- ~~Supabase~~ — fully removed (no dependency, no MCP writes). Photo URLs already migrated to static `/public/images/*`.
+- ~~Zustand~~ — installed previously but no stores were ever created; removed. Use React Context + React Query.
 - ~~Express/Node server~~ — Cloudflare Workers only
 - ~~reCAPTCHA~~ — Cloudflare Turnstile only
 - ~~Discount codes in app code~~ — managed in WildApricot admin dashboard
@@ -65,31 +64,24 @@ src/
 │   ├── Footer.tsx
 │   └── Layout.tsx
 ├── pages/
-│   ├── socias/          # SociasPage sub-components (gallery — primary missing feature)
+│   ├── socias/          # SociasPage sub-components (member gallery)
 │   └── *.tsx
 ├── contexts/            # ToastContext, LoadingContext
-├── hooks/               # useToast, useLoading, custom hooks
+├── hooks/               # useToast, useLoading, useMemberFilters, etc.
 ├── types/               # TypeScript interfaces — extend, don't duplicate
-│   ├── index.ts         # Member, FilterState, ANIMATION_SPECIALIZATIONS
-│   ├── member.ts        # BoardMember, Fundadora, MemberStats
-│   └── api.ts           # API request/response types
+│   ├── index.ts         # MembershipType, ANIMATION_SPECIALIZATIONS
+│   ├── member.ts        # Member (gallery), BoardMember, Fundadora, MemberStats
+│   └── api.ts           # ApiResponse
 ├── config/
-│   └── site.config.ts   # Env-aware config: Stripe links, Turnstile key, analytics
-├── schemas/
-│   └── registrationSchema.ts  # Zod schemas (remove VALID_DISCOUNT_CODES — see TODOs)
-├── store/               # Zustand stores
+│   └── site.config.ts   # Env-aware config: WildApricot URLs, analytics
 ├── data/                # Static data: directiva.ts, fundadoras.ts
 └── utils/
 
-functions/               # Cloudflare Pages Functions
-├── _lib/                # Shared utilities (token helper, turnstile helper)
+functions/               # Cloudflare Pages Functions (gallery only)
+├── _lib/                # Shared utils: logger, wa-token, wa-field-ids, cors
 └── api/
-    ├── contact.ts       # POST — Turnstile verify → email notification (working)
-    ├── members.ts       # GET  — gallery data from D1 (to build)
-    ├── member-sync.ts   # POST — WA webhook → D1 upsert (to build)
-    └── upload-photo.ts  # POST — image → R2 (to build)
+    └── members.ts       # GET — gallery: WildApricot async fetch, cached in KV 24h
 
-migrations/              # D1 SQL migrations
 .claude/
 └── agents/              # Sub-agent definitions
 ```
@@ -98,51 +90,24 @@ migrations/              # D1 SQL migrations
 
 ## Cloudflare Bindings (wrangler.toml)
 
-Current state has only Turnstile and Stripe keys. Missing bindings to add:
-```toml
-[[d1_databases]]
-binding = "DB"
-database_name = "mia-members"
-database_id = "FILL_AFTER_wrangler_d1_create"
-
-[[r2_buckets]]
-binding = "PHOTOS"
-bucket_name = "mia-photos"
-
-[[kv_namespaces]]
-binding = "KV"
-id = "FILL_AFTER_wrangler_kv_create"
-```
+Configured (production + `env.preview`):
+- **KV** (`binding = "KV"`) — WA OAuth token + gallery cache
+- WildApricot account/level IDs as `[vars]`
 
 Secrets managed via `wrangler secret put` (never in wrangler.toml):
 ```
-WILDAPRICOT_API_KEY
-TURNSTILE_SECRET_KEY
+WILDAPRICOT_API_KEY   (read-only WildApricot access for the gallery)
 ```
 
 ---
 
-## D1 Schema
-```sql
--- migrations/0001_members.sql
-CREATE TABLE IF NOT EXISTS members (
-  id              TEXT PRIMARY KEY,    -- WildApricot Contact.Id
-  nombre          TEXT NOT NULL,
-  email           TEXT,
-  foto_url        TEXT,
-  bio             TEXT,
-  categorias      TEXT,                -- JSON array
-  pais            TEXT,
-  ciudad          TEXT,
-  redes           TEXT,                -- JSON object
-  nivel           TEXT,                -- WA membership level
-  status          TEXT DEFAULT 'Active',
-  mostrar_galeria INTEGER DEFAULT 1,
-  updated_at      TEXT
-);
-CREATE INDEX IF NOT EXISTS idx_status  ON members(status);
-CREATE INDEX IF NOT EXISTS idx_mostrar ON members(mostrar_galeria);
-```
+## Data Stores
+
+`GET /api/members` fetches active contacts from WildApricot via the **async** Contacts API
+(filter `'Membership status' eq 'Active'`, paged with `$skip` because async results cap at 100),
+transforms them, and caches the JSON in KV under `gallery_members` for 24h (`CACHE_TTL = 86400`).
+The frontend mirrors this with React Query `staleTime: 24h` and renders with infinite scroll.
+There is no app database — WildApricot is the source of truth.
 
 ---
 
@@ -157,16 +122,16 @@ CREATE INDEX IF NOT EXISTS idx_mostrar ON members(mostrar_galeria);
 
 ---
 
-## Registration Flow (Current — Working, Do Not Break)
+## Signup / login / contact (delegated to WildApricot)
 
-1. User selects membership on `/registro`
-2. Accepts TOS + GDPR
-3. POSTs to `/api/create-checkout-session` with `{ membershipType }`
-4. Worker returns `{ url }` — frontend redirects to Stripe-hosted checkout
-5. Stripe handles payment and redirects to `/registro/exito`
-6. **No post-payment WA sync yet** — to be added
+The React app does **not** run signup, payment, auth, or email flows. It links out to the
+WildApricot-hosted site (URLs in `src/config/site.config.ts` → `wildApricot`):
+- **Signup / "Únete a MIA"** → `https://web.animacionesmia.com/membresia`
+- **Member login / "Acceso socias"** → `https://web.animacionesmia.com/Sys/Login`
+- **Contact form** → `https://web.animacionesmia.com/contacto`
 
-**Discount codes:** Managed in WildApricot admin dashboard — NOT in app code. Do not add discount code UI or logic to RegistrationPage.
+All such links are external (`<a target="_blank" rel="noopener noreferrer">`), not React Router
+`<Link>`. WildApricot handles payments, the member portal, and welcome/renewal emails natively.
 
 ---
 
@@ -210,11 +175,10 @@ Before using any library, SDK, API, or tool:
 5. **Always use KISS (Keep It Simple, Stupid)** principle when implementing any feature. Do not over-engineer or add unnecessary complexity.
 6. **Always use YAGNI (You Ain't Gonna Need This)** principle when implementing any feature. Do not add features that are not required for the current implementation.
 7. **Always use DRY (Don't Repeat Yourself)** principle when implementing any feature. Do not repeat code or logic.
-8. **Always use TDD (Test-Driven Development)** principle when implementing any feature. Do not add features that are not required for the current implementation.
-9. **Always use SOLID (Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion)** principle when implementing any feature. Do not over-engineer or add unnecessary complexity.
-10. **Always use Clean Architecture (Separation of Concerns, Dependency Rule, Testability)** principle when implementing any feature. Do not over-engineer or add unnecessary complexity.
-11. **Always use Clean Architecture (Separation of Concerns, Dependency Rule, Testability)** principle when implementing any feature. Do not over-engineer or add unnecessary complexity.
-12. **Open Source** Open source is your friend. Don't try to build everything from scratch, find stable and trusted libs, 
+8. **Test the critical paths.** Payments, auth, Zod schemas, and member-code allocation must have tests; any new money- or auth-related code requires tests before merge. Prefer test-first where practical. (We do not require full TDD coverage on presentational UI.)
+9. **Always use SOLID** principles when implementing any feature. Do not over-engineer or add unnecessary complexity.
+10. **Always use Clean Architecture** (Separation of Concerns, Dependency Rule, Testability) when implementing any feature. Do not over-engineer or add unnecessary complexity.
+11. **Open Source is your friend.** Don't build everything from scratch — find stable, trusted libraries.
 
 ---
 
@@ -271,10 +235,9 @@ See `.claude/agents/git-workflow.md` for full branching, commit, PR, and merge r
 
 | Agent | Use for |
 |-------|---------|
-| `wildapricot-api` | WA API calls, token management, D1 sync, webhooks |
-| `member-gallery` | SociasPage, /api/members, D1 queries, gallery UI |
-| `cloudflare-infra` | wrangler.toml, D1 migrations, R2, KV, deployments |
-| `registration-flow` | RegistrationPage, Zod schemas, payment redirect |
+| `wildapricot-api` | WA API calls, token management (read-only gallery fetch) |
+| `member-gallery` | SociasPage, /api/members, KV gallery cache, gallery UI |
+| `cloudflare-infra` | wrangler.toml, KV, deployments |
 | `frontend` | React components, Tailwind styling, React Query, animations, PWA |
 | `git-workflow` | Branching strategy, commits, PRs, merges |
 
@@ -282,8 +245,10 @@ See `.claude/agents/git-workflow.md` for full branching, commit, PR, and merge r
 
 ## Known Issues / TODOs
 
-- `SociasPage.tsx` — "Próximamente" placeholder, needs full gallery implementation
-- `directiva.ts` — photo URLs point to Supabase Storage, migrate to R2 before go-live
-- `registrationSchema.ts` — remove `VALID_DISCOUNT_CODES` and `calculateDiscountedPrice`
-- Member stats in `HomePage` — manually updated (see TODO comment)
-- D1, R2, KV bindings not yet in `wrangler.toml`
+- **Member photos** — the gallery reads WildApricot profile pictures (`ProfileImage.Url`); pending the Supabase→WildApricot photo import. Verify those URLs are publicly loadable by an `<img>` once added.
+- Member stats in `HomePage` (`MEMBER_STATS`) — hardcoded. Needs a product decision on what "active/total members" means (WA total vs gallery-visible count) before wiring to a live source.
+- `HomePage` "85% growth" / "50 events" counters — static marketing numbers, no source
+- Token/color system — brand red is defined as `--color-primary` but components hardcode `bg-red-600` (a different red), and a third value lives in the shadcn HSL tokens. Consolidate to a single Tailwind `@theme` source of truth.
+- `--color-text-secondary` (#747474) on white is ~4.48:1 — below WCAG AA (4.5:1); darken slightly.
+
+**Resolved (kept for history):** Supabase removed · gallery built (KV-cached) with infinite scroll · email/auth/portal/Stripe/D1/Turnstile/Resend removed — signup, payments, login and emails delegated to the WildApricot-hosted site.

@@ -1,100 +1,11 @@
-import { Link, useLocation } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { contactFormSchema, type ContactFormData } from '@/utils/validation';
-import { useToastContext } from '@/contexts/ToastContext';
-import { useAsyncLoading } from '@/contexts/LoadingContext';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { SocialMediaIcons } from '@/components/SocialMediaIcons';
 import { Accordion } from '@/components/ui/accordion';
-import { useEffect, useRef } from 'react';
-import { useTurnstile } from '@/hooks/useTurnstile';
+import { siteConfig } from '@/config/site.config';
 
 export function ContactPage() {
-  const { toast } = useToastContext();
-  const { withLoading } = useAsyncLoading();
-  const location = useLocation();
-  const subjectFromState = (location.state as { subject?: string })?.subject;
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-    reset,
-    setValue,
-  } = useForm<ContactFormData>({
-    resolver: zodResolver(contactFormSchema),
-  });
-
-  const pendingDataRef = useRef<ContactFormData | null>(null);
-  const { containerRef, token: turnstileToken, execute: executeTurnstile, resetWidget: resetTurnstile } = useTurnstile('execute');
-
-  useEffect(() => {
-    if (subjectFromState) {
-      setValue('subject', subjectFromState);
-    }
-  }, [subjectFromState, setValue]);
-
-  // When the token arrives after execute(), submit any pending form data
-  useEffect(() => {
-    if (turnstileToken && pendingDataRef.current) {
-      void submitToApi(pendingDataRef.current, turnstileToken);
-      pendingDataRef.current = null;
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [turnstileToken]);
-
-  const submitToApi = async (data: ContactFormData, token: string) => {
-    await withLoading(async () => {
-      try {
-        const response = await fetch('/api/contact', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: data.name,
-            email: data.email,
-            subject: data.subject,
-            message: data.message,
-            turnstileToken: token,
-          }),
-        });
-
-        const result = await response.json();
-
-        if (!response.ok || !result.success) {
-          throw new Error(result.error || 'Error al enviar el mensaje');
-        }
-
-        toast({
-          title: 'Mensaje enviado',
-          description: 'Te contactaremos pronto.',
-          variant: 'success'
-        });
-        reset();
-        resetTurnstile();
-      } catch (error) {
-        toast({
-          title: 'Error al enviar',
-          description: error instanceof Error ? error.message : 'Hubo un problema. Inténtalo de nuevo.',
-          variant: 'destructive'
-        });
-      }
-    }, 'Enviando mensaje...');
-  };
-
-  const onSubmit = async (data: ContactFormData) => {
-    if (!turnstileToken) {
-      // Trigger challenge — submitToApi will be called from the token useEffect
-      pendingDataRef.current = data;
-      executeTurnstile();
-      return;
-    }
-    await submitToApi(data, turnstileToken);
-  };
-
   return (
     <div style={{ backgroundColor: 'var(--color-bg-primary)' }} className="min-h-screen py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -169,96 +80,25 @@ export function ContactPage() {
             </Card>
           </div>
 
-          {/* Contact Form */}
+          {/* Contact CTA — the form lives on the WildApricot site */}
           <div className="lg:col-span-2">
-            <Card>
-              <CardContent className="p-8">
-                <h2 className="text-2xl font-semibold mb-6" style={{ color: 'var(--color-text-primary)' }}>
+            <Card className="h-full">
+              <CardContent className="p-8 flex flex-col items-center justify-center text-center h-full space-y-6">
+                <h2 className="text-2xl font-semibold" style={{ color: 'var(--color-text-primary)' }}>
                   Envíanos un mensaje
                 </h2>
-
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                  <div>
-                    <Label htmlFor="contact-name" className="block text-sm font-medium text-gray-700">
-                      Nombre completo *
-                    </Label>
-                    <Input
-                      id="contact-name"
-                      type="text"
-                      {...register('name')}
-                      className="mt-1"
-                      placeholder="Tu nombre completo"
-                    />
-                    {errors.name && (
-                      <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <Label htmlFor="contact-email" className="block text-sm font-medium text-gray-700">
-                      Email *
-                    </Label>
-                    <Input
-                      id="contact-email"
-                      type="email"
-                      {...register('email')}
-                      className="mt-1"
-                      placeholder="tu@email.com"
-                    />
-                    {errors.email && (
-                      <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <Label htmlFor="contact-subject" className="block text-sm font-medium text-gray-700">
-                      Asunto *
-                    </Label>
-                    <Input
-                      id="contact-subject"
-                      type="text"
-                      {...register('subject')}
-                      className="mt-1"
-                      placeholder="¿En qué podemos ayudarte?"
-                    />
-                    {errors.subject && (
-                      <p className="mt-1 text-sm text-red-600">{errors.subject.message}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <Label htmlFor="contact-message" className="block text-sm font-medium text-gray-700">
-                      Mensaje *
-                    </Label>
-                    <textarea
-                      id="contact-message"
-                      rows={6}
-                      {...register('message')}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-                      placeholder="Cuéntanos más detalles sobre tu consulta..."
-                    />
-                    {errors.message && (
-                      <p className="mt-1 text-sm text-red-600">{errors.message.message}</p>
-                    )}
-                  </div>
-
-                  <div className="pt-4">
-                    {/* Turnstile widget — challenge triggered on submit */}
-                    <div ref={containerRef} />
-
-                    <Button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-                      style={{
-                        backgroundColor: 'var(--color-btn-primary-bg)',
-                        color: 'var(--color-btn-primary-text)'
-                      }}
-                    >
-                      {isSubmitting ? 'Enviando...' : 'Enviar mensaje'}
-                    </Button>
-                  </div>
-                </form>
+                <p className="max-w-md" style={{ color: 'var(--color-text-secondary)' }}>
+                  Rellena nuestro formulario de contacto y te responderemos lo antes posible. También
+                  puedes escribirnos directamente a{' '}
+                  <a href="mailto:hola@animacionesmia.com" className="text-red-600 hover:text-red-700 underline font-medium">
+                    hola@animacionesmia.com
+                  </a>.
+                </p>
+                <Button asChild size="lg">
+                  <a href={siteConfig.wildApricot.contactUrl} target="_blank" rel="noopener noreferrer">
+                    Abrir formulario de contacto
+                  </a>
+                </Button>
               </CardContent>
             </Card>
           </div>
@@ -283,7 +123,7 @@ export function ContactPage() {
                     content: (
                       <>
                         Solo tienes que rellenar el formulario de inscripción disponible en nuestra web y seguir los pasos indicados. Una vez validada la solicitud, recibirás un correo de bienvenida con toda la información.{' '}
-                        <Link to="/registro" className="text-red-600 hover:text-red-700 underline font-medium">
+                        <Link to="/membresia" className="text-red-600 hover:text-red-700 underline font-medium">
                           Únete a MIA
                         </Link>
                       </>

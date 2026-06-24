@@ -1,58 +1,29 @@
 // Standalone type definitions for members and board positions
 // No Supabase dependencies
 
+// Gallery member — mirrors the /api/members response shape (WildApricot → JSON).
+// Keep this in sync with transformContact() in functions/api/members.ts.
 export interface Member {
   id: string;
-  email: string;
   first_name: string;
   last_name: string;
   display_name?: string;
-  member_number?: string;
-  phone?: string;
-  address: string;
-  city: string;
-  postal_code?: string;
-  province?: string;
-  autonomous_community?: string;
-  country: string;
+  profile_image_url?: string;
+  biography?: string;
   main_profession?: string;
   other_professions?: string[];
-  professional_role?: string;
-  company?: string;
-  years_experience?: number;
-  biography?: string;
-  employment_status?: string;
   availability_status?: string;
-  education_level?: string;
-  studies_completed?: string;
-  educational_institution?: string;
-  is_student?: boolean;
+  city?: string;
+  country?: string;
   membership_type: string;
-  is_board_member?: boolean;
-  board_position?: BoardPosition;
-  board_term_start?: string;
-  board_term_end?: string;
-  board_personal_commitment?: string;
-  accepts_newsletter?: boolean;
-  accepts_job_offers?: boolean;
-  privacy_level?: 'public' | 'members-only' | 'private';
-  gdpr_accepted?: boolean;
+  created_at?: string;
   social_media?: {
     linkedin?: string;
     instagram?: string;
     twitter?: string;
-    facebook?: string;
     website?: string;
-    youtube?: string;
-    vimeo?: string;
-    artstation?: string;
   };
-  profile_image_url?: string;
-  cv_document_url?: string;
-  birth_date?: string;
-  other_associations?: string[];
-  created_at?: string;
-  updated_at?: string;
+  is_founder?: boolean;
 }
 
 // Board position types - all positions for women-only organization

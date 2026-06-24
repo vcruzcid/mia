@@ -69,6 +69,11 @@ DEPLOYMENT.md
 # Application Data & Backups
 members_data/
 wildapricot-migration/
+# Member data exports (personal data — NEVER commit)
+*.csv
+*.xlsx
+*.xls
+MIA_*.*
 db-backups/
 
 # Temporary files
