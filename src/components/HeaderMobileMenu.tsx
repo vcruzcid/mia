@@ -32,7 +32,7 @@ export function HeaderMobileMenu({ mobileMenuRef, navigation, aboutMenu, isActiv
             to={item.href}
             className={`block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 whitespace-nowrap ${
               isActive(item.href)
-                ? 'text-white bg-gray-800 border border-white'
+                ? 'text-white bg-gray-800 border border-red-600'
                 : 'text-white hover:bg-gray-900 hover:text-red-400'
             }`}
             onClick={handleClick}
@@ -70,7 +70,7 @@ export function HeaderMobileMenu({ mobileMenuRef, navigation, aboutMenu, isActiv
               to={item.href}
               className={`block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 whitespace-nowrap ${
                 isActive(item.href)
-                  ? 'text-white bg-gray-800 border border-white'
+                  ? 'text-white bg-gray-800 border border-red-600'
                   : 'text-white hover:bg-gray-900 hover:text-red-400'
               }`}
               onClick={handleClick}
