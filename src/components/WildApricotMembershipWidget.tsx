@@ -29,15 +29,17 @@ export function WildApricotMembershipWidget() {
 
   return (
     <div className="mx-auto w-full max-w-3xl">
-      <div className="overflow-hidden rounded-lg bg-white shadow-lg">
-        <iframe
-          title="Iniciar membresía en MIA"
-          src={WIDGET_SRC}
-          className="block w-full border-0"
-          style={{ height: '900px' }}
-          onLoad={() => window.tryToEnableWACookies?.(WA_ORIGIN)}
-        />
-      </div>
+      {/* No card/background: the WildApricot page is dark, so a transparent
+          wrapper lets it blend into the dark membership page (and a transparent
+          WA background will show the page through). */}
+      <iframe
+        title="Iniciar membresía en MIA"
+        src={WIDGET_SRC}
+        className="block w-full border-0 bg-transparent"
+        style={{ height: '900px' }}
+        allow="payment"
+        onLoad={() => window.tryToEnableWACookies?.(WA_ORIGIN)}
+      />
       <p className="mt-2 text-center text-[10px] text-gray-500">
         Gestionado por Wild Apricot{' '}
         <a
