@@ -1,7 +1,7 @@
 import { Mail } from 'lucide-react';
 import { Facebook, Twitter, Instagram, Linkedin } from '@/components/icons/BrandIcons';
+import { Link } from 'react-router-dom';
 import { FooterLink } from './FooterLink';
-import { siteConfig } from '@/config/site.config';
 
 export function Footer() {
   return (
@@ -116,14 +116,12 @@ export function Footer() {
                   Socia Colaboradora
                 </li>
               </ul>
-              <a
-                href={siteConfig.wildApricot.signupUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                to="/membresia"
                 className="inline-block w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded text-center text-sm transition-colors duration-200 mt-2"
               >
                 Hazte socia
-              </a>
+              </Link>
             </div>
           </div>
         </div>

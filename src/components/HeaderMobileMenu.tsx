@@ -43,9 +43,9 @@ export function HeaderMobileMenu({ mobileMenuRef, navigation, aboutMenu, isActiv
 
         <div className="pt-4 pb-2">
           <Button asChild className="w-full bg-red-600 hover:bg-red-700 text-white">
-            <a href={siteConfig.wildApricot.signupUrl} target="_blank" rel="noopener noreferrer" onClick={handleClick}>
+            <Link to="/membresia" onClick={handleClick}>
               Únete a MIA
-            </a>
+            </Link>
           </Button>
         </div>
 

@@ -123,9 +123,9 @@ export function ContactPage() {
                     content: (
                       <>
                         Solo tienes que rellenar el formulario de inscripción disponible en nuestra web y seguir los pasos indicados. Una vez validada la solicitud, recibirás un correo de bienvenida con toda la información.{' '}
-                        <a href={siteConfig.wildApricot.signupUrl} target="_blank" rel="noopener noreferrer" className="text-red-600 hover:text-red-700 underline font-medium">
+                        <Link to="/membresia" className="text-red-600 hover:text-red-700 underline font-medium">
                           Únete a MIA
-                        </a>
+                        </Link>
                       </>
                     )
                   },
