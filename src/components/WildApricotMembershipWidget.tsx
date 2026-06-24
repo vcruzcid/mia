@@ -29,14 +29,14 @@ export function WildApricotMembershipWidget() {
 
   return (
     <div className="mx-auto w-full max-w-3xl">
-      {/* No card/background: the WildApricot page is dark, so a transparent
-          wrapper lets it blend into the dark membership page (and a transparent
-          WA background will show the page through). */}
+      {/* Match the page background (bg-gray-900 = #111827) so the iframe area
+          blends with the membership page. Pair this with WA-side CSS that sets
+          the widget's own background to the same colour. */}
       <iframe
         title="Iniciar membresía en MIA"
         src={WIDGET_SRC}
-        className="block w-full border-0 bg-transparent"
-        style={{ height: '720px' }}
+        className="block w-full border-0"
+        style={{ height: '720px', backgroundColor: '#111827' }}
         allow="payment"
         onLoad={() => window.tryToEnableWACookies?.(WA_ORIGIN)}
       />
