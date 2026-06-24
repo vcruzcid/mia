@@ -10,7 +10,7 @@ export const siteConfig = {
   // contact — the app links out to these instead of running its own flows.
   wildApricot: {
     signupUrl: 'https://web.animacionesmia.com/iniciar-membresia',
-    loginUrl: 'https://web.animacionesmia.com/portal-login',
+    loginUrl: 'https://web.animacionesmia.com/Sys/Login',
     contactUrl: 'https://web.animacionesmia.com/contacto',
   },
 } as const;
