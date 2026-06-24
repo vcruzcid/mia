@@ -1,11 +1,7 @@
-import { 
-  Linkedin, 
-  Twitter, 
-  Instagram, 
-  Globe, 
-  ExternalLink 
-} from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+import { Globe, ExternalLink } from 'lucide-react';
+import { Linkedin, Twitter, Instagram } from '@/components/icons/BrandIcons';
+
+type IconComponent = React.ComponentType<{ className?: string }>;
 
 interface SocialMediaIconsProps {
   socialMedia: {
@@ -58,7 +54,7 @@ export function SocialMediaIcons({
       label: 'Sitio Web',
       color: 'text-gray-600 hover:text-gray-800'
     }
-  ].filter((link): link is { url: string; icon: LucideIcon; label: string; color: string } => !!link.url && typeof link.url === 'string');
+  ].filter((link): link is { url: string; icon: IconComponent; label: string; color: string } => !!link.url && typeof link.url === 'string');
 
   if (socialLinks.length === 0) {
     return null;

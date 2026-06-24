@@ -1,4 +1,5 @@
-import { Facebook, Twitter, Instagram, Linkedin, Mail } from 'lucide-react';
+import { Mail } from 'lucide-react';
+import { Facebook, Twitter, Instagram, Linkedin } from '@/components/icons/BrandIcons';
 import { Link } from 'react-router-dom';
 import { FooterLink } from './FooterLink';
 import { Button } from '@/components/ui/button';
