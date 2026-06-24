@@ -1,10 +1,8 @@
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Accordion } from '@/components/ui/accordion';
-import { BackgroundImage } from '@/components/ui/background-image';
 import { membershipTypes } from '@/utils/memberships';
-import { siteConfig } from '@/config/site.config';
+import { WildApricotMembershipWidget } from '@/components/WildApricotMembershipWidget';
 
 export function MembershipPage() {
   const [selectedMembership, setSelectedMembership] = useState<string | null>(null);
@@ -102,18 +100,6 @@ export function MembershipPage() {
                   </p>
                 </div>
 
-                {/* Price */}
-                <div className="min-h-[5rem] flex items-center justify-center mb-8">
-                  <div className="flex items-baseline">
-                    <span className="text-5xl font-bold text-red-600">
-                      €{membership.price}
-                    </span>
-                    <span className="text-lg text-red-600 ml-2">
-                      /año
-                    </span>
-                  </div>
-                </div>
-
                 {/* Benefits */}
                 <div className="flex-grow mb-8">
                   <ul className="text-left space-y-3 min-h-[200px]">
@@ -128,14 +114,6 @@ export function MembershipPage() {
                 </ul>
                 </div>
 
-                {/* CTA Button */}
-                <div className="mt-auto">
-                  <Button asChild className="w-full" variant="default">
-                    <a href={siteConfig.wildApricot.signupUrl} target="_blank" rel="noopener noreferrer">
-                      Seleccionar Subscripción
-                    </a>
-                  </Button>
-                </div>
                 </div>
               </CardContent>
             </Card>
@@ -143,6 +121,15 @@ export function MembershipPage() {
         </div>
 
 
+
+        {/* Join now — WildApricot signup widget */}
+        <div id="iniciar-membresia" className="scroll-mt-20 mb-12">
+          <p className="text-center text-xl text-gray-300 max-w-2xl mx-auto mb-6">
+            Completa tu alta aquí mismo. El proceso es seguro y lo gestiona nuestra
+            plataforma de membresía.
+          </p>
+          <WildApricotMembershipWidget />
+        </div>
 
         {/* FAQ Section */}
         <div className="text-center mb-12">
@@ -178,32 +165,8 @@ export function MembershipPage() {
           </Card>
         </div>
 
-        
-      </div>
 
-      {/* Final CTA */}
-      <BackgroundImage 
-        imageUrl="/images/membership-cta.webp"
-        className="py-16 w-full"
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-red-600 mb-4">
-            ¿Lista para unirte a MIA?
-          </h2>
-          <p className="text-lg text-white mb-8 max-w-2xl mx-auto">
-            Forma parte de la comunidad de mujeres profesionales en animación 
-            más grande de España. ¡Tu carrera te lo agradecerá!
-          </p>
-          <Button asChild size="lg" className="inline-flex items-center">
-            <a href={siteConfig.wildApricot.signupUrl} target="_blank" rel="noopener noreferrer">
-              Comenzar Registro
-              <svg className="ml-2 -mr-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-              </svg>
-            </a>
-          </Button>
-        </div>
-      </BackgroundImage>
+      </div>
     </div>
   );
 }
