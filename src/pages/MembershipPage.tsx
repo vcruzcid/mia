@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Accordion } from '@/components/ui/accordion';
 import { BackgroundImage } from '@/components/ui/background-image';
 import { membershipTypes } from '@/utils/memberships';
+import { siteConfig } from '@/config/site.config';
 
 export function MembershipPage() {
   const [selectedMembership, setSelectedMembership] = useState<string | null>(null);
@@ -131,12 +131,9 @@ export function MembershipPage() {
                 {/* CTA Button */}
                 <div className="mt-auto">
                   <Button asChild className="w-full" variant="default">
-                    <Link
-                      to="/registro"
-                      state={{ selectedMembership: membership.id }}
-                    >
+                    <a href={siteConfig.wildApricot.signupUrl} target="_blank" rel="noopener noreferrer">
                       Seleccionar Subscripción
-                    </Link>
+                    </a>
                   </Button>
                 </div>
                 </div>
@@ -198,12 +195,12 @@ export function MembershipPage() {
             más grande de España. ¡Tu carrera te lo agradecerá!
           </p>
           <Button asChild size="lg" className="inline-flex items-center">
-            <Link to="/registro">
+            <a href={siteConfig.wildApricot.signupUrl} target="_blank" rel="noopener noreferrer">
               Comenzar Registro
               <svg className="ml-2 -mr-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
               </svg>
-            </Link>
+            </a>
           </Button>
         </div>
       </BackgroundImage>

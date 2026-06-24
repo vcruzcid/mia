@@ -33,7 +33,6 @@ export function PoliticaPrivacidadPage() {
               <h3 className="text-xl font-semibold mb-2 text-gray-900">Información que recopilamos automáticamente:</h3>
               <ul className="list-disc list-inside space-y-2 ml-4">
                 <li><strong>Datos de navegación:</strong> Dirección IP, tipo de navegador, páginas visitadas</li>
-                <li><strong>Protección anti-bots:</strong> Cloudflare Turnstile procesa datos de interacción para detectar bots (interés legítimo — seguridad del servicio)</li>
                 <li><strong>Cookies:</strong> Como se describe en nuestra Política de Cookies</li>
                 <li><strong>Analytics:</strong> Datos de Google Analytics 4 sobre el uso del sitio web, únicamente si aceptas las cookies de análisis</li>
               </ul>
@@ -75,14 +74,12 @@ export function PoliticaPrivacidadPage() {
             <div className="space-y-4">
               <p>Podemos compartir tu información con:</p>
               <ul className="list-disc list-inside space-y-2 ml-4">
-                <li><strong>Stripe:</strong> Procesamiento de pagos de membresía (PCI DSS certificado)</li>
-                <li><strong>WildApricot:</strong> CRM de gestión de membresías y comunicaciones con socias</li>
-                <li><strong>Cloudflare:</strong> Infraestructura web, protección anti-bots (Turnstile) y base de datos de códigos de socia — cubiertos por el{' '}
+                <li><strong>WildApricot:</strong> Plataforma de gestión de membresías donde se realizan el alta de socias, el procesamiento de pagos y el envío de emails (bienvenida, renovación), y donde las socias acceden a su cuenta. Está sujeta a su propia política de privacidad.</li>
+                <li><strong>Cloudflare:</strong> Infraestructura y alojamiento web — cubierto por el{' '}
                   <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer" className="text-red-600 hover:text-red-700 underline">
                     Acuerdo de Procesamiento de Datos de Cloudflare
                   </a>
                 </li>
-                <li><strong>Resend:</strong> Envío de emails transaccionales (bienvenida, enlace mágico)</li>
                 <li><strong>Google Analytics:</strong> Análisis anónimo del uso del sitio web, únicamente con tu consentimiento previo</li>
                 <li><strong>Autoridades:</strong> Cuando sea requerido por ley</li>
               </ul>
@@ -100,12 +97,8 @@ export function PoliticaPrivacidadPage() {
               como cláusulas contractuales estándar o decisiones de adecuación de la Comisión Europea.
             </p>
             <p>
-              En particular, la base de datos de códigos de socia se aloja en <strong>Cloudflare D1</strong>, con réplica
-              primaria en Europa Occidental. El tratamiento está cubierto por el{' '}
-              <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer" className="text-red-600 hover:text-red-700 underline">
-                Acuerdo de Procesamiento de Datos de Cloudflare
-              </a>
-              , que incluye las cláusulas contractuales estándar aprobadas por la Comisión Europea.
+              Los datos de membresía se gestionan en <strong>WildApricot</strong>, conforme a su política de privacidad y
+              sus condiciones de tratamiento de datos.
             </p>
           </section>
 
