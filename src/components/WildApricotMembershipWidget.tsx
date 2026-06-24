@@ -36,7 +36,7 @@ export function WildApricotMembershipWidget() {
         title="Iniciar membresía en MIA"
         src={WIDGET_SRC}
         className="block w-full border-0 bg-transparent"
-        style={{ height: '900px' }}
+        style={{ height: '720px' }}
         allow="payment"
         onLoad={() => window.tryToEnableWACookies?.(WA_ORIGIN)}
       />

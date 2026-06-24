@@ -24,10 +24,6 @@ export function MembershipPage() {
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
             Descubre los beneficios exclusivos que obtienes al formar parte de nuestra comunidad
           </p>
-          <p className="text-lg text-gray-400 max-w-2xl mx-auto mt-4">
-            Completa tu alta aquí mismo. El proceso es seguro y lo gestiona nuestra
-            plataforma de membresía.
-          </p>
         </div>
 
         {/* Benefits Cards */}
@@ -107,18 +103,6 @@ export function MembershipPage() {
                   </p>
                 </div>
 
-                {/* Price */}
-                <div className="min-h-[5rem] flex items-center justify-center mb-8">
-                  <div className="flex items-baseline">
-                    <span className="text-5xl font-bold text-red-600">
-                      €{membership.price}
-                    </span>
-                    <span className="text-lg text-red-600 ml-2">
-                      /año
-                    </span>
-                  </div>
-                </div>
-
                 {/* Benefits */}
                 <div className="flex-grow mb-8">
                   <ul className="text-left space-y-3 min-h-[200px]">
@@ -142,7 +126,11 @@ export function MembershipPage() {
 
 
         {/* Join now — WildApricot signup widget */}
-        <div id="iniciar-membresia" className="scroll-mt-20 mb-16">
+        <div id="iniciar-membresia" className="scroll-mt-20 mb-12">
+          <p className="text-center text-xl text-gray-300 max-w-2xl mx-auto mb-6">
+            Completa tu alta aquí mismo. El proceso es seguro y lo gestiona nuestra
+            plataforma de membresía.
+          </p>
           <WildApricotMembershipWidget />
         </div>
 
