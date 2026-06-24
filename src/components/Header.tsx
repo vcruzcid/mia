@@ -122,9 +122,9 @@ export function Header() {
                   )
                 ))}
                 <Button asChild className="shrink-0 bg-red-600 hover:bg-red-700 text-white whitespace-nowrap">
-                  <a href={siteConfig.wildApricot.signupUrl} target="_blank" rel="noopener noreferrer">
+                  <Link to="/membresia" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
                     Únete a MIA
-                  </a>
+                  </Link>
                 </Button>
                 <a
                   href={siteConfig.wildApricot.loginUrl}
