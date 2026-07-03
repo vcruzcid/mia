@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.0.1](https://github.com/vcruzcid/mia/compare/mia-react-app-v2.0.0...mia-react-app-v2.0.1) (2026-07-03)
+
+
+### Bug Fixes
+
+* **gallery:** serve WildApricot member photos via proxy worker ([c540e4b](https://github.com/vcruzcid/mia/commit/c540e4baa28152c1d1eb612016a20c8b2478442b))
+* **gallery:** serve WildApricot member photos via proxy worker ([6e7b9a9](https://github.com/vcruzcid/mia/commit/6e7b9a9214d85b0d5d9f20bda42fb57376e2eed5))
+
 ## [2.0.0](https://github.com/vcruzcid/mia/compare/mia-react-app-v1.0.0...mia-react-app-v2.0.0) (2026-06-25)
 
 
