@@ -5,7 +5,11 @@ import { FIELD_CODES } from '../_lib/wa-field-ids';
 import { log, logError } from '../_lib/logger';
 
 const KV_KEY = 'gallery_members';
-const CACHE_TTL = 86400; // 24 hours — the directory changes rarely
+// 30 min during the member-onboarding period (profiles are being imported and
+// edited frequently) so changes surface quickly. Restore to 86400 (24h) once the
+// directory stabilizes — the WA fetch is the only cost and rebuilds stay well
+// under the rate limit.
+const CACHE_TTL = 1800;
 
 interface Env {
   KV: KVNamespace;
