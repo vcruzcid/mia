@@ -21,7 +21,7 @@ export function SociasPage() {
   const { data: members = [], isLoading, isError, refetch } = useQuery({
     queryKey: ['gallery-members'],
     queryFn: fetchMembers,
-    staleTime: 24 * 60 * 60 * 1000, // 24h — mirrors the KV/edge cache TTL
+    staleTime: 30 * 60 * 1000, // 30 min during onboarding — mirrors the KV/edge cache TTL (restore to 24h after)
   });
 
   const {

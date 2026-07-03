@@ -245,7 +245,7 @@ See `.claude/agents/git-workflow.md` for full branching, commit, PR, and merge r
 
 ## Known Issues / TODOs
 
-- **Member photos** — the gallery reads WildApricot profile pictures (`ProfileImage.Url`); pending the Supabase→WildApricot photo import. Verify those URLs are publicly loadable by an `<img>` once added.
+- **Member photos** — served via the `/api/members/:id/photo` proxy Worker. WildApricot has no native avatar field on this account; the photo lives in a custom Picture field (`fotoPerfil`, `custom-17813785`), absent from the async list and behind an auth-gated URL. The proxy resolves the contact's photo URL, fetches it with the WA token, and streams it publicly (cached in Cache API + KV `photo_url:<id>`, 24h). Members with no photo redirect to `/avatar-placeholder.jpg`.
 - Member stats in `HomePage` (`MEMBER_STATS`) — hardcoded. Needs a product decision on what "active/total members" means (WA total vs gallery-visible count) before wiring to a live source.
 - `HomePage` "85% growth" / "50 events" counters — static marketing numbers, no source
 - Token/color system — brand red is defined as `--color-primary` but components hardcode `bg-red-600` (a different red), and a third value lives in the shadcn HSL tokens. Consolidate to a single Tailwind `@theme` source of truth.

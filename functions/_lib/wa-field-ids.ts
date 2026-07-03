@@ -13,6 +13,10 @@ export const FIELD_CODES = {
   twitter: 'custom-17813771',
   website: 'custom-17813776',
   statusEmpleo: 'custom-17813772',
+  // Member profile photo. WildApricot has no native/system avatar field on this
+  // account — the photo members upload lives in this custom Picture field, whose
+  // value is { Id, Url } with an auth-gated api.wildapricot.org Pictures URL.
+  fotoPerfil: 'custom-17813785',
 } as const;
 
 export const COUNTRY_CODE_TO_LABEL: Record<string, string> = {
