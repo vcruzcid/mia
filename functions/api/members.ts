@@ -25,7 +25,6 @@ interface WAContact {
   DisplayName?: string;
   MembershipLevel?: { Id: number; Name: string };
   MemberSince?: string;
-  ProfileImage?: { Url?: string; IsDefault?: boolean };
   FieldValues?: WAFieldValue[];
 }
 
@@ -65,16 +64,14 @@ function normalizeMembershipType(env: Env, level?: { Id: number; Name: string })
 
 function transformContact(env: Env, contact: WAContact): object {
   const fields = contact.FieldValues;
-  const photo = contact.ProfileImage;
-  // Member photos are pending migration from Supabase to R2; the WildApricot photo
-  // field holds unusable Google Forms upload links, so we ignore it and fall back to
-  // the system avatar (empty for now → initials placeholder in the UI).
   return {
     id: String(contact.Id),
     first_name: contact.FirstName,
     last_name: contact.LastName,
     display_name: contact.DisplayName,
-    profile_image_url: photo && photo.IsDefault === false ? photo.Url : undefined,
+    // The WildApricot photo is in an auth-gated custom field absent from this async
+    // list, so we point at the photo proxy Worker (resolves + streams it per member).
+    profile_image_url: `/api/members/${contact.Id}/photo`,
     biography: getStringField(fields, FIELD_CODES.bio) || undefined,
     main_profession: getOptionLabel(fields, FIELD_CODES.profesionPrincipal) || undefined,
     other_professions: getOptionLabels(fields, FIELD_CODES.profesionAdicional),
