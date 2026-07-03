@@ -20,7 +20,9 @@ interface Env {
 
 interface WAFieldValue { SystemCode: string; Value: unknown }
 
-const IMAGE_TTL = 86400; // 24h — matches the gallery cache; photos change rarely
+// 30 min during onboarding so updated photos surface quickly; mirrors the gallery
+// cache. Restore to 86400 (24h) once the directory stabilizes.
+const IMAGE_TTL = 1800;
 const PLACEHOLDER = '/avatar-placeholder.jpg';
 
 // KV value for the contact→photo mapping. Empty string is a cached "no photo".
