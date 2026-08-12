@@ -1,0 +1,11 @@
+{
+  // audit-ci config — https://github.com/IBM/audit-ci
+  "high": true,
+  "skip-dev": true,
+  "allowlist": [
+    // react-router RSC CSRF bypass (7.12–8.2, GHSA-qwww-vcr4-c8h2).
+    // MIA does not use React Server Components or framework mode — attack
+    // surface absent. No non-breaking fix exists in the 7.x range.
+    "GHSA-qwww-vcr4-c8h2"
+  ]
+}
