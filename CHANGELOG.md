@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.2](https://github.com/vcruzcid/mia/compare/mia-react-app-v2.0.1...mia-react-app-v2.0.2) (2026-08-13)
+
+
+### Bug Fixes
+
+* **ci:** replace npm audit with audit-ci for react-router CVE exception ([#164](https://github.com/vcruzcid/mia/issues/164)) ([51c83e9](https://github.com/vcruzcid/mia/commit/51c83e9e35a03b481e42ca558dcdd1ebda11c5ed))
+
 ## [2.0.1](https://github.com/vcruzcid/mia/compare/mia-react-app-v2.0.0...mia-react-app-v2.0.1) (2026-07-03)
 
 
